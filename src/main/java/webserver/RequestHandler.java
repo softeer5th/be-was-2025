@@ -26,9 +26,12 @@ public class RequestHandler implements Runnable {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-            while(reader.ready()) {
-                String line = reader.readLine();
+            String line = reader.readLine();
+            String header0 = line;
+
+            while(!line.isEmpty()) {
                 logger.debug(line);
+                line = reader.readLine();
             }
 
             response200Header(dos, body.length);
