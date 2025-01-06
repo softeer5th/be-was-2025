@@ -3,9 +3,11 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.StaticFileProvider;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -21,25 +23,27 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-
             BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = null;
-            String path = null;
+            String url = null;
 
             String line = br.readLine();
             logger.debug("request line : {}", line);
+
+            if ((url = parseRequestPath(line)) != null) {
+                File resultFile = StaticFileProvider.findStaticFileByUrl(url);
+
+                if (resultFile == null) {
+                    throw new NoSuchFileException("해당 경로에 해당하는 파일이 없습니다.");
+                }
+                body = Files.readAllBytes(resultFile.toPath());
+            }
 
             while (!line.equals("")) {
                 line = br.readLine();
                 logger.debug("header:  {}", line);
             }
-
-            if ((path = parseRequestPath(br)) != null) {
-
-            }
-
 
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -47,16 +51,9 @@ public class RequestHandler implements Runnable {
             logger.error(e.getMessage());
         }
     }
-    private String parseRequestPath(BufferedReader bufferedReader){
-        try {
-            String line = bufferedReader.readLine();
-            String[] requestParts = line.split(" ");
-            return requestParts[1];
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-
-        return null;
+    private String parseRequestPath(String requestFirstLine){
+        String[] requestParts = requestFirstLine.split(" ");
+        return requestParts[1];
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
