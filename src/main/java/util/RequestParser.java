@@ -19,10 +19,12 @@ public abstract class RequestParser {
 
         HttpMethod method = HttpMethod.match(requestInfo[0]);
         String url = requestInfo[1];
+        logger.debug("Request mehtod = {}, url = {}", method, url);
 
         // request의 내용을 로깅한다.
         while (!(requests = br.readLine()).isEmpty()) {
-            logger.debug("header = {}", requests);
+            String[] requestContents = requests.split(":");
+            logger.debug("{} = {}", requestContents[0], requestContents[1]);
         }
 
         return new RequestInfo(method, url);
