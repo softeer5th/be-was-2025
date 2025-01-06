@@ -8,3 +8,37 @@
 # 구현해야 하는 것
 - HTTP 파싱
 - ExecutorService 사용하도록 변경
+
+# 도메인 모델
+```mermaid
+classDiagram
+    class WebServer {
+        - logger: Logger
+    }
+
+    class RequestHandler {
+        - connectionSocket: Socket
+    }
+
+    class HttpRequest {
+        - method: HttpMethod
+        - uri: String
+        - parameters: Map<String, String>
+        - protocol: String
+        - headers: Map<String, String>
+        - body: String
+    }
+
+    class HttpResponse {
+        - logger: Logger
+        - protocol: String
+        - statusCode: StatusCode
+        - headers: Map<String, String>
+        - cookies: Map<String, String>
+        - body: byte[]
+    }
+
+    WebServer "1" -- "0..*" RequestHandler : creates
+    RequestHandler "1" -- "1" HttpRequest : uses
+    RequestHandler "1" -- "1" HttpResponse : uses
+```
