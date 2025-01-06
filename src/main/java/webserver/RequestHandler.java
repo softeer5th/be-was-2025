@@ -18,44 +18,63 @@ public class RequestHandler implements Runnable {
         this.connection = connectionSocket;
     }
 
+    @Override
     public void run() {
-        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
-
+        logger.debug("New Client Connect! IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            RequestData requestData = parseRequest(in);
 
-            StringBuilder requestLog = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null && !line.isEmpty()) {
-                requestLog.append(line).append("\n");
-            }
-            logger.debug("HTTP Request Header:\n{}", requestLog);
-
-            String firstLine = requestLog.toString().split("\n")[0];
-            String[] tokens = firstLine.split(" ");
-            String httpMethod = tokens[0];
-            String path = tokens[1];
-
-            if (br.ready()) {
-                StringBuilder bodyLog = new StringBuilder();
-                while (br.ready()) {
-                    bodyLog.append((char) br.read());
-                }
-                logger.debug("HTTP Request Body:\n{}", bodyLog);
-            }
-
+            byte[] responseBody = findStaticResource(requestData.path());
             DataOutputStream dos = new DataOutputStream(out);
-            if ("/index.html".equals(path)) {
-                byte[] body = Files.readAllBytes(Paths.get("src/main/resources/static/index.html"));
-                response200Header(dos, body.length);
-                responseBody(dos, body);
+
+            if (responseBody == null) {
+                byte[] notFoundBody = "<h1>404 File Not Found</h1>".getBytes();
+                response404Header(dos, notFoundBody.length);
+                responseBody(dos, notFoundBody);
             } else {
-                byte[] body = "<h1>404 File Not Found</h1>".getBytes();
-                response404Header(dos, body.length);
-                responseBody(dos, body);
+                response200Header(dos, responseBody.length);
+                responseBody(dos, responseBody);
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    private RequestData parseRequest(InputStream in) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        StringBuilder requestHeader = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null && !line.isEmpty()) {
+            requestHeader.append(line).append("\n");
+        }
+        logger.debug("HTTP Request Header:\n{}", requestHeader);
+
+        String[] firstLineTokens = requestHeader.toString().split("\n")[0].split(" ");
+        String httpMethod = firstLineTokens[0];
+        String path = firstLineTokens[1];
+
+        StringBuilder body = new StringBuilder();
+        while (br.ready()) {
+            body.append((char) br.read());
+        }
+        logger.debug("HTTP Request Body:\n{}", body);
+
+        return new RequestData(httpMethod, path, body.toString());
+    }
+
+    private byte[] findStaticResource(String path) {
+        try {
+            if ("/".equals(path)) {
+                path = "/index.html";
+            }
+            java.nio.file.Path filePath = Paths.get("src/main/resources/static" + path);
+            if (!Files.exists(filePath)) {
+                return null;
+            }
+            return Files.readAllBytes(filePath);
+        } catch (IOException e) {
+            logger.error("Error reading static resource: {}", e.getMessage());
+            return null;
         }
     }
 
