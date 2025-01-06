@@ -2,6 +2,9 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpMethod;
+import util.RequestInfo;
+import util.RequestParser;
 
 import java.io.*;
 import java.net.Socket;
@@ -21,14 +24,11 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // 요청 parser
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-            String requests = bufferedReader.readLine();
-            String[] request = requests.split(" ");
+            RequestInfo requestInfo = RequestParser.parse(in);
 
-            String method = request[0];
-            String path = request[1];
-        
+            HttpMethod method = requestInfo.getMethod();
+            String path = requestInfo.getPath();
+
             DataOutputStream dos = new DataOutputStream(out);
             if (path.equals("/index.html")) {
                 byte[] body = Files.readAllBytes(new File("src/main/resources/static/main" + path).toPath());
