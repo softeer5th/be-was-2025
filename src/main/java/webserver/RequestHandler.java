@@ -1,9 +1,6 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 import org.slf4j.Logger;
@@ -26,6 +23,14 @@ public class RequestHandler implements Runnable {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = "<h1>Hello World</h1>".getBytes();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+            while(reader.ready()) {
+                String line = reader.readLine();
+                logger.debug(line);
+            }
+
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
