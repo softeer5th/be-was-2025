@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import http.HttpMethod;
+import http.HttpRequest;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -36,30 +37,16 @@ public class RequestHandler implements Runnable {
     }
 
     private void handleRequest(InputStream in, OutputStream out) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String requestLine = reader.readLine();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            HttpRequest request = new HttpRequest(reader);
 
-        if (requestLine == null || requestLine.isEmpty()) {
-            logger.error("Empty request received");
-            response404(out);
-            return;
-        }
-
-        logger.debug("Request Line: {}", requestLine);
-        String[] requestParts = requestLine.split(" ");
-
-        if (requestParts.length < 2) {
-            logger.error("Malformed request line: {}", requestLine);
-            response404(out);
-            return;
-        }
-
-        String method = requestParts[0];
-        String url = requestParts[1];
-
-        if (HttpMethod.GET.name().equals(method)) {
-            serveStaticFile(url, out);
-        } else {
+            if (HttpMethod.GET.name().equals(request.getMethod())) {
+                serveStaticFile(request.getPath(), out);
+            } else {
+                response404(out);
+            }
+        } catch (IOException e) {
+            logger.error("Failed to parse the request: {}", e.getMessage());
             response404(out);
         }
     }
