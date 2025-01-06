@@ -2,13 +2,16 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HtmlFileReader;
 import util.HttpMethod;
 import util.RequestInfo;
 import util.RequestParser;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -31,9 +34,9 @@ public class RequestHandler implements Runnable {
 
             DataOutputStream dos = new DataOutputStream(out);
             if (path.equals("/index.html")) {
-                byte[] body = Files.readAllBytes(new File("src/main/resources/static/main" + path).toPath());
+                byte[] body = HtmlFileReader.readHtmlFile("src/main/resources/static/main" + path);
                 response200Header(dos, body.length);
-                responseBody(dos,body);
+                responseBody(dos, body);
                 dos.flush();
             }
         } catch (IOException e) {
