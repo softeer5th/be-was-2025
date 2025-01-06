@@ -18,6 +18,10 @@ public class HttpRequest {
     private final Map<String, String> headers = new HashMap<>();
     private String body;
 
+    public HttpRequest(BufferedReader reader) throws IOException {
+        parseRequestLine(reader);
+    }
+
     public String getHeader(String key) {
         return headers.get(key);
     }
@@ -41,4 +45,36 @@ public class HttpRequest {
     public String getBody() {
         return body;
     }
+
+    private void parseRequestLine(BufferedReader reader) throws IOException {
+        String requestLine = reader.readLine();
+        if (requestLine == null) {
+            throw new IOException("Method not supported");
+        }
+        String[] start = requestLine.trim().split(" ");
+        if (start.length != 3) {
+            throw new IOException("Method not supported");
+        }
+        this.method = HttpMethod.valueOf(start[0]);
+        String[] uriParts = start[1].split("\\?");
+        this.uri = uriParts[0].trim();
+        if (uriParts.length > 1) {
+            parseQueryParameter(uriParts[1].trim());
+        }
+        this.protocol = start[2];
+    }
+
+    private void parseQueryParameter(String rawQueryParams) throws IOException {
+        String[] queryParams = rawQueryParams.split("&");
+        for (String queryParam : queryParams) {
+            String[] paramPair = queryParam.split("=");
+            if (paramPair.length != 2) {
+                throw new IOException("Invalid query parameter: " + queryParam);
+            }
+            String key = URLDecoder.decode(paramPair[0].trim(), UTF_8);
+            String value = URLDecoder.decode(paramPair[1].trim(), UTF_8);
+            this.parameters.put(key, value);
+        }
+    }
 }
+
