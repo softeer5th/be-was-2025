@@ -8,7 +8,7 @@ public class HttpRequestUtil {
         String[] tokens = inputString.split(" "); // 첫 줄을 split을 통해 분할
         if (tokens.length != 3) {
             return null;
-        } else if (tokens.length > 1 && !tokens[1].startsWith("/")) {
+        } else if (!tokens[1].startsWith("/")) {
             return null;
         }
         return tokens[1];
