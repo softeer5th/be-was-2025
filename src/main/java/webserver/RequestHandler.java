@@ -27,13 +27,10 @@ public class RequestHandler implements Runnable {
                 DataOutputStream dos = new DataOutputStream(out);
 
                 String [] httpRequestHeader = readInputToArray(in);
+                logHttpRequestHeader(httpRequestHeader);
+
                 String resourceName = httpRequestHeader[0].split(" ")[1];
 
-                StringBuilder httpRequestLogMessage = new StringBuilder("HTTP Request Header:\n");
-                for (String line : httpRequestHeader) {
-                    httpRequestLogMessage.append(line).append("\n");
-                }
-                logger.debug(httpRequestLogMessage.toString());
 
                 File file = new File(STATIC_FILE_DIRECTORY_PATH, resourceName);
 
@@ -72,6 +69,14 @@ public class RequestHandler implements Runnable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void logHttpRequestHeader(String[] httpRequestHeader){
+        StringBuilder httpRequestLogMessage = new StringBuilder("HTTP Request Header:\n");
+        for (String line : httpRequestHeader) {
+            httpRequestLogMessage.append(line).append("\n");
+        }
+        logger.debug(httpRequestLogMessage.toString());
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String resourceName) {
