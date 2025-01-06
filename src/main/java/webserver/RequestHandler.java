@@ -43,7 +43,6 @@ public class RequestHandler implements Runnable {
             else {
                 File file = new File("src/main/resources/static" + uri);
                 if (file.exists()) {
-                    logger.debug("File exists!");
                     byte[] body = Files.readAllBytes(file.toPath());
                     String contentType = getContentType(uri);
 
