@@ -56,17 +56,17 @@ public class HttpRequest {
         if (requestLine == null) {
             throw new IOException("Method not supported");
         }
-        String[] start = requestLine.trim().split(" ");
-        if (start.length != 3) {
+        String[] requestLineParts = requestLine.trim().split(" ");
+        if (requestLineParts.length != 3) {
             throw new IOException("Method not supported");
         }
-        this.method = HttpMethod.valueOf(start[0]);
-        String[] uriParts = start[1].split("\\?");
+        this.method = HttpMethod.valueOf(requestLineParts[0]);
+        String[] uriParts = requestLineParts[1].split("\\?");
         this.uri = uriParts[0].trim();
         if (uriParts.length > 1) {
             parseQueryParameter(uriParts[1].trim());
         }
-        this.protocol = start[2];
+        this.protocol = requestLineParts[2];
     }
 
     private void parseQueryParameter(String rawQueryParams) throws IOException {
