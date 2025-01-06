@@ -1,6 +1,5 @@
 package webserver;
 
-import com.sun.net.httpserver.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +80,7 @@ public class HttpRequest {
             this.parameters.put(key, value);
         }
     }
+
     private void parseHeader(BufferedReader reader) throws IOException {
         String line;
         while ((line = reader.readLine()) != null) {
