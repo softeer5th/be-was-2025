@@ -18,7 +18,7 @@ public abstract class RequestParser {
         HttpMethod method = HttpMethod.match(requestInfo[0]);
         String url = requestInfo[1];
 
-        while (!(requests = br.readLine()).equals("")) {
+        while (!(requests = br.readLine()).isEmpty()) {
             logger.debug("header = {}",requests);
         }
 
