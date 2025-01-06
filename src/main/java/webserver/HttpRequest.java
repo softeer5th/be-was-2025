@@ -1,6 +1,8 @@
 package webserver;
 
 import com.sun.net.httpserver.Headers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,8 +20,11 @@ public class HttpRequest {
     private final Map<String, String> headers = new HashMap<>();
     private String body;
 
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
+
     public HttpRequest(BufferedReader reader) throws IOException {
         parseRequestLine(reader);
+        parseHeader(reader);
     }
 
     public String getHeader(String key) {
@@ -74,6 +79,17 @@ public class HttpRequest {
             String key = URLDecoder.decode(paramPair[0].trim(), UTF_8);
             String value = URLDecoder.decode(paramPair[1].trim(), UTF_8);
             this.parameters.put(key, value);
+        }
+    }
+    private void parseHeader(BufferedReader reader) throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.isEmpty()) break;
+            String[] parts = line.split(": ");
+            String key = parts[0].trim();
+            String value = parts[1].trim();
+            logger.debug("{}: {}", key, value);
+            headers.put(key, value);
         }
     }
 }
