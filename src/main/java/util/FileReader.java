@@ -7,10 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public abstract class HtmlFileReader {
-    private static final Logger logger = LoggerFactory.getLogger(HtmlFileReader.class);
+public abstract class FileReader {
+    private static final Logger logger = LoggerFactory.getLogger(FileReader.class);
 
-    public static byte[] readHtmlFile(String fileName) {
+    public static byte[] readFile(String fileName) {
         try {
             return Files.readAllBytes(new File(fileName).toPath());
         } catch (IOException e) {
