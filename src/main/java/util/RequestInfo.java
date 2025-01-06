@@ -1,8 +1,8 @@
 package util;
 
 public class RequestInfo {
-    private HttpMethod method;
-    private String path;
+    private final HttpMethod method;
+    private final String path;
 
     public RequestInfo(HttpMethod method, String path) {
         this.method = method;
