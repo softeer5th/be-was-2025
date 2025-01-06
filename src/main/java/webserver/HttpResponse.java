@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class HttpResponse {
+    private static final String HTTP_OK = "HTTP/1.1 200 OK";
+    private static final String HTTP_NOT_FOUND = "HTTP/1.1 404 Not Found";
     private final DataOutputStream dos;
 
     public HttpResponse(DataOutputStream dos) {
@@ -11,12 +13,12 @@ public class HttpResponse {
     }
 
     public void send200(byte[] body) throws IOException {
-        writeHeader("HTTP/1.1 200 OK", "text/html", body.length);
+        writeHeader(HTTP_OK, "text/html", body.length);
         writeBody(body);
     }
 
     public void send404(byte[] body) throws IOException {
-        writeHeader("HTTP/1.1 404 Not Found", "text/html", body.length);
+        writeHeader(HTTP_NOT_FOUND, "text/html", body.length);
         writeBody(body);
     }
 
