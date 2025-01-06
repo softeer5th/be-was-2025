@@ -2,7 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,18 +30,26 @@ public class RequestHandler implements Runnable {
             while (!(line = br.readLine()).isEmpty()) {
                 lines.add(line);
             }
-            for (String eachLine : lines) {
-                logger.debug(eachLine);
-            }
+            logRequestDetails(lines);
             String[] tokens = lines.get(0).split(" ");
             String filePath = tokens[1];
             String fileType = tokens[1].split("\\.")[1];
 
-            byte[] body = Files.readAllBytes(new File(RESOURCES_PATH + filePath).toPath());
+            File file = new File(RESOURCES_PATH + filePath);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            byte[] body = new byte[(int) file.length()];
+            fileInputStream.read(body);
+
             response200Header(dos, body.length, fileType);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    private void logRequestDetails(List<String> lines) {
+        for (String eachLine : lines) {
+            logger.debug(eachLine);
         }
     }
 
