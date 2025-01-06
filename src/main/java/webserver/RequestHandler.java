@@ -29,6 +29,12 @@ public class RequestHandler implements Runnable {
                 String [] httpRequestHeader = readInputToArray(in);
                 String resourceName = httpRequestHeader[0].split(" ")[1];
 
+                StringBuilder httpRequestLogMessage = new StringBuilder("HTTP Request Header:\n");
+                for (String line : httpRequestHeader) {
+                    httpRequestLogMessage.append(line).append("\n");
+                }
+                logger.debug(httpRequestLogMessage.toString());
+
                 File file = new File(STATIC_FILE_DIRECTORY_PATH, resourceName);
 
                 byte[] body = fileToByteArray(file);
