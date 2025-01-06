@@ -24,14 +24,26 @@ public class RequestHandler implements Runnable {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line = br.readLine();
-            if (line == null) {
-                return;
-            }
 
-            String[] tokens = line.split(" ");
+            StringBuilder requestLog = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null && !line.isEmpty()) {
+                requestLog.append(line).append("\n");
+            }
+            logger.debug("HTTP Request Header:\n{}", requestLog);
+
+            String firstLine = requestLog.toString().split("\n")[0];
+            String[] tokens = firstLine.split(" ");
             String httpMethod = tokens[0];
             String path = tokens[1];
+
+            if (br.ready()) {
+                StringBuilder bodyLog = new StringBuilder();
+                while (br.ready()) {
+                    bodyLog.append((char) br.read());
+                }
+                logger.debug("HTTP Request Body:\n{}", bodyLog);
+            }
 
             DataOutputStream dos = new DataOutputStream(out);
             if ("/index.html".equals(path)) {
@@ -43,10 +55,6 @@ public class RequestHandler implements Runnable {
                 response404Header(dos, body.length);
                 responseBody(dos, body);
             }
-
-            byte[] body = "<h1>Hello World</h1>".getBytes();
-            response200Header(dos, body.length);
-            responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
