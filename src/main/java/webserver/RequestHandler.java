@@ -3,6 +3,8 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,15 @@ public class RequestHandler implements Runnable {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String[] tokens = br.readLine().split(" ");
+            List<String> lines = new ArrayList<>();
+            String line;
+            while (!(line = br.readLine()).isEmpty()) {
+                lines.add(line);
+            }
+            for (String eachLine : lines) {
+                logger.debug(eachLine);
+            }
+            String[] tokens = lines.get(0).split(" ");
             String filePath = tokens[1];
             String fileType = tokens[1].split("\\.")[1];
 
