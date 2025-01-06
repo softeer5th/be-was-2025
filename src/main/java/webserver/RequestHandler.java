@@ -40,7 +40,7 @@ public class RequestHandler implements Runnable {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             HttpRequest request = new HttpRequest(reader);
 
-            if (HttpMethod.GET.name().equals(request.getMethod())) {
+            if (HttpMethod.GET.equals(request.getMethod())) {
                 serveStaticFile(request.getPath(), out);
             } else {
                 response404(out);

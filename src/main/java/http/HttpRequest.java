@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
-	private String method;
+	private HttpMethod method;
 	private String path;
 	private String version;
 	private Map<String, String> headers = new HashMap<>();
@@ -28,7 +28,7 @@ public class HttpRequest {
 			throw new IOException("Malformed request line: " + requestLine);
 		}
 
-		this.method = parts[0];
+		this.method = HttpMethod.resolve(parts[0]);
 		this.path = parts[1];
 		this.version = parts[2];
 
@@ -50,7 +50,7 @@ public class HttpRequest {
 		}
 	}
 
-	public String getMethod() {
+	public HttpMethod getMethod() {
 		return method;
 	}
 
