@@ -63,6 +63,6 @@ public class HttpRequestParser {
 
         String method = firstLineTokens[0];
         String path = firstLineTokens[1];
-        return new RequestData(method, path, body);
+        return new RequestData(method, path, headers, body);
     }
 }
