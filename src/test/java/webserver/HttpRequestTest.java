@@ -78,4 +78,21 @@ class HttpRequestTest {
         assertThat(request.getProtocol()).isEqualTo("HTTP/1.1");
         assertThat(request.getParameter("소프티어")).isEqualTo("백엔드");
     }
+    @Test
+    @DisplayName("개행문자를 LF로 사용하는 HTTP 메시지 검증 테스트")
+    void generateLFHttpRequest() throws IOException {
+        //given
+        BufferedReader reader = new BufferedReader(new StringReader("GET /path" +
+                "?%EC%86%8C%ED%94%84%ED%8B%B0%EC%96%B4=%EB%B0%B1%EC%97%94%EB%93%9C " +
+                "HTTP/1.1\n" +
+                "Host: www.example.com\n" +
+                "User-Agent: Mozilla/5.0\n" +
+                "Accept: text/html\n" +
+                "\n"));
+        //when
+        HttpRequest request = new HttpRequest(reader);
+
+        //then
+        assertThat(request).isNotNull();
+    }
 }
