@@ -26,30 +26,40 @@ public class RequestHandler implements Runnable {
             String line = br.readLine();
             String[] token = line.split(" ");
 
+            // Request의 HTTP 헤더 출력
             while (!"".equals(line)) {
                 logger.debug(line);
                 line = br.readLine();
             }
 
-            // 입력받은 요청의 uri를 추출 후 해당하는 파일 탐색
+            // Request의 uri를 추출 후 해당하는 파일 탐색
             String uri = token[1];
 
-            File file = new File("src/main/resources/static" + uri);
-            if (file.exists()) {
-                byte[] body = Files.readAllBytes(file.toPath());
-                String contentType = getContentType(uri);
-
-                response200Header(dos, body.length, contentType);
+            if (uri.equals("/")) {
+                byte[] body = "<h2>Hello World</h2>".getBytes();
+                response200Header(dos, body.length, "text/html");
                 responseBody(dos, body);
-            } else {
-                logger.error("{}file not found", uri);
+            }
+            else {
+                File file = new File("src/main/resources/static" + uri);
+                if (file.exists()) {
+                    logger.debug("File exists!");
+                    byte[] body = Files.readAllBytes(file.toPath());
+                    String contentType = getContentType(uri);
+
+                    response200Header(dos, body.length, contentType);
+                    responseBody(dos, body);
+                } else {
+                    logger.error("{}file not found", uri);
+                    response400Header(dos);
+                }
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    // 요청 uri에 따라 Content-Type을 지정하는 메서드
+    // Request uri에 따라 Content-Type을 지정하는 메서드
     private String getContentType(String uri) {
         if (uri.endsWith(".html")) {
             return "text/html";
@@ -70,6 +80,15 @@ public class RequestHandler implements Runnable {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response400Header(DataOutputStream dos) throws IOException {
+        try {
+            dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             logger.error(e.getMessage());
