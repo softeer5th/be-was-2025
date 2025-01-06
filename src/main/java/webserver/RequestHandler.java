@@ -2,8 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +33,9 @@ public class RequestHandler implements Runnable {
                 File resultFile = StaticFileProvider.findStaticFileByUrl(url);
 
                 if (resultFile == null) {
-                    throw new NoSuchFileException("해당 경로에 해당하는 파일이 없습니다.");
+                    throw new RuntimeException("해당 경로에 해당하는 파일이 없습니다.");
                 }
-                body = Files.readAllBytes(resultFile.toPath());
+                body = StaticFileProvider.readStaticFileToByteArray(resultFile);
             }
 
             while (!line.equals("")) {
@@ -47,7 +45,7 @@ public class RequestHandler implements Runnable {
 
             response200Header(dos, body.length);
             responseBody(dos, body);
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             logger.error(e.getMessage());
         }
     }
