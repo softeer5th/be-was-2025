@@ -41,7 +41,7 @@ public class RequestHandler implements Runnable {
             }
             else {
                 String path = "./src/main/resources/static" + url;
-                body = Files.readAllBytes(new File(path).toPath());
+                body = readFileToBytes(path);
             }
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -68,5 +68,18 @@ public class RequestHandler implements Runnable {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private byte[] readFileToBytes(String path){
+        File file = new File(path);
+        byte[] bytes = new byte[(int) file.length()];
+
+        try(FileInputStream fis = new FileInputStream(file)) {
+            fis.read(bytes);
+        }
+        catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return bytes;
     }
 }
