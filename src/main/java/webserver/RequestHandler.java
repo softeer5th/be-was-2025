@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +56,6 @@ public class RequestHandler implements Runnable {
 
         String method = requestParts[0];
         String url = requestParts[1];
-
-        logger.debug("Headers: {}", reader.lines().collect(Collectors.joining("\n")));
 
         if (HttpMethod.GET.name().equals(method)) {
             serveStaticFile(url, out);
