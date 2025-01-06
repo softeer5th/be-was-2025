@@ -14,12 +14,15 @@ public abstract class RequestParser {
         BufferedReader br = new BufferedReader(new java.io.InputStreamReader(inputStream));
 
         String requests = br.readLine();
+        // http method와 path를 파싱한다.
         String[] requestInfo = requests.split(" ");
+
         HttpMethod method = HttpMethod.match(requestInfo[0]);
         String url = requestInfo[1];
 
+        // request의 내용을 로깅한다.
         while (!(requests = br.readLine()).isEmpty()) {
-            logger.debug("header = {}",requests);
+            logger.debug("header = {}", requests);
         }
 
         return new RequestInfo(method, url);
