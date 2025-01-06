@@ -76,7 +76,7 @@ public RequestData parse(InputStream in) throws IOException {
 ## 2. 동시성(Concurrent) 처리
 
 ### 2.1 전통적인 스레드 방식
-```java
+```
 while ((connection = serverSocket.accept()) != null) {
     Thread thread = new Thread(new RequestHandler(connection));
     thread.start();
@@ -112,7 +112,17 @@ private void writeBody(byte[] body) throws IOException {
     dos.write(body);
     dos.flush();
 }
+
 ```
+
+### 3.2 try-with-resource
+
+```
+
+try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+
+```
+- try 블록이 종료되면, in.close()와 out.close()가 자동으로 호출되어 리소스가 해제
 
 ## 4. 트러블슈팅 사례
 
