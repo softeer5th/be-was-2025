@@ -60,8 +60,7 @@ public class HTTPMessageParser {
             throw new ParseException("Not valid request header.");
         }
         requestBuilder.method(splited[0]);
-        splited[1] = splited[1].replaceFirst("/", "static/");
-        requestBuilder.uri(splited[1].substring(1));
+        requestBuilder.uri(splited[1]);
         requestBuilder.version(splited[2]);
     }
 }

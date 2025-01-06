@@ -35,6 +35,7 @@ public class StaticResourceResolver implements ResourceResolver {
     }
 
     private Optional<String> findResource(String url) {
+        url = url.startsWith("/") ? url.replaceFirst("/", "static/"): url;
         URL resource = classLoader.getResource(url);
         if (resource == null) {
             return Optional.empty();
