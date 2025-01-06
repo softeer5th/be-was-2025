@@ -23,8 +23,16 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String[] request = br.readLine().split(" ");
-            String uri = request[1];
+            String line = br.readLine();
+            String[] token = line.split(" ");
+
+            while (!"".equals(line)) {
+                logger.debug(line);
+                line = br.readLine();
+            }
+
+            // 입력받은 요청의 uri를 추출 후 해당하는 파일 탐색
+            String uri = token[1];
 
             File file = new File("src/main/resources/static" + uri);
             if (file.exists()) {
@@ -34,13 +42,14 @@ public class RequestHandler implements Runnable {
                 response200Header(dos, body.length, contentType);
                 responseBody(dos, body);
             } else {
-                logger.debug("index.html file not found");
+                logger.error("{}file not found", uri);
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
+    // 요청 uri에 따라 Content-Type을 지정하는 메서드
     private String getContentType(String uri) {
         if (uri.endsWith(".html")) {
             return "text/html";
