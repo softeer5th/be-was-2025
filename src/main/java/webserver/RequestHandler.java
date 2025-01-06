@@ -26,28 +26,37 @@ public class RequestHandler implements Runnable {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = null;
+            String path = null;
 
             String line = br.readLine();
             logger.debug("request line : {}", line);
-
-            String[] requestParts = line.split(" ");
-
-            if(requestParts[1].equals("/index.html")){
-                body = Files.readAllBytes(new File("./src/main/resources/static/main/index.html").toPath());
-            }else{
-                body = "<h1>Hello World</h1>".getBytes();
-            }
 
             while (!line.equals("")) {
                 line = br.readLine();
                 logger.debug("header:  {}", line);
             }
 
+            if ((path = parseRequestPath(br)) != null) {
+
+            }
+
+
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+    private String parseRequestPath(BufferedReader bufferedReader){
+        try {
+            String line = bufferedReader.readLine();
+            String[] requestParts = line.split(" ");
+            return requestParts[1];
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+
+        return null;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
