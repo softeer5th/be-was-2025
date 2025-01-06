@@ -27,10 +27,12 @@ public class RequestHandler implements Runnable {
             String[] token = line.split(" ");
 
             // Request의 HTTP 헤더 출력
+            StringBuilder requestHeader = new StringBuilder();
+            requestHeader.append(line + "\n");
             while (!"".equals(line)) {
-                logger.debug(line);
-                line = br.readLine();
+                requestHeader.append((line = br.readLine()) + "\n");
             }
+            logger.debug(requestHeader.toString());
 
             // Request의 uri를 추출 후 해당하는 파일 탐색
             String uri = token[1];
