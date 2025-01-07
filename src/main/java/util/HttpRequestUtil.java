@@ -1,19 +1,6 @@
 package util;
 
-import java.util.Map;
-
 public class HttpRequestUtil {
-
-    private static Map<String, String> contentType = Map.of(
-            "html", "text/html",
-            "css", "text/css",
-            "js", "text/javascript",
-            "ico", "image/x-icon",
-            "png", "image/png",
-            "jpg", "image/jpeg",
-            "jpeg", "image/jpeg",
-            "svg", "image/svg+xml"
-    );
 
     public static String getUrl(String inputString) {
         if (inputString == null) {
@@ -34,7 +21,7 @@ public class HttpRequestUtil {
 
     public static String getType(String inputString) {
         String type = inputString.split("\\.")[2];
-        String typeString = contentType.get(type);
+        String typeString = ContentType.getMimeTypeByExtension(type);
         if (typeString == null) {
             typeString = "text/html";
         }
