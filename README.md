@@ -63,3 +63,62 @@ classDiagram
     1. 동적 리소스
     2. 정적 리소스
     3. 404 Not Found
+
+## 도메인 모델 - level 3
+```mermaid
+classDiagram
+    class WebServer {
+        - logger: Logger
+    }
+
+    class RequestHandler {
+        - connectionSocket: Socket
+    }
+
+    class HttpRequest {
+        - method: HttpMethod
+        - uri: String
+        - parameters: Map<String, String>
+        - protocol: String
+        - headers: Map<String, String>
+        - body: String
+    }
+
+    class HttpResponse {
+        - logger: Logger
+        - protocol: String
+        - statusCode: StatusCode
+        - headers: Map<String, String>
+        - cookies: Map<String, String>
+        - body: byte[]
+    }
+    
+    class ServletManager {
+        - ServletMap: Map<String, Servlet>
+    }
+    
+    class Servlet {
+        
+    }
+    
+    class User{
+        - userId: String
+        - password: String
+        - name: String
+        - email: String
+    }
+    
+    class Database{
+        - users: Map<String, User>
+    }
+
+    WebServer "1" -- "0..*" RequestHandler : creates
+    WebServer *-- "1" ServletManager : create
+    RequestHandler "1" -- "1" HttpRequest : uses
+    RequestHandler "1" -- "1" HttpResponse : uses
+    RequestHandler --> ServletManager : use
+    ServletManager *-- Servlet
+    Servlet --> User
+    Servlet --> Database
+    Database --> User
+```
