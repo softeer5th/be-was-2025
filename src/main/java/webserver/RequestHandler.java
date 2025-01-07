@@ -21,12 +21,14 @@ public class RequestHandler implements Runnable {
     private final HttpRequestParser requestParser;
     private final HttpResponseWriter responseWriter;
     private final ServerConfig config;
+    private final FileUtil fileUtil;
 
-    public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, ServerConfig config) {
+    public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, ServerConfig config, FileUtil fileUtil) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
         this.config = config;
+        this.fileUtil = fileUtil;
     }
 
     public void run() {
@@ -59,7 +61,7 @@ public class RequestHandler implements Runnable {
 
     private HttpResponse processGet(HttpRequest request) {
         String requestTarget = request.getRequestTarget();
-        Optional<File> file = FileUtil.getFileInResources(requestTarget);
+        Optional<File> file = fileUtil.getFileInResources(requestTarget);
         return file.map(f -> new HttpResponse(HttpStatusCode.OK).setBody(f))
                 .orElseGet(() -> new HttpResponse(HttpStatusCode.NOT_FOUND));
     }

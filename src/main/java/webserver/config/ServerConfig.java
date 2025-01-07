@@ -10,17 +10,24 @@ public class ServerConfig {
     private final List<HttpVersion> supportedHttpVersions;
     private final Integer port;
     private final Integer threadPoolSize;
+    private final String staticResourceDirectory;
 
     public ServerConfig() {
         supportedHttpVersions = List.of(HttpVersion.HTTP_1_1);
         port = 8080;
         threadPoolSize = 200;
+        staticResourceDirectory = "static";
     }
 
-    public ServerConfig(List<HttpVersion> supportedHttpVersions, Integer port, Integer threadPoolSize) {
+    public ServerConfig(List<HttpVersion> supportedHttpVersions, Integer port, Integer threadPoolSize, String staticResourceDirectory) {
         this.supportedHttpVersions = supportedHttpVersions;
         this.port = port;
         this.threadPoolSize = threadPoolSize;
+        this.staticResourceDirectory = staticResourceDirectory;
+    }
+
+    public String getStaticResourceDirectory() {
+        return staticResourceDirectory;
     }
 
     public List<HttpVersion> getSupportedHttpVersions() {
