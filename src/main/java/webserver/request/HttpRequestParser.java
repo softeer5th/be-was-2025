@@ -35,24 +35,20 @@ public class HttpRequestParser {
     }
 
     // 빈 줄이 나올 때 까지 읽기
-    private String readUntilCRLF(BufferedReader reader) {
+    private String readUntilCRLF(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
         String buffer;
-        try {
-            while (!(buffer = reader.readLine()).isBlank()) {
-                sb.append(buffer);
-                sb.append('\n');
-            }
-            return sb.toString();
-        } catch (IOException | NullPointerException e) {
-            throw new IllegalArgumentException(e);
+        while (!(buffer = reader.readLine()).isBlank()) {
+            sb.append(buffer);
+            sb.append('\n');
         }
+        return sb.toString();
     }
 
     private RequestLine parseRequestLine(String requestLine) {
         String[] tokens = requestLine.split(REQUEST_LINE_SEPARATOR);
         if (tokens.length != 3) {
-            throw new IllegalArgumentException("Invalid Request Line: " + requestLine);
+            throw new BadRequest("Invalid Request Line: " + requestLine);
         }
         HttpMethod method = HttpMethod.of(tokens[0]);
         String requestTarget = tokens[1];

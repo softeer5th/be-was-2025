@@ -7,6 +7,7 @@ import webserver.config.ServerConfig;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpException;
+import webserver.exception.NotImplemented;
 import webserver.file.StaticResourceManager;
 import webserver.request.HttpRequest;
 import webserver.request.HttpRequestParser;
@@ -57,7 +58,7 @@ public class RequestHandler implements Runnable {
                 // Http Method에 따라 로직 분기(processXXX 메서드)
                 HttpResponse response = switch (request.getMethod()) {
                     case GET -> processGet(request);
-                    default -> throw new IllegalStateException("Unsupported Method " + request.getMethod());
+                    default -> throw new NotImplemented("Unsupported Method " + request.getMethod());
                 };
 
                 responseWriter.writeResponse(request, response, out);

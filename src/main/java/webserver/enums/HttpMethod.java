@@ -1,6 +1,8 @@
 package webserver.enums;
 
 
+import webserver.exception.BadRequest;
+
 public enum HttpMethod {
     GET, POST, PUT, DELETE, PATCH;
 
@@ -8,7 +10,7 @@ public enum HttpMethod {
         try {
             return HttpMethod.valueOf(method.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported HTTP Method", e);
+            throw new BadRequest("Unsupported HTTP Method", e);
         }
     }
 }

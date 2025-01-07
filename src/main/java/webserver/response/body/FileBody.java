@@ -2,6 +2,7 @@ package webserver.response.body;
 
 import util.FileUtil;
 import webserver.enums.ContentType;
+import webserver.exception.InternalServerError;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +22,7 @@ class FileBody extends Body {
         try (FileInputStream in = new FileInputStream(file)) {
             in.transferTo(out);
         } catch (IOException e) {
-            throw new IllegalStateException("파일 전송에 실패했습니다.", e);
+            throw new InternalServerError("파일 전송에 실패했습니다.", e);
         }
     }
 
