@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import static utils.FileUtils.getFile;
+
 public class StaticResourceServlet implements Servlet {
     @Override
     public void handle(HttpRequest request, HttpResponse response) throws IOException {
@@ -20,12 +22,5 @@ public class StaticResourceServlet implements Servlet {
         byte[] readFile = getFile(file);
         response.setBody(readFile);
 
-    }
-    private byte[] getFile(File file) throws IOException {
-        try(FileInputStream fis = new FileInputStream(file)) {
-            byte[] bytes = new byte[(int) file.length()];
-            fis.read(bytes);
-            return bytes;
-        }
     }
 }
