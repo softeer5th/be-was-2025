@@ -17,7 +17,8 @@ public class StaticFileProvider {
 
         File file = new File(filePath);
 
-        if(file.exists()){
+        // 파일 객체가 존재하는 지만 확인하는 것이 아닌 해당 파일 객체가 디렉토리인지 확인하는 과정이 필요하다.
+        if(file.exists() && !file.isDirectory()){
             return file;
         }
 
