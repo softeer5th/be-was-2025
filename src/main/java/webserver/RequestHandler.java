@@ -25,11 +25,12 @@ public class RequestHandler implements Runnable {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             DataOutputStream dos = new DataOutputStream(out);
 
+
             String requestLine = reader.readLine();
             if (requestLine == null) return;
             logger.debug("Request : {}", requestLine);
 
-            String[] tokens = requestLine.split(" ");
+            String[] tokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
             byte[] body = FileUtil.readHtmlFileAsBytes(BASE_DIRECTORY + tokens[1]);
             if (body != null) {
                 response200Header(dos, body.length);
