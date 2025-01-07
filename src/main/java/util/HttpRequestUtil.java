@@ -46,7 +46,6 @@ public class HttpRequestUtil {
             if (!path.endsWith("/")) path += "/";
             path += DEFAULT_STATIC_RESOURCE_FILE;
         }
-        logger.debug(path);
         return path;
     }
 }
