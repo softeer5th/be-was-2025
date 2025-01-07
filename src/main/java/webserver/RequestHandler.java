@@ -38,6 +38,14 @@ public class RequestHandler implements Runnable {
             String fileType = tokens[1].split("\\.")[1];
 
             File file = new File(RESOURCES_PATH + filePath);
+            if (!file.exists()) {
+                String notFoundPage = "<html><body><h1 style=\"text-align: center\">404 Not Found</h1></body></html>";
+                byte[] bodyBytes = notFoundPage.getBytes();
+                response404Header(dos, bodyBytes.length);
+                dos.write(bodyBytes);
+                dos.flush();
+                return;
+            }
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] body = new byte[(int) file.length()];
             fileInputStream.read(body);
@@ -66,6 +74,18 @@ public class RequestHandler implements Runnable {
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response404Header(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
+            dos.writeBytes("Content-Type: text/html; charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        }
+        catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
