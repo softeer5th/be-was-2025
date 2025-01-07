@@ -28,6 +28,7 @@ public class ServletManager {
         try {
             if (!servlets.containsKey(uri)) {
                 servlets.get("default").handle(request, response);
+                return;
             }
             servlets.get(uri).handle(request, response);
         } catch (FileNotSupportedException e) {
