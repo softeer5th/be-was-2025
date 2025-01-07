@@ -20,8 +20,8 @@ public record UserCreateRequest(
     }
 
     private static String getOrElseThrow(Map<String, String> map, String key) {
-        if (map.containsKey(key))
-            throw new IllegalArgumentException(key + " 값이 없습니다.");
+        if (!map.containsKey(key))
+            throw new IllegalArgumentException(key + " is invalid...");
         return map.get(key);
     }
 
