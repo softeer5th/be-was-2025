@@ -53,7 +53,10 @@ public class RequestHandler implements Runnable {
                     responseBody(dos, body);
                 } else {
                     logger.error("{}file not found", uri);
-                    response400Header(dos);
+                    byte[] body = "<h2> HTTP 400 Bad Request</h2>".getBytes();
+
+                    response400Header(dos, body.length);
+                    responseBody(dos, body);
                 }
             }
         } catch (IOException e) {
@@ -88,9 +91,11 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private void response400Header(DataOutputStream dos) throws IOException {
+    private void response400Header(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
         try {
             dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
+            dos.writeBytes("Content-Type: text/html\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             logger.error(e.getMessage());
