@@ -7,14 +7,18 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.MimeTypeMapper;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private Socket connection;
 
+    private final MimeTypeMapper mimeTypeMapper;
+
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
+        this.mimeTypeMapper = new MimeTypeMapper();
     }
 
     public void run() {
@@ -30,18 +34,22 @@ public class RequestHandler implements Runnable {
 
             String target = requestLine[1];
             byte[] body = createBody(target);
-            
-            response200Header(dos, body.length);
+
+            String extension = target.split("\\.")[1];
+
+            String mimeType = mimeTypeMapper.getMimeType(extension);
+
+            response200Header(dos, body.length, mimeType);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String mimetype) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", mimetype));
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
