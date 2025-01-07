@@ -7,6 +7,7 @@ import webserver.config.ServerConfig;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpException;
+import webserver.file.StaticResourceManager;
 import webserver.request.HttpRequest;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponse;
@@ -14,7 +15,6 @@ import webserver.response.HttpResponseWriter;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,16 +24,16 @@ public class RequestHandler implements Runnable {
     private final Socket connection;
     private final HttpRequestParser requestParser;
     private final HttpResponseWriter responseWriter;
-    private final FileUtil fileUtil;
+    private final StaticResourceManager resourceManager;
     private final List<HttpVersion> supportedHttpVersions;
     private final String defaultPageFileName;
 
 
-    public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, ServerConfig config, FileUtil fileUtil) {
+    public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, ServerConfig config, StaticResourceManager resourceManager) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
-        this.fileUtil = fileUtil;
+        this.resourceManager = resourceManager;
         this.supportedHttpVersions = config.getSupportedHttpVersions();
         this.defaultPageFileName = config.getDefaultPageFileName();
     }
@@ -76,10 +76,11 @@ public class RequestHandler implements Runnable {
 
     private HttpResponse processGet(HttpRequest request) {
         String requestTarget = request.getRequestTarget();
-        Optional<File> file = fileUtil.getFileInResources(requestTarget);
         // 디렉토리일 경우 디렉토리 내의 default page 파일로 응답
-        if (file.isPresent() && file.get().isDirectory())
-            file = fileUtil.getFileInResources(Paths.get(requestTarget, defaultPageFileName).toString());
+        if (resourceManager.isDirectory(requestTarget))
+            requestTarget = FileUtil.joinPath(requestTarget, defaultPageFileName);
+
+        Optional<File> file = resourceManager.getFile(requestTarget);
         return file
                 .map(f -> new HttpResponse(HttpStatusCode.OK).setBody(f))
                 .orElseGet(() -> new HttpResponse(HttpStatusCode.NOT_FOUND));
