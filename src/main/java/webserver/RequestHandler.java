@@ -1,17 +1,16 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-
+    private static final String RESOURCES_PATH = "./src/main/resources/static";
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -25,18 +24,43 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "<h1>Hello World</h1>".getBytes();
-            response200Header(dos, body.length);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            List<String> lines = new ArrayList<>();
+            String line;
+            while (!(line = br.readLine()).isEmpty()) {
+                lines.add(line);
+            }
+            logRequestDetails(lines);
+            String[] tokens = lines.get(0).split(" ");
+            String filePath = tokens[1];
+            String fileType = tokens[1].split("\\.")[1];
+
+            File file = new File(RESOURCES_PATH + filePath);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            byte[] body = new byte[(int) file.length()];
+            fileInputStream.read(body);
+
+            response200Header(dos, body.length, fileType);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void logRequestDetails(List<String> lines) {
+        StringBuilder logMessageBuilder = new StringBuilder();
+        logMessageBuilder.append("\n{\n");
+        for (String eachLine : lines) {
+            logMessageBuilder.append(eachLine).append('\n');
+        }
+        logMessageBuilder.append("}\n");
+        logger.debug(logMessageBuilder.toString());
+    }
+
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String fileType) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: text/" + fileType + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
