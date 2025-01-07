@@ -5,6 +5,7 @@ import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtil;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -31,13 +32,9 @@ public class RequestHandler implements Runnable {
             String[] tokens = requestLine.split(" ");
             String url = tokens[1];
             String filePath = BASE_DIRECTORY + url;
-
             File file = new File(filePath);
-            FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis);
 
-            byte[] body = new byte[(int) file.length()];
-            bis.read(body);
+            byte[] body = FileUtil.fileToByteArray(file);
 
             response200Header(dos, body.length);
             responseBody(dos, body);
