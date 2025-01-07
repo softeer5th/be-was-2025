@@ -3,6 +3,8 @@ package util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class HttpRequestUtil {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestUtil.class);
 
@@ -21,10 +23,6 @@ public class HttpRequestUtil {
         return tokens[1];
     }
 
-    public static boolean isDirectory(String inputString) {
-        return inputString != null && !inputString.contains(".");
-    }
-
     public static String getType(String inputString) {
         String type = inputString.split("\\.")[2];
         String typeString = ContentType.getMimeTypeByExtension(type);
@@ -35,9 +33,11 @@ public class HttpRequestUtil {
         return typeString;
     }
 
-    public static String buildPath(String path, String url) {
-        if (isDirectory(url)) {
-            if (!url.endsWith("/")) path += "/";
+    public static String buildPath(String path) {
+        logger.debug(path);
+        File file = new File(path);
+        if (file.isDirectory()) {
+            if (!path.endsWith("/")) path += "/";
             path += "index.html";
         }
         logger.debug(path);

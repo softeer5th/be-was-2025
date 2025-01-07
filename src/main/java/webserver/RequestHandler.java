@@ -37,7 +37,7 @@ public class RequestHandler implements Runnable {
             }
 
             String path = RESOURCE_PATH + url;
-            path = HttpRequestUtil.buildPath(path, url);
+            path = HttpRequestUtil.buildPath(path);
             String type = HttpRequestUtil.getType(path); // 파일 유형 별로 Content-Type 할당
 
             byte[] body = Files.readAllBytes(new File(path).toPath()); // 해당 파일의 경로를 byte로 전달
