@@ -28,6 +28,7 @@ public class RequestHandler implements Runnable {
 
             // Request의 HTTP 헤더 출력
             StringBuilder requestHeader = new StringBuilder();
+            requestHeader.append("Request Header: \n");
             requestHeader.append(line + "\n");
             while (!"".equals(line)) {
                 requestHeader.append((line = br.readLine()) + "\n");
