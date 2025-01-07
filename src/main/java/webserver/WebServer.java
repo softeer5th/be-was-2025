@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import servlet.*;
 import webserver.httpserver.RequestHandler;
-import webserver.servlet.*;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);

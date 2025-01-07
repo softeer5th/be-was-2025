@@ -5,7 +5,7 @@ import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.servlet.ServletManager;
+import servlet.ServletManager;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);

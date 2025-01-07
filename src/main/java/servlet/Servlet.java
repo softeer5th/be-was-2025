@@ -1,4 +1,4 @@
-package webserver.servlet;
+package servlet;
 
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;

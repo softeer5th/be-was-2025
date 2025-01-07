@@ -1,4 +1,4 @@
-package webserver.servlet;
+package servlet;
 
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
@@ -9,13 +9,13 @@ import java.io.IOException;
 
 import static utils.FileUtils.getFile;
 
-public class SignUpSuccessServlet implements Servlet {
+public class SingUpServlet implements Servlet {
     @Override
     public void handle(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
         response.setHeader("Content-Type", "text/html");
 
-        File file = new File("src/main/resources/static/registration/success.html");
+        File file = new File("src/main/resources/static/registration/index.html");
         byte[] readFile = getFile(file);
         response.setBody(readFile);
     }

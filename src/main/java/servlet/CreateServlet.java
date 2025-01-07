@@ -1,4 +1,4 @@
-package webserver.servlet;
+package servlet;
 
 import db.Database;
 import model.User;

@@ -1,4 +1,4 @@
-package webserver.servlet;
+package servlet;
 
 import exception.FileNotSupportedException;
 import webserver.httpserver.HttpRequest;
