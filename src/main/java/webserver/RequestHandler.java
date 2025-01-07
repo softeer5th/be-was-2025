@@ -4,8 +4,6 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-
-import ch.qos.logback.core.net.SyslogOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +18,8 @@ public class RequestHandler implements Runnable {
     }
 
         public void run() {
-            logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                    connection.getPort());
+            logger.debug("New Client Connect! Connected IP : {}, Port : {}, Thread : {}", connection.getInetAddress(),
+                    connection.getPort(), Thread.currentThread().getId());
 
             try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
                 DataOutputStream dos = new DataOutputStream(out);
