@@ -5,12 +5,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.ContentTypeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final String RESOURCES_PATH = "./src/main/resources/static";
+    private static final ContentTypeMapper CONTENT_TYPE_MAPPER = new ContentTypeMapper();
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -60,7 +62,7 @@ public class RequestHandler implements Runnable {
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String fileType) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/" + fileType + ";charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + CONTENT_TYPE_MAPPER.getContentType(fileType) + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
