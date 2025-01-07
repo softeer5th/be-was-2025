@@ -94,7 +94,7 @@ classDiagram
     }
     
     class ServletManager {
-        - ServletMap: Map<String, Servlet>
+        - Servlets: Map<String, Servlet>
     }
     
     class Servlet {
