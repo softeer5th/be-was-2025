@@ -29,9 +29,8 @@ public class RequestHandler implements Runnable {
     public void run() {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-
+            
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
 
             HttpRequest request = requestParser.parse(reader);
 
@@ -45,7 +44,7 @@ public class RequestHandler implements Runnable {
                 default -> throw new IllegalStateException("Unsupported Method " + request.getMethod());
             };
 
-            responseWriter.write(response, writer);
+            responseWriter.write(response, out);
 
         } catch (IOException e) {
             logger.error(e.getMessage());

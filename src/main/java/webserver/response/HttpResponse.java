@@ -6,10 +6,10 @@ import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -75,7 +75,7 @@ public class HttpResponse {
 
 
     abstract static class Body {
-        abstract void writeBody(BufferedWriter out);
+        abstract void writeBody(OutputStream out);
 
         abstract Long getContentLength();
 
@@ -90,9 +90,9 @@ public class HttpResponse {
         }
 
         @Override
-        void writeBody(BufferedWriter out) {
+        void writeBody(OutputStream out) {
             try {
-                out.write(body);
+                out.write(body.getBytes());
             } catch (Exception e) {
                 throw new IllegalStateException("응답 데이터를 전송하는데 실패했습니다.", e);
             }
@@ -117,8 +117,8 @@ public class HttpResponse {
         }
 
         @Override
-        void writeBody(BufferedWriter out) {
-            try (FileReader in = new FileReader(file)) {
+        void writeBody(OutputStream out) {
+            try (FileInputStream in = new FileInputStream(file)) {
                 in.transferTo(out);
             } catch (IOException e) {
                 throw new IllegalStateException("파일 전송에 실패했습니다.", e);
@@ -139,7 +139,7 @@ public class HttpResponse {
     private static class EmptyBody extends Body {
 
         @Override
-        void writeBody(BufferedWriter out) {
+        void writeBody(OutputStream out) {
             // do nothing
         }
 
