@@ -5,6 +5,7 @@ import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 
 import java.io.BufferedReader;
+import java.util.List;
 import java.util.Map;
 
 // HTTP 요청과 관련된 정보를 담는 객체
@@ -47,6 +48,12 @@ public class HttpRequest {
 
     public String getBodyAsString() {
         return body.lines().reduce("", (acc, line) -> acc + line);
+    }
+
+    public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {
+        if (!supportedVersions.contains(version)) {
+            throw new IllegalArgumentException("Unsupported HTTP version: " + version);
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.config.ServerConfig;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponseWriter;
 
@@ -12,12 +13,12 @@ import java.util.concurrent.Executors;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
-    private static final int DEFAULT_PORT = 8080;
 
     public static void main(String args[]) throws Exception {
-        int port = 0;
+        ServerConfig config = new ServerConfig();
+        int port;
         if (args == null || args.length == 0) {
-            port = DEFAULT_PORT;
+            port = config.getPort();
         } else {
             port = Integer.parseInt(args[0]);
         }
@@ -33,7 +34,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                Runnable requestHandler = new RequestHandler(connection, requestParser, responseWriter);
+                Runnable requestHandler = new RequestHandler(connection, requestParser, responseWriter, config);
                 es.submit(requestHandler);
             }
         }

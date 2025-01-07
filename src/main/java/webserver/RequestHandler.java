@@ -3,6 +3,7 @@ package webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtil;
+import webserver.config.ServerConfig;
 import webserver.enums.HttpStatusCode;
 import webserver.request.HttpRequest;
 import webserver.request.HttpRequestParser;
@@ -19,23 +20,28 @@ public class RequestHandler implements Runnable {
     private final Socket connection;
     private final HttpRequestParser requestParser;
     private final HttpResponseWriter responseWriter;
+    private final ServerConfig config;
 
-    public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter) {
+    public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, ServerConfig config) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
+        this.config = config;
     }
 
     public void run() {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
             HttpRequest request = requestParser.parse(reader);
 
             logger.debug("New Client Connect! Connected IP : {}, Port : {}, Request: {}", connection.getInetAddress(),
                     connection.getPort(), request);
+
+            // request http version이 서버에서 지원하는지 검증
+            request.validateSupportedHttpVersion(config.getSupportedHttpVersions());
 
 
             // Http Method에 따라 로직 분기(processXXX 메서드)
@@ -44,7 +50,7 @@ public class RequestHandler implements Runnable {
                 default -> throw new IllegalStateException("Unsupported Method " + request.getMethod());
             };
 
-            responseWriter.write(response, out);
+            responseWriter.write(request, response, out);
 
         } catch (IOException e) {
             logger.error(e.getMessage());

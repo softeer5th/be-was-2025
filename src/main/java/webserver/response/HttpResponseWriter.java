@@ -1,5 +1,7 @@
 package webserver.response;
 
+import webserver.request.HttpRequest;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
@@ -8,10 +10,11 @@ import java.util.Map;
 // HttpResponse 객체를 이용해 클라이언트에게 실제로 응답을 전송
 public class HttpResponseWriter {
 
-    public void write(HttpResponse response, OutputStream out) {
+
+    public void write(HttpRequest request, HttpResponse response, OutputStream out) {
         try {
             // status line
-            out.write("%s %d %s\r\n".formatted(response.getVersion(), response.getStatusCode().statusCode, response.getStatusCode().message).getBytes());
+            out.write("%s %d %s\r\n".formatted(request.getVersion(), response.getStatusCode().statusCode, response.getStatusCode().message).getBytes());
             // response headers
             for (Map.Entry<String, String> header : response.getHeaders().entrySet()) {
                 out.write("%s: %s\r\n".formatted(header.getKey(), header.getValue()).getBytes());

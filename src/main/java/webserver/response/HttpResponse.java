@@ -4,7 +4,6 @@ import util.FileUtil;
 import webserver.enums.ContentType;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
-import webserver.enums.HttpVersion;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,30 +15,18 @@ import java.util.Optional;
 
 // HTTP 응답에 대한 정보를 담는 객체
 public class HttpResponse {
-    public static final HttpVersion DEFAULT_VERSION = HttpVersion.HTTP_1_1;
-
-    private final HttpVersion version;
     private final HttpStatusCode statusCode;
     private final Map<String, String> headers;
     private Body body;
 
     public HttpResponse(HttpStatusCode statusCode) {
-        this(DEFAULT_VERSION, statusCode, new HashMap<>());
+        this(statusCode, new HashMap<>());
     }
 
     public HttpResponse(HttpStatusCode statusCode, Map<String, String> headers) {
-        this(DEFAULT_VERSION, statusCode, headers);
-    }
-
-    public HttpResponse(HttpVersion version, HttpStatusCode statusCode, Map<String, String> headers) {
-        this.version = version;
         this.statusCode = statusCode;
         this.headers = headers;
         this.body = new EmptyBody();
-    }
-
-    public HttpVersion getVersion() {
-        return version;
     }
 
     public HttpStatusCode getStatusCode() {
@@ -63,6 +50,11 @@ public class HttpResponse {
     public HttpResponse setBody(File file) {
         this.body = new FileBody(file);
         setContentHeaders();
+        return this;
+    }
+
+    public HttpResponse setHeader(String key, String value) {
+        headers.put(key, value);
         return this;
     }
 
