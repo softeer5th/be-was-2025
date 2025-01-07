@@ -1,13 +1,17 @@
 package webserver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import util.HtmlFileReader;
+import util.HttpMethod;
+import util.RequestInfo;
+import util.RequestParser;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -23,11 +27,20 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+            RequestInfo requestInfo = RequestParser.parse(in);
+
+            HttpMethod method = requestInfo.getMethod();
+            String path = requestInfo.getPath();
+
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "<h1>Hello World</h1>".getBytes();
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            if (path.equals("/index.html")) {
+                byte[] body = HtmlFileReader.readHtmlFile("src/main/resources/static/main" + path);
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+                dos.flush();
+            } else {
+                response404Header(dos);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -39,6 +52,20 @@ public class RequestHandler implements Runnable {
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response404Header(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
+            dos.writeBytes("Content-Type: text/html\r\n");
+            dos.writeBytes("Connection: close\r\n");
+            dos.writeBytes("\r\n");
+
+            dos.writeBytes("<html><body><h1>404 Not Found</h1></body></html>");
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
