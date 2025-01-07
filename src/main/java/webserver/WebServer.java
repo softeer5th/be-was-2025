@@ -2,6 +2,9 @@ package webserver;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +27,15 @@ public class WebServer {
 
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
+            ExecutorService service = Executors.newFixedThreadPool(10); // ExecutorService 사용
+
             while ((connection = listenSocket.accept()) != null) {
-                Thread thread = new Thread(new RequestHandler(connection));
-                thread.start();
+                service.submit(new RequestHandler(connection)); // Concurrent 패키지를 사용하도록 수정
             }
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> { // 작업 종료 시 ExecutorService 종료
+                logger.info("Shutting down server...");
+                service.shutdown();
+            }));
         }
     }
 }
