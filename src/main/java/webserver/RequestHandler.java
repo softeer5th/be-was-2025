@@ -30,12 +30,8 @@ public class RequestHandler implements Runnable {
             logger.debug("Request : {}", requestLine);
 
             String[] tokens = requestLine.split(" ");
-            String url = tokens[1];
-            String filePath = BASE_DIRECTORY + url;
-            File file = new File(filePath);
-            if (file.exists() & !file.isDirectory()) {
-                byte[] body = FileUtil.fileToByteArray(file);
-
+            byte[] body = FileUtil.readHtmlFileAsBytes(BASE_DIRECTORY + tokens[1]);
+            if (body != null) {
                 response200Header(dos, body.length);
                 responseBody(dos, body);
             } else {
