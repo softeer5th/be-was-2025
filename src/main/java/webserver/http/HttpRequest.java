@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
+    private final String request;
     private final String method;
     private final String url;
     private final String version;
@@ -15,8 +16,9 @@ public class HttpRequest {
     private final String body;
 
     public HttpRequest(InputStream in) throws IOException {
-        String header = parse(in);
-        String[] lines = header.strip().split("\n");
+        String request = parse(in);
+        this.request = request;
+        String[] lines = request.strip().split("\n");
         method = lines[0].split(" ")[0].trim();
         url = lines[0].split(" ")[1].trim();
         version = lines[0].split(" ")[2].trim();
@@ -57,6 +59,11 @@ public class HttpRequest {
 
     public String getHeader(String name) {
         return headers.get(name);
+    }
+
+    @Override
+    public String toString(){
+        return request;
     }
 }
 
