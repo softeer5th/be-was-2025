@@ -2,7 +2,8 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,25 +23,16 @@ public class RequestHandler implements Runnable {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            String line = br.readLine();
-            String url = "/";
-            if(!line.isEmpty()){
-                url = line.split(" ")[1];
-            }
-            logger.debug("request: " + line);
-            line = br.readLine();
-            while(!line.isEmpty()) {
-                logger.debug(line);
-                line = br.readLine();
-            }
+            RequestParser requestParser = new RequestParser(in);
+            requestParser.getLogs();
+
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body;
-            if(url.equals("/")) {
+            if(requestParser.url.equals("/")) {
                 body = "<h1>Hello World</h1>".getBytes();
             }
             else {
-                String path = "./src/main/resources/static" + url;
+                String path = "./src/main/resources/static" + requestParser.url;
                 body = readFileToBytes(path);
             }
             response200Header(dos, body.length);
@@ -81,5 +73,36 @@ public class RequestHandler implements Runnable {
             logger.error(e.getMessage());
         }
         return bytes;
+    }
+}
+
+class RequestParser{
+    private final List<String> requests = new ArrayList<>();
+    public String url = "/";
+    private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
+
+    public RequestParser(InputStream in){
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        try {
+            String line = br.readLine();
+            while (!line.isEmpty()) {
+                requests.add(line);
+                line = br.readLine();
+            }
+            setUrl();
+        }
+        catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void setUrl(){
+        this.url = requests.get(0).split(" ")[1];
+    }
+
+    public void getLogs(){
+        for(String request : requests){
+            logger.debug(request);
+        }
     }
 }
