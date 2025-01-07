@@ -30,56 +30,17 @@ public class RequestHandler implements Runnable {
 
             FileContentType extension = FileContentType.getExtensionFromPath(path);
 
+            HttpResponse response = new HttpResponse();
+
             DataOutputStream dos = new DataOutputStream(out);
+            response.setStatus(HttpStatus.OK);
+            response.setContentType(extension);
+
             byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
                     .orElseThrow(() -> new FileNotFoundException(path));
+            response.setBody(body);
 
-            response200Header(dos, body.length, extension);
-            responseBody(dos, body);
-            dos.flush();
-
-
-            // dynamic 요청
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, FileContentType extension) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            setContentTypeByFile(dos, extension);
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void setContentTypeByFile(DataOutputStream dos, FileContentType extension) throws IOException {
-        System.out.println("extension = " + extension);
-
-        dos.writeBytes("Content-Type: " + extension.getContentType() + "\r\n");
-    }
-
-    private void response404Header(DataOutputStream dos) {
-        try {
-            dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
-            dos.writeBytes("Content-Type: text/html\r\n");
-            dos.writeBytes("Connection: close\r\n");
-            dos.writeBytes("\r\n");
-
-            dos.writeBytes("<html><body><h1>404 Not Found</h1></body></html>");
-
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
+            response.send(dos);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
