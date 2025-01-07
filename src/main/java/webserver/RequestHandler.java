@@ -26,7 +26,7 @@ public class RequestHandler implements Runnable {
 
             List<String> headers = logAndReturnHeaders(in);
 
-            byte[] body = createBody(headers);
+            byte[] body = createBody(headers.get(0));
 
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -71,8 +71,10 @@ public class RequestHandler implements Runnable {
         return headers;
     }
 
-    private byte[] createBody(List<String> headers) throws IOException {
-        String path = headers.get(0).split(" ")[1];
+    private byte[] createBody(String requestLine) throws IOException {
+        String[] tokens = requestLine.split(" ");
+        String path = tokens[1];
+
         InputStream is = new FileInputStream("./src/main/resources/static" + path);
         byte[] body = is.readAllBytes();
         is.close();
