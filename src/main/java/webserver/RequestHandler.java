@@ -2,10 +2,8 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.*;
 import util.FileReader;
-import util.HttpMethod;
-import util.RequestInfo;
-import util.RequestParser;
 
 import java.io.*;
 import java.net.Socket;
@@ -30,26 +28,27 @@ public class RequestHandler implements Runnable {
             HttpMethod method = requestInfo.getMethod();
             String path = requestInfo.getPath();
 
-            String[] split = path.split("\\.");
-            String extender = split[split.length - 1];
+            FileContentType extension = FileContentType.getExtensionFromPath(path);
 
             DataOutputStream dos = new DataOutputStream(out);
             byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
                     .orElseThrow(() -> new FileNotFoundException(path));
 
-            response200Header(dos, body.length, extender);
+            response200Header(dos, body.length, extension);
             responseBody(dos, body);
             dos.flush();
 
+
+            // dynamic 요청
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String extender) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, FileContentType extension) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            setContentTypeByFile(dos, extender);
+            setContentTypeByFile(dos, extension);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -57,17 +56,10 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private void setContentTypeByFile(DataOutputStream dos, String extender) throws IOException {
-        System.out.println("extender = "+extender);
-        switch (extender) {
-            case "svg" -> dos.writeBytes("Content-Type: image/svg+xml\r\n");
-            case "css" -> dos.writeBytes("Content-Type: text/css\r\n");
-            case "html" -> dos.writeBytes("Content-Type: text/html\r\n");
-            case "js" -> dos.writeBytes("Content-Type: application/javascript\r\n");
-            case "ico" -> dos.writeBytes("Content-Type: image/x-icon\r\n");
-            case "png" -> dos.writeBytes("Content-Type: image/png\r\n");
-            case "jpg" -> dos.writeBytes("Content-Type: image/jpeg\r\n");
-        }
+    private void setContentTypeByFile(DataOutputStream dos, FileContentType extension) throws IOException {
+        System.out.println("extension = " + extension);
+
+        dos.writeBytes("Content-Type: " + extension.getContentType() + "\r\n");
     }
 
     private void response404Header(DataOutputStream dos) {
