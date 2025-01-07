@@ -15,7 +15,8 @@ public enum StatusCode {
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
-    NOT_SUPPORTED(406, "Not Supported");
+    NOT_SUPPORTED(406, "Not Supported"),
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 
     int code;
     String message;
