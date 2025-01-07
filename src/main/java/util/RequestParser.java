@@ -23,8 +23,8 @@ public abstract class RequestParser {
 
         // request의 내용을 로깅한다.
         while (!(requests = br.readLine()).isEmpty()) {
-            String[] requestContents = requests.split(":");
-            logger.debug("{} = {}", requestContents[0], requestContents[1]);
+            String[] nameAndValue = requests.split(":", 2);
+            logger.debug("{} = {}", nameAndValue[0], nameAndValue[1]);
         }
 
         return new RequestInfo(method, url);
