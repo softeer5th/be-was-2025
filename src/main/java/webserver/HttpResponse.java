@@ -12,8 +12,9 @@ public class HttpResponse {
         this.dos = dos;
     }
 
-    public void send200(byte[] body) throws IOException {
-        writeHeader(HTTP_OK, "text/html", body.length);
+    public void send200(byte[] body, String path) throws IOException {
+        String contentType = ContentTypeMapper.getContentType(path);
+        writeHeader(HTTP_OK, contentType, body.length);
         writeBody(body);
     }
 

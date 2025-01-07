@@ -9,7 +9,9 @@ public class ContentTypeMapper {
             "js", "application/javascript",
             "ico", "image/x-icon",
             "png", "image/png",
-            "jpg", "image/jpeg"
+            "jpg", "image/jpeg",
+            "jpeg", "image/jpeg",
+            "svg", "image/svg+xml"
     );
 
     public static String getContentType(String path) {
