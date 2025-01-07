@@ -1,5 +1,7 @@
 package util;
 
+import enums.HttpMethod;
+
 public class RequestInfo {
     private final HttpMethod method;
     private final String path;
