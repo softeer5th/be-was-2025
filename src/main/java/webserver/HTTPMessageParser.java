@@ -3,7 +3,9 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HeterogeneousContainer;
 import webserver.message.HTTPRequest;
+import webserver.message.header.HeaderParseManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,6 +37,8 @@ public class HTTPMessageParser {
         try {
             parseFirstLine(reader, sb, builder);
             readHeader(reader, sb, headers);
+            HeterogeneousContainer parsedHeaders = HeaderParseManager.getInstance().parse(headers);
+            builder.setHeaders(parsedHeaders);
         } catch (IOException ioException) {
             logger.error(ioException.getMessage());
         }
@@ -68,8 +72,9 @@ public class HTTPMessageParser {
             throws IOException {
         String line = readLineWithLog(reader, logBuilder);
         while (line != null && !line.isBlank()) {
-            String [] splited = line.split(":");
+            String [] splited = line.split(":", 2);
             if (splited.length != 2) {
+                logger.debug(logBuilder.toString());
                 throw new ParseException("Not valid request header.");
             }
             splited[0] = splited[0].trim().toLowerCase();

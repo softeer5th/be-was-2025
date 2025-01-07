@@ -13,6 +13,10 @@ public enum HTTPContentType {
     IMAGE_JPEG("image", "jpeg", "jpe", "jpg"),
     IMAGE_GIF("image", "gif"),
     IMAGE_ICON("image", "x-icon", "ico"),
+    IMAGE_SVG("image", "svg+xml", "svg"),
+    IMAGE_WEBP("image", "webp"),
+    IMAGE_APNG("image", "apng"),
+    IMAGE_AVIF("image", "avif"),
     APPLICATION_JSON("application", "json"),
     APPLICATION_OCTET_STREAM("application", "octet-stream");
 
@@ -57,5 +61,9 @@ public enum HTTPContentType {
             return fromDetailType(types[1]);
         }
         return DEFAULT_TYPE();
+    }
+
+    public static boolean isSupported(String accept) {
+        return fromFullType(accept) != DEFAULT_TYPE();
     }
 }
