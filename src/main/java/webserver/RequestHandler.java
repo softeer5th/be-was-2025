@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +29,21 @@ public class RequestHandler implements Runnable {
                 String [] httpRequestHeader = readInputToArray(in);
                 logHttpRequestHeader(httpRequestHeader);
 
+                String httpMethod = httpRequestHeader[0].split(" ")[0];
                 String resourceName = httpRequestHeader[0].split(" ")[1];
+
+                Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH");
+
+                if(!httpMethods.contains(httpMethod)) {
+                    response405Header(dos);
+                    return;
+                }
 
 
                 File file = new File(STATIC_FILE_DIRECTORY_PATH, resourceName);
-
+                if(!file.exists()){
+                    response404Header(dos);
+                }
                 byte[] body = fileToByteArray(file);
 
                 response200Header(dos, body.length, resourceName);
@@ -85,6 +97,31 @@ public class RequestHandler implements Runnable {
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response405Header(DataOutputStream dos){
+        try {
+            dos.writeBytes("HTTP/1.1 405 Method Not Allowed\r\n");
+            dos.writeBytes("Allow: GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE, CONNECT, PATCH\r\n");
+            dos.writeBytes("Content-Type: text/html\r\n");
+            dos.writeBytes("\r\n");
+            dos.writeBytes("<html><body><h1>405 Method Not Allowed</h1></body></html>");
+        }
+        catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response404Header(DataOutputStream dos){
+        try {
+            dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
+            dos.writeBytes("Content-Type: text/html\r\n");
+            dos.writeBytes("\r\n");
+            dos.writeBytes("<html><body><h1>404 Not Found</h1></body></html>");
+        }
+        catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
