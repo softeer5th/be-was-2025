@@ -25,6 +25,7 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
             HttpRequest request = new HttpRequest(in);
+            logger.debug("Request: {}", request);
             File file = ResourceResolver.getResource(request.getUrl());
             if (file.exists() && file.isFile()) {
                 HttpResponse response = new HttpResponse(file, dos);
