@@ -1,55 +1,62 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtil;
+import webserver.enums.HttpStatusCode;
+import webserver.request.HttpRequest;
+import webserver.request.HttpRequestParser;
+import webserver.response.HttpResponse;
+import webserver.response.HttpResponseWriter;
+
+import java.io.*;
+import java.net.Socket;
+import java.util.Optional;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    private Socket connection;
+    private final Socket connection;
+    private final HttpRequestParser requestParser;
+    private final HttpResponseWriter responseWriter;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter) {
         this.connection = connectionSocket;
+        this.requestParser = requestParser;
+        this.responseWriter = responseWriter;
     }
 
     public void run() {
-        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "<h1>Hello World</h1>".getBytes();
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+
+            HttpRequest request = requestParser.parse(reader);
+
+            logger.debug("New Client Connect! Connected IP : {}, Port : {}, Request: {}", connection.getInetAddress(),
+                    connection.getPort(), request);
+
+
+            // Http Method에 따라 로직 분기(processXXX 메서드)
+            HttpResponse response = switch (request.getMethod()) {
+                case GET -> processGet(request);
+                default -> throw new IllegalStateException("Unsupported Method " + request.getMethod());
+            };
+
+            responseWriter.write(response, writer);
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+    private HttpResponse processGet(HttpRequest request) {
+        String requestTarget = request.getRequestTarget();
+        Optional<File> file = FileUtil.getFileInResources(requestTarget);
+        return file.map(f -> new HttpResponse(HttpStatusCode.OK).setBody(f))
+                .orElseGet(() -> new HttpResponse(HttpStatusCode.NOT_FOUND));
     }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
 }
