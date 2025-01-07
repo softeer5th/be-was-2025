@@ -72,8 +72,14 @@ public class RequestHandler implements Runnable {
             return "text/css";
         } else if (uri.endsWith(".svg")) {
             return "image/svg+xml";
+        } else if (uri.endsWith(".png")) {
+            return "image/png";
+        } else if (uri.endsWith(".jpg") || uri.endsWith(".jpeg")) {
+            return "image/jpeg";
         } else if (uri.endsWith(".ico")) {
-            return "image/x-icon";
+            return "image/vnd.microsoft.icon";
+        } else if (uri.endsWith(".js")) {
+            return "application/javascript";
         }
         else {
             return "application/octet-stream";
