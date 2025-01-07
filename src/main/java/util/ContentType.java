@@ -11,7 +11,8 @@ public enum ContentType {
     PNG("png", "image/png"),
     JPG("jpg", "image/jpeg"),
     JPEG("jpeg", "image/jpeg"),
-    SVG("svg", "image/svg+xml");
+    SVG("svg", "image/svg+xml"),
+    DEFAULT("", "application/octet-stream");
 
     private final String extension;
     private final String mimeType;
@@ -39,6 +40,6 @@ public enum ContentType {
 
     public static String getMimeTypeByExtension(String extension) {
         ContentType ct = LOOKUP.get(extension.toLowerCase());
-        return ct != null ? ct.getMimeType() : "application/octet-stream";
+        return ct != null ? ct.getMimeType() : ContentType.DEFAULT.getMimeType();
     }
 }

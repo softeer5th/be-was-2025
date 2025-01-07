@@ -8,6 +8,8 @@ import java.io.File;
 public class HttpRequestUtil {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestUtil.class);
 
+    private static final String DEFAULT_STATIC_RESOURCE_FILE = "index.html";
+
     private HttpRequestUtil() {}
 
     public static String getUrl(String inputString) {
@@ -26,12 +28,12 @@ public class HttpRequestUtil {
     public static String getType(String inputString) {
         String[] token = inputString.split("\\.");
         if (token.length < 3) {
-            return "application/octet-stream";
+            return ContentType.DEFAULT.getMimeType();
         } else {
             String type = token[2];
             String typeString = ContentType.getMimeTypeByExtension(type);
             if (typeString == null) {
-                typeString = "application/octet-stream";
+                typeString = ContentType.DEFAULT.getMimeType();
             }
             return typeString;
         }
@@ -42,7 +44,7 @@ public class HttpRequestUtil {
         File file = new File(path);
         if (file.isDirectory()) {
             if (!path.endsWith("/")) path += "/";
-            path += "index.html";
+            path += DEFAULT_STATIC_RESOURCE_FILE;
         }
         logger.debug(path);
         return path;
