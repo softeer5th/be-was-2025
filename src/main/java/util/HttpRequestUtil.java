@@ -25,6 +25,16 @@ public class HttpRequestUtil {
         return inputString != null && !inputString.contains(".");
     }
 
+    public static String getType(String inputString) {
+        String type = inputString.split("\\.")[2];
+        String typeString = ContentType.getMimeTypeByExtension(type);
+        if (typeString == null) {
+            typeString = "text/html";
+        }
+
+        return typeString;
+    }
+
     public static String buildPath(String path, String url) {
         if (isDirectory(url)) {
             if (!url.endsWith("/")) path += "/";

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.ContentType;
 import util.HttpRequestParser;
 import util.HttpRequestUtil;
 
@@ -38,19 +39,20 @@ public class RequestHandler implements Runnable {
 
             String path = RESOURCE_PATH + url;
             path = HttpRequestUtil.buildPath(path, url);
+            String type = HttpRequestUtil.getType(path); // 파일 유형 별로 Content-Type 할당
 
             byte[] body = Files.readAllBytes(new File(path).toPath()); // 해당 파일의 경로를 byte로 전달
-            response200Header(dos, body.length);
+            response200Header(dos, type, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, String type, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + type + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
