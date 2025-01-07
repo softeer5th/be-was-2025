@@ -24,13 +24,17 @@ public class HttpRequestUtil {
     }
 
     public static String getType(String inputString) {
-        String type = inputString.split("\\.")[2];
-        String typeString = ContentType.getMimeTypeByExtension(type);
-        if (typeString == null) {
-            typeString = "text/html";
+        String[] token = inputString.split("\\.");
+        if (token.length < 3) {
+            return "application/octet-stream";
+        } else {
+            String type = token[2];
+            String typeString = ContentType.getMimeTypeByExtension(type);
+            if (typeString == null) {
+                typeString = "application/octet-stream";
+            }
+            return typeString;
         }
-
-        return typeString;
     }
 
     public static String buildPath(String path) {

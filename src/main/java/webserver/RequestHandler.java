@@ -2,10 +2,10 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtil;
 import util.HttpRequestParser;
 import util.HttpRequestUtil;
 
@@ -40,9 +40,14 @@ public class RequestHandler implements Runnable {
             path = HttpRequestUtil.buildPath(path);
             String type = HttpRequestUtil.getType(path); // 파일 유형 별로 Content-Type 할당
 
-            byte[] body = Files.readAllBytes(new File(path).toPath()); // 해당 파일의 경로를 byte로 전달
-            response200Header(dos, type, body.length);
-            responseBody(dos, body);
+            byte[] body = FileUtil.fileToByteArray(path); // 해당 파일의 경로를 byte로 전달
+
+            if (body == null) {
+                response404Header(dos);
+            } else {
+                response200Header(dos, type, body.length);
+                responseBody(dos, body);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -57,6 +62,13 @@ public class RequestHandler implements Runnable {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private void response404Header(DataOutputStream dos) throws IOException {
+        dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
+        dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+        dos.writeBytes("\r\n");
+        dos.writeBytes("<h1>404 Not Found</h1>");
     }
 
     private void responseBody(DataOutputStream dos, byte[] body) {
