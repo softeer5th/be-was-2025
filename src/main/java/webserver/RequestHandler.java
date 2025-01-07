@@ -15,6 +15,7 @@ import webserver.response.HttpResponseWriter;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 public class RequestHandler implements Runnable {
@@ -23,15 +24,18 @@ public class RequestHandler implements Runnable {
     private final Socket connection;
     private final HttpRequestParser requestParser;
     private final HttpResponseWriter responseWriter;
-    private final ServerConfig config;
     private final FileUtil fileUtil;
+    private final List<HttpVersion> supportedHttpVersions;
+    private final String defaultPageFileName;
+
 
     public RequestHandler(Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, ServerConfig config, FileUtil fileUtil) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
-        this.config = config;
         this.fileUtil = fileUtil;
+        this.supportedHttpVersions = config.getSupportedHttpVersions();
+        this.defaultPageFileName = config.getDefaultPageFileName();
     }
 
     public void run() {
@@ -47,7 +51,7 @@ public class RequestHandler implements Runnable {
                         connection.getPort(), request);
 
                 // request http version이 서버에서 지원하는지 검증
-                request.validateSupportedHttpVersion(config.getSupportedHttpVersions());
+                request.validateSupportedHttpVersion(supportedHttpVersions);
 
 
                 // Http Method에 따라 로직 분기(processXXX 메서드)
@@ -61,7 +65,7 @@ public class RequestHandler implements Runnable {
                 logger.debug(e.getMessage());
                 // 에러 응답
                 // HTTP 버전이 설정되어 있지 않으면 기본값으로 응답
-                HttpVersion version = request != null ? request.getVersion() : config.getSupportedHttpVersions().get(0);
+                HttpVersion version = request != null ? request.getVersion() : supportedHttpVersions.get(0);
                 responseWriter.writeError(version, e, out);
             }
 
@@ -75,7 +79,7 @@ public class RequestHandler implements Runnable {
         Optional<File> file = fileUtil.getFileInResources(requestTarget);
         // 디렉토리일 경우 디렉토리 내의 default page 파일로 응답
         if (file.isPresent() && file.get().isDirectory())
-            file = fileUtil.getFileInResources(Paths.get(requestTarget, config.getDefaultPage()).toString());
+            file = fileUtil.getFileInResources(Paths.get(requestTarget, defaultPageFileName).toString());
         return file
                 .map(f -> new HttpResponse(HttpStatusCode.OK).setBody(f))
                 .orElseGet(() -> new HttpResponse(HttpStatusCode.NOT_FOUND));

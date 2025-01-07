@@ -7,6 +7,7 @@ import webserver.config.ServerConfig;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponseWriter;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -15,7 +16,16 @@ import java.util.concurrent.Executors;
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) {
+
+        try {
+            new WebServer().start(args);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public void start(String[] args) throws IOException {
         ServerConfig config = new ServerConfig();
         int port;
         if (args == null || args.length == 0) {
@@ -24,7 +34,7 @@ public class WebServer {
             port = Integer.parseInt(args[0]);
         }
 
-        ExecutorService es = Executors.newCachedThreadPool();
+        ExecutorService es = Executors.newFixedThreadPool(config.getThreadPoolSize());
         HttpRequestParser requestParser = new HttpRequestParser();
         HttpResponseWriter responseWriter = new HttpResponseWriter();
         FileUtil fileUtil = new FileUtil(config);

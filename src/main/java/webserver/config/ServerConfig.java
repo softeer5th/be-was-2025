@@ -11,14 +11,14 @@ public class ServerConfig {
     private final Integer port;
     private final Integer threadPoolSize;
     private final String staticResourceDirectory;
-    private final String defaultPage;
+    private final String defaultPageFileName;
 
     public ServerConfig() {
         supportedHttpVersions = List.of(HttpVersion.HTTP_1_1);
         port = 8080;
-        threadPoolSize = 200;
+        threadPoolSize = 20;
         staticResourceDirectory = "static";
-        defaultPage = "index.html";
+        defaultPageFileName = "index.html";
     }
 
     public ServerConfig(List<HttpVersion> supportedHttpVersions, Integer port, Integer threadPoolSize, String staticResourceDirectory, String defaultPage) {
@@ -26,7 +26,7 @@ public class ServerConfig {
         this.port = port;
         this.threadPoolSize = threadPoolSize;
         this.staticResourceDirectory = staticResourceDirectory;
-        this.defaultPage = defaultPage;
+        this.defaultPageFileName = defaultPage;
     }
 
     public String getStaticResourceDirectory() {
@@ -45,7 +45,7 @@ public class ServerConfig {
         return threadPoolSize;
     }
 
-    public String getDefaultPage() {
-        return defaultPage;
+    public String getDefaultPageFileName() {
+        return defaultPageFileName;
     }
 }
