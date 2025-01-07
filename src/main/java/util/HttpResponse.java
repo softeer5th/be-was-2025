@@ -27,6 +27,12 @@ public class HttpResponse {
         setContentLength(body.length);
     }
 
+    public void setBody(String bodyString) {
+        byte[] body = bodyString.getBytes();
+        this.body = body;
+        setContentLength(body.length);
+    }
+
     public void setContentType(FileContentType extension) {
         headers.put("Content-Type", extension.getContentType());
     }
@@ -42,6 +48,7 @@ public class HttpResponse {
             dos.writeBytes(header.getKey() + ": " + header.getValue() + "\r\n");
         }
         dos.writeBytes("\r\n");
+
         dos.write(body, 0, body.length);
         dos.writeBytes("\r\n");
         dos.flush();
