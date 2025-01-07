@@ -30,12 +30,6 @@ public class HttpRequestParser {
         return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, requestInputReader);
     }
 
-    private HttpRequest parse(String requestLineString, String headerLines, BufferedReader body) {
-        RequestLine requestLine = parseRequestLine(requestLineString);
-        Map<String, String> headers = parseHeaders(headerLines);
-        return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, body);
-    }
-
     // 빈 줄이 나올 때 까지 읽기
     private String readUntilCRLF(BufferedReader reader) {
         StringBuilder sb = new StringBuilder();
