@@ -1,5 +1,7 @@
 package webserver.response;
 
+import util.FileUtil;
+import webserver.enums.ContentType;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
@@ -10,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 // HTTP 응답에 대한 정보를 담는 객체
 public class HttpResponse {
@@ -53,24 +56,30 @@ public class HttpResponse {
 
     public HttpResponse setBody(String string) {
         this.body = new StringBody(string);
-        setContentLength();
+        setContentHeaders();
         return this;
     }
 
     public HttpResponse setBody(File file) {
         this.body = new FileBody(file);
-        setContentLength();
+        setContentHeaders();
         return this;
     }
 
-    private void setContentLength() {
+    private void setContentHeaders() {
         headers.put(HttpHeader.CONTENT_LENGTH.value, body.getContentLength().toString());
+        body.getContentType()
+                .ifPresent(contentType -> headers.put(HttpHeader.CONTENT_TYPE.value, contentType.mimeType));
+
     }
+
 
     abstract static class Body {
         abstract void writeBody(BufferedWriter out);
 
         abstract Long getContentLength();
+
+        abstract Optional<ContentType> getContentType();
     }
 
     private static class StringBody extends Body {
@@ -92,6 +101,11 @@ public class HttpResponse {
         @Override
         Long getContentLength() {
             return (long) body.getBytes().length;
+        }
+
+        @Override
+        Optional<ContentType> getContentType() {
+            return Optional.of(ContentType.TEXT_PLAIN);
         }
     }
 
@@ -115,6 +129,11 @@ public class HttpResponse {
         Long getContentLength() {
             return file.length();
         }
+
+        @Override
+        Optional<ContentType> getContentType() {
+            return Optional.of(ContentType.of(FileUtil.getFileExtension(file.getName())));
+        }
     }
 
     private static class EmptyBody extends Body {
@@ -127,6 +146,11 @@ public class HttpResponse {
         @Override
         Long getContentLength() {
             return 0L;
+        }
+
+        @Override
+        Optional<ContentType> getContentType() {
+            return Optional.empty();
         }
     }
 }

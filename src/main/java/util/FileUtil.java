@@ -17,4 +17,9 @@ public class FileUtil {
             return Optional.empty();
         return Optional.of(new File(resource.getFile()));
     }
+
+    // 파일 이름에서 확장자 추출
+    public static String getFileExtension(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
 }
