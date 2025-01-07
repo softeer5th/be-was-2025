@@ -7,10 +7,7 @@ import util.HttpMethod;
 import util.RequestInfo;
 import util.RequestParser;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class RequestHandler implements Runnable {
@@ -37,7 +34,8 @@ public class RequestHandler implements Runnable {
             String extender = split[split.length - 1];
 
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = FileReader.readFile(STATIC_FILE_PATH + path);
+            byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
+                    .orElseThrow(() -> new FileNotFoundException(path));
 
             response200Header(dos, body.length, extender);
             responseBody(dos, body);
