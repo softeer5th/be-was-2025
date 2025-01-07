@@ -26,7 +26,7 @@ public class RequestHandler implements Runnable {
             HttpResponse response = new HttpResponse();
             response.setProtocol(request.getProtocol());
             response.setStatusCode(StatusCode.OK);
-            response.setHeader("Content-Type", request.guessContentType());
+            response.setHeader("Content-Type", ContentType.guessContentType(request.getUri()));
 
             File file = new File("src/main/resources/static" + request.getUri());
             byte[] readFile = getFile(file);
