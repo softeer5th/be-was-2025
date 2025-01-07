@@ -55,33 +55,6 @@ public class HttpRequest {
         return body;
     }
 
-    public String guessContentType() {
-        String lowerName = uri.toLowerCase();
-        if (lowerName.endsWith(".html") || lowerName.endsWith(".htm")) {
-            return "text/html; charset=utf-8";
-        } else if (lowerName.endsWith(".css")) {
-            return "text/css; charset=utf-8";
-        } else if (lowerName.endsWith(".js")) {
-            return "application/javascript";
-        } else if (lowerName.endsWith(".png")) {
-            return "image/png";
-        } else if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
-            return "image/jpeg";
-        } else if (lowerName.endsWith(".gif")) {
-            return "image/gif";
-        } else if (lowerName.endsWith(".json")) {
-            return "application/json";
-        } else if (lowerName.endsWith(".svg") || lowerName.endsWith(".xml")) {
-            return "image/svg+xml";
-        } else if (lowerName.endsWith(".ico")) {
-            return "image/x-icon";
-        } else {
-            // 확장자가 아무것도 매칭되지 않았을 경우, error 페이지를 서빙하기 위해 예외 발생시킴
-            throw new FileNotSupportedException();
-        }
-    }
-
-
     private void parseRequestLine(BufferedReader reader) throws IOException {
         String requestLine = reader.readLine();
         if (requestLine == null) {

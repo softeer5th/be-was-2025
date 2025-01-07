@@ -1,5 +1,6 @@
 package servlet;
 
+import webserver.httpserver.ContentType;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
 import webserver.httpserver.StatusCode;
@@ -14,7 +15,7 @@ public class StaticResourceServlet implements Servlet {
     @Override
     public void handle(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
-        response.setHeader("Content-Type", request.guessContentType());
+        response.setHeader("Content-Type", ContentType.guessContentType(request.getUri()));
 
         File file = new File("src/main/resources/static" + request.getUri());
         byte[] readFile = getFile(file);
