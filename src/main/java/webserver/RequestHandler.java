@@ -11,6 +11,8 @@ import util.HttpRequestUtil;
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
+    private static final String RESOURCE_PATH = "./src/main/resources/static";
+
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -34,18 +36,26 @@ public class RequestHandler implements Runnable {
                 return;
             }
 
-            byte[] body = Files.readAllBytes(new File("./src/main/resources/static" + url).toPath()); // 해당 파일의 경로를 byte로 전달
-            response200Header(dos, body.length);
+            String path = RESOURCE_PATH + url;
+            if (HttpRequestUtil.isDirectory(url)) {
+                if (!url.endsWith("/")) path += "/";
+                path += "index.html";
+            }
+
+            byte[] body = Files.readAllBytes(new File(path).toPath()); // 해당 파일의 경로를 byte로 전달
+            response200Header(dos, path, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, String path, int lengthOfBodyContent) {
         try {
+            String type = HttpRequestUtil.getType(path);
+
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + type + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
