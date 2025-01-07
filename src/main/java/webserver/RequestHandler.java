@@ -27,6 +27,7 @@ public class RequestHandler implements Runnable {
 
             String requestLine = reader.readLine();
             if (requestLine == null) return;
+            logger.debug("Request : {}", requestLine);
 
             String[] tokens = requestLine.split(" ");
             String url = tokens[1];
