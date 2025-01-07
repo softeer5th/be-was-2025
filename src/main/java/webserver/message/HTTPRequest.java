@@ -41,6 +41,12 @@ public class HTTPRequest {
     public Map<String, String> getHeaders() {
         return headers;
     }
+    public Optional<String> getHeader(String name) {
+        if (!headers.containsKey(name)) {
+            return Optional.empty();
+        }
+        return Optional.of(headers.get(name));
+    }
 
     public static class Builder {
         private String method;
