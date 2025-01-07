@@ -5,6 +5,7 @@ import webserver.enums.ContentType;
 import java.io.OutputStream;
 import java.util.Optional;
 
+// 빈 Body를 나타내는 클래스
 class EmptyBody extends Body {
 
     @Override

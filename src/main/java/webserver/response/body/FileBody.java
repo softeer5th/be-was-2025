@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Optional;
 
+// File 타입의 Body를 나타내는 클래스
 class FileBody extends Body {
     private final File file;
 
@@ -20,6 +21,7 @@ class FileBody extends Body {
     @Override
     public void writeBody(OutputStream out) {
         try (FileInputStream in = new FileInputStream(file)) {
+            // 파일을 읽어서 클라이언트에게 전송
             in.transferTo(out);
         } catch (IOException e) {
             throw new InternalServerError("파일 전송에 실패했습니다.", e);

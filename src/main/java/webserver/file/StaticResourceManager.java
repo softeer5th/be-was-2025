@@ -18,7 +18,7 @@ public class StaticResourceManager {
     }
 
 
-    // src/main/resources/static 폴더의 파일을 가져오는 메서드
+    // static 폴더의 파일을 가져오는 메서드
     public Optional<File> getFile(String filePath) {
         String absolutePath = getAbsolutePath(filePath);
         if (absolutePath == null)
@@ -26,7 +26,7 @@ public class StaticResourceManager {
         return Optional.of(new File(absolutePath));
     }
 
-    //
+    // 존재하면서 디렉터리인지 확인하는 메서드
     public boolean isDirectory(String filePath) {
         String absolutePath = getAbsolutePath(filePath);
         if (absolutePath == null)
@@ -34,6 +34,7 @@ public class StaticResourceManager {
         return new File(absolutePath).isDirectory();
     }
 
+    // staic 폴더 기준의 상대경로를 절대경로로 변환하는 메서드
     private String getAbsolutePath(String filePath) {
         String staticFileRelativePath = FileUtil.joinPath(staticResourceDirectory, filePath);
         URL resource = getClass().getClassLoader().getResource(staticFileRelativePath);
