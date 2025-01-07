@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponse {
+    public static final String HEADER_DELIMITER = ": ";
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
     private String protocol;
     private StatusCode statusCode;
@@ -62,7 +63,7 @@ public class HttpResponse {
     public void send(DataOutputStream dos) throws IOException {
         dos.writeBytes(protocol + " " + statusCode.code + " " + statusCode.message + "\n");
         for (Map.Entry<String, String> header : headers.entrySet()) {
-            dos.writeBytes(header.getKey() + ": " + header.getValue() + "\n");
+            dos.writeBytes(header.getKey() + HEADER_DELIMITER + header.getValue() + "\n");
         }
         dos.writeBytes("\n");
         if (body != null && body.length > 0) {
