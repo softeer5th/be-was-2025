@@ -68,6 +68,8 @@ public class HttpRequest {
             return "application/json";
         } else if (lowerName.endsWith(".svg") || lowerName.endsWith(".xml")) {
             return "image/svg+xml";
+        } else if (lowerName.endsWith(".ico")) {
+            return "image/x-icon";
         } else {
             // 확장자가 아무것도 매칭되지 않았을 경우, 406 Not Acceptable 대신 이진 데이터로 간주함
             return "application/octet-stream";
