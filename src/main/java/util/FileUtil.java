@@ -15,12 +15,13 @@ public class FileUtil {
 
     public static byte[] readHtmlFileAsBytes(String filepath) {
         try {
-            // filepath가 디렉토리인 경우 /index.html을 추가
-            if( !filepath.endsWith(".html")){
-                filepath += "/index.html";
-            }
-
             File file = new File(filepath);
+
+            // filepath가 디렉토리인 경우 /index.html을 추가
+            if( file.isDirectory()) {
+                filepath += "/index.html";
+                file = new File(filepath);
+            }
             FileInputStream fis = new FileInputStream(file);
             BufferedInputStream bis = new BufferedInputStream(fis);
 
