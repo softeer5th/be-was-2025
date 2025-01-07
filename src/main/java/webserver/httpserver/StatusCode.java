@@ -1,4 +1,4 @@
-package webserver;
+package webserver.httpserver;
 
 public enum StatusCode {
     OK(200, "OK"), NOT_FOUND(404, "Not Found");
