@@ -48,9 +48,13 @@ public class RequestHandler implements Runnable {
     }
 
     private void logRequestDetails(List<String> lines) {
+        StringBuilder logMessageBuilder = new StringBuilder();
+        logMessageBuilder.append("\n{\n");
         for (String eachLine : lines) {
-            logger.debug(eachLine);
+            logMessageBuilder.append(eachLine).append('\n');
         }
+        logMessageBuilder.append("}\n");
+        logger.debug(logMessageBuilder.toString());
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String fileType) {
