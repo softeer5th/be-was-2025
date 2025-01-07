@@ -26,8 +26,11 @@ public class RequestHandler implements Runnable {
 
             List<String> headers = logAndReturnHeaders(in);
 
-            byte[] body = createBody(headers.get(0));
+            String[] requestLine = resolveRequestLine(headers.get(0));
 
+            String target = requestLine[1];
+            byte[] body = createBody(target);
+            
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
@@ -71,14 +74,19 @@ public class RequestHandler implements Runnable {
         return headers;
     }
 
-    private byte[] createBody(String requestLine) throws IOException {
-        String[] tokens = requestLine.split(" ");
-        String path = tokens[1];
-
-        InputStream is = new FileInputStream("./src/main/resources/static" + path);
+    private byte[] createBody(String target) throws IOException {
+        InputStream is = new FileInputStream("./src/main/resources/static" + target);
         byte[] body = is.readAllBytes();
         is.close();
 
         return body;
+    }
+
+    private String[] resolveRequestLine(String requestLine) {
+        String[] tokens =  requestLine.split(" ");
+        if (tokens[1] != null && tokens[1].contentEquals("/")) {
+            tokens[1] = "/index.html";
+        }
+        return tokens;
     }
 }
