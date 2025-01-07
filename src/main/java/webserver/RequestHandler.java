@@ -2,6 +2,8 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,23 +22,11 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            List<String> headers = logAndReturnHeaders(in);
 
-            String line = reader.readLine();
-            String header0 = line;
-
-            while(!line.isEmpty()) {
-                logger.debug(line);
-                line = reader.readLine();
-            }
-
-            String path = header0.split(" ")[1];
-            InputStream is = new FileInputStream("./src/main/resources/static" + path);
-            byte[] body = is.readAllBytes();
-            is.close();
+            byte[] body = createBody(headers);
 
             response200Header(dos, body.length);
             responseBody(dos, body);
@@ -63,5 +53,30 @@ public class RequestHandler implements Runnable {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private List<String> logAndReturnHeaders(InputStream in) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+        List<String> headers = new ArrayList<>();
+
+        String line = reader.readLine();
+
+        while(!line.isEmpty()) {
+            logger.debug(line);
+            headers.add(line);
+            line = reader.readLine();
+        }
+
+        return headers;
+    }
+
+    private byte[] createBody(List<String> headers) throws IOException {
+        String path = headers.get(0).split(" ")[1];
+        InputStream is = new FileInputStream("./src/main/resources/static" + path);
+        byte[] body = is.readAllBytes();
+        is.close();
+
+        return body;
     }
 }
