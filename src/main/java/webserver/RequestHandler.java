@@ -31,9 +31,11 @@ public class RequestHandler implements Runnable {
             logger.debug("Request : {}", requestLine);
 
             String[] tokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
-            byte[] body = FileUtil.readHtmlFileAsBytes(BASE_DIRECTORY + tokens[1]);
+            String filepath = tokens[1];
+            byte[] body = FileUtil.readHtmlFileAsBytes(BASE_DIRECTORY + filepath);
             if (body != null) {
-                response200Header(dos, body.length);
+                String contentType = FileUtil.getContentType(filepath);
+                response200Header(dos, body.length, contentType);
                 responseBody(dos, body);
             } else {
                 response404Header(dos);
@@ -41,14 +43,13 @@ public class RequestHandler implements Runnable {
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
-
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
