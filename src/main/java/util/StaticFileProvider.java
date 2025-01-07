@@ -12,8 +12,8 @@ public class StaticFileProvider {
     private static final Logger logger = LoggerFactory.getLogger(StaticFileProvider.class);
     private static final String BASE_DIRECTORY = "./src/main/resources/static/";
 
-    public static File findStaticFileByUrl(String url) {
-        String filePath = BASE_DIRECTORY + url;
+    public static File findStaticFileByPath(String path) {
+        String filePath = BASE_DIRECTORY + path;
 
         File file = new File(filePath);
 
