@@ -1,6 +1,12 @@
 package util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HttpRequestUtil {
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequestUtil.class);
+
+    private HttpRequestUtil() {}
 
     public static String getUrl(String inputString) {
         if (inputString == null) {
@@ -19,13 +25,12 @@ public class HttpRequestUtil {
         return inputString != null && !inputString.contains(".");
     }
 
-    public static String getType(String inputString) {
-        String type = inputString.split("\\.")[2];
-        String typeString = ContentType.getMimeTypeByExtension(type);
-        if (typeString == null) {
-            typeString = "text/html";
+    public static String buildPath(String path, String url) {
+        if (isDirectory(url)) {
+            if (!url.endsWith("/")) path += "/";
+            path += "index.html";
         }
-
-        return typeString;
+        logger.debug(path);
+        return path;
     }
 }
