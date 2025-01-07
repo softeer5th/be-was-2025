@@ -20,6 +20,6 @@ public enum HttpVersion {
         return Arrays.stream(values())
                 .filter(httpVersion -> httpVersion.version.equalsIgnoreCase(version))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Invalid HTTP version"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid HTTP version"));
     }
 }

@@ -8,7 +8,7 @@ public enum HttpMethod {
         try {
             return HttpMethod.valueOf(method.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("Unsupported HTTP Method");
+            throw new IllegalArgumentException("Unsupported HTTP Method", e);
         }
     }
 }
