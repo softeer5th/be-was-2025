@@ -26,6 +26,7 @@ public class RequestHandler implements Runnable {
              DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
             HttpRequest request = new HttpRequest(reader);
             HttpResponse response = new HttpResponse();
+            response.setProtocol(request.getProtocol());
 
             servletManager.serve(request, response);
             response.send(dos);
