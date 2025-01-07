@@ -71,6 +71,7 @@ public class RequestHandler implements Runnable {
         if (url.endsWith(".png")) return "image/png";
         if (url.endsWith(".jpg") || url.endsWith(".jpeg")) return "image/jpeg";
         if (url.endsWith(".svg")) return "image/svg+xml";
+        if (url.endsWith(".ico")) return "image/x-icon";
         return "application/octet-stream";
     }
 
