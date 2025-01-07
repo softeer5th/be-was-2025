@@ -1,7 +1,7 @@
 package webserver;
 
 public enum StatusCode {
-    OK(200, "OK");
+    OK(200, "OK"), NOT_FOUND(404, "Not Found");
 
     int code;
     String message;
