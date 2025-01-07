@@ -22,14 +22,15 @@ public class WebServer {
         } else {
             port = Integer.parseInt(args[0]);
         }
+
         ExecutorService executor = Executors.newFixedThreadPool(200);
-
         ServletManager servletManager = new ServletManager();
-        servletManager.addServlet("/", new HomeServlet());
-        servletManager.addServlet("/registration", new SingUpServlet());
-        servletManager.addServlet("/create", new CreateServlet());
-        servletManager.addServlet("/success", new SignUpSuccessServlet());
 
+        enrollServlet(servletManager);
+        runServer(port, executor, servletManager);
+    }
+
+    private static void runServer(int port, ExecutorService executor, ServletManager servletManager) {
         // 서버소켓을 생성한다. 웹서버는 기본적으로 8080번 포트를 사용한다.
         try (ServerSocket listenSocket = new ServerSocket(port)) {
             logger.info("Web Application Server started {} port.", port);
@@ -42,5 +43,12 @@ public class WebServer {
         } catch (IOException e){
             logger.error(e.getMessage(), e);
         }
+    }
+
+    private static void enrollServlet(ServletManager servletManager) {
+        servletManager.addServlet("/", new HomeServlet());
+        servletManager.addServlet("/registration", new SingUpServlet());
+        servletManager.addServlet("/create", new CreateServlet());
+        servletManager.addServlet("/success", new SignUpSuccessServlet());
     }
 }
