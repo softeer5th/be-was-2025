@@ -14,6 +14,7 @@ import webserver.response.HttpResponseWriter;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 public class RequestHandler implements Runnable {
@@ -59,6 +60,7 @@ public class RequestHandler implements Runnable {
             } catch (HttpException e) {
                 logger.debug(e.getMessage());
                 // 에러 응답
+                // HTTP 버전이 설정되어 있지 않으면 기본값으로 응답
                 HttpVersion version = request != null ? request.getVersion() : config.getSupportedHttpVersions().get(0);
                 responseWriter.writeError(version, e, out);
             }
@@ -71,7 +73,11 @@ public class RequestHandler implements Runnable {
     private HttpResponse processGet(HttpRequest request) {
         String requestTarget = request.getRequestTarget();
         Optional<File> file = fileUtil.getFileInResources(requestTarget);
-        return file.map(f -> new HttpResponse(HttpStatusCode.OK).setBody(f))
+        // 디렉토리일 경우 디렉토리 내의 default page 파일로 응답
+        if (file.isPresent() && file.get().isDirectory())
+            file = fileUtil.getFileInResources(Paths.get(requestTarget, config.getDefaultPage()).toString());
+        return file
+                .map(f -> new HttpResponse(HttpStatusCode.OK).setBody(f))
                 .orElseGet(() -> new HttpResponse(HttpStatusCode.NOT_FOUND));
     }
 
