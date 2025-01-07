@@ -1,13 +1,11 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.StaticFileProvider;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -23,14 +21,37 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "<h1>Hello World</h1>".getBytes();
+            byte[] body = null;
+            String url = null;
+
+            String line = br.readLine();
+            logger.debug("request line : {}", line);
+
+            if ((url = parseRequestPath(line)) != null) {
+                File resultFile = StaticFileProvider.findStaticFileByUrl(url);
+
+                if (resultFile == null) {
+                    throw new RuntimeException("해당 경로에 해당하는 파일이 없습니다.");
+                }
+                body = StaticFileProvider.readStaticFileToByteArray(resultFile);
+            }
+
+            while (!line.equals("")) {
+                line = br.readLine();
+                logger.debug("header:  {}", line);
+            }
+
             response200Header(dos, body.length);
             responseBody(dos, body);
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             logger.error(e.getMessage());
         }
+    }
+    private String parseRequestPath(String requestFirstLine){
+        String[] requestParts = requestFirstLine.split(" ");
+        return requestParts[1];
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
