@@ -119,6 +119,6 @@ classDiagram
     RequestHandler --> ServletManager : use
     ServletManager *-- Servlet
     Servlet --> User
-    Servlet --> Database
-    Database --> User
+    Servlet "0..*" -- "1" Database
+    Database "1" -- "0..*" User
 ```
