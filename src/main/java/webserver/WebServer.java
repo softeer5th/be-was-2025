@@ -25,6 +25,7 @@ public class WebServer {
             logger.info("Web Application Server started {} port.", port);
 
             // 클라이언트가 연결될때까지 대기한다.
+            // Concurrent 패키지를 사용해 쓰레드를 관리하도록 한다.
             ExecutorService executorService = Executors.newCachedThreadPool();
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
