@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtils;
 import util.MimeTypeMapper;
 
 public class RequestHandler implements Runnable {
@@ -33,12 +34,15 @@ public class RequestHandler implements Runnable {
             String[] requestLine = resolveRequestLine(headers.get(0));
 
             String target = requestLine[1];
-            byte[] body = createBody(target);
 
-            String extension = target.split("\\.")[1];
+            File file = FileUtils.findFile(target);
+
+            byte[] body = createBody(file);
+
+            String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
 
             String mimeType = mimeTypeMapper.getMimeType(extension);
-
+            
             response200Header(dos, body.length, mimeType);
             responseBody(dos, body);
         } catch (IOException e) {
@@ -82,8 +86,8 @@ public class RequestHandler implements Runnable {
         return headers;
     }
 
-    private byte[] createBody(String target) throws IOException {
-        InputStream is = new FileInputStream("./src/main/resources/static" + target);
+    private byte[] createBody(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
         byte[] body = is.readAllBytes();
         is.close();
 
@@ -92,9 +96,6 @@ public class RequestHandler implements Runnable {
 
     private String[] resolveRequestLine(String requestLine) {
         String[] tokens =  requestLine.split(" ");
-        if (tokens[1] != null && tokens[1].contentEquals("/")) {
-            tokens[1] = "/index.html";
-        }
         return tokens;
     }
 }
