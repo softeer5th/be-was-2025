@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
     private static final int DEFAULT_PORT = 8080;
+    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     public static void main(String args[]) throws Exception {
         int port = 0;
@@ -25,7 +26,7 @@ public class WebServer {
             logger.info("Web Application Server started {} port.", port);
 
             // concurrent 패키지로 스레드풀 생성
-            ExecutorService executorService = Executors.newCachedThreadPool();
+            ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
