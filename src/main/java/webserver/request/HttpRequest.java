@@ -3,6 +3,7 @@ package webserver.request;
 
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
+import webserver.exception.BadRequest;
 
 import java.io.BufferedReader;
 import java.util.List;
@@ -52,7 +53,7 @@ public class HttpRequest {
 
     public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {
         if (!supportedVersions.contains(version)) {
-            throw new IllegalArgumentException("Unsupported HTTP version: " + version);
+            throw new BadRequest("Unsupported HTTP version: " + version);
         }
     }
 

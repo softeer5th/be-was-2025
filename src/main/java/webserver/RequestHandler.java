@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import util.FileUtil;
 import webserver.config.ServerConfig;
 import webserver.enums.HttpStatusCode;
+import webserver.enums.HttpVersion;
+import webserver.exception.HttpException;
 import webserver.request.HttpRequest;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponse;
@@ -36,23 +38,30 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            HttpRequest request = null;
+            try {
+                request = requestParser.parse(reader);
 
-            HttpRequest request = requestParser.parse(reader);
+                logger.debug("New Client Connect! Connected IP : {}, Port : {}, Request: {}", connection.getInetAddress(),
+                        connection.getPort(), request);
 
-            logger.debug("New Client Connect! Connected IP : {}, Port : {}, Request: {}", connection.getInetAddress(),
-                    connection.getPort(), request);
-
-            // request http version이 서버에서 지원하는지 검증
-            request.validateSupportedHttpVersion(config.getSupportedHttpVersions());
+                // request http version이 서버에서 지원하는지 검증
+                request.validateSupportedHttpVersion(config.getSupportedHttpVersions());
 
 
-            // Http Method에 따라 로직 분기(processXXX 메서드)
-            HttpResponse response = switch (request.getMethod()) {
-                case GET -> processGet(request);
-                default -> throw new IllegalStateException("Unsupported Method " + request.getMethod());
-            };
+                // Http Method에 따라 로직 분기(processXXX 메서드)
+                HttpResponse response = switch (request.getMethod()) {
+                    case GET -> processGet(request);
+                    default -> throw new IllegalStateException("Unsupported Method " + request.getMethod());
+                };
 
-            responseWriter.write(request, response, out);
+                responseWriter.writeResponse(request, response, out);
+            } catch (HttpException e) {
+                logger.debug(e.getMessage());
+                // 에러 응답
+                HttpVersion version = request != null ? request.getVersion() : config.getSupportedHttpVersions().get(0);
+                responseWriter.writeError(version, e, out);
+            }
 
         } catch (IOException e) {
             logger.error(e.getMessage());

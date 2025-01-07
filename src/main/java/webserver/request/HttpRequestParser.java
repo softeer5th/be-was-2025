@@ -2,13 +2,13 @@ package webserver.request;
 
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
+import webserver.exception.BadRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-// thread safe
 // 사용자의 요청을 파싱하여 HttpRequest 객체를 생성
 public class HttpRequestParser {
     public static final String REQUEST_LINE_SEPARATOR = " ";
@@ -17,17 +17,21 @@ public class HttpRequestParser {
 
     // request input reader로부터 데이터를 읽어들여 HttpRequest 객체를 생성
     public HttpRequest parse(BufferedReader requestInputReader) {
-        // Request Body 전 까지 읽어들임
-        String beforeBody = readUntilCRLF(requestInputReader);
-        // Request Line과 Header Lines 를 분리
-        String requestLineString = beforeBody.substring(0, beforeBody.indexOf("\n"));
-        String headerLines = beforeBody.substring(beforeBody.indexOf("\n") + 1);
+        try {
+            // Request Body 전 까지 읽어들임
+            String beforeBody = readUntilCRLF(requestInputReader);
+            // Request Line과 Header Lines 를 분리
+            String requestLineString = beforeBody.substring(0, beforeBody.indexOf("\n"));
+            String headerLines = beforeBody.substring(beforeBody.indexOf("\n") + 1);
 
-        // Request Line 문자열 파싱
-        RequestLine requestLine = parseRequestLine(requestLineString);
-        // Header Line 문자열 파싱
-        Map<String, String> headers = parseHeaders(headerLines);
-        return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, requestInputReader);
+            // Request Line 문자열 파싱
+            RequestLine requestLine = parseRequestLine(requestLineString);
+            // Header Line 문자열 파싱
+            Map<String, String> headers = parseHeaders(headerLines);
+            return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, requestInputReader);
+        } catch (Exception e) {
+            throw new BadRequest("Invalid Request", e);
+        }
     }
 
     // 빈 줄이 나올 때 까지 읽기

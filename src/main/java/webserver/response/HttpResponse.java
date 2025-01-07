@@ -37,13 +37,19 @@ public class HttpResponse {
     }
 
     public HttpResponse setBody(String string) {
-        this.body = Body.of(string);
+        if (string == null)
+            this.body = Body.empty();
+        else
+            this.body = Body.of(string);
         setContentHeaders();
         return this;
     }
 
     public HttpResponse setBody(File file) {
-        this.body = Body.of(file);
+        if (file == null)
+            this.body = Body.empty();
+        else
+            this.body = Body.of(file);
         setContentHeaders();
         return this;
     }
