@@ -27,19 +27,23 @@ public class RequestHandler implements Runnable {
 
             String requestLine = reader.readLine();
             if (requestLine == null) return;
-            logger.debug("Request Line: {}", requestLine);
 
             String[] tokens = requestLine.split(" ");
             String url = tokens[1];
             String filePath = BASE_DIRECTORY + url;
             File file = new File(filePath);
+            if (file.exists() & !file.isDirectory()) {
+                byte[] body = FileUtil.fileToByteArray(file);
 
-            byte[] body = FileUtil.fileToByteArray(file);
-
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+            } else {
+                response404Header(dos);
+                responseBody(dos, null);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
+
         }
     }
 
@@ -48,6 +52,15 @@ public class RequestHandler implements Runnable {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response404Header(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             logger.error(e.getMessage());
