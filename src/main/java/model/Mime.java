@@ -5,11 +5,12 @@ import java.util.Map;
 
 public enum Mime {
     TEXT_HTML("html", "text/html"),
-    TEXT_CSS("css", "test/css"),
+    TEXT_CSS("css", "text/css"),
     TEXT_JAVASCRIPT("js", "text/js"),
     IMAGE_VND_MICROSOFT_ICON("ico", "image/vnd.microsoft.icon"),
     IMAGE_JPEG("jpeg", "image/jpeg"),
-    IMAGE_PNG("png", "image/png");
+    IMAGE_PNG("png", "image/png"),
+    IMAGE_SVG_XML("svg", "image/svg+xml");
 
     private String extension;
     private final String type;
