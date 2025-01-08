@@ -51,7 +51,6 @@ public class ResponseWriter {
             builder.appendNewLine();
             out.writeBytes(builder.build());
             out.write(response.getBody(), 0, response.getBody().length);
-            logger.debug("Response : {} {}", request.getUri(), response.getContentType());
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
