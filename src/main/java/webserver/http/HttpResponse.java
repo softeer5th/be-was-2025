@@ -14,7 +14,7 @@ public class HttpResponse {
 
     private final Map<String, String> headers = new HashMap<>();
 
-    private final byte[] body = new byte[8192];
+    private byte[] body;
 
     public HttpResponse() {}
 
@@ -95,9 +95,12 @@ public class HttpResponse {
             throw new IOException("File not found or is not a valid file");
         }
 
+        body = new byte[(int) file.length()];
+
         try (FileInputStream fis = new FileInputStream(file)) {
+            System.out.println("file.length() = " + file.length());
             int bytesRead = fis.read(body);
-            if (bytesRead != file.length()) {
+            if (bytesRead != file.length()) {;
                 throw new IOException("Failed to read file.");
             }
         }
