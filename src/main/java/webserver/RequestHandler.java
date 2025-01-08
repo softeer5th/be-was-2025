@@ -7,14 +7,19 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtils;
+import util.MimeTypeMapper;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private Socket connection;
 
+    private final MimeTypeMapper mimeTypeMapper;
+
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
+        this.mimeTypeMapper = new MimeTypeMapper();
     }
 
     public void run() {
@@ -26,19 +31,29 @@ public class RequestHandler implements Runnable {
 
             List<String> headers = logAndReturnHeaders(in);
 
-            byte[] body = createBody(headers);
+            String[] requestLine = resolveRequestLine(headers.get(0));
 
-            response200Header(dos, body.length);
+            String target = requestLine[1];
+
+            File file = FileUtils.findFile(target);
+
+            byte[] body = createBody(file);
+
+            String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+
+            String mimeType = mimeTypeMapper.getMimeType(extension);
+            
+            response200Header(dos, body.length, mimeType);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String mimetype) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", mimetype));
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -71,12 +86,16 @@ public class RequestHandler implements Runnable {
         return headers;
     }
 
-    private byte[] createBody(List<String> headers) throws IOException {
-        String path = headers.get(0).split(" ")[1];
-        InputStream is = new FileInputStream("./src/main/resources/static" + path);
+    private byte[] createBody(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
         byte[] body = is.readAllBytes();
         is.close();
 
         return body;
+    }
+
+    private String[] resolveRequestLine(String requestLine) {
+        String[] tokens =  requestLine.split(" ");
+        return tokens;
     }
 }
