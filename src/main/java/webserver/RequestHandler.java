@@ -11,7 +11,6 @@ public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private final StaticResourceLoader resourceLoader = new StaticResourceLoader("src/main/resources/static");
     private final HttpRequestParser requestParser = new HttpRequestParser();
-
     private Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -30,7 +29,7 @@ public class RequestHandler implements Runnable {
                 byte[] notFoundBody = "<h1>404 File Not Found</h1>".getBytes();
                 response.send404(notFoundBody);
             } else {
-                response.send200(responseBody);
+                response.send200(responseBody, requestData.path());
             }
         } catch (IOException e) {
             logger.error(e.getMessage());

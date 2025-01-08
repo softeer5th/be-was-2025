@@ -56,8 +56,8 @@ public class HttpRequestParser {
     }
 
     private RequestData createRequestData(String requestLine, String headers, String body) throws IOException {
-        String[] firstLineTokens = requestLine.split(" ");
-        if (firstLineTokens.length < 2) {
+        String[] firstLineTokens = requestLine.split("\\s+");
+        if (firstLineTokens.length < 3) {
             throw new IOException("Invalid HTTP request: Malformed request line");
         }
 
