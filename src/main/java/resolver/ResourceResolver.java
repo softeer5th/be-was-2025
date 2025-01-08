@@ -1,7 +1,8 @@
 package resolver;
 
 import webserver.message.HTTPRequest;
+import webserver.message.HTTPResponse;
 
 public interface ResourceResolver {
-    byte [] resolve(HTTPRequest request);
+    void resolve(HTTPRequest request, HTTPResponse.Builder response);
 }
