@@ -2,7 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +15,12 @@ public class RequestHandler implements Runnable {
     private Socket connection;
 
     private final MimeTypeMapper mimeTypeMapper;
+    private final RequestParser requestParser;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
         this.mimeTypeMapper = new MimeTypeMapper();
+        this.requestParser = new RequestParser();
     }
 
     public void run() {
@@ -29,11 +30,9 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
 
-            List<String> headers = RequestParser.logAndReturnHeaders(in);
+            requestParser.parse(in);
 
-            String[] requestLine = RequestParser.resolveRequestLine(headers.get(0));
-
-            String target = requestLine[1];
+            String target = requestParser.getTarget();
 
             File file = FileUtils.findFile(target);
 

@@ -14,7 +14,23 @@ import java.util.List;
 public class RequestParser {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    public static List<String> logAndReturnHeaders(InputStream in) throws IOException {
+    private List<String> headers;
+    private String method;
+    private String target;
+    private String version;
+
+    public RequestParser() {}
+
+    public void parse(InputStream in) throws IOException{
+        headers = logAndReturnHeaders(in);
+
+        String[] requestLine = resolveRequestLine(headers.get(0));
+        method = requestLine[0];
+        target = requestLine[1];
+        version = requestLine[2];
+    }
+
+    private List<String> logAndReturnHeaders(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
         List<String> headers = new ArrayList<>();
@@ -30,8 +46,24 @@ public class RequestParser {
         return headers;
     }
 
-    public static String[] resolveRequestLine(String requestLine) {
+    private String[] resolveRequestLine(String requestLine) {
         String[] tokens =  requestLine.split(" ");
         return tokens;
+    }
+
+    public List<String> getHeaders() {
+        return headers;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }
