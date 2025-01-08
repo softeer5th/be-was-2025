@@ -152,8 +152,6 @@ private String guessContentType(String path) {
 
 # 학습한 내용 정리(1/7 화요일)
 
----
-
 ### **1. MIME 타입 매퍼 구현**
 
 #### **구현 내용**
@@ -402,9 +400,72 @@ String httpVersion = firstLineTokens[2];
 
 ---
 
-#### **6. 정리**
+# 학습한 내용 정리(1/8 수요일)
 
-- **`split("\\s+")`은 공백 처리에 가장 안전하고 유연**:
-  - 스페이스뿐 아니라 탭, 개행 문자도 처리.
-  - 연속된 공백을 하나로 간주하여 불필요한 빈 문자열 제거.
-- 일반적인 HTTP 요청 파싱이나 공백이 포함된 데이터 처리에는 `split("\\s+")`이 적합합니다. 🚀
+아래는 **1월 7일 이후**의 학습 및 구현 내용을 바탕으로 **학습일지**를 정리한 예시입니다.  
+**(회원가입 관련 기능 중심, 학습 내용 / 구현 내용 / 고민 내용으로 나눠 기술)**
+
+---
+
+# 1월 8일 학습일지
+
+## 1. 학습 내용
+
+1. **HTTP GET 요청으로 회원가입 처리**
+  - 브라우저에서 `/create?userId=...&password=...&name=...` 형태로 GET 요청을 보내, 서버가 파라미터를 파싱해 `User` 객체 생성 후 DB에 저장한다는 로직을 이해.
+  - URL 인코딩/디코딩(예: `URLDecoder.decode(...)`) 개념 습득.
+
+2. **클린 코드 원칙 적용**
+  - 단일 책임 원칙(SRP)을 지켜 **RequestHandler**가 세부 로직을 갖지 않도록 설계.
+  - `ApiRouter`를 두어 신규 API 추가 시 `RequestHandler`를 수정하지 않도록 구조화.
+  - `if-else`를 최소화하고, `if`만 사용하여 분기 처리.
+
+3. **메서드 분리와 명명 규칙**
+  - `parseToUser` 메서드가 여러 로직(쿼리 파싱, User 생성)을 담당하던 부분을 **`parseQueryString`** 등으로 분리.
+  - `ofSignup` vs `of` : 메서드 이름을 통해 객체 생성 의도를 명확히 표현하는 방법 학습.
+
+---
+
+## 2. 구현 내용
+
+1. **회원가입 GET API**
+  - **`UserCreationHandler`** 구현:
+    - `canHandle(RequestData)`로 `/create` 경로인지 확인.
+    - `handle(RequestData)`에서 `queryString` 파싱 → `User` 생성 → DB 저장.
+  - `ApiRouter`: 여러 `ApiHandler`(예: `UserCreationHandler`)를 모아서, 경로에 맞는 API를 찾도록 구현.
+  - `RequestHandler`에서는 `apiRouter.route(requestData)`로 API 핸들러 호출. 처리되지 않으면 정적 리소스로 넘어가는 구조.
+
+2. **`User` 모델 변경**
+  - 회원가입 시 이메일 필드는 null로 처리해서 User 객체 저장.
+  - `User.of(...)` 메서드로 객체 생성 로직 통일.
+
+3. **HTML 수정**
+  - `registration/index.html`에서 `<button onclick="...">`를 통해 GET 요청으로 `/create?userId=...&password=...&name=...` 형태 전송.
+  - `<input id="...">` 설정으로 JavaScript에서 `document.getElementById(...)`로 값 추출 가능.
+  - JS에서 `encodeURIComponent(...)`로 URL 인코딩 처리.
+
+4. **클린 코드 리팩토링**
+  - `RequestHandler.run()`에서 API 처리(`handleApiRequest`)와 정적 처리(`handleStaticResource`)를 별도 메서드로 분리.
+  - `if-else` 대신 `if`만 사용해 조건별 처리를 종료(`return`)하도록 작성.
+
+---
+
+## 3. 고민한 내용
+
+1. **경로 확장자 없는 요청 시 Content-Type 문제**
+  - `/registration` 경로가 **확장자 없이** 요청되면 기본 `application/octet-stream`이 적용되어 다운로드가 발생.
+  - 해결책: `ContentTypeMapper`에서 확장자 없는 경우 `text/html`로 처리.
+
+2. **메서드 명명**
+  - `ofSignup` vs `of`: 메서드 이름으로 생성 의도를 충분히 표현해야 할지, 짧고 간결하게 유지해야 할지.
+  - 최종적으로, 여러 생성 방법이 있을 수 있으면 `ofSignup` 등 구체적 이름이 유리. 단일 목적이면 `of`도 간결함.
+
+3. **분기 로직**
+  - `if-else` 구문을 제거하고 `if`만으로 처리 시, 코드 흐름이 이해하기 쉽지만 `return` 시점이 많아질 수 있음.
+  - 여러 메서드로 세분화하고, `return`으로 분기 끝내는 방식을 적용해 코드 깊이를 낮춤.
+
+4. **디코딩 로직**
+  - URL 인코딩/디코딩 과정에서 발생하는 예외 처리나 잘못된 쿼리 파라미터 처리(예: `?userId=` 없이 들어오는 경우)를 어떻게 할지 고민.
+  - 현재는 `null` 반환 → `400 Bad Request` 처리로 일단락.
+
+---
