@@ -22,7 +22,7 @@ public enum HTTPContentType {
 
     public final String primary;
     public final String detail;
-    final String [] alias;
+    public final String [] alias;
 
     public static HTTPContentType DEFAULT_TYPE() {
         return APPLICATION_OCTET_STREAM;
