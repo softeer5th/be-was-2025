@@ -3,6 +3,7 @@ package resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
+import webserver.message.HTTPRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +22,8 @@ public class StaticResourceResolver implements ResourceResolver {
     }
 
     @Override
-    public byte[] resolve(String url) {
-        Optional<String> resource = findResource(url);
+    public byte[] resolve(HTTPRequest request) {
+        Optional<String> resource = findResource(request.getUri());
         if (resource.isEmpty()) {
             return "NOT FOUND".getBytes();
         }

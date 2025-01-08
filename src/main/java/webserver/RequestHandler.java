@@ -30,7 +30,7 @@ public class RequestHandler implements Runnable {
             HTTPRequest request = parser.parse(in);
             DataOutputStream dos = new DataOutputStream(out);
             ResourceResolver resolver = StaticResourceResolver.getInstance();
-            byte[] body = resolver.resolve(request.getUri());
+            byte[] body = resolver.resolve(request);
             response200Header(dos, body.length);
             responseBody(dos, body);
         } catch (IOException e) {
