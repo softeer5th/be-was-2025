@@ -14,7 +14,6 @@ public class FileNotSupportedErrorPageServlet implements Servlet {
     public void handle(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.NOT_SUPPORTED);
         response.setHeader("Content-Type", "text/html");
-        response.setBody("<h1> 406 Not Supported </h1>".getBytes());
         File file = new File("src/main/resources/static/error/notAcceptable.html");
         byte[] readFile = getFile(file);
         response.setBody(readFile);
