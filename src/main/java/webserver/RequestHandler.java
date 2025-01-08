@@ -9,6 +9,7 @@ import model.Mime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileFinder;
+import util.RequestParser;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -26,7 +27,7 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             RequestParser requestParser = new RequestParser(in);
-            requestParser.getLogs();
+            requestParser.getLogs(logger);
 
             DataOutputStream dos = new DataOutputStream(out);
             String contentType = Mime.getByExtension(requestParser.extension).getContentType();
@@ -78,49 +79,5 @@ public class RequestHandler implements Runnable {
             logger.error(e.getMessage());
         }
         return bytes;
-    }
-}
-
-class RequestParser{
-    private final List<String> requests = new ArrayList<>();
-    public String url = "/";
-    public String extension = "html";
-    private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
-
-    public RequestParser(InputStream in){
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        try {
-            String line = br.readLine();
-            while (!line.isEmpty()) {
-                requests.add(line);
-                line = br.readLine();
-            }
-            String url = requests.get(0).split(" ")[1];
-            if(!url.equals("/")) {
-                setUrl(url);
-                setContentType(url);
-            }
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void setUrl(String url){
-        this.url = url;
-    }
-
-    private void setContentType(String url){
-        String[] tokens = url.split("\\.");
-        if(tokens.length > 1) {
-            this.extension = tokens[1];
-        }
-    }
-
-    public void getLogs(){
-        logger.debug("request: ");
-        for(String request : requests){
-            logger.debug(request);
-        }
     }
 }
