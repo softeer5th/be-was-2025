@@ -2,6 +2,7 @@ package webserver;
 
 import enums.FileContentType;
 import enums.HttpStatus;
+import enums.RequestRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpResponse;
@@ -13,23 +14,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private Socket connection;
 
-    private final Map<Pattern, Handler> routeMap;
-
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
-        routeMap = new HashMap<>();
-        routeMap.put(Pattern.compile("^/user/.+$"), new UserRequestHandler());
-        routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg)$"), new StaticFileHandler());
+
     }
 
     public void run() {
@@ -41,7 +33,8 @@ public class RequestHandler implements Runnable {
             String path = requestInfo.getPath();
 
             DataOutputStream dos = new DataOutputStream(out);
-            Handler handler = getHandler(path)
+
+            Handler handler = RequestRoute.getHandler(path)
                     .orElseThrow(() -> new UnsupportedOperationException("No handler found for path" + path));
 
             try {
@@ -54,14 +47,5 @@ public class RequestHandler implements Runnable {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-    }
-
-    private Optional<Handler> getHandler(String path) {
-        for (Pattern pattern : routeMap.keySet()) {
-            Matcher matcher = pattern.matcher(path);
-            if (matcher.matches())
-                return Optional.of(routeMap.get(pattern));
-        }
-        return Optional.empty();
     }
 }
