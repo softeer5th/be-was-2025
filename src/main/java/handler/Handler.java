@@ -1,7 +1,7 @@
 package handler;
 
-import util.HttpResponse;
-import util.RequestInfo;
+import response.HttpResponse;
+import request.RequestInfo;
 
 public interface Handler {
     HttpResponse handle(RequestInfo request);

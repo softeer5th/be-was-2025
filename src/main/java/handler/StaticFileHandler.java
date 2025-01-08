@@ -4,8 +4,8 @@ package handler;
 import enums.FileContentType;
 import enums.HttpStatus;
 import util.FileReader;
-import util.HttpResponse;
-import util.RequestInfo;
+import response.HttpResponse;
+import request.RequestInfo;
 
 import java.io.FileNotFoundException;
 
