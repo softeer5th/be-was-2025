@@ -6,7 +6,7 @@ import java.net.Socket;
 import http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.StaticFileProvider;
+import util.FileUtil;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -28,11 +28,11 @@ public class RequestHandler implements Runnable {
 
             HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(br);
 
-            File resultFile = StaticFileProvider.findStaticFileByPath(httpRequest.getPath());
+            File resultFile = FileUtil.findFileByPath(httpRequest.getPath());
 
             if(resultFile != null){
-                byte[] data = StaticFileProvider.readStaticFileToByteArray(resultFile);
-                httpResponseResolver.send200Response(dos, httpRequest.getPath(), data);
+                byte[] data = FileUtil.readFileToByteArray(resultFile);
+                httpResponseResolver.send200Response(dos, resultFile.getPath(), data);
             }else{
                 httpResponseResolver.send404Response(dos);
             }
