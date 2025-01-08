@@ -13,17 +13,23 @@ public class FileUtil {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     public static String getFilePath(String path) {
-        File file = new File(path);
-
-        if (file.isDirectory()) {
-            return path + "/index.html";
+        // URL에 점(.)이 있으면 확장자가 있는 파일로 간주하여 그대로 사용
+        if (path.contains(".")) {
+            return path;
         }
-        return path;
+
+        // 점(.)이 없다면 디렉토리로 간주하고 /index.html을 붙임
+        return path + "/index.html";
     }
 
     public static byte[] readHtmlFileAsBytes(String filepath) {
         try {
             File file = new File(filepath);
+            if (!file.exists() || file.isDirectory()) {
+                logger.error("File not found or is a directory: {}", filepath);
+                return null;
+            }
+
             FileInputStream fis = new FileInputStream(file);
             BufferedInputStream bis = new BufferedInputStream(fis);
 
