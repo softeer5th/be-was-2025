@@ -2,6 +2,8 @@ package util;
 
 import enums.FileContentType;
 import enums.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponse {
+    private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
+
     HttpStatus status;
     Map<String, String> headers;
     byte[] body;
@@ -51,16 +55,20 @@ public class HttpResponse {
         headers.put("Content-Length", String.valueOf(length));
     }
 
-    public void send(DataOutputStream dos) throws IOException {
-        dos.writeBytes("HTTP/1.1 " + status.getCode() + " " + status.getMessage() + " \r\n");
+    public void send(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 " + status.getCode() + " " + status.getMessage() + " \r\n");
 
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            dos.writeBytes(header.getKey() + ": " + header.getValue() + "\r\n");
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                dos.writeBytes(header.getKey() + ": " + header.getValue() + "\r\n");
+            }
+            dos.writeBytes("\r\n");
+
+            dos.write(body, 0, body.length);
+            dos.writeBytes("\r\n");
+            dos.flush();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
         }
-        dos.writeBytes("\r\n");
-
-        dos.write(body, 0, body.length);
-        dos.writeBytes("\r\n");
-        dos.flush();
     }
 }
