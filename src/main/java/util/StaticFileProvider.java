@@ -43,4 +43,9 @@ public class StaticFileProvider {
 
         return null;
     }
+
+    public static String extractFileExtension(String path){
+        String[] pathParts = path.split("\\.");
+        return pathParts[pathParts.length - 1];
+    }
 }
