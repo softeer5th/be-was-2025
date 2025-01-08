@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Mime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,8 @@ public class RequestHandler implements Runnable {
             requestParser.getLogs();
 
             DataOutputStream dos = new DataOutputStream(out);
+            String contentType = Mime.getByExtension(requestParser.extension).getContentType();
+
             byte[] body;
             if(requestParser.url.equals("/")) {
                 body = "<h1>Hello World</h1>".getBytes();
@@ -35,17 +38,18 @@ public class RequestHandler implements Runnable {
                 String path = "./src/main/resources/static" + requestParser.url;
                 body = readFileToBytes(path);
             }
-            response200Header(dos, body.length);
+
+            response200Header(dos, body.length, contentType);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) throws IOException {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -79,6 +83,7 @@ public class RequestHandler implements Runnable {
 class RequestParser{
     private final List<String> requests = new ArrayList<>();
     public String url = "/";
+    public String extension = "html";
     private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
 
     public RequestParser(InputStream in){
@@ -89,18 +94,27 @@ class RequestParser{
                 requests.add(line);
                 line = br.readLine();
             }
-            setUrl();
+            String url = requests.get(0).split(" ")[1];
+            if(!url.equals("/")) {
+                setUrl(url);
+                setContentType(url);
+            }
         }
         catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void setUrl(){
-        this.url = requests.get(0).split(" ")[1];
+    private void setUrl(String url){
+        this.url = url;
+    }
+
+    private void setContentType(String url){
+        this.extension = url.split("\\.")[1];
     }
 
     public void getLogs(){
+        logger.debug("request: ");
         for(String request : requests){
             logger.debug(request);
         }
