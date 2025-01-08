@@ -2,10 +2,11 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtil;
+import util.HttpRequestParser;
 import util.HttpRequestUtil;
 
 public class RequestHandler implements Runnable {
@@ -26,13 +27,7 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8")); // InputStream => InputStreamReader => BufferedReader
-            String startLine = br.readLine(); // HTTP Request의 첫 줄을 읽고 출력
-            logger.debug(startLine);
-            String headers = br.readLine(); // 그 다음 Request들을 읽고 출력
-            while (headers != null) {
-                logger.debug(headers);
-                headers = br.readLine();
-            }
+            String startLine = HttpRequestParser.parseRequest(br);
 
             DataOutputStream dos = new DataOutputStream(out);
             String url = HttpRequestUtil.getUrl(startLine); // 분할한 토큰들 중 URL을 추출
@@ -42,28 +37,38 @@ public class RequestHandler implements Runnable {
             }
 
             String path = RESOURCE_PATH + url;
-            if (HttpRequestUtil.isDirectory(url)) {
-                if (!url.endsWith("/")) path += "/";
-                path += "index.html";
-            }
+            path = HttpRequestUtil.buildPath(path);
+            String type = HttpRequestUtil.getType(path); // 파일 유형 별로 Content-Type 할당
 
-            byte[] body = Files.readAllBytes(new File(path).toPath()); // 해당 파일의 경로를 byte로 전달
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            byte[] body = FileUtil.fileToByteArray(path); // 해당 파일의 경로를 byte로 전달
+
+            if (body == null) {
+                response404Header(dos);
+            } else {
+                response200Header(dos, type, body.length);
+                responseBody(dos, body);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, String type, int lengthOfBodyContent) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + type + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private void response404Header(DataOutputStream dos) throws IOException {
+        dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
+        dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+        dos.writeBytes("\r\n");
+        dos.writeBytes("<h1>404 Not Found</h1>");
     }
 
     private void responseBody(DataOutputStream dos, byte[] body) {
