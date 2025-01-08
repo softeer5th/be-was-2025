@@ -6,10 +6,23 @@ import java.net.URL;
 
 public class ResourceResolver {
     private static final String STATIC = "static";
+    private static final String INDEX_FILE = "index.html";
 
     public static File getResource(String path) throws IOException {
-        return readResource(STATIC + path);
+        File resourceFile = readResource(STATIC + path);
+
+        if (resourceFile.isDirectory()) {
+            File indexFile = new File(resourceFile, INDEX_FILE);
+            if (indexFile.exists() && indexFile.isFile()) {
+                return indexFile;
+            } else {
+                throw new IOException("Index file not found in directory: " + resourceFile.getPath());
+            }
+        }
+
+        return resourceFile;
     }
+
 
     private static File readResource(String resourcePath) throws IOException {
         ClassLoader classLoader = ResourceResolver.class.getClassLoader();
