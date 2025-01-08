@@ -4,6 +4,8 @@
 # 학습 기록
 [level 1](https://github.com/softeer5th/backend-page/wiki/%ED%95%9C%EC%A4%80%ED%98%B8_week1_day1)
 
+[level 2, 3](https://github.com/softeer5th/backend-page/wiki/%ED%95%9C%EC%A4%80%ED%98%B8_week1_day2)
+
 # 학습해야 하는 내용
 - LogBack
 - HTTP 파싱
