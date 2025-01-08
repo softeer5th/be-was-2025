@@ -2,13 +2,13 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
 import util.MimeTypeMapper;
+import util.RequestParser;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -29,9 +29,9 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
 
-            List<String> headers = logAndReturnHeaders(in);
+            List<String> headers = RequestParser.logAndReturnHeaders(in);
 
-            String[] requestLine = resolveRequestLine(headers.get(0));
+            String[] requestLine = RequestParser.resolveRequestLine(headers.get(0));
 
             String target = requestLine[1];
 
@@ -70,32 +70,11 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private List<String> logAndReturnHeaders(InputStream in) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
-        List<String> headers = new ArrayList<>();
-
-        String line = reader.readLine();
-
-        while(!line.isEmpty()) {
-            logger.debug(line);
-            headers.add(line);
-            line = reader.readLine();
-        }
-
-        return headers;
-    }
-
     private byte[] createBody(File file) throws IOException {
         InputStream is = new FileInputStream(file);
         byte[] body = is.readAllBytes();
         is.close();
 
         return body;
-    }
-
-    private String[] resolveRequestLine(String requestLine) {
-        String[] tokens =  requestLine.split(" ");
-        return tokens;
     }
 }
