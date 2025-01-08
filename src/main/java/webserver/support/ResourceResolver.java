@@ -12,12 +12,7 @@ public class ResourceResolver {
         File resourceFile = readResource(STATIC + path);
 
         if (resourceFile.isDirectory()) {
-            File indexFile = new File(resourceFile, INDEX_FILE);
-            if (indexFile.exists() && indexFile.isFile()) {
-                return indexFile;
-            } else {
-                throw new IOException("Index file not found in directory: " + resourceFile.getPath());
-            }
+            resourceFile = new File(resourceFile, INDEX_FILE);
         }
 
         return resourceFile;
