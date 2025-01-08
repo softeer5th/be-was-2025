@@ -12,12 +12,13 @@ public class StaticFileProvider {
     private static final Logger logger = LoggerFactory.getLogger(StaticFileProvider.class);
     private static final String BASE_DIRECTORY = "./src/main/resources/static/";
 
-    public static File findStaticFileByUrl(String url) {
-        String filePath = BASE_DIRECTORY + url;
+    public static File findStaticFileByPath(String path) {
+        String filePath = BASE_DIRECTORY + path;
 
         File file = new File(filePath);
 
-        if(file.exists()){
+        // 파일 객체가 존재하는 지만 확인하는 것이 아닌 해당 파일 객체가 디렉토리인지 확인하는 과정이 필요하다.
+        if(file.exists() && !file.isDirectory()){
             return file;
         }
 
@@ -28,7 +29,7 @@ public class StaticFileProvider {
         try (FileInputStream fis = new FileInputStream(file);
              ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ) {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[8192];
             int bytesRead;
 
             while ((bytesRead = fis.read(buffer)) != -1) {
@@ -41,5 +42,10 @@ public class StaticFileProvider {
         }
 
         return null;
+    }
+
+    public static String extractFileExtension(String path){
+        String[] pathParts = path.split("\\.");
+        return pathParts[pathParts.length - 1];
     }
 }
