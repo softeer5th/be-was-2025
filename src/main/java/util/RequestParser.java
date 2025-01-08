@@ -17,6 +17,9 @@ public abstract class RequestParser {
         String requests = br.readLine();
         // http method와 path를 파싱한다.
         String[] requestInfo = requests.split(" ");
+        if(requestInfo.length != 3){
+            throw new IllegalArgumentException("Invalid request format");
+        }
 
         HttpMethod method = HttpMethod.match(requestInfo[0]);
         String url = requestInfo[1];
