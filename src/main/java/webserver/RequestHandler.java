@@ -35,7 +35,31 @@ public class RequestHandler implements Runnable {
             logRequestDetails(lines);
             String[] tokens = lines.get(0).split(" ");
             String filePath = tokens[1];
-            String fileExtension = tokens[1].split("\\.")[1];
+
+//            System.out.println("filePath = " + filePath);
+            String fileExtension = "html";
+            if (!filePath.contains("?")) {
+                fileExtension = tokens[1].split("\\.")[1];
+            }
+
+            // url에 "?" 구분자가 존재하는 경우 회원가입 로직 수행. -> 수정 필요.
+            if (filePath.contains("?")) {
+                QueryParameters queryParameters = new QueryParameters(filePath.split("\\?")[1]);
+//                System.out.println("queryss = " + filePath.split("\\?")[1]);
+                User.validateUserParameters(queryParameters);
+
+                // User 객체 생성
+                User user = new User(queryParameters.get("userId"),
+                        queryParameters.get("password"),
+                        queryParameters.get("name"),
+                        queryParameters.get("email"));
+                logger.debug("user = {}", user);
+            }
+
+
+
+
+
 
             File file = new File(RESOURCES_PATH + filePath);
             if (!CONTENT_TYPE_MAPPER.isValidExtension(fileExtension) || !file.exists()) {
@@ -52,7 +76,7 @@ public class RequestHandler implements Runnable {
 
             response200Header(dos, body.length, fileExtension);
             responseBody(dos, body);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
     }
