@@ -13,89 +13,67 @@ import java.nio.file.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import http.HttpMethod;
-import http.HttpRequest;
+import enums.ContentType;
+import enums.HttpHeader;
+import enums.HttpMethod;
+import http.request.HttpRequest;
+import http.response.HttpResponse;
+import enums.HttpStatus;
 
 public class RequestHandler implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String STATIC_FILES_PATH = "src/main/resources/static";
+	private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+	private static final String STATIC_FILES_PATH = "src/main/resources/static";
 
-    private Socket connection;
+	private Socket connection;
 
-    public RequestHandler(Socket connectionSocket) {
-        this.connection = connectionSocket;
-    }
-    public void run() {
-        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-            connection.getPort());
+	public RequestHandler(Socket connectionSocket) {
+		this.connection = connectionSocket;
+	}
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            handleRequest(in, out);
-        } catch (IOException e) {
-            logger.error("Error handling client connection: {}", e.getMessage());
-        }
-    }
+	public void run() {
+		logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
+			connection.getPort());
 
-    private void handleRequest(InputStream in, OutputStream out) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            HttpRequest request = new HttpRequest(reader);
+		try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+			handleRequest(in, out);
+		} catch (IOException e) {
+			logger.error("Error handling client connection: {}", e.getMessage());
+		}
+	}
 
-            if (HttpMethod.GET.equals(request.getMethod())) {
-                serveStaticFile(request.getPath(), out);
-            } else {
-                response404(out);
-            }
-        } catch (IOException e) {
-            logger.error("Failed to parse the request: {}", e.getMessage());
-            response404(out);
-        }
-    }
+	private void handleRequest(InputStream in, OutputStream out) throws IOException {
+		DataOutputStream dos = new DataOutputStream(out);
 
-    private void serveStaticFile(String url, OutputStream out) throws IOException {
-        File file = new File(STATIC_FILES_PATH + url);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+			HttpRequest request = new HttpRequest(reader);
 
-        if (file.exists() && file.isFile()) {
-            byte[] body = Files.readAllBytes(file.toPath());
-            DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length, getContentType(url));
-            responseBody(dos, body);
-        } else {
-            response404(out);
-        }
-    }
+			if (HttpMethod.GET.equals(request.getMethod())) {
+				serveStaticFile(request, dos);
+			} else {
+				// response.send404(dos);
+			}
+		} catch (IOException e) {
+			logger.error("Failed to parse the request: {}", e.getMessage());
+			// response.send404();
+		}
+	}
 
-    private String getContentType(String url) {
-        if (url.endsWith(".html")) return "text/html";
-        if (url.endsWith(".css")) return "text/css";
-        if (url.endsWith(".js")) return "application/javascript";
-        if (url.endsWith(".png")) return "image/png";
-        if (url.endsWith(".jpg") || url.endsWith(".jpeg")) return "image/jpeg";
-        if (url.endsWith(".svg")) return "image/svg+xml";
-        return "application/octet-stream";
-    }
+	private void serveStaticFile(HttpRequest request, DataOutputStream dos) throws IOException {
+		HttpResponse response = new HttpResponse();
 
-    private void response200Header(DataOutputStream dos, int length, String contentType) throws IOException {
-        dos.writeBytes("HTTP/1.1 200 OK\r\n");
-        dos.writeBytes("Content-Type: " + contentType + "; charset=utf-8\r\n");
-        dos.writeBytes("Content-Length: " + length + "\r\n");
-        dos.writeBytes("\r\n");
-    }
+		File file = new File(STATIC_FILES_PATH + request.getPath());
+		if (file.exists() && file.isFile()) {
+			byte[] body = Files.readAllBytes(file.toPath());
+			ContentType contentType = request.inferContentType();
 
+			response.setStatusCode(HttpStatus.OK);
+			response.setVersion(request.getVersion());
+			response.setHeader(HttpHeader.CONTENT_TYPE.getValue(), contentType.getMimeType());
+			response.setBody(body);
 
-    private void response404(OutputStream out) throws IOException {
-        String response = "HTTP/1.1 404 Not Found\r\n" +
-            "Content-Type: text/html; charset=utf-8\r\n\r\n" +
-            "<h1>404 Not Found</h1>";
-        out.write(response.getBytes());
-        out.flush();
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
+			response.sendResponse(dos);
+		} else {
+			//response.send404();
+		}
+	}
 }
