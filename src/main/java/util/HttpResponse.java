@@ -21,6 +21,14 @@ public class HttpResponse {
         headers = new HashMap<>();
     }
 
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    public byte[] getBody() {
+        return body;
+    }
+
     public HttpResponse(HttpStatus status, FileContentType contentType, String body) {
         this.status = status;
         this.headers = new HashMap<>();
