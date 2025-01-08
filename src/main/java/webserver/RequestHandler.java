@@ -6,6 +6,8 @@ import java.net.Socket;
 import model.RequestData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.http.HttpRequestParser;
+import webserver.http.HttpResponse;
 import webserver.load.LoadResult;
 import webserver.load.StaticResourceLoader;
 

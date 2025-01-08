@@ -1,4 +1,4 @@
-package webserver;
+package webserver.http;
 
 import model.RequestData;
 import org.slf4j.Logger;

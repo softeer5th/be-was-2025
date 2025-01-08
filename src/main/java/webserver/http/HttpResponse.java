@@ -1,4 +1,6 @@
-package webserver;
+package webserver.http;
+
+import webserver.ContentTypeMapper;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
