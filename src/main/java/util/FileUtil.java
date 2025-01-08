@@ -12,15 +12,18 @@ import java.io.IOException;
 public class FileUtil {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
+    public static String getFilePath(String path) {
+        File file = new File(path);
+
+        if (file.isDirectory()) {
+            return path + "/index.html";
+        }
+        return path;
+    }
+
     public static byte[] readHtmlFileAsBytes(String filepath) {
         try {
             File file = new File(filepath);
-
-            // filepath가 디렉토리인 경우 /index.html을 추가
-            if( file.isDirectory()) {
-                filepath += "/index.html";
-                file = new File(filepath);
-            }
             FileInputStream fis = new FileInputStream(file);
             BufferedInputStream bis = new BufferedInputStream(fis);
 
@@ -46,7 +49,7 @@ public class FileUtil {
             return "image/png";
         } else if (filepath.endsWith(".ico")) {
             return "image/x-icon";
-        } else if( filepath.endsWith(".svg")) {
+        } else if (filepath.endsWith(".svg")) {
             return "image/svg+xml";
         }
         return "text/html";
