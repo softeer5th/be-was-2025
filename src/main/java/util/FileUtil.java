@@ -14,10 +14,12 @@ public class FileUtil {
 
     public static byte[] fileToByteArray(String path) throws IOException {
         File file = new File(path);
-        logger.debug(file.getPath());
+        String isFileExist = file.exists() ? "exists" : "not exists";
+        String isDirectory = file.isDirectory() ? "isDirectory" : "not isDirectory";
 
-        logger.debug(file.exists() ? "exists" : "not exists");
-        logger.debug(file.isDirectory() ? "isDirectory" : "not isDirectory");
+        logger.debug(file.getPath());
+        logger.debug(isFileExist);
+        logger.debug(isDirectory);
         if (file.exists()) {
             return Files.readAllBytes(file.toPath());
         } else {
