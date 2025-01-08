@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final String resourcePath = "src/main/resources/";
 
     private Socket connection;
 
@@ -43,8 +44,23 @@ public class RequestHandler implements Runnable {
                 response200Header(dos, body.length, "text/html");
                 responseBody(dos, body);
             }
+            // 회원가입 요청에 대한 처리
+            else if (uri.equals("/registration")) {
+                File file = new File(resourcePath + "static/registration/index.html");
+                if (file.exists()) {
+                    byte[] body = Files.readAllBytes(file.toPath());
+                    response200Header(dos, body.length, "text/html");
+                    responseBody(dos, body);
+                } else {
+                    logger.error("{}File not found", uri);
+                    byte[] body = "<h2> HTTP 404 Not Found</h2>".getBytes();
+
+                    response404Header(dos, body.length);
+                    responseBody(dos, body);
+                }
+            }
             else {
-                File file = new File("src/main/resources/static" + uri);
+                File file = new File(resourcePath + "static" + uri);
                 if (file.exists()) {
                     byte[] body = Files.readAllBytes(file.toPath());
                     String contentType = ContentTypeMapper.getContentType(uri);
@@ -78,6 +94,17 @@ public class RequestHandler implements Runnable {
     private void response400Header(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
         try {
             dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
+            dos.writeBytes("Content-Type: text/html\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response404Header(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
+        try {
+            dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
             dos.writeBytes("Content-Type: text/html\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
