@@ -27,6 +27,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">아이디</p>
             <input
+              id="userId-input"
               class="input_textfield"
               placeholder="아이디를 입력해주세요"
               autocomplete="username"
@@ -35,6 +36,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">닉네임</p>
             <input
+              id="name-input"
               class="input_textfield"
               placeholder="닉네임을 입력해주세요"
               autocomplete="username"
@@ -43,6 +45,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">비밀번호</p>
             <input
+              id="password-input"
               class="input_textfield"
               type="password"
               placeholder="비밀번호를 입력해주세요"
@@ -54,11 +57,23 @@
             class="btn btn_contained btn_size_m"
             style="margin-top: 24px"
             type="button"
+            onclick="submitRegistration()"
           >
             회원가입
           </button>
         </form>
       </div>
     </div>
+
+    <script>
+      function submitRegistration() {
+        const userId = encodeURIComponent(document.getElementById("userId-input").value);
+        const name = encodeURIComponent(document.getElementById("name-input").value);
+        const password = encodeURIComponent(document.getElementById("password-input").value);
+
+        const url = `/create?userId=${userId}&name=${name}&password=${password}`;
+        window.location.href = url;
+      }
+    </script>
   </body>
 </html>
