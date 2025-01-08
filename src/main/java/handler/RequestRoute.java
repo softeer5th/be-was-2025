@@ -1,8 +1,4 @@
-package enums;
-
-import webserver.Handler;
-import webserver.StaticFileHandler;
-import webserver.UserRequestHandler;
+package handler;
 
 import java.util.Optional;
 import java.util.regex.Pattern;

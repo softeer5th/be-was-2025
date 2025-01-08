@@ -1,4 +1,4 @@
-package webserver;
+package handler;
 
 import util.HttpResponse;
 import util.RequestInfo;
