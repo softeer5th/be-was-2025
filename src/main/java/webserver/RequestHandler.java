@@ -5,7 +5,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import Entity.QueryParameters;
 import model.ContentTypeMapper;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
