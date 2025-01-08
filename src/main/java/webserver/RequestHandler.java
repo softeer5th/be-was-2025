@@ -2,19 +2,17 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.HtmlFileReader;
+import util.FileReader;
 import util.HttpMethod;
 import util.RequestInfo;
 import util.RequestParser;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final String STATIC_FILE_PATH = "src/main/resources/static";
 
     private Socket connection;
 
@@ -32,28 +30,43 @@ public class RequestHandler implements Runnable {
             HttpMethod method = requestInfo.getMethod();
             String path = requestInfo.getPath();
 
+            String[] split = path.split("\\.");
+            String extender = split[split.length - 1];
+
             DataOutputStream dos = new DataOutputStream(out);
-            if (path.equals("/index.html")) {
-                byte[] body = HtmlFileReader.readHtmlFile("src/main/resources/static/main" + path);
-                response200Header(dos, body.length);
-                responseBody(dos, body);
-                dos.flush();
-            } else {
-                response404Header(dos);
-            }
+            byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
+                    .orElseThrow(() -> new FileNotFoundException(path));
+
+            response200Header(dos, body.length, extender);
+            responseBody(dos, body);
+            dos.flush();
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String extender) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            setContentTypeByFile(dos, extender);
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    private void setContentTypeByFile(DataOutputStream dos, String extender) throws IOException {
+        System.out.println("extender = "+extender);
+        switch (extender) {
+            case "svg" -> dos.writeBytes("Content-Type: image/svg+xml\r\n");
+            case "css" -> dos.writeBytes("Content-Type: text/css\r\n");
+            case "html" -> dos.writeBytes("Content-Type: text/html\r\n");
+            case "js" -> dos.writeBytes("Content-Type: application/javascript\r\n");
+            case "ico" -> dos.writeBytes("Content-Type: image/x-icon\r\n");
+            case "png" -> dos.writeBytes("Content-Type: image/png\r\n");
+            case "jpg" -> dos.writeBytes("Content-Type: image/jpeg\r\n");
         }
     }
 
