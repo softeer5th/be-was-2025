@@ -16,7 +16,7 @@ public class ContentTypeMapper {
 
     public static String getContentType(String path) {
         String extension = getExtension(path);
-        return MIME_TYPES.getOrDefault(extension, "application/octet-stream");
+        return MIME_TYPES.getOrDefault(extension, "text/html");
     }
 
     private static String getExtension(String path) {
