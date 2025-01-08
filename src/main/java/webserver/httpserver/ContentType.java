@@ -12,7 +12,8 @@ public enum ContentType {
     GIF(new String[] {"gif"},          "image/gif"),
     JSON(new String[] {"json"},        "application/json"),
     SVG(new String[] {"svg", "xml"},   "image/svg+xml"),
-    ICO(new String[] {"ico"},          "image/x-icon");
+    ICO(new String[] {"ico"},          "image/x-icon"),
+    OCTET_STREAM(new String[] {"bin"}, "application/octet-stream");
 
     private final String[] extensions;
     private final String mimeType;
@@ -34,7 +35,7 @@ public enum ContentType {
         String lowerUri = uri.toLowerCase();
         int dotIndex = lowerUri.lastIndexOf('.');
         if (dotIndex == -1) {
-            throw new FileNotSupportedException();
+            return OCTET_STREAM.getMimeType();
         }
 
         String extension = lowerUri.substring(dotIndex + 1);
