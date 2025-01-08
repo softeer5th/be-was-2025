@@ -18,4 +18,10 @@ public class RequestInfo {
     public HttpMethod getMethod() {
         return method;
     }
+
+    @Override
+    public String toString() {
+        return
+                "method = " + method + ", path = " + path;
+    }
 }
