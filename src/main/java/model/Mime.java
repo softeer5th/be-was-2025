@@ -15,6 +15,7 @@ public enum Mime {
     private String extension;
     private final String type;
     private static final Map<String, Mime> extensionToMimeMap = new HashMap<>();
+    private static final String defaultMimeType = "application/octet-stream";
 
     static{
         for(Mime mime: Mime.values()){
@@ -32,6 +33,6 @@ public enum Mime {
         if(mime != null){
             return mime.type;
         }
-        return null;
+        return defaultMimeType;
     }
 }
