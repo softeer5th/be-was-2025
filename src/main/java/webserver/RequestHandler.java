@@ -6,12 +6,15 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtil;
+import util.HttpStatus;
+import util.HttpResponse;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final String BASE_DIRECTORY = "src/main/resources/static";
 
     private Socket connection;
+    private HttpResponse httpResponse = new HttpResponse();
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -34,41 +37,12 @@ public class RequestHandler implements Runnable {
             String filepath = FileUtil.getFilePath(BASE_DIRECTORY + tokens[1]);
             byte[] body = FileUtil.readHtmlFileAsBytes(filepath);
             if (body != null) {
-                response200Header(dos, body.length, filepath);
-                responseBody(dos, body);
+                httpResponse.responseHeader(HttpStatus.OK, dos, body.length, filepath);
+                httpResponse.responseBody(dos, body);
             } else {
-                response404Header(dos);
-                responseBody(dos, null);
+                httpResponse.responseHeader(HttpStatus.NOT_FOUND, dos, 0, null);
+                httpResponse.responseBody(dos, null);
             }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String filepath) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + FileUtil.getContentType(filepath) + ";charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response404Header(DataOutputStream dos) {
-        try {
-            dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
