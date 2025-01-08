@@ -7,7 +7,6 @@ import util.FileReader;
 import util.HttpResponse;
 import util.RequestInfo;
 
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 
 /*
@@ -17,7 +16,7 @@ public class StaticFileHandler implements Handler {
     private static final String STATIC_FILE_PATH = "src/main/resources/static";
 
     @Override
-    public void handle(RequestInfo request, DataOutputStream dataOutputStream) {
+    public HttpResponse handle(RequestInfo request) {
         String path = request.getPath();
 
         FileContentType extension = FileContentType.getExtensionFromPath(path);
@@ -32,12 +31,12 @@ public class StaticFileHandler implements Handler {
                     .orElseThrow(() -> new FileNotFoundException(path));
             response.setBody(body);
 
-            response.send(dataOutputStream);
         } catch (FileNotFoundException e) {
             response.setStatus(HttpStatus.NOT_FOUND);
             response.setContentType(FileContentType.HTML);
             response.setBody("file not found");
-            response.send(dataOutputStream);
+
         }
+        return response;
     }
 }

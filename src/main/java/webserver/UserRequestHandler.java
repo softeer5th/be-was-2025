@@ -10,16 +10,13 @@ import request.UserCreateRequest;
 import util.HttpResponse;
 import util.RequestInfo;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import static enums.HttpMethod.GET;
 
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
 
     @Override
-    public void handle(RequestInfo request, DataOutputStream dataOutputStream) throws IOException {
+    public HttpResponse handle(RequestInfo request)  {
         logger.debug("request : {} ", request);
 
         String path = request.getPath().substring("/user/".length());
@@ -33,7 +30,8 @@ public class UserRequestHandler implements Handler {
             response.setContentType(FileContentType.HTML);
             response.setBody("Successfully created user");
         }
-        response.send(dataOutputStream);
+
+        return response;
     }
 
     private void createUser(UserCreateRequest request) {

@@ -1,10 +1,8 @@
 package webserver;
 
+import util.HttpResponse;
 import util.RequestInfo;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 public interface Handler {
-    void handle(RequestInfo request, DataOutputStream dataOutputStream) throws IOException;
+    HttpResponse handle(RequestInfo request);
 }
