@@ -1,7 +1,10 @@
 package webserver;
 
+import enums.FileContentType;
+import enums.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpResponse;
 import util.RequestInfo;
 import util.RequestParser;
 
@@ -41,7 +44,13 @@ public class RequestHandler implements Runnable {
             Handler handler = getHandler(path)
                     .orElseThrow(() -> new UnsupportedOperationException("No handler found for path" + path));
 
-            handler.handle(requestInfo, dos);
+            try {
+                handler.handle(requestInfo, dos);
+            } catch (RuntimeException e) {
+                HttpResponse response = new HttpResponse(HttpStatus.BAD_REQUEST, FileContentType.HTML, e.getMessage());
+                response.send(dos);
+            }
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
