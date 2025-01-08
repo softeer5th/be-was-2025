@@ -8,6 +8,7 @@ import java.util.List;
 import model.Mime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileFinder;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -35,8 +36,8 @@ public class RequestHandler implements Runnable {
                 body = "<h1>Hello World</h1>".getBytes();
             }
             else {
-                String path = "./src/main/resources/static" + requestParser.url;
-                body = readFileToBytes(path);
+                FileFinder fileFinder = new FileFinder(requestParser.url);
+                body = readFileToBytes(fileFinder.getPath());
             }
 
             response200Header(dos, body.length, contentType);
@@ -110,7 +111,10 @@ class RequestParser{
     }
 
     private void setContentType(String url){
-        this.extension = url.split("\\.")[1];
+        String[] tokens = url.split("\\.");
+        if(tokens.length > 1) {
+            this.extension = tokens[1];
+        }
     }
 
     public void getLogs(){
