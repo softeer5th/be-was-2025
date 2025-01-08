@@ -6,7 +6,7 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
-import util.MimeTypeMapper;
+import util.MimeType;
 import util.RequestParser;
 
 public class RequestHandler implements Runnable {
@@ -14,12 +14,10 @@ public class RequestHandler implements Runnable {
 
     private Socket connection;
 
-    private final MimeTypeMapper mimeTypeMapper;
     private final RequestParser requestParser;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
-        this.mimeTypeMapper = new MimeTypeMapper();
         this.requestParser = new RequestParser();
     }
 
@@ -40,11 +38,13 @@ public class RequestHandler implements Runnable {
 
             String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
 
-            String mimeType = mimeTypeMapper.getMimeType(extension);
-            
+            String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
+
             response200Header(dos, body.length, mimeType);
             responseBody(dos, body);
         } catch (IOException e) {
+            logger.error(e.getMessage());
+        } catch (IllegalArgumentException e) {
             logger.error(e.getMessage());
         }
     }
