@@ -6,6 +6,8 @@ import java.net.Socket;
 import model.RequestData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.load.LoadResult;
+import webserver.load.StaticResourceLoader;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -22,14 +24,14 @@ public class RequestHandler implements Runnable {
         logger.debug("New Client Connect! IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             RequestData requestData = requestParser.parse(in);
-            byte[] responseBody = resourceLoader.load(requestData.path());
+            LoadResult responseLoadResult = resourceLoader.load(requestData.path());
 
             HttpResponse response = new HttpResponse(new DataOutputStream(out));
-            if (responseBody == null) {
+            if (responseLoadResult.content() == null) {
                 byte[] notFoundBody = "<h1>404 File Not Found</h1>".getBytes();
                 response.send404(notFoundBody);
             } else {
-                response.send200(responseBody, requestData.path());
+                response.send200(responseLoadResult.content(), responseLoadResult.path());
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
