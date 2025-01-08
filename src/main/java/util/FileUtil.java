@@ -8,8 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class StaticFileProvider {
-    private static final Logger logger = LoggerFactory.getLogger(StaticFileProvider.class);
+public class FileUtil {
+    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
     private static final String BASE_DIRECTORY = "./src/main/resources/static/";
 
     public static File findStaticFileByPath(String path) {

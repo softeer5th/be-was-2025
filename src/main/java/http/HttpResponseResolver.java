@@ -1,10 +1,10 @@
 package http;
 
 import model.Mime;
-import util.StaticFileProvider;
+import util.FileUtil;
 
-import javax.swing.*;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 public class HttpResponseResolver {
@@ -17,7 +17,7 @@ public class HttpResponseResolver {
     }
 
     public void send200Response(DataOutputStream dos, String path, byte[] data) throws IOException {
-        String extension = StaticFileProvider.extractFileExtension(path);
+        String extension = FileUtil.extractFileExtension(path);
         String contentType = Mime.getMimeType(extension);
 
         writeHeader(dos, HttpStatus.OK, contentType, data.length);
