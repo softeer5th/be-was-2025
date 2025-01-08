@@ -8,17 +8,18 @@ import webserver.exception.HttpVersionNotSupported;
 import java.io.BufferedReader;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // HTTP 요청과 관련된 정보를 담는 객체
 public class HttpRequest {
     private final HttpMethod httpMethod;
-    private final String requestTarget;
+    private final RequestTarget requestTarget;
     private final HttpVersion version;
     private final Map<String, String> headers;
     // body를 읽어들이기 위한 Reader
     private final BufferedReader body;
 
-    public HttpRequest(HttpMethod httpMethod, String requestTarget, HttpVersion version, Map<String, String> headers, BufferedReader body) {
+    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, Map<String, String> headers, BufferedReader body) {
         this.httpMethod = httpMethod;
         this.requestTarget = requestTarget;
         this.version = version;
@@ -31,7 +32,7 @@ public class HttpRequest {
         return httpMethod;
     }
 
-    public String getRequestTarget() {
+    public RequestTarget getRequestTarget() {
         return requestTarget;
     }
 
@@ -48,7 +49,7 @@ public class HttpRequest {
     }
 
     public String getBodyAsString() {
-        return body.lines().reduce("", (acc, line) -> acc + line);
+        return body.lines().collect(Collectors.joining());
     }
 
     public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {

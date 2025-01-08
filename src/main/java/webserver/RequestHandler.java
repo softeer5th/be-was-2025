@@ -76,12 +76,12 @@ public class RequestHandler implements Runnable {
     }
 
     private HttpResponse processGet(HttpRequest request) {
-        String requestTarget = request.getRequestTarget();
+        String requestPath = request.getRequestTarget().getPath();
         // 디렉토리일 경우 디렉토리 내의 default page 파일로 응답
-        if (resourceManager.isDirectory(requestTarget))
-            requestTarget = FileUtil.joinPath(requestTarget, defaultPageFileName);
+        if (resourceManager.isDirectory(requestPath))
+            requestPath = FileUtil.joinPath(requestPath, defaultPageFileName);
 
-        Optional<File> file = resourceManager.getFile(requestTarget);
+        Optional<File> file = resourceManager.getFile(requestPath);
         return file
                 .map(f -> new HttpResponse(HttpStatusCode.OK).setBody(f))
                 .orElseGet(() -> new HttpResponse(HttpStatusCode.NOT_FOUND));
