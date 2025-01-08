@@ -12,7 +12,8 @@ public enum ContentType {
     IMAGE_ICO("image/vnd.microsoft.icon", "ico"),
     APPLICATION_JAVASCRIPT("application/javascript", "js"),
     APPLICATION_JSON("application/json", "json"),
-    APPLICATION_XML("application/xml", "xml");
+    APPLICATION_XML("application/xml", "xml"),
+    APPLICATION_OCTET_STREAM("application/octet-stream", "bin");
 
     // MIME-TYPE
     public final String mimeType;
@@ -31,6 +32,7 @@ public enum ContentType {
                 return contentType;
             }
         }
-        return TEXT_PLAIN;
+        // 기본적으로 binary 파일로 처리
+        return APPLICATION_OCTET_STREAM;
     }
 }

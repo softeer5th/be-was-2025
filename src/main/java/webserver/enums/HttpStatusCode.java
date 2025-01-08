@@ -12,6 +12,7 @@ public enum HttpStatusCode {
     NOT_FOUND(404, "Not Found"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
+    NOT_IMPLEMENTED(501, "Not Implemented"),
     HTTP_VERSION_NOT_SUPPORTED(505, "HTTP Version Not Supported");
 
     public final Integer statusCode;
