@@ -63,6 +63,12 @@ public class HttpResponse {
         headers.put("Content-Length", String.valueOf(length));
     }
 
+    public void setResponse(HttpStatus status, FileContentType contentType, String body) {
+        setStatus(status);
+        setContentType(contentType);
+        setBody(body);
+    }
+
     public void send(DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 " + status.getCode() + " " + status.getMessage() + " \r\n");
