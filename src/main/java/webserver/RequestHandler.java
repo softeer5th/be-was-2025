@@ -31,8 +31,8 @@ public class RequestHandler implements Runnable {
             logger.debug("Request : {}", requestLine);
 
             String[] tokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
-            String filepath = tokens[1];
-            byte[] body = FileUtil.readHtmlFileAsBytes(BASE_DIRECTORY + filepath);
+            String filepath = BASE_DIRECTORY + tokens[1];
+            byte[] body = FileUtil.readHtmlFileAsBytes(filepath);
             if (body != null) {
                 String contentType = FileUtil.getContentType(filepath);
                 response200Header(dos, body.length, contentType);

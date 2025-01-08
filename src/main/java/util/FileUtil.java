@@ -49,7 +49,7 @@ public class FileUtil {
         } else if( filepath.endsWith(".svg")) {
             return "image/svg+xml";
         }
-        return "application/octet-stream";
+        return "text/html";
     }
 }
 
