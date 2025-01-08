@@ -21,4 +21,9 @@ public class ContentTypeMapper {
     public String getContentType(String fileType) {
         return MAPPER.get(fileType);
     }
+
+    public boolean isValidExtension(String fileType) {
+        return MAPPER.containsKey(fileType);
+    }
+
 }

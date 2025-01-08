@@ -35,10 +35,10 @@ public class RequestHandler implements Runnable {
             logRequestDetails(lines);
             String[] tokens = lines.get(0).split(" ");
             String filePath = tokens[1];
-            String fileType = tokens[1].split("\\.")[1];
+            String fileExtension = tokens[1].split("\\.")[1];
 
             File file = new File(RESOURCES_PATH + filePath);
-            if (!file.exists()) {
+            if (!CONTENT_TYPE_MAPPER.isValidExtension(fileExtension) || !file.exists()) {
                 String notFoundPage = "<html><body><h1 style=\"text-align: center\">404 Not Found</h1></body></html>";
                 byte[] bodyBytes = notFoundPage.getBytes();
                 response404Header(dos, bodyBytes.length);
@@ -50,7 +50,7 @@ public class RequestHandler implements Runnable {
             byte[] body = new byte[(int) file.length()];
             fileInputStream.read(body);
 
-            response200Header(dos, body.length, fileType);
+            response200Header(dos, body.length, fileExtension);
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -67,10 +67,10 @@ public class RequestHandler implements Runnable {
         logger.debug(logMessageBuilder.toString());
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String fileType) {
+    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String fileExtension) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + CONTENT_TYPE_MAPPER.getContentType(fileType) + ";charset=utf-8\r\n");
+            dos.writeBytes("Content-Type: " + CONTENT_TYPE_MAPPER.getContentType(fileExtension) + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
