@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Entity.QueryParameters;
+import db.Database;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +46,8 @@ public class RequestHandler implements Runnable {
             }
 
             // url에 "?" 구분자가 존재하는 경우 회원가입 로직 수행. -> 수정 필요.
-            if (filePath.contains("?")) {
+            if (tokens[1].contains("/create") && filePath.contains("?")) {
                 QueryParameters queryParameters = new QueryParameters(filePath.split("\\?")[1]);
-//                System.out.println("queryss = " + filePath.split("\\?")[1]);
                 User.validateUserParameters(queryParameters);
 
                 // User 객체 생성
@@ -56,6 +56,8 @@ public class RequestHandler implements Runnable {
                         queryParameters.get("name"),
                         queryParameters.get("email"));
                 logger.debug("user = {}", user);
+                Database.addUser(user);
+                filePath = "/main/index.html";
             }
 
 
@@ -66,10 +68,8 @@ public class RequestHandler implements Runnable {
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] body = new byte[(int) file.length()];
             fileInputStream.read(body);
-
             responseHeader(HttpStatus.OK, dos, body.length, fileExtension);
             responseBody(dos, body);
-        } catch (Exception e) {
         }
         catch (Exception e) {
             logger.error(e.getMessage());
