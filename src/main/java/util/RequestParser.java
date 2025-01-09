@@ -13,8 +13,13 @@ import java.util.List;
 
 public class RequestParser {
     private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
+    private static final RequestParser instance = new RequestParser();
 
     public RequestParser() {}
+
+    public static RequestParser getInstance() {
+        return instance;
+    }
 
     public HttpRequest parse(InputStream in) throws IOException, InvalidRequestLineSyntaxException{
         List<String> headers = logAndReturnHeaders(in);
