@@ -7,6 +7,7 @@ public class HttpRequest {
     private HttpMethod method;
     private String path;
     private String protocol;
+    private final Map<String, String> queryParams = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
 
     public HttpRequest(){}
@@ -39,5 +40,9 @@ public class HttpRequest {
 
     public void setProtocol(String protocol){
         this.protocol = protocol;
+    }
+
+    public void putQueryParam(String key, String value){
+        queryParams.put(key, value);
     }
 }
