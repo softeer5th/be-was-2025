@@ -1,10 +1,10 @@
 package enums;
 
 public enum HttpStatus {
-    OK(200, "ok"),
-    CREATED(201, "created"),
-    BAD_REQUEST(400, "bad request"),
-    NOT_FOUND(404, "not found"),
+    OK(200, "Ok"),
+    CREATED(201, "Created"),
+    BAD_REQUEST(400, "Bad Request"),
+    NOT_FOUND(404, "Unsupported Media Type"),
     UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type");
 
 
