@@ -6,10 +6,18 @@ import java.net.URL;
 
 public class ResourceResolver {
     private static final String STATIC = "static";
+    private static final String INDEX_FILE = "index.html";
 
     public static File getResource(String path) throws IOException {
-        return readResource(STATIC + path);
+        File resourceFile = readResource(STATIC + path);
+
+        if (resourceFile.isDirectory()) {
+            resourceFile = new File(resourceFile, INDEX_FILE);
+        }
+
+        return resourceFile;
     }
+
 
     private static File readResource(String resourcePath) throws IOException {
         ClassLoader classLoader = ResourceResolver.class.getClassLoader();

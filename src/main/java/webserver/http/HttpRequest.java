@@ -8,11 +8,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
+
     private final String request;
+
     private final String method;
+
     private final String url;
+
     private final String version;
+
     private final Map<String, String> headers = new HashMap<>();
+
     private final String body;
 
     public HttpRequest(InputStream in) throws IOException {
@@ -31,18 +37,6 @@ public class HttpRequest {
         }
 
         body = "";
-    }
-
-    private String parse(InputStream in) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-            if (line.isEmpty()) break;
-
-            stringBuilder.append(line).append("\r\n");
-        }
-        return stringBuilder.toString();
     }
 
     public String getMethod() {
@@ -65,5 +59,18 @@ public class HttpRequest {
     public String toString(){
         return request;
     }
+
+    private String parse(InputStream in) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        String line;
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            if (line.isEmpty()) break;
+
+            stringBuilder.append(line).append("\r\n");
+        }
+        return stringBuilder.toString();
+    }
+
 }
 

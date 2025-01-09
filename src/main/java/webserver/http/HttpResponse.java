@@ -1,26 +1,26 @@
 package webserver.http;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponse {
-    private final DataOutputStream dos;
+
+    private HttpRequest request;
+
+    private DataOutputStream dos;
+
+    private HttpStatus status = HttpStatus.OK;
+
     private final Map<String, String> headers = new HashMap<>();
+
     private byte[] body;
 
-    public HttpResponse(File file, DataOutputStream dos) {
+    public HttpResponse() {}
+
+    public HttpResponse(HttpRequest request, DataOutputStream dos) {
+        this.request = request;
         this.dos = dos;
-        try {
-            readFile(file);
-            setHeader("Content-Type", "text/html;charset=utf-8");
-            setHeader("Content-Length", String.valueOf(file.length()));
-        } catch (IOException e){
-            e.printStackTrace();
-        }
     }
 
     public void send() {
@@ -33,12 +33,46 @@ public class HttpResponse {
         }
     }
 
+    public void setBody(File file) {
+        try {
+            readFile(file);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+    public void setContentLength(long contentLength) {
+        setHeader("Content-Length", String.valueOf(contentLength));
+    }
+
+    public void setRequest(HttpRequest request) {
+        this.request = request;
+    }
+
+    public void setOutPutStream(OutputStream outputStream) {
+        this.dos = new DataOutputStream(outputStream);
+    }
+
+    public void setStatus(HttpStatus status) {
+        this.status = status;
+    }
+
+    public void setContentType(String mimeType) {
+        headers.put("Content-Type", mimeType);
+    }
+
     public void setHeader(String name, String value) {
         headers.put(name, value);
     }
 
     private void writeStatusLine() throws IOException {
-        dos.writeBytes("HTTP/1.1 200 OK \r\n");
+        String responseBuilder = request.getVersion() +
+                " " +
+                status.getCode() +
+                " " +
+                status.getMessage() +
+                "\r\n";
+
+        dos.writeBytes(responseBuilder);
     }
 
     private void writeHeaders() throws IOException {
@@ -64,8 +98,9 @@ public class HttpResponse {
         body = new byte[(int) file.length()];
 
         try (FileInputStream fis = new FileInputStream(file)) {
+            System.out.println("file.length() = " + file.length());
             int bytesRead = fis.read(body);
-            if (bytesRead != file.length()) {
+            if (bytesRead != file.length()) {;
                 throw new IOException("Failed to read file.");
             }
         }

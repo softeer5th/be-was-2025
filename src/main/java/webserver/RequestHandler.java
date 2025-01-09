@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
+import webserver.http.HttpStatus;
+import webserver.http.MimeType;
 import webserver.support.ResourceResolver;
 
 public class RequestHandler implements Runnable {
@@ -25,14 +27,29 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
             HttpRequest request = new HttpRequest(in);
+            HttpResponse response = new HttpResponse(request, dos);
             logger.debug("Request: {}", request);
-            File file = ResourceResolver.getResource(request.getUrl());
-            if (file.exists() && file.isFile()) {
-                HttpResponse response = new HttpResponse(file, dos);
-                response.send();
+            if (requestStaticResource(request)) {
+                serveStaticResource(request, response);
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private void serveStaticResource(HttpRequest request, HttpResponse response) throws IOException {
+        File file = ResourceResolver.getResource(request.getUrl());
+        response.setBody(file);
+        response.setContentType(MimeType.getMimeType(file.getName()));
+        response.setContentLength(file.length());
+        response.setStatus(HttpStatus.OK);
+        response.send();
+    }
+
+    private boolean requestStaticResource(HttpRequest request) throws IOException {
+        if(!"GET".equals(request.getMethod())) return false;
+
+        File file = ResourceResolver.getResource(request.getUrl());
+        return file.exists() && file.isFile();
     }
 }
