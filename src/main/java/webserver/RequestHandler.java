@@ -10,8 +10,8 @@ import db.Database;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import request.HttpResponse;
-import request.HttpStatus;
+import http.HttpResponse;
+import http.HttpStatus;
 import util.ContentTypeUtil;
 
 public class RequestHandler implements Runnable {
@@ -38,35 +38,23 @@ public class RequestHandler implements Runnable {
             }
             logRequestDetails(lines);
             String[] tokens = lines.get(0).split(" ");
-            String filePath = tokens[1];
+            String requestPath = tokens[1];
 
             String fileExtension = "html";
-            if (!filePath.contains("?")) {
+            if (!requestPath.contains("?")) {
                 fileExtension = tokens[1].split("\\.")[1];
             }
 
-            // url에 "?" 구분자가 존재하는 경우 회원가입 로직 수행. -> 수정 필요.
-            if (tokens[1].contains("/create") && filePath.contains("?")) {
-                QueryParameters queryParameters = new QueryParameters(filePath.split("\\?")[1]);
-                User.validateUserParameters(queryParameters);
-
-                // User 객체 생성
-                User user = new User(queryParameters.get("userId"),
-                        queryParameters.get("password"),
-                        queryParameters.get("name"),
-                        queryParameters.get("email"));
-                logger.debug("user = {}", user);
-                Database.addUser(user);
-                filePath = "/main/index.html";
+            if (tokens[1].contains("/create") && requestPath.contains("?")) {
+                creatUser(requestPath, dos);
             }
 
-            File file = new File(RESOURCES_PATH + filePath);
+            File file = new File(RESOURCES_PATH + requestPath);
             if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
-                response404(dos);
+                HttpResponse.respond404(dos);
+                return;
             }
-            FileInputStream fileInputStream = new FileInputStream(file);
-            byte[] body = new byte[(int) file.length()];
-            fileInputStream.read(body);
+            byte[] body = readFile(file);
             HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
             httpResponse.respond();
         } catch (Exception e) {
@@ -74,15 +62,27 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private void response404(DataOutputStream dos) {
-        String notFoundPage = "<html><body><h1 style=\"text-align: center\">404 Not Found</h1></body></html>";
-        byte[] body = notFoundPage.getBytes();
-        try {
-            HttpResponse httpResponse = new HttpResponse(HttpStatus.NOT_FOUND, dos, body, "text/html");
-            httpResponse.respond();
-        } catch (Exception exception) {
-            logger.error(exception.getMessage());
-        }
+    private void creatUser(String queries, DataOutputStream dos) throws Exception {
+        QueryParameters queryParameters = new QueryParameters(queries.split("\\?")[1]);
+        User.validateUserParameters(queryParameters);
+        User user = new User(queryParameters.get("userId"),
+                queryParameters.get("password"),
+                queryParameters.get("name"),
+                queryParameters.get("email"));
+        logger.debug("user = {}", user);
+        Database.addUser(user);
+        String mainPagePath = RESOURCES_PATH + "/main/index.html";
+        File file = new File(mainPagePath);
+        byte[] body = readFile(file);
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos ,body, "text/html");
+        httpResponse.respond();
+    }
+
+    private byte[] readFile(File file) throws Exception {
+        FileInputStream fileInputStream = new FileInputStream(file);
+        byte[] fileBytes= new byte[(int) file.length()];
+        fileInputStream.read(fileBytes);
+        return fileBytes;
     }
 
     private void logRequestDetails(List<String> headers) {
