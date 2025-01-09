@@ -9,7 +9,7 @@
       // 폼 제출 전 입력 값 검사
       function validateInput(event) {
         const inputs = document.querySelectorAll('.input_textfield');
-        const invalidChars = /[\s.\/?]/; // 공백, '.', '/', '?' 문자
+        const invalidChars = /[\s\/?]/; // 공백, '.', '/', '?' 문자
         let valid = true;
 
         for (let input of inputs) {
@@ -23,7 +23,7 @@
           }
           // 유효하지 않은 문자 검사
           if (invalidChars.test(input.value)) {
-            alert('공백, ".", "?", "/" 문자는 입력할 수 없습니다.');
+            alert('공백, "?", "/" 문자는 입력할 수 없습니다.');
             input.focus();
             valid = false;
             event.preventDefault();
