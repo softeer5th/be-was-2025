@@ -1,20 +1,22 @@
-package api;
+package webserver;
 
+import api.Controller;
+import api.UserController;
 import http.HttpMethod;
 import http.HttpRequest;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class FrontController {
-    private static final FrontController INSTANCE = new FrontController();
+public class WebServlet {
+    private static final WebServlet INSTANCE = new WebServlet();
     private final Map<String, Controller> controllerMap = new HashMap<>();
 
-    public static FrontController getInstance(){
+    public static WebServlet getInstance(){
         return INSTANCE;
     }
 
-    public FrontController(){
+    public WebServlet(){
         controllerMap.put("/create", new UserController());
     }
 

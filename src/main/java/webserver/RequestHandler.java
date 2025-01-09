@@ -3,7 +3,6 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 
-import api.FrontController;
 import http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private final HttpRequestResolver httpRequestResolver = HttpRequestResolver.getInstance();
     private final HttpResponseResolver httpResponseResolver = HttpResponseResolver.getInstance();
-    private final FrontController frontController = FrontController.getInstance();
+    private final WebServlet webServlet = WebServlet.getInstance();
 
     private Socket connection;
 
@@ -38,7 +37,7 @@ public class RequestHandler implements Runnable {
                 httpResponseResolver.send200Response(dos, resultFile.getPath(), data);
             }
             else if(httpRequest.getPath().startsWith("/api")){
-                frontController.process(httpRequest);
+                webServlet.process(httpRequest);
             }
             else{
                 httpResponseResolver.send404Response(dos);
