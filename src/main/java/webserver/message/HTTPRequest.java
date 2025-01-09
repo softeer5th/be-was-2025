@@ -12,19 +12,22 @@ public class HTTPRequest {
     private HTTPVersion version;
     private Optional<String> body;
     private HeterogeneousContainer headers;
+    private HeterogeneousContainer parameters;
 
     public HTTPRequest(
             String method,
             String uri,
             HTTPVersion version,
             Optional<String> body,
-            HeterogeneousContainer headers
+            HeterogeneousContainer headers,
+            HeterogeneousContainer parameters
     ) {
         this.method = method;
         this.uri = uri;
         this.version = version;
         this.body = body;
         this.headers = headers;
+        this.parameters = parameters;
     }
 
     public String getMethod() {
@@ -46,12 +49,17 @@ public class HTTPRequest {
         return headers.get(name, type);
     }
 
+    public <T> Optional<T> getParameter(String name, Class<T> type) {
+        return parameters.get(name, type);
+    }
+
     public static class Builder {
         private String method;
         private String uri;
         private HTTPVersion version;
         private Optional<String> body;
         private HeterogeneousContainer headers = new HeterogeneousContainer(new LinkedHashMap<>());
+        private HeterogeneousContainer parameters = new HeterogeneousContainer(new LinkedHashMap<>());
 
         public Builder() {
             this.body = Optional.empty();
@@ -85,8 +93,12 @@ public class HTTPRequest {
             this.headers = headers;
             return this;
         }
+        public Builder setParameters(HeterogeneousContainer parameters) {
+            this.parameters = parameters;
+            return this;
+        }
         public HTTPRequest build() {
-            return new HTTPRequest(method, uri, version, body, headers);
+            return new HTTPRequest(method, uri, version, body, headers, parameters);
         }
     }
 }
