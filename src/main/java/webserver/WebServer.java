@@ -32,7 +32,6 @@ public class WebServer {
                 new SignUpController())
         );
 
-        enrollServlet(servletManager);
         runServer(port, executor, servletManager);
     }
 
@@ -49,12 +48,5 @@ public class WebServer {
         } catch (IOException e){
             logger.error(e.getMessage(), e);
         }
-    }
-
-    private static void enrollServlet(ServletManager servletManager) {
-        servletManager.addServlet("/", new HomeServlet());
-        servletManager.addServlet("/registration", new SingUpServlet());
-        servletManager.addServlet("/create", new CreateServlet());
-        servletManager.addServlet("/success", new SignUpSuccessServlet());
     }
 }
