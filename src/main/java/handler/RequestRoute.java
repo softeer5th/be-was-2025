@@ -1,6 +1,8 @@
 package handler;
 
-import java.util.Optional;
+import exception.ClientErrorException;
+import exception.ErrorCode;
+
 import java.util.regex.Pattern;
 
 public enum RequestRoute {
@@ -23,12 +25,12 @@ public enum RequestRoute {
         return handler;
     }
 
-    public static Optional<Handler> getHandler(String path) {
+    public static Handler getHandler(String path) {
         for (RequestRoute route : RequestRoute.values()) {
             if (route.getRequestPattern().matcher(path).matches()) {
-                return Optional.of(route.getHandler());
+                return route.getHandler();
             }
         }
-        return Optional.empty();
+        throw new ClientErrorException(ErrorCode.NOT_ALLOWED_PATH);
     }
 }

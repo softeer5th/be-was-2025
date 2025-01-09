@@ -1,5 +1,7 @@
 package exception;
 
+import enums.HttpStatus;
+
 public class ClientErrorException extends RuntimeException {
     private final ErrorCode errorCode;
 
@@ -10,5 +12,9 @@ public class ClientErrorException extends RuntimeException {
     @Override
     public String getMessage() {
         return errorCode.getMessage();
+    }
+
+    public HttpStatus getHttpStatus(){
+        return errorCode.getHttpStatus();
     }
 }

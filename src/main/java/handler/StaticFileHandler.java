@@ -31,17 +31,12 @@ public class StaticFileHandler implements Handler {
         response.setStatus(HttpStatus.OK);
         response.setContentType(extension);
 
-        try {
-            byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
-                    .orElseThrow(() -> new ClientErrorException(FILE_NOT_FOUND));
-            response.setBody(body);
 
-        } catch (ClientErrorException e) {
-            response.setStatus(HttpStatus.NOT_FOUND);
-            response.setContentType(FileContentType.HTML_UTF_8);
-            response.setBody(e.getMessage());
+        byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
+                .orElseThrow(() -> new ClientErrorException(FILE_NOT_FOUND));
+        response.setBody(body);
 
-        }
+
         return response;
     }
 }
