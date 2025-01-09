@@ -1,6 +1,8 @@
 package api.user;
 
 import api.ApiHandler;
+import exception.ErrorCode;
+import exception.UserCreationException;
 import db.Database;
 import model.User;
 import model.RequestData;
@@ -12,9 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserCreationHandler implements ApiHandler {
+
     @Override
     public boolean canHandle(RequestData requestData) {
-        if (!"GET".equalsIgnoreCase(requestData.method())) return false;
+        if (!"GET".equalsIgnoreCase(requestData.method())) {
+            throw new UserCreationException(ErrorCode.INVALID_USER_INPUT);
+        }
         return requestData.path().startsWith("/create");
     }
 
@@ -22,11 +27,12 @@ public class UserCreationHandler implements ApiHandler {
     public LoadResult handle(RequestData requestData) {
         String path = requestData.path();
         String[] splitQuestion = path.split("\\?", 2);
-        if (splitQuestion.length < 2) return null;
+        if (splitQuestion.length < 2) {
+            throw new UserCreationException(ErrorCode.INVALID_USER_INPUT);
+        }
 
         String queryString = splitQuestion[1];
         User user = createUserFromQuery(queryString);
-        if (user == null) return null;
 
         Database.addUser(user);
         String redirectionHtml = "<meta http-equiv='refresh' content='0;url=/index.html' />";
@@ -41,7 +47,7 @@ public class UserCreationHandler implements ApiHandler {
         String name = parameters.get("name");
 
         if (userId == null || password == null || name == null) {
-            return null;
+            throw new UserCreationException(ErrorCode.INVALID_USER_INPUT);
         }
 
         return User.of(userId, password, name);
