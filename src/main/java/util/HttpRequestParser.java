@@ -10,6 +10,8 @@ import request.HttpRequestInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
@@ -49,5 +51,19 @@ public abstract class HttpRequestParser {
         }
 
         return new HttpRequestInfo(method, url);
+    }
+
+    public static Map<String, String> parseParamString(String paramString) {
+        String[] params = paramString.split("&");
+        Map<String, String> paramMap = new HashMap<>();
+
+        for (String param : params) {
+            String[] nameAnyKey = param.split("=");
+            if (nameAnyKey.length != 2) {
+                throw new ClientErrorException(ErrorCode.MISSING_FIELD);
+            }
+            paramMap.put(nameAnyKey[0], nameAnyKey[1]);
+        }
+        return paramMap;
     }
 }
