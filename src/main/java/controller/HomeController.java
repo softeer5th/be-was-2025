@@ -1,5 +1,6 @@
 package controller;
 
+import wasframework.Mapping;
 import webserver.httpserver.HttpMethod;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;

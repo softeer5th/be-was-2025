@@ -1,4 +1,4 @@
-package controller;
+package wasframework;
 
 import webserver.httpserver.HttpMethod;
 

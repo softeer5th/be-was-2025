@@ -3,6 +3,7 @@ package controller;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wasframework.Mapping;
 import webserver.httpserver.HttpMethod;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
