@@ -72,8 +72,4 @@ public class HttpRequestHandler {
 
         return body;
     }
-
-    private void parse(String target) {
-
-    }
 }
