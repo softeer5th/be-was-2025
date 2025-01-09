@@ -18,7 +18,7 @@ public class RequestRouter implements Router {
         routeMap = new HashMap<>();
 
         // 초기 경로와 핸들러 등록
-        routeMap.put(Pattern.compile("^/user/.+$"), new UserRequestHandler());
+        routeMap.put(Pattern.compile("^/user(/.*)?$"), new UserRequestHandler());
         routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg)$"), new StaticFileHandler());
     }
 
