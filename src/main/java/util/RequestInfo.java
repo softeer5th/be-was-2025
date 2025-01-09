@@ -1,5 +1,7 @@
 package util;
 
+import enums.HttpMethod;
+
 public class RequestInfo {
     private final HttpMethod method;
     private final String path;
@@ -15,5 +17,11 @@ public class RequestInfo {
 
     public HttpMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public String toString() {
+        return
+                "method = " + method + ", path = " + path;
     }
 }
