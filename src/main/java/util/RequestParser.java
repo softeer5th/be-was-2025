@@ -13,6 +13,7 @@ public class RequestParser {
     private final List<String> requests = new ArrayList<>();
     public String url = "/";
     public String extension = "html";
+    public String parameter = null;
 
     public RequestParser(InputStream in){
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -23,10 +24,15 @@ public class RequestParser {
                 line = br.readLine();
             }
             String url = requests.get(0).split(" ")[1];
-            if(!url.equals("/")) {
-                setUrl(url);
-                setContentType(url);
+            setUrl(url);
+            String[] parts = url.split("\\?");
+            if(parts.length > 1){
+                setParameter(parts[1]);
             }
+            else{
+                setContentType(parts[0]);
+            }
+
         }
         catch (IOException e){
             e.printStackTrace();
@@ -42,6 +48,10 @@ public class RequestParser {
         if(tokens.length > 1) {
             this.extension = tokens[1];
         }
+    }
+
+    private void setParameter(String parameter){
+        this.parameter = parameter;
     }
 
     public void getLogs(Logger logger){
