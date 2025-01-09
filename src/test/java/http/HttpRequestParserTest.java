@@ -1,5 +1,6 @@
-package util.httprequest;
+package http;
 
+import http.request.HttpRequestParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;

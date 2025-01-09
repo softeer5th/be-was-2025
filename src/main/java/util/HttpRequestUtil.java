@@ -1,8 +1,8 @@
-package util.httprequest;
+package util;
 
+import http.response.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.ContentType;
 
 import java.io.File;
 

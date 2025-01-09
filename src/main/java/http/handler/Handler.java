@@ -1,7 +1,7 @@
-package util.httprequest.handler;
+package http.handler;
 
-import util.httprequest.HttpRequest;
-import util.httprequest.HttpResponse;
+import http.request.HttpRequest;
+import http.response.HttpResponse;
 
 import java.io.IOException;
 
