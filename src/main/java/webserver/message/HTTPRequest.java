@@ -1,7 +1,8 @@
 package webserver.message;
 
+import util.HeterogeneousContainer;
+
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -10,14 +11,14 @@ public class HTTPRequest {
     private String uri;
     private HTTPVersion version;
     private Optional<String> body;
-    private Map<String, String> headers;
+    private HeterogeneousContainer headers;
 
     public HTTPRequest(
             String method,
             String uri,
             HTTPVersion version,
             Optional<String> body,
-            Map<String, String> headers
+            HeterogeneousContainer headers
     ) {
         this.method = method;
         this.uri = uri;
@@ -38,8 +39,11 @@ public class HTTPRequest {
     public Optional<String> getBody() {
         return body;
     }
-    public Map<String, String> getHeaders() {
-        return headers;
+    public Optional<String> getHeader(String name) {
+        return headers.get(name, String.class);
+    }
+    public <T> Optional<T> getHeader(String name, Class<T> type) {
+        return headers.get(name, type);
     }
 
     public static class Builder {
@@ -47,7 +51,7 @@ public class HTTPRequest {
         private String uri;
         private HTTPVersion version;
         private Optional<String> body;
-        private Map<String, String> headers = new LinkedHashMap<>();
+        private HeterogeneousContainer headers = new HeterogeneousContainer(new LinkedHashMap<>());
 
         public Builder() {
             this.body = Optional.empty();
@@ -77,11 +81,10 @@ public class HTTPRequest {
             this.body = Optional.ofNullable(body);
             return this;
         }
-        public Builder setHeader(String name, String value) {
-            this.headers.put(name, value);
+        public Builder setHeaders(HeterogeneousContainer headers) {
+            this.headers = headers;
             return this;
         }
-
         public HTTPRequest build() {
             return new HTTPRequest(method, uri, version, body, headers);
         }

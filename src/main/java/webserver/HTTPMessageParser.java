@@ -3,12 +3,16 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HeterogeneousContainer;
 import webserver.message.HTTPRequest;
+import webserver.message.header.HeaderParseManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public class HTTPMessageParser {
@@ -29,12 +33,12 @@ public class HTTPMessageParser {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder sb = new StringBuilder();
         HTTPRequest.Builder builder = new HTTPRequest.Builder();
+        Map<String, String> headers = new LinkedHashMap<>();
         try {
             parseFirstLine(reader, sb, builder);
-            String line;
-            do {
-                line = readLineWithLog(reader, sb);
-            } while (line != null && !line.isBlank());
+            readHeader(reader, sb, headers);
+            HeterogeneousContainer parsedHeaders = HeaderParseManager.getInstance().parse(headers);
+            builder.setHeaders(parsedHeaders);
         } catch (IOException ioException) {
             logger.error(ioException.getMessage());
         }
@@ -62,5 +66,20 @@ public class HTTPMessageParser {
         requestBuilder.method(splited[0]);
         requestBuilder.uri(splited[1]);
         requestBuilder.version(splited[2]);
+    }
+
+    private void readHeader(BufferedReader reader, StringBuilder logBuilder, Map<String, String> headers)
+            throws IOException {
+        String line = readLineWithLog(reader, logBuilder);
+        while (line != null && !line.isBlank()) {
+            String [] splited = line.split(":", 2);
+            if (splited.length != 2) {
+                logger.debug(logBuilder.toString());
+                throw new ParseException("Not valid request header.");
+            }
+            splited[0] = splited[0].trim().toLowerCase();
+            headers.put(splited[0], splited[1]);
+            line = readLineWithLog(reader, logBuilder);
+        }
     }
 }

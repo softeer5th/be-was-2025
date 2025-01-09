@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import resolver.ResourceResolver;
 import resolver.StaticResourceResolver;
 import webserver.message.HTTPRequest;
+import webserver.message.HTTPResponse;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -28,30 +29,12 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HTTPMessageParser parser = HTTPMessageParser.getInstance();
             HTTPRequest request = parser.parse(in);
+            HTTPResponse.Builder responseBuilder = new HTTPResponse.Builder();
             DataOutputStream dos = new DataOutputStream(out);
             ResourceResolver resolver = StaticResourceResolver.getInstance();
-            byte[] body = resolver.resolve(request.getUri());
-            response200Header(dos, body.length);
-            responseBody(dos, body);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
+            resolver.resolve(request, responseBuilder);
+            HTTPResponse response = responseBuilder.build();
+            ResponseWriter.write(dos, request, response);
             dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
