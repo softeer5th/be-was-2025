@@ -13,14 +13,28 @@ import java.io.InputStream;
 
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
+    private static final String REQUEST_LINE_SEPARATOR = " ";
 
     public static RequestInfo parse(InputStream inputStream) throws IOException {
         BufferedReader br = new BufferedReader(new java.io.InputStreamReader(inputStream));
 
         String requests = br.readLine();
-        // http method와 path를 파싱한다.
-        String[] requestInfo = requests.split(" ");
-        if(requestInfo.length != 3){
+
+        // 1. 요청이 빈 줄인 경우, 이를 무시하고 다시 읽어들임
+        while (requests != null && requests.trim().isEmpty()) {
+            requests = br.readLine();
+        }
+
+        // 2. 요청이 null이거나 잘못된 형식일 경우 예외 처리
+        if (requests == null || requests.trim().isEmpty()) {
+            throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
+        }
+
+        // 3. HTTP 메서드와 URL을 파싱
+
+        String[] requestInfo = requests.toLowerCase().split(REQUEST_LINE_SEPARATOR);
+
+        if (requestInfo.length != 3) {
             throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
         }
 

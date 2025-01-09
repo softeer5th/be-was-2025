@@ -6,8 +6,8 @@ public enum HttpMethod {
 
     public static HttpMethod match(String method) {
         return switch (method) {
-            case "GET" -> GET;
-            case "POST" -> POST;
+            case "get" -> GET;
+            case "post" -> POST;
             default -> throw new IllegalArgumentException("잘못된 http method입니다.");
         };
     }
