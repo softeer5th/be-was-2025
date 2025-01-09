@@ -40,6 +40,11 @@ public class HttpResponse {
             e.printStackTrace();
         }
     }
+
+    public void setBody(String body){
+        this.body = body.getBytes();
+    }
+
     public void setContentLength(long contentLength) {
         setHeader("Content-Length", String.valueOf(contentLength));
     }
@@ -65,14 +70,14 @@ public class HttpResponse {
     }
 
     private void writeStatusLine() throws IOException {
-        String responseBuilder = request.getVersion() +
+        String statusLine = request.getVersion() +
                 " " +
                 status.getCode() +
                 " " +
                 status.getMessage() +
                 "\r\n";
 
-        dos.writeBytes(responseBuilder);
+        dos.writeBytes(statusLine);
     }
 
     private void writeHeaders() throws IOException {
@@ -98,9 +103,8 @@ public class HttpResponse {
         body = new byte[(int) file.length()];
 
         try (FileInputStream fis = new FileInputStream(file)) {
-            System.out.println("file.length() = " + file.length());
             int bytesRead = fis.read(body);
-            if (bytesRead != file.length()) {;
+            if (bytesRead != file.length()) {
                 throw new IOException("Failed to read file.");
             }
         }
