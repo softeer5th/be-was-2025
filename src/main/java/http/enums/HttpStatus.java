@@ -1,4 +1,4 @@
-package http;
+package http.enums;
 
 public enum HttpStatus {
     OK(200, "OK"), NOT_FOUND(404, "Not Found");

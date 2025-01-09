@@ -2,7 +2,7 @@ package webserver;
 
 import api.Controller;
 import api.UserController;
-import http.HttpMethod;
+import http.enums.HttpMethod;
 import http.HttpRequest;
 
 import java.util.HashMap;

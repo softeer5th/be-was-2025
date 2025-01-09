@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 
 import http.*;
+import http.enums.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtil;

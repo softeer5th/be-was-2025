@@ -1,6 +1,7 @@
 package http;
 
-import model.Mime;
+import http.enums.HttpStatus;
+import http.enums.MimeType;
 import util.FileUtil;
 
 import java.io.DataOutputStream;
