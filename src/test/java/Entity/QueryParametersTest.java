@@ -17,10 +17,10 @@ class QueryParametersTest {
 
     @Test
     void get() {
-        assertThat(queryParameters.get("email").equals("u1@gmail.com"));
-        assertThat(queryParameters.get("userId").equals("u1"));
-        assertThat(queryParameters.get("name").equals("nick1"));
-        assertThat(queryParameters.get("password").equals("1234"));
+        assertThat(queryParameters.get("email").equals("u1@gmail.com")).isTrue();
+        assertThat(queryParameters.get("userId").equals("u1")).isTrue();
+        assertThat(queryParameters.get("name").equals("nick1")).isTrue();
+        assertThat(queryParameters.get("password").equals("1234")).isTrue();
 
         assertThat(queryParameters.get("email").equals("u2@gmail.com")).isFalse();
         assertThat(queryParameters.get("userId").equals("u2")).isFalse();
@@ -31,10 +31,10 @@ class QueryParametersTest {
     @Test
     void getKeySet() {
         Set<String> set = queryParameters.getKeySet();
-        assertThat(set.contains("userId"));
-        assertThat(set.contains("password"));
-        assertThat(set.contains("email"));
-        assertThat(set.contains("name"));
+        assertThat(set.contains("userId")).isTrue();
+        assertThat(set.contains("password")).isTrue();
+        assertThat(set.contains("email")).isTrue();
+        assertThat(set.contains("name")).isTrue();
 
         assertThat(set.contains("userid")).isFalse();
         assertThat(set.contains("test")).isFalse();
