@@ -2,6 +2,8 @@ package http.request;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import enums.ContentType;
 import enums.HttpMethod;
@@ -13,6 +15,7 @@ public class HttpRequestLine {
 	private HttpMethod method;
 	private String path;
 	private String version;
+	private Map<String, String> queries;
 
 	public HttpRequestLine(BufferedReader reader) throws IOException {
 		String requestLine = reader.readLine();
@@ -27,10 +30,34 @@ public class HttpRequestLine {
 			throw new IllegalArgumentException("Malformed request line: " + requestLine);
 		}
 
-		this.method = HttpMethod.resolve(parts[0]);
+		this.method = HttpMethod.valueOf(parts[0]);
 		this.path = parts[1];
 		this.version = parts[2];
+		queries = getQueries(this.path);
+
+		if(queries.size() > 0){
+			this.path = this.path.substring(0, this.path.indexOf("?"));
+		}
 	}
+
+	private static Map<String, String> getQueries(String path) {
+		Map<String, String> requestQueries = new HashMap<>();
+
+		if (path.contains("?")) {
+			int queryStartIndex = path.indexOf("?") + 1;
+			String requestQueryString = path.substring(queryStartIndex);
+			String[] queries = requestQueryString.split("&");
+
+			for (String query : queries) {
+				String[] q = query.split("=");
+				String key = q[0];
+				String value = q[1];
+				requestQueries.put(key, value);
+			}
+		}
+		return requestQueries;
+	}
+
 
 	public HttpMethod getMethod() {
 		return method;
@@ -62,6 +89,11 @@ public class HttpRequestLine {
 	}
 
 	public String getPathWithoutFileName() {
+		int extensionIndex = path.lastIndexOf('.');
+		if(extensionIndex == -1){
+			return path;
+		}
+
 		int lastSlashIndex = path.lastIndexOf('/');
 
 		if(lastSlashIndex == 0){
