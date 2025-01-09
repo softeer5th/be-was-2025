@@ -9,6 +9,7 @@ import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 import webserver.message.header.records.AcceptRecord;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -33,12 +34,19 @@ public class StaticResourceResolver implements ResourceResolver {
     @Override
     public void resolve(HTTPRequest request, HTTPResponse.Builder response) {
         try {
-            Optional<byte []> optionalFile = tryFindFile(request, response);
-            if (optionalFile.isEmpty()) {
-                response.statusCode(HTTPStatusCode.NOT_FOUND);
-                return;
+            String staticUrl = request.getUri().replaceFirst("/", "static/");
+            Optional<byte []> optionalFile = tryFindFile(request, response, staticUrl);
+            if (optionalFile.isPresent()) {
+                response.body(optionalFile.get());
+            } else {
+                String index = staticUrl.endsWith("/") ? staticUrl + "index.html" : staticUrl + "/index.html";
+                Optional<byte []> directoryIndex = tryFindFile(request, response, index);
+                if (directoryIndex.isEmpty()) {
+                    response.statusCode(HTTPStatusCode.NOT_FOUND);
+                    return;
+                }
+                response.body(directoryIndex.get());
             }
-            response.body(optionalFile.get());
             response.statusCode(HTTPStatusCode.OK);
         } catch (IOException ioException) {
             logger.error(ioException.getMessage());
@@ -46,18 +54,15 @@ public class StaticResourceResolver implements ResourceResolver {
         }
     }
 
-    private Optional<byte []> tryFindFile(HTTPRequest request, HTTPResponse.Builder response) throws IOException {
-        String url = request.getUri();
-        url = url.startsWith("/") ? url.replaceFirst("/", "static/"): url;
-        logger.info(url);
-        Optional<byte []> acceptTypedFile = tryAcceptTypedFile(request, response, url);
+    private Optional<byte []> tryFindFile(HTTPRequest request, HTTPResponse.Builder response, String staticUrl)
+            throws IOException {
+        Optional<byte []> acceptTypedFile = tryAcceptTypedFile(request, response, staticUrl);
         if (acceptTypedFile.isPresent()) {
-            logger.info("Found accepted file : {}", url);
             return acceptTypedFile;
         }
-        Optional<byte[]> namedFile = loadResourceAsBytes(url);
+        Optional<byte[]> namedFile = loadResourceAsBytes(staticUrl);
         if (namedFile.isPresent()) {
-            response.contentTypeFromUri(url);
+            response.contentTypeFromUri(staticUrl);
             return namedFile;
         }
         return Optional.empty();
@@ -105,6 +110,10 @@ public class StaticResourceResolver implements ResourceResolver {
             return Optional.empty();
         }
         String filePath = resource.getFile();
+        File file = new File(filePath);
+        if (!file.exists() || !file.isFile()) {
+            return Optional.empty();
+        }
         return Optional.of(Files.readAllBytes(new File(filePath).toPath()));
     }
 }
