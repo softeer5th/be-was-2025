@@ -14,10 +14,10 @@ import static enums.HttpMethod.GET;
 
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
-    final String USER_REQUEST_PREFIX = "/user/";
+    private static final String USER_REQUEST_PREFIX = "/user/";
 
     @Override
-    public HttpResponse handle(RequestInfo request) {
+    public HttpResponse handle(final RequestInfo request) {
         logger.debug("request : {} ", request);
 
 
@@ -34,7 +34,7 @@ public class UserRequestHandler implements Handler {
         return response;
     }
 
-    private void createUser(UserCreateRequest request) {
+    private void createUser(final UserCreateRequest request) {
         User user = new User(request.userId(),
                 request.password(),
                 request.nickname(),
