@@ -1,0 +1,7 @@
+<web-app>
+    <servlet>
+        <url>/api/registration</url>
+        <method>GET</method>
+        <class>servlet.RegisterServlet</class>
+    </servlet>
+</web-app>
