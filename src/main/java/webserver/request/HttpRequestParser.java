@@ -3,6 +3,7 @@ package webserver.request;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 import webserver.exception.BadRequest;
+import webserver.exception.HttpException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class HttpRequestParser {
     public HttpRequest parse(BufferedReader requestInputReader) {
         try {
             // Request Body 전 까지 읽어들임
-            String beforeBody = readUntilCRLF(requestInputReader);
+            String beforeBody = readUntilEmptyLine(requestInputReader);
             // Request Line과 Header Lines 를 분리
             String[] tokens = beforeBody.split(HTTP_LINE_SEPARATOR, 2);
             String requestLineString = tokens[0].strip();
@@ -34,13 +35,15 @@ public class HttpRequestParser {
             // Header Line 문자열 파싱
             Map<String, String> headers = parseHeaders(headerLines);
             return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, requestInputReader);
+        } catch (HttpException e) {
+            throw e;
         } catch (Exception e) {
             throw new BadRequest("Invalid Request", e);
         }
     }
 
     // 빈 줄이 나올 때 까지 읽기
-    private String readUntilCRLF(BufferedReader reader) throws IOException {
+    private String readUntilEmptyLine(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
         String buffer;
         while (true) {
