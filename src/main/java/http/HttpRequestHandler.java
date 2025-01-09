@@ -1,5 +1,7 @@
 package http;
 
+import db.Database;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
@@ -10,6 +12,7 @@ import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
 
 import java.io.*;
+import java.util.Map;
 
 public class HttpRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
@@ -31,6 +34,9 @@ public class HttpRequestHandler {
                 if (PathPool.getInstance().get(target) == null) {
                     throw new NoSuchPathException();
                 }
+                Map<String, String> queries = httpRequest.getQueries();
+                User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
+                Database.addUser(user);
                 HttpResponseHandler.redirect(dos);
             }
 
