@@ -1,7 +1,10 @@
-package util;
+package http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtils;
+import util.MimeType;
+import util.RequestParser;
 import util.exception.InvalidRequestLineSyntaxException;
 
 import java.io.*;

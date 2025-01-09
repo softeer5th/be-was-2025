@@ -1,6 +1,6 @@
 package util.exception;
 
-import util.HttpStatus;
+import http.HttpStatus;
 
 public class InvalidRequestLineSyntaxException extends RuntimeException {
     public final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
