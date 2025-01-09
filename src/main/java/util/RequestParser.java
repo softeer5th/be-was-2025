@@ -32,7 +32,6 @@ public class RequestParser {
         version = requestLine[2];
 
         String[] requestTarget = resolveRequestTarget(requestLine[1]);
-        logger.debug("requestTarget size: {}", requestTarget.length);
 
         target = requestTarget[0];
         if (requestTarget.length > 1) {
@@ -42,7 +41,6 @@ public class RequestParser {
                 String key = items[0];
                 String value = items.length > 1 ? items[1] : null;
                 queries.put(key, value);
-                logger.debug("key: {}, value: {}", key, value);
             }
         }
     }

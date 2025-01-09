@@ -6,6 +6,7 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
+import util.HttpResponseHandler;
 import util.MimeType;
 import util.RequestParser;
 import util.exception.InvalidRequestLineSyntaxException;
@@ -41,8 +42,8 @@ public class RequestHandler implements Runnable {
 
             String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
 
-            response200Header(dos, body.length, mimeType);
-            responseBody(dos, body);
+            HttpResponseHandler.response200Header(dos, body.length, mimeType);
+            HttpResponseHandler.responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
         } catch (InvalidRequestLineSyntaxException e) {
@@ -50,8 +51,8 @@ public class RequestHandler implements Runnable {
             try (OutputStream out = connection.getOutputStream()) {
                 DataOutputStream dos = new DataOutputStream(out);
                 byte[] body = e.getMessage().getBytes();
-                response400Header(dos, body.length, "text/plain");
-                responseBody(dos, body);
+                HttpResponseHandler.response400Header(dos, body.length, "text/plain");
+                HttpResponseHandler.responseBody(dos, body);
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
             }
