@@ -19,7 +19,6 @@ public class FrontControllerServlet implements Servlet {
 
 		// TODO: 해당 객체는 정적인 객체인데 서블릿를 추가해주는 위치가 바람직한가?
 		controllerMap.put(STATIC_RESOURCES, new StaticResourceServlet());
-		controllerMap.put("/", new HomeServlet());
 		controllerMap.put("/registration", new RegisterServlet());
 		controllerMap.put("/user/create", null);
 	}
@@ -44,6 +43,8 @@ public class FrontControllerServlet implements Servlet {
 	}
 
 	private boolean isResourceRequest(HttpRequest request) {
+		// TODO: 과연 이 조건만으로 정적 리소스 요청을 판단할 수 있을까?
+
 		return request.getPath().lastIndexOf('.') != -1;
 	}
 }
