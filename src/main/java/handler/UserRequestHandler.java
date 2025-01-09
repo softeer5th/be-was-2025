@@ -3,6 +3,7 @@ package handler;
 import db.Database;
 import enums.FileContentType;
 import enums.HttpStatus;
+import exception.ClientErrorException;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class UserRequestHandler implements Handler {
                 createUser(userCreateRequest);
 
                 response.setResponse(HttpStatus.CREATED, FileContentType.HTML, "successfully created.!");
-            } catch (IllegalArgumentException e) {
+            } catch (ClientErrorException e) {
                 response.setResponse(HttpStatus.BAD_REQUEST, FileContentType.HTML, e.getMessage());
             }
         }

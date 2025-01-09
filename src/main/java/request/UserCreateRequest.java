@@ -1,5 +1,8 @@
 package request;
 
+import exception.ClientErrorException;
+import exception.ErrorCode;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +24,7 @@ public record UserCreateRequest(
 
     private static String getOrElseThrow(Map<String, String> map, String key) {
         if (!map.containsKey(key))
-            throw new IllegalArgumentException(key + " is invalid...");
+            throw new ClientErrorException(ErrorCode.INVALID_FORM);
         return map.get(key);
     }
 
