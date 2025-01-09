@@ -9,7 +9,7 @@ import response.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class UserRequestDispatcherTest {
+class UserRequestHandlerTest {
     private final UserRequestHandler userRequestHandler = new UserRequestHandler();
 
     private static final String VALID_REQUEST_PATH = "/user/create?userId=jueun&nickname=jueun&password=jueun&email=jueun@naver.com";
