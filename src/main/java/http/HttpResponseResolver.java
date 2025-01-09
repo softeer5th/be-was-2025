@@ -34,7 +34,7 @@ public class HttpResponseResolver {
     }
 
     private void writeHeader(DataOutputStream dos, HttpStatus httpStatus, String contentType, int contentLength) throws IOException {
-        dos.writeBytes(String.format("HTTP/1.1 {} {}\r\n", httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
+        dos.writeBytes(String.format("HTTP/1.1 %d %s\r\n", httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
         dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", contentType));
         dos.writeBytes(String.format("Content-Length: %d\r\n", contentLength));
         dos.writeBytes("\r\n");
