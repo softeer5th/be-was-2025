@@ -7,9 +7,9 @@ import java.util.Set;
 public class QueryParameters {
     Map<String, String> map;
 
-    public QueryParameters(String s) {
+    public QueryParameters(String query) {
         map = new HashMap<>();
-        String[] pairs = s.split("&");
+        String[] pairs = query.split("&");
         for (String pair : pairs) {
             String[] tokens = pair.split("=");
             add(tokens[0], tokens[1]);
