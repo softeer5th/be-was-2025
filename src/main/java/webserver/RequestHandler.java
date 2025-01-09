@@ -47,7 +47,7 @@ public class RequestHandler implements Runnable {
                 File file = new File("src/main/resources/static" + uri);
                 if (file.exists()) {
                     byte[] body = Files.readAllBytes(file.toPath());
-                    String contentType = getContentType(uri);
+                    String contentType = ContentTypeMapper.getContentType(uri);
 
                     response200Header(dos, body.length, contentType);
                     responseBody(dos, body);
@@ -61,22 +61,6 @@ public class RequestHandler implements Runnable {
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
-        }
-    }
-
-    // Request uri에 따라 Content-Type을 지정하는 메서드
-    private String getContentType(String uri) {
-        if (uri.endsWith(".html")) {
-            return "text/html";
-        } else if (uri.endsWith(".css")) {
-            return "text/css";
-        } else if (uri.endsWith(".svg")) {
-            return "image/svg+xml";
-        } else if (uri.endsWith(".ico")) {
-            return "image/x-icon";
-        }
-        else {
-            return "application/octet-stream";
         }
     }
 
