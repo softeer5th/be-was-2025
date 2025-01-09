@@ -4,6 +4,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wasframework.Mapping;
+import wasframework.PathVariable;
 import webserver.httpserver.HttpMethod;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
@@ -51,5 +52,13 @@ public class SignUpController {
         File file = new File("src/main/resources/static/registration/success.html");
         byte[] readFile = getFile(file);
         response.setBody(readFile);
+    }
+
+    @Mapping(path = "/test/{id}", method = HttpMethod.GET)
+    public void signUpTest(HttpRequest request, HttpResponse response, @PathVariable("id") int id) {
+        response.setStatusCode(StatusCode.OK);
+        response.setHeader("Content-Type", "text/html");
+        String body = "<h1>id value is " + id + ". </h1>";
+        response.setBody(body.getBytes());
     }
 }
