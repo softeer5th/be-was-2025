@@ -4,22 +4,27 @@ import java.io.File;
 
 public class FileFinder {
     private static final String STATICPATH = "./src/main/resources/static";
-    private String url;
+    private final String url;
+    private String path;
 
     public FileFinder(String url) {
         this.url = url;
     }
 
-    public String getPath() {
-        String path = STATICPATH + url;
+    public boolean find() {
+        this.path = STATICPATH + url;
         File file = new File(path);
         if (file.exists()) {
             if(file.isDirectory()) {
-                path += "/index.html";
+                this.path += "/index.html";
             }
-            return path;
+            return true;
         }
-        return null;
+        return false;
+    }
+
+    public String getPath() {
+        return path;
     }
 
 }

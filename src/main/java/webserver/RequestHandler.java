@@ -72,14 +72,10 @@ public class RequestHandler implements Runnable {
     }
 
     private byte[] makeBody(String url){
-        byte[] body;
-        if(url.equals("/")) {
-            body = "<h1>Hello World</h1>".getBytes();
+        FileFinder fileFinder = new FileFinder(url);
+        if(fileFinder.find()){
+            return readFileToBytes(fileFinder.getPath());
         }
-        else {
-            FileFinder fileFinder = new FileFinder(url);
-            body = readFileToBytes(fileFinder.getPath());
-        }
-        return body;
+        else return null;
     }
 }
