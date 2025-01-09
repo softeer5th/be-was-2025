@@ -34,19 +34,8 @@ public class HttpRequestHandler {
                 if (PathPool.getInstance().get(path) == null) {
                     throw new NoSuchPathException();
                 }
-                String redirectPath = "/registration";
-                Map<String, String> queries = httpRequest.getQueries();
-                String userId = queries.get("userId");
-                String username = queries.get("username");
-                String password = queries.get("password");
-                if (userId == null || username == null || password == null) {
-                    HttpResponseHandler.redirect(dos, redirectPath);
-                    return;
-                }
-                User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
-                redirectPath = "/main";
-                Database.addUser(user);
-                HttpResponseHandler.redirect(dos, redirectPath);
+
+                createUser(httpRequest);
                 return;
             }
 
@@ -73,6 +62,22 @@ public class HttpRequestHandler {
             HttpResponseHandler.responseHeader(dos, body.length, "text/plain", e.httpStatus);
             HttpResponseHandler.responseBody(dos, body);
         }
+    }
+
+    private void createUser(HttpRequest httpRequest) {
+        String redirectPath = "/registration";
+        Map<String, String> queries = httpRequest.getQueries();
+        String userId = queries.get("userId");
+        String username = queries.get("username");
+        String password = queries.get("password");
+        if (userId == null || username == null || password == null) {
+            HttpResponseHandler.redirect(dos, redirectPath);
+            return;
+        }
+        User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
+        redirectPath = "/main";
+        Database.addUser(user);
+        HttpResponseHandler.redirect(dos, redirectPath);
     }
 
     private byte[] createBody(File file) throws IOException {
