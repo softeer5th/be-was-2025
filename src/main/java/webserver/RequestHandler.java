@@ -26,40 +26,42 @@ public class RequestHandler implements Runnable {
     public void run() {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
-
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             DataOutputStream dos = new DataOutputStream(out);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            List<String> lines = new ArrayList<>();
-            String line;
-            while (!(line = br.readLine()).isEmpty()) {
-                lines.add(line);
-            }
-            logRequestDetails(lines);
-            String[] tokens = lines.get(0).split(" ");
-            String requestPath = tokens[1];
-
-            String fileExtension = "html";
-            if (!requestPath.contains("?")) {
-                fileExtension = tokens[1].split("\\.")[1];
-            }
-
-            if (tokens[1].contains("/create") && requestPath.contains("?")) {
-                creatUser(requestPath, dos);
-            }
-
-            File file = new File(RESOURCES_PATH + requestPath);
-            if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
-                HttpResponse.respond404(dos);
-                return;
-            }
-            byte[] body = readFile(file);
-            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
-            httpResponse.respond();
+            handleRequest(br, dos);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private void handleRequest(BufferedReader br, DataOutputStream dos) throws Exception {
+        List<String> headerLines = parseRequestHeader(br);
+        logRequestDetails(headerLines);
+        String[] tokens = headerLines.get(0).split(" ");
+        String requestPath = tokens[1];
+        if (requestPath.contains("/create") && requestPath.contains("?")) {
+            creatUser(requestPath, dos);
+            return;
+        }
+        String fileExtension = requestPath.split("\\.")[1];
+        File file = new File(RESOURCES_PATH + requestPath);
+        if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
+            HttpResponse.respond404(dos);
+            return;
+        }
+        byte[] body = readFile(file);
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
+        httpResponse.respond();
+    }
+
+    private List<String> parseRequestHeader(BufferedReader br) throws Exception {
+        List<String> lines = new ArrayList<>();
+        String line;
+        while (!(line = br.readLine()).isEmpty()) {
+            lines.add(line);
+        }
+        return lines;
     }
 
     private void creatUser(String queries, DataOutputStream dos) throws Exception {
