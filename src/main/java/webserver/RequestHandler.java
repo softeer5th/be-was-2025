@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import util.FileUtils;
 import util.MimeType;
 import util.RequestParser;
+import util.exception.InvalidRequestLineSyntaxException;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -44,14 +45,33 @@ public class RequestHandler implements Runnable {
             responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
-        } catch (IllegalArgumentException e) {
+        } catch (InvalidRequestLineSyntaxException e) {
             logger.error(e.getMessage());
+            try (OutputStream out = connection.getOutputStream()) {
+                DataOutputStream dos = new DataOutputStream(out);
+                byte[] body = e.getMessage().getBytes();
+                response400Header(dos, body.length, "text/plain");
+                responseBody(dos, body);
+            } catch (IOException ex) {
+                logger.error(ex.getMessage());
+            }
         }
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String mimetype) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", mimetype));
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response400Header(DataOutputStream dos, int lengthOfBodyContent, String mimetype) {
+        try {
+            dos.writeBytes("HTTP/1.1 400 Bad Request \r\n");
             dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", mimetype));
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");

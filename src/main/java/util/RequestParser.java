@@ -2,6 +2,7 @@ package util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.exception.InvalidRequestLineSyntaxException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class RequestParser {
 
     public RequestParser() {}
 
-    public void parse(InputStream in) throws IOException{
+    public void parse(InputStream in) throws IOException, InvalidRequestLineSyntaxException{
         headers = logAndReturnHeaders(in);
 
         String[] requestLine = resolveRequestLine(headers.get(0));
@@ -64,6 +65,11 @@ public class RequestParser {
 
     private String[] resolveRequestLine(String requestLine) {
         String[] tokens =  requestLine.split(" ");
+
+        if (tokens.length != 3) {
+            throw new InvalidRequestLineSyntaxException("");
+        }
+
         return tokens;
     }
 
