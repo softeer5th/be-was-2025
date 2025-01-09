@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../reset.css" rel="stylesheet" />
     <link href="../global.css" rel="stylesheet" />
+    <script>
+      // 폼 제출 전 입력 값 검사
+      function validateInput(event) {
+        const inputs = document.querySelectorAll('.input_textfield');
+        const invalidChars = /[\s.\/?]/; // 공백, '.', '/', '?' 문자
+        let valid = true;
+
+        for (let input of inputs) {
+          // 입력 값이 비어 있으면 경고 표시
+          if (!input.value.trim()) {
+            alert(input.previousElementSibling.innerText + '을(를) 입력해주세요.');
+            input.focus();
+            valid = false;
+            event.preventDefault();
+            break;
+          }
+          // 유효하지 않은 문자 검사
+          if (invalidChars.test(input.value)) {
+            alert('공백, ".", "?", "/" 문자는 입력할 수 없습니다.');
+            input.focus();
+            valid = false;
+            event.preventDefault();
+            break;
+          }
+        }
+
+        return valid;
+      }
+    </script>
   </head>
   <body>
     <div class="container">
@@ -23,14 +52,14 @@
       </header>
       <div class="page">
         <h2 class="page-title">회원가입</h2>
-        <form action="http://localhost:8080/create" method="GET">
+        <form action="http://localhost:8080/create" method="GET" onsubmit="return validateInput(event)">
           <div class="textfield textfield_size_s">
             <p class="title_textfield">이메일</p>
             <input
-                    class="input_textfield"
-                    placeholder="이메일을 입력해주세요"
-                    autocomplete="email"
-                    name="email"
+              class="input_textfield"
+              placeholder="이메일을 입력해주세요"
+              autocomplete="email"
+              name="email"
             />
           </div>
         <div class="textfield textfield_size_s">
