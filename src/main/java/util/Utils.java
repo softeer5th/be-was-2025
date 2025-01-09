@@ -50,4 +50,12 @@ public class Utils {
         httpResponseHandler.responseFailHandler(dos, HTTPCode.METHOD_NOT_ALLOWED);
         return false;
     }
+
+    public static boolean isValidHeader(String[] parts, DataOutputStream dos) {
+        if(parts.length < 3){
+            httpResponseHandler.responseFailHandler(dos, HTTPCode.BAD_REQUEST);
+            return false;
+        }
+        return true;
+    }
 }

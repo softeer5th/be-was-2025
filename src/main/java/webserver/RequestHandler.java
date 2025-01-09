@@ -2,15 +2,12 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Set;
 
 import Response.HTTPResponseHandler;
-import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static util.Utils.isValidHttpMethod;
-import static util.Utils.readInputToArray;
+import static util.Utils.*;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -33,8 +30,12 @@ public class RequestHandler implements Runnable {
                 String [] httpRequestHeader = readInputToArray(in);
                 logHttpRequestHeader(httpRequestHeader);
 
-                String httpMethod = httpRequestHeader[0].split(" ")[0];
-                String resourceName = httpRequestHeader[0].split(" ")[1];
+                if(!isValidHeader(httpRequestHeader[0].split("\\s+"), dos)){
+                    return;
+                }
+
+                String httpMethod = httpRequestHeader[0].split("\\s+")[0];
+                String resourceName = httpRequestHeader[0].split("\\s+")[1];
 
                 if(!isValidHttpMethod(httpMethod, dos)) {
                     return;
