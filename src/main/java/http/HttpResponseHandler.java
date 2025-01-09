@@ -28,4 +28,15 @@ public class HttpResponseHandler {
             logger.error(e.getMessage());
         }
     }
+
+    public static void redirect(DataOutputStream dos) {
+        try {
+            dos.writeBytes(String.format("HTTP/1.1 %d %s \r\n", 303, "See Other"));
+            dos.writeBytes(String.format("Location: %s", "http://localhost:8080/main"));
+            dos.writeBytes("\r\n");
+            dos.flush();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
 }

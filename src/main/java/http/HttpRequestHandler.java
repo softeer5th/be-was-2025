@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
 import util.MimeType;
+import util.PathPool;
 import util.RequestParser;
 import util.exception.InvalidRequestLineSyntaxException;
+import util.exception.NoSuchPathException;
 
 import java.io.*;
 
@@ -25,6 +27,17 @@ public class HttpRequestHandler {
 
             File file = FileUtils.findFile(target);
 
+            if (!file.exists()) {
+                if (PathPool.getInstance().get(target) == null) {
+                    throw new NoSuchPathException();
+                }
+                HttpResponseHandler.redirect(dos);
+            }
+
+            if (file.exists() && file.isDirectory()) {
+                file = FileUtils.findFile(file);
+            }
+
             byte[] body = createBody(file);
 
             String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
@@ -35,8 +48,12 @@ public class HttpRequestHandler {
             HttpResponseHandler.responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
-        }   catch (InvalidRequestLineSyntaxException e) {
+        } catch (InvalidRequestLineSyntaxException e) {
             byte[] body = e.getMessage().getBytes();
+            HttpResponseHandler.responseHeader(dos, body.length, "text/plain", e.httpStatus);
+            HttpResponseHandler.responseBody(dos, body);
+        } catch (NoSuchPathException e) {
+            byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             HttpResponseHandler.responseHeader(dos, body.length, "text/plain", e.httpStatus);
             HttpResponseHandler.responseBody(dos, body);
         }
@@ -48,5 +65,9 @@ public class HttpRequestHandler {
         is.close();
 
         return body;
+    }
+
+    private void parse(String target) {
+
     }
 }
