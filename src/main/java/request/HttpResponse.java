@@ -9,6 +9,7 @@ public class HttpResponse {
     private final DataOutputStream dos;
     private final byte[] body;
     private final String contentType;
+    private static final String NOT_FOUND_PAGE = "<html><body><h1 style=\"text-align: center\">404 Not Found</h1></body></html>";
 
     public HttpResponse(HttpStatus httpStatus, DataOutputStream dos,
                         byte[] body, String contentType) {
@@ -22,6 +23,12 @@ public class HttpResponse {
         makeHeader();
         makeBody();
         send();
+    }
+
+    public static void respond404(DataOutputStream dos) throws IOException{
+        byte[] body = NOT_FOUND_PAGE.getBytes();
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.NOT_FOUND, dos, body, "text/html");
+        httpResponse.respond();
     }
 
     private void makeHeader() throws IOException {
