@@ -1,5 +1,6 @@
 package util;
 
+import common.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
@@ -12,7 +13,7 @@ public class HttpResponse {
 
     public void responseHeader(HttpStatus httpStatus, DataOutputStream dos, int lengthOfBodyContent, String filepath) {
         try {
-            dos.writeBytes("HTTP/1.1 " + httpStatus.code + httpStatus.message + " \r\n");
+            dos.writeBytes("HTTP/1.1 " + httpStatus.getCode() + httpStatus.getMessage() + " \r\n");
             dos.writeBytes("Content-Type: " + FileUtil.getContentType(filepath) + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");

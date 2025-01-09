@@ -6,7 +6,7 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtil;
-import util.HttpStatus;
+import common.HttpStatus;
 import util.HttpResponse;
 
 public class RequestHandler implements Runnable {
