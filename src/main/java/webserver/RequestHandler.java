@@ -2,8 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 import model.Mime;
 import org.slf4j.Logger;
@@ -31,15 +29,7 @@ public class RequestHandler implements Runnable {
 
             DataOutputStream dos = new DataOutputStream(out);
             String contentType = Mime.getByExtension(requestParser.extension).getContentType();
-
-            byte[] body;
-            if(requestParser.url.equals("/")) {
-                body = "<h1>Hello World</h1>".getBytes();
-            }
-            else {
-                FileFinder fileFinder = new FileFinder(requestParser.url);
-                body = readFileToBytes(fileFinder.getPath());
-            }
+            byte[] body = makeBody(requestParser.url);
 
             response200Header(dos, body.length, contentType);
             responseBody(dos, body);
@@ -79,5 +69,17 @@ public class RequestHandler implements Runnable {
             logger.error(e.getMessage());
         }
         return bytes;
+    }
+
+    private byte[] makeBody(String url){
+        byte[] body;
+        if(url.equals("/")) {
+            body = "<h1>Hello World</h1>".getBytes();
+        }
+        else {
+            FileFinder fileFinder = new FileFinder(url);
+            body = readFileToBytes(fileFinder.getPath());
+        }
+        return body;
     }
 }
