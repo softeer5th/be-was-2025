@@ -1,64 +1,106 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
-        <ul class="header__menu">
-          <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
-          </li>
-          <li class="header__menu__item">
-            <a class="btn btn_ghost btn_size_s" href="/registration">
-              회원 가입
-            </a>
-          </li>
-        </ul>
-      </header>
-      <div class="page">
-        <h2 class="page-title">회원가입</h2>
-        <form class="form">
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">아이디</p>
-            <input
-              class="input_textfield"
-              placeholder="아이디를 입력해주세요"
-              autocomplete="username"
-            />
-          </div>
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">닉네임</p>
-            <input
-              class="input_textfield"
-              placeholder="닉네임을 입력해주세요"
-              autocomplete="username"
-            />
-          </div>
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">비밀번호</p>
-            <input
-              class="input_textfield"
-              type="password"
-              placeholder="비밀번호를 입력해주세요"
-              autocomplete="current-password"
-            />
-          </div>
-          <button
-            id="registration-btn"
-            class="btn btn_contained btn_size_m"
-            style="margin-top: 24px"
-            type="button"
-          >
-            회원가입
-          </button>
-        </form>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="../reset.css" rel="stylesheet" />
+  <link href="../global.css" rel="stylesheet" />
+  <script>
+    async function handleFormSubmit(event) {
+      event.preventDefault(); // 기본 폼 제출 동작 중단
+
+      const form = event.target;
+      const formData = new FormData(form);
+      const queryParams = new URLSearchParams(formData).toString(); // GET 쿼리 문자열 생성
+
+      try {
+        // 서버로 GET 요청 보내기
+        const response = await fetch(`${form.action}?${queryParams}`, {
+          method: form.method,
+        });
+
+        if (response.status === 201) {
+          alert("회원가입에 성공하셨습니다!");
+          window.location.href = "/login";
+        } else {
+          const errorText = await response.text();
+          alert(`회원가입 실패: ${errorText}`);
+        }
+      } catch (error) {
+        alert(`에러 발생: ${error.message}`);
+      }
+    }
+  </script>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <a href="/"><img src="../img/signiture.svg" /></a>
+    <ul class="header__menu">
+      <li class="header__menu__item">
+        <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
+      </li>
+      <li class="header__menu__item">
+        <a class="btn btn_ghost btn_size_s" href="/registration">
+          회원 가입
+        </a>
+      </li>
+    </ul>
+  </header>
+  <div class="page">
+    <h2 class="page-title">회원가입</h2>
+    <form class="form" action="/api/registration" method="GET" onsubmit="handleFormSubmit(event)">
+      <div class="textfield textfield_size_s">
+        <p class="title_textfield">아이디</p>
+        <input
+                name="userId"
+                class="input_textfield"
+                placeholder="아이디를 입력해주세요"
+                autocomplete="username"
+                required
+        />
       </div>
-    </div>
-  </body>
+      <div class="textfield textfield_size_s">
+        <p class="title_textfield">비밀번호</p>
+        <input
+                name="password"
+                class="input_textfield"
+                type="password"
+                placeholder="비밀번호를 입력해주세요"
+                autocomplete="current-password"
+                required
+        />
+      </div>
+      <div class="textfield textfield_size_s">
+        <p class="title_textfield">이름</p>
+        <input
+                name="name"
+                class="input_textfield"
+                placeholder="이름을 입력해주세요"
+                required
+        />
+      </div>
+      <div class="textfield textfield_size_s">
+        <p class="title_textfield">이메일</p>
+        <input
+                name="email"
+                class="input_textfield"
+                type="email"
+                placeholder="이메일을 입력해주세요"
+                autocomplete="email"
+                required
+        />
+      </div>
+      <button
+              id="registration-btn"
+              class="btn btn_contained btn_size_m"
+              style="margin-top: 24px"
+              type="submit"
+      >
+        회원가입
+      </button>
+    </form>
+  </div>
+</div>
+</body>
 </html>
