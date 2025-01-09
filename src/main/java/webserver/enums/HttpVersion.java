@@ -1,7 +1,7 @@
 package webserver.enums;
 
 
-import webserver.exception.BadRequest;
+import webserver.exception.NotImplemented;
 
 import java.util.Arrays;
 
@@ -22,6 +22,6 @@ public enum HttpVersion {
         return Arrays.stream(values())
                 .filter(httpVersion -> httpVersion.version.equalsIgnoreCase(version))
                 .findFirst()
-                .orElseThrow(() -> new BadRequest("Invalid HTTP version"));
+                .orElseThrow(() -> new NotImplemented("Invalid HTTP version"));
     }
 }
