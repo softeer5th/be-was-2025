@@ -27,6 +27,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">아이디</p>
             <input
+              id = "user_id"
               class="input_textfield"
               placeholder="아이디를 입력해주세요"
               autocomplete="username"
@@ -35,6 +36,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">닉네임</p>
             <input
+              id = "user_nickname"
               class="input_textfield"
               placeholder="닉네임을 입력해주세요"
               autocomplete="username"
@@ -43,6 +45,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">비밀번호</p>
             <input
+              id = "user_password"
               class="input_textfield"
               type="password"
               placeholder="비밀번호를 입력해주세요"
@@ -60,5 +63,30 @@
         </form>
       </div>
     </div>
+  <script>
+    document.getElementById("registration-btn").addEventListener("click", function () {
+      const user_id = document.getElementById("user_id").value;
+      const user_nickname = document.getElementById("user_nickname").value;
+      const user_password = document.getElementById("user_password");
+
+      const url = `/user/create?id=${encodeURIComponent(user_id)}&nickname=${encodeURIComponent(user_nickname)}&password=${encodeURIComponent(user_password)}`;
+
+      // 서버에 요청 전송
+      fetch(url, {method: "GET"})
+              .then(response => {
+                // 상태 코드가 200번대일 경우
+                if (response.ok) {
+                  return response.text();
+                }
+                throw new Error("회원가입 요청 실패");
+              })
+              .then(data => {
+                alert("회원가입 성공: " + data);
+              })
+              .catch(error => {
+                alert("오류 발생: " + error.message);
+              })
+    })
+  </script>
   </body>
 </html>
