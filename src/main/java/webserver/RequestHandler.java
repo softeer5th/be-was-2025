@@ -5,10 +5,7 @@ import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.FileUtils;
-import util.HttpResponseHandler;
-import util.MimeType;
-import util.RequestParser;
+import util.*;
 import util.exception.InvalidRequestLineSyntaxException;
 
 public class RequestHandler implements Runnable {
@@ -42,7 +39,7 @@ public class RequestHandler implements Runnable {
 
             String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
 
-            HttpResponseHandler.response200Header(dos, body.length, mimeType);
+            HttpResponseHandler.responseHeader(dos, body.length, mimeType, HttpStatus.OK);
             HttpResponseHandler.responseBody(dos, body);
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -51,42 +48,11 @@ public class RequestHandler implements Runnable {
             try (OutputStream out = connection.getOutputStream()) {
                 DataOutputStream dos = new DataOutputStream(out);
                 byte[] body = e.getMessage().getBytes();
-                HttpResponseHandler.response400Header(dos, body.length, "text/plain");
+                HttpResponseHandler.responseHeader(dos, body.length, "text/plain", e.httpStatus);
                 HttpResponseHandler.responseBody(dos, body);
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
             }
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String mimetype) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", mimetype));
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response400Header(DataOutputStream dos, int lengthOfBodyContent, String mimetype) {
-        try {
-            dos.writeBytes("HTTP/1.1 400 Bad Request \r\n");
-            dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", mimetype));
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
         }
     }
 
