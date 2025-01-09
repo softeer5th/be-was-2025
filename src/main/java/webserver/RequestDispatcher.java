@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.RequestInfo;
 import response.HttpResponse;
-import router.RequestRouter;
 import router.Router;
 import util.RequestParser;
 
@@ -22,9 +21,9 @@ public class RequestDispatcher implements Runnable {
     private Socket connection;
     private final Router router;
 
-    public RequestDispatcher(Socket connectionSocket) {
+    public RequestDispatcher(Socket connectionSocket,Router router) {
         this.connection = connectionSocket;
-        this.router = new RequestRouter();
+        this.router = router;
     }
 
     public void run() {
