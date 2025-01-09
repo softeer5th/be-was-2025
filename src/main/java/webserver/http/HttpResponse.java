@@ -4,6 +4,7 @@ import webserver.ContentTypeMapper;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class HttpResponse {
     private static final String HTTP_OK = "HTTP/1.1 200 OK";
@@ -22,6 +23,12 @@ public class HttpResponse {
 
     public void send404(byte[] body) throws IOException {
         writeHeader(HTTP_NOT_FOUND, "text/html", body.length);
+        writeBody(body);
+    }
+
+    public void sendJson(String json) throws IOException {
+        byte[] body = json.getBytes(StandardCharsets.UTF_8);
+        writeHeader(HTTP_OK, "application/json", body.length);
         writeBody(body);
     }
 

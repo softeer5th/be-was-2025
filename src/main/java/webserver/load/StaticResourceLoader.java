@@ -25,9 +25,9 @@ public class StaticResourceLoader {
 
         Path filePath = Paths.get(baseDirectory + mappedPath);
         if (!Files.exists(filePath)) {
-            return new LoadResult(null, mappedPath);
+            return new LoadResult(null, mappedPath, "text/html");
         }
-        return new LoadResult(Files.readAllBytes(filePath), mappedPath);
+        return new LoadResult(Files.readAllBytes(filePath), mappedPath, "text/html");
     }
 
     private String removeQueryParameters(String path) {

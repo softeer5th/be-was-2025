@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 import api.ApiRouter;
 import model.RequestData;
@@ -53,7 +54,14 @@ public class RequestHandler implements Runnable {
             return true;
         }
 
-        response.send200(apiResult.content(), apiResult.path());
+        String contentType = apiResult.contentType();
+        if ("application/json".equals(contentType)) {
+            String json = new String(apiResult.content(), StandardCharsets.UTF_8);
+            response.sendJson(json);
+
+        } else {
+            response.send200(apiResult.content(), apiResult.path());
+        }
         return true;
     }
 

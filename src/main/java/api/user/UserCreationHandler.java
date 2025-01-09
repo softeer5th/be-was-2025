@@ -1,6 +1,7 @@
 package api.user;
 
 import api.ApiHandler;
+import db.TokenStore;
 import exception.ErrorCode;
 import exception.UserCreationException;
 import db.Database;
@@ -31,10 +32,10 @@ public class UserCreationHandler implements ApiHandler {
             validateUser(user);
         } catch (UserCreationException e) {
             if (e.getErrorCode() == ErrorCode.USER_ALREADY_EXISTS) {
-                return createRedirectionResponseForError("duplicatedUser");
+                return createRedirectionResponseForError("duplicatedUser", user);
             }
             if (e.getErrorCode() == ErrorCode.DUPLICATED_NAME) {
-                return createRedirectionResponseForError("duplicatedName");
+                return createRedirectionResponseForError("duplicatedName", user);
             }
         }
         Database.addUser(user);
@@ -93,14 +94,23 @@ public class UserCreationHandler implements ApiHandler {
 
     private LoadResult createRedirectionResponse() {
         String redirectionHtml = "<meta http-equiv='refresh' content='0;url=/index.html' />";
-        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create");
+        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create", "text/html");
     }
 
-    private LoadResult createRedirectionResponseForError(String errorParam) {
+    private LoadResult createRedirectionResponseForError(String errorParam, User user) {
+        String token = java.util.UUID.randomUUID().toString();
+
+        TokenStore.put(token, new UserData(
+                user.getUserId(),
+                user.getName(),
+                user.getPassword()
+        ));
+
         String redirectionHtml = String.format(
-                "<meta http-equiv='refresh' content='0;url=/registration?error=%s' />",
-                errorParam
+                "<meta http-equiv='refresh' content='0;url=/registration?error=%s&token=%s' />",
+                errorParam,
+                token
         );
-        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create");
+        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create", "text/html");
     }
 }

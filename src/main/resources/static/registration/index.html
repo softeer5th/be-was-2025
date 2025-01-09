@@ -81,9 +81,10 @@
     </div>
 
     <script>
-      function checkErrorParam() {
+      async function checkErrorParam() {
         const params = new URLSearchParams(window.location.search);
         const error = params.get("error");
+        const token = params.get("token");
 
         if (error === "duplicatedUser") {
           document.getElementById("userId-dup-error").style.display = "block";
@@ -91,7 +92,31 @@
         if (error === "duplicatedName") {
           document.getElementById("name-dup-error").style.display = "block";
         }
+
+        if (token) {
+          const userData = await fetchUserData(token);
+          if (userData) {
+            document.getElementById("userId-input").value = userData.userId;
+            document.getElementById("name-input").value = userData.name;
+            document.getElementById("password-input").value = userData.password;
+          }
+        }
       }
+
+      async function fetchUserData(token) {
+        try {
+          const response = await fetch(`/api/userdata?token=${token}`);
+          if (!response.ok) {
+            console.error("Server returned error:", response.status);
+            return null;
+          }
+          return await response.json();
+        } catch(e) {
+          console.error(e);
+          return null;
+        }
+      }
+
       function submitRegistration() {
         const userIdInput = document.getElementById("userId-input");
         const nameInput = document.getElementById("name-input");

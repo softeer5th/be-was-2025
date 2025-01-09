@@ -1,6 +1,7 @@
 package api;
 
 import api.user.UserCreationHandler;
+import api.user.UserDataHandler;
 import model.RequestData;
 import webserver.load.LoadResult;
 
@@ -12,8 +13,8 @@ public class ApiRouter {
     private final List<ApiHandler> handlers = new ArrayList<>();
 
     public ApiRouter() {
-        // 다른 API 핸들러 추가 가능
         handlers.add(new UserCreationHandler());
+        handlers.add(new UserDataHandler());
     }
 
     public LoadResult route(RequestData requestData) throws IOException {
