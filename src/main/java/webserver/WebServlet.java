@@ -45,8 +45,9 @@ public class WebServlet {
         String parsedPath = removeApiPrefixFromPath(httpRequest.getPath());
 
         if(hasControllerByPath(parsedPath)){
-            Controller controller = controllerMap.get(httpRequest.getPath());
+            Controller controller = controllerMap.get(parsedPath);
             invokeControllerMethod(controller, httpRequest.getMethod(), httpRequest);
+            httpResponseResolver.sendRedirectResponse(dos, HttpStatus.MOVED_PERMANENTLY, "http://localhost:8080/");
             return;
         }
 
