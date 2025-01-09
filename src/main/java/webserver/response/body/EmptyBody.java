@@ -22,4 +22,9 @@ class EmptyBody extends Body {
     public Optional<ContentType> getContentType() {
         return Optional.empty();
     }
+
+    @Override
+    public String toString() {
+        return "EmptyBody{}";
+    }
 }

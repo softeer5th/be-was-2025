@@ -48,7 +48,7 @@ public class RequestHandler implements Runnable {
             try {
                 request = requestParser.parse(reader);
 
-                logger.debug("New Client Connect! Connected IP : {}, Port : {}, Request: {}", connection.getInetAddress(),
+                logger.debug("New Client: {}:{}, Request: {}", connection.getInetAddress(),
                         connection.getPort(), request);
 
                 // request http version이 서버에서 지원하는지 검증
@@ -62,6 +62,8 @@ public class RequestHandler implements Runnable {
                 };
 
                 responseWriter.writeResponse(request, response, out);
+                logger.debug("Client:{}:{}, Response: {}", connection.getInetAddress(), connection.getPort(), response);
+
             } catch (HttpException e) {
                 logger.debug(e.getMessage());
                 // 에러 응답

@@ -32,4 +32,11 @@ class StringBody extends Body {
     public Optional<ContentType> getContentType() {
         return Optional.of(ContentType.TEXT_PLAIN);
     }
+
+    @Override
+    public String toString() {
+        return "StringBody{" +
+                "body='" + body + '\'' +
+                '}';
+    }
 }

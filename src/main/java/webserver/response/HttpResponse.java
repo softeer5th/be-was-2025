@@ -66,5 +66,12 @@ public class HttpResponse {
 
     }
 
-
+    @Override
+    public String toString() {
+        return "HttpResponse{" +
+                "statusCode=" + statusCode +
+                ", headers=" + headers +
+                ", body=" + body +
+                '}';
+    }
 }
