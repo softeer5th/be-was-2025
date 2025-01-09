@@ -52,7 +52,7 @@ public class Utils {
     }
 
     public static boolean isValidHeader(String[] parts, DataOutputStream dos) {
-        if(parts.length < 3){
+        if(parts.length != 3){
             httpResponseHandler.responseFailHandler(dos, HTTPCode.BAD_REQUEST);
             return false;
         }
