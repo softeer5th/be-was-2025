@@ -6,7 +6,7 @@
     <link href="../reset.css" rel="stylesheet" />
     <link href="../global.css" rel="stylesheet" />
   </head>
-  <body>
+  <body onload="checkErrorParam()">
     <div class="container">
       <header class="header">
         <a href="/"><img src="../img/signiture.svg" /></a>
@@ -35,6 +35,9 @@
             <p id="userId-error" class="error-message" style="color: red; display: none;">
               아이디는 필수로 입력해야 해요
             </p>
+            <p id="userId-dup-error" class="error-message" style="color: red; display: none;">
+              중복된 아이디예요
+            </p>
           </div>
           <div class="textfield textfield_size_s">
             <p class="title_textfield">닉네임</p>
@@ -46,6 +49,9 @@
             />
             <p id="name-error" class="error-message" style="color: red; display: none;">
               닉네임은 필수로 입력해야 해요
+            </p>
+            <p id="name-dup-error" class="error-message" style="color: red; display: none;">
+              중복된 닉네임이에요
             </p>
           </div>
           <div class="textfield textfield_size_s">
@@ -75,6 +81,17 @@
     </div>
 
     <script>
+      function checkErrorParam() {
+        const params = new URLSearchParams(window.location.search);
+        const error = params.get("error");
+
+        if (error === "duplicatedUser") {
+          document.getElementById("userId-dup-error").style.display = "block";
+        }
+        if (error === "duplicatedName") {
+          document.getElementById("name-dup-error").style.display = "block";
+        }
+      }
       function submitRegistration() {
         const userIdInput = document.getElementById("userId-input");
         const nameInput = document.getElementById("name-input");
@@ -83,6 +100,11 @@
         const userIdError = document.getElementById("userId-error");
         const nameError = document.getElementById("name-error");
         const passwordError = document.getElementById("password-error");
+        const userIdDupError = document.getElementById("userId-dup-error");
+        const nameDupError = document.getElementById("name-dup-error");
+
+        userIdDupError.style.display = "none";
+        nameDupError.style.display = "none";
 
         let isValid = true;
 

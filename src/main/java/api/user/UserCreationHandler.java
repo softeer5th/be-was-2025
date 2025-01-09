@@ -27,7 +27,16 @@ public class UserCreationHandler implements ApiHandler {
     public LoadResult handle(RequestData requestData) {
         String queryString = extractQueryString(requestData.path());
         User user = createUserFromQuery(queryString);
-        validateUser(user);
+        try {
+            validateUser(user);
+        } catch (UserCreationException e) {
+            if (e.getErrorCode() == ErrorCode.USER_ALREADY_EXISTS) {
+                return createRedirectionResponseForError("duplicatedUser");
+            }
+            if (e.getErrorCode() == ErrorCode.DUPLICATED_NAME) {
+                return createRedirectionResponseForError("duplicatedName");
+            }
+        }
         Database.addUser(user);
         return createRedirectionResponse();
     }
@@ -84,6 +93,14 @@ public class UserCreationHandler implements ApiHandler {
 
     private LoadResult createRedirectionResponse() {
         String redirectionHtml = "<meta http-equiv='refresh' content='0;url=/index.html' />";
+        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create");
+    }
+
+    private LoadResult createRedirectionResponseForError(String errorParam) {
+        String redirectionHtml = String.format(
+                "<meta http-equiv='refresh' content='0;url=/registration?error=%s' />",
+                errorParam
+        );
         return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create");
     }
 }
