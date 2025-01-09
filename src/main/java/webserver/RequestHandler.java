@@ -10,6 +10,7 @@ import db.Database;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import request.HttpResponse;
 import request.HttpStatus;
 import util.ContentTypeUtil;
 
@@ -59,7 +60,6 @@ public class RequestHandler implements Runnable {
                 filePath = "/main/index.html";
             }
 
-
             File file = new File(RESOURCES_PATH + filePath);
             if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
                 response404(dos);
@@ -67,8 +67,8 @@ public class RequestHandler implements Runnable {
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] body = new byte[(int) file.length()];
             fileInputStream.read(body);
-            responseHeader(HttpStatus.OK, dos, body.length, fileExtension);
-            responseBody(dos, body);
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
+            httpResponse.respond();
         }
         catch (Exception e) {
             logger.error(e.getMessage());
@@ -77,11 +77,10 @@ public class RequestHandler implements Runnable {
 
     private void response404(DataOutputStream dos) {
         String notFoundPage = "<html><body><h1 style=\"text-align: center\">404 Not Found</h1></body></html>";
-        byte[] bodyBytes = notFoundPage.getBytes();
+        byte[] body = notFoundPage.getBytes();
         try {
-            responseHeader(HttpStatus.NOT_FOUND, dos, bodyBytes.length, "html");
-            dos.write(bodyBytes);
-            dos.flush();
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.NOT_FOUND, dos, body, "text/html");
+            httpResponse.respond();
         }
         catch (Exception exception) {
             logger.error(exception.getMessage());
@@ -96,27 +95,5 @@ public class RequestHandler implements Runnable {
         }
         logMessageBuilder.append("}\n");
         logger.debug(logMessageBuilder.toString());
-    }
-
-    private void responseHeader(HttpStatus status, DataOutputStream dos, int lengthOfBodyContent, String fileExtension) {
-        StringBuilder header = new StringBuilder();
-        header.append("HTTP/1.1 ").append(status.code()).append(' ').append(status.name()).append(" \r\n");
-        header.append("Content-Type: ").append(ContentTypeUtil.getContentType(fileExtension)).append(";charset=utf-8\r\n");
-        header.append("Content-Length: ").append(lengthOfBodyContent).append("\r\n\r\n");
-        try {
-            dos.writeBytes(header.toString());
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
     }
 }
