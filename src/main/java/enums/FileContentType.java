@@ -5,7 +5,7 @@ import exception.ClientErrorException;
 import static exception.ErrorCode.UNSUPPORTED_FILE_EXTENSION;
 
 public enum FileContentType {
-    HTML_UTF_8("text/html charset=utf-8"),
+    HTML_UTF_8("text/html; charset=utf-8"),
     CSS("text/css"),
     JS("text/javascript"),
     ICO("image/x-icon"),
