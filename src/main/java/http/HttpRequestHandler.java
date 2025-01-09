@@ -37,7 +37,7 @@ public class HttpRequestHandler {
                 Map<String, String> queries = httpRequest.getQueries();
                 User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
                 Database.addUser(user);
-                HttpResponseHandler.redirect(dos);
+                HttpResponseHandler.redirect(dos, "/main");
             }
 
             if (file.exists() && file.isDirectory()) {
