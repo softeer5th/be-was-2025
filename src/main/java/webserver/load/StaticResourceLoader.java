@@ -15,7 +15,9 @@ public class StaticResourceLoader {
     }
 
     public LoadResult load(String path) throws IOException {
-        String mappedPath = switch (path) {
+        String cleanedPath = removeQueryParameters(path);
+
+        String mappedPath = switch (cleanedPath) {
             case "/" -> "/index.html";
             case "/registration" -> "/registration/index.html";
             default -> path;
@@ -26,5 +28,13 @@ public class StaticResourceLoader {
             return new LoadResult(null, mappedPath);
         }
         return new LoadResult(Files.readAllBytes(filePath), mappedPath);
+    }
+
+    private String removeQueryParameters(String path) {
+        int questionMarkIndex = path.indexOf('?');
+        if (questionMarkIndex != -1) {
+            return path.substring(0, questionMarkIndex);
+        }
+        return path;
     }
 }
