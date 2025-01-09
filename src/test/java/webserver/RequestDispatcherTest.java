@@ -40,7 +40,7 @@ class RequestDispatcherTest {
                 .thenReturn(mockOutputStream);
 
         final String expected = """
-                HTTP/1.1 200 ok \r
+                HTTP/1.1 200 Ok \r
                 Content-Length: 10\r
                 Content-Type: text/html; charset=utf-8\r
                 \r
@@ -74,7 +74,7 @@ class RequestDispatcherTest {
                 .thenReturn(mockOutputStream);
 
         final String expected = """
-                HTTP/1.1 400 bad request \r
+                HTTP/1.1 400 Bad Request \r
                 Content-Length: 31\r
                 Content-Type: text/html; charset=utf-8\r
                 \r
