@@ -12,6 +12,7 @@ import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
 
 import java.io.*;
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class HttpRequestHandler {
@@ -34,10 +35,20 @@ public class HttpRequestHandler {
                 if (PathPool.getInstance().get(target) == null) {
                     throw new NoSuchPathException();
                 }
+                String redirectPath = "/registration";
                 Map<String, String> queries = httpRequest.getQueries();
+                String userId = queries.get("userId");
+                String username = queries.get("username");
+                String password = queries.get("password");
+                if (userId == null || username == null || password == null) {
+                    HttpResponseHandler.redirect(dos, redirectPath);
+                    return;
+                }
                 User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
+                redirectPath = "/main";
                 Database.addUser(user);
-                HttpResponseHandler.redirect(dos, "/main");
+                HttpResponseHandler.redirect(dos, redirectPath);
+                return;
             }
 
             if (file.exists() && file.isDirectory()) {
