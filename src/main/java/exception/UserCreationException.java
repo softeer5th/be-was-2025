@@ -12,6 +12,6 @@ public class UserCreationException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return "[%s] %s".formatted(errorCode.name(), super.getMessage());
+        return "[%s] %s".formatted(errorCode.name(), errorCode.getMessage());
     }
 }

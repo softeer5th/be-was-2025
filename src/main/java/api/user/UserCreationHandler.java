@@ -25,18 +25,19 @@ public class UserCreationHandler implements ApiHandler {
 
     @Override
     public LoadResult handle(RequestData requestData) {
-        String path = requestData.path();
+        String queryString = extractQueryString(requestData.path());
+        User user = createUserFromQuery(queryString);
+        validateUser(user);
+        Database.addUser(user);
+        return createRedirectionResponse();
+    }
+
+    private String extractQueryString(String path) {
         String[] splitQuestion = path.split("\\?", 2);
         if (splitQuestion.length < 2) {
             throw new UserCreationException(ErrorCode.INVALID_USER_INPUT);
         }
-
-        String queryString = splitQuestion[1];
-        User user = createUserFromQuery(queryString);
-
-        Database.addUser(user);
-        String redirectionHtml = "<meta http-equiv='refresh' content='0;url=/index.html' />";
-        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create");
+        return splitQuestion[1];
     }
 
     private User createUserFromQuery(String queryString) {
@@ -67,5 +68,22 @@ public class UserCreationHandler implements ApiHandler {
         }
 
         return parameters;
+    }
+
+    private void validateUser(User user) {
+        if (Database.findUserById(user.getUserId()) != null) {
+            throw new UserCreationException(ErrorCode.USER_ALREADY_EXISTS);
+        }
+
+        boolean nameExists = Database.findAll().stream()
+                .anyMatch(existingUser -> user.getName().equals(existingUser.getName()));
+        if (nameExists) {
+            throw new UserCreationException(ErrorCode.DUPLICATED_NAME);
+        }
+    }
+
+    private LoadResult createRedirectionResponse() {
+        String redirectionHtml = "<meta http-equiv='refresh' content='0;url=/index.html' />";
+        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create");
     }
 }
