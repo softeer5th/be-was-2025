@@ -12,7 +12,7 @@ public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     private String method;
-    private String target;
+    private String path;
     private String version;
     private final Map<String,String> queries = new HashMap<>();
     private Map<String, String> headers = new HashMap<>();
@@ -20,7 +20,7 @@ public class HttpRequest {
     private final URI uri;
 
 
-    public HttpRequest(String method, String target, String version, List<String> headers) {
+    public HttpRequest(String method, String path, String version, List<String> headers) {
         this.method = method;
         this.version = version;
 
@@ -29,8 +29,8 @@ public class HttpRequest {
             this.headers.put(tokens[0], tokens[1]);
         }
 
-        this.uri = URI.create(target);
-        this.target = uri.getPath();
+        this.uri = URI.create(path);
+        this.path = uri.getPath();
 
         if (uri.getQuery() != null) {
             String[] queryArray = resolveQuery(uri.getQuery());
@@ -51,8 +51,8 @@ public class HttpRequest {
         return method;
     }
 
-    public String getTarget() {
-        return target;
+    public String getPath() {
+        return path;
     }
 
     public String getVersion() {

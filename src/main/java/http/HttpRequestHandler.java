@@ -12,7 +12,6 @@ import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
 
 import java.io.*;
-import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class HttpRequestHandler {
@@ -27,12 +26,12 @@ public class HttpRequestHandler {
         try {
             HttpRequest httpRequest = RequestParser.getInstance().parse(in);
 
-            String target = httpRequest.getTarget();
+            String path = httpRequest.getPath();
 
-            File file = FileUtils.findFile(target);
+            File file = FileUtils.findFile(path);
 
             if (!file.exists()) {
-                if (PathPool.getInstance().get(target) == null) {
+                if (PathPool.getInstance().get(path) == null) {
                     throw new NoSuchPathException();
                 }
                 String redirectPath = "/registration";
