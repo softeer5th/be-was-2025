@@ -43,7 +43,9 @@ public class HttpRequestResolver {
         httpRequest.setPath(urlParts[0]);
         httpRequest.setProtocol(requestLineParts[2]);
 
-        parseQueryParameter(urlParts[1], httpRequest);
+        if(urlParts.length == 2){
+            parseQueryParameter(urlParts[1], httpRequest);
+        }
     }
 
     private void parseQueryParameter(String queryString, HttpRequest httpRequest){
