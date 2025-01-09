@@ -2,11 +2,11 @@ package request;
 
 import enums.HttpMethod;
 
-public class RequestInfo {
+public class HttpRequestInfo {
     private final HttpMethod method;
     private final String path;
 
-    public RequestInfo(HttpMethod method, String path) {
+    public HttpRequestInfo(HttpMethod method, String path) {
         this.method = method;
         this.path = path;
     }

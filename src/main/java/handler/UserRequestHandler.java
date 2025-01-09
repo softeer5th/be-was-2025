@@ -6,7 +6,7 @@ import enums.HttpStatus;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import request.RequestInfo;
+import request.HttpRequestInfo;
 import request.UserCreateRequest;
 import response.HttpResponse;
 
@@ -17,7 +17,7 @@ public class UserRequestHandler implements Handler {
     private static final String USER_REQUEST_PREFIX = "/user/";
 
     @Override
-    public HttpResponse handle(final RequestInfo request) {
+    public HttpResponse handle(final HttpRequestInfo request) {
         logger.debug("request : {} ", request);
 
 

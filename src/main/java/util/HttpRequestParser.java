@@ -5,7 +5,7 @@ import exception.ClientErrorException;
 import exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import request.RequestInfo;
+import request.HttpRequestInfo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
     private static final String REQUEST_LINE_SEPARATOR = " ";
 
-    public static RequestInfo parse(InputStream inputStream) throws IOException {
+    public static HttpRequestInfo parse(InputStream inputStream) throws IOException {
         BufferedReader br = new BufferedReader(new java.io.InputStreamReader(inputStream));
 
         String requests = br.readLine();
@@ -48,6 +48,6 @@ public abstract class HttpRequestParser {
             logger.debug("{} = {}", nameAndValue[0], nameAndValue[1]);
         }
 
-        return new RequestInfo(method, url);
+        return new HttpRequestInfo(method, url);
     }
 }

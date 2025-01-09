@@ -4,7 +4,7 @@ import enums.HttpMethod;
 import enums.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import request.RequestInfo;
+import request.HttpRequestInfo;
 import response.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,8 +18,8 @@ class UserRequestHandlerTest {
     @Test
     @DisplayName("회원가입에 성공하면 201을 반환한다.")
     void handle_createUser() {
-        RequestInfo requestInfo = new RequestInfo(HttpMethod.GET, VALID_REQUEST_PATH);
-        HttpResponse response = userRequestHandler.handle(requestInfo);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH);
+        HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
         assertThat(response.getStatus())
                 .isEqualTo(HttpStatus.CREATED);
@@ -28,8 +28,8 @@ class UserRequestHandlerTest {
     @Test
     @DisplayName("회원가입에 필요한 form이 잘못된 경우 400을 반환한다.")
     void handle_createUser_paramMismatch() {
-        RequestInfo requestInfo = new RequestInfo(HttpMethod.GET, INVALID_REQUEST_PATH);
-        HttpResponse response = userRequestHandler.handle(requestInfo);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, INVALID_REQUEST_PATH);
+        HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
         assertThat(response.getStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST);

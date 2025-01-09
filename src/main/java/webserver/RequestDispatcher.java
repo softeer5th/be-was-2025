@@ -5,7 +5,7 @@ import exception.ClientErrorException;
 import handler.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import request.RequestInfo;
+import request.HttpRequestInfo;
 import response.HttpResponse;
 import router.Router;
 import util.HttpRequestParser;
@@ -31,15 +31,15 @@ public class RequestDispatcher implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            RequestInfo requestInfo = HttpRequestParser.parse(in);
-            String path = requestInfo.getPath();
+            HttpRequestInfo httpRequestInfo = HttpRequestParser.parse(in);
+            String path = httpRequestInfo.getPath();
 
             DataOutputStream dos = new DataOutputStream(out);
             HttpResponse response;
 
             try {
                 final Handler handler = router.route(path);
-                response = handler.handle(requestInfo);
+                response = handler.handle(httpRequestInfo);
             } catch (ClientErrorException e) {
                 response = new HttpResponse(e.getHttpStatus(), FileContentType.HTML_UTF_8, e.getMessage());
             }

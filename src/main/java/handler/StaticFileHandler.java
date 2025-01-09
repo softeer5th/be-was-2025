@@ -4,7 +4,7 @@ package handler;
 import enums.FileContentType;
 import enums.HttpStatus;
 import exception.ClientErrorException;
-import request.RequestInfo;
+import request.HttpRequestInfo;
 import response.HttpResponse;
 import util.FileReader;
 
@@ -21,7 +21,7 @@ public class StaticFileHandler implements Handler {
     }
 
     @Override
-    public HttpResponse handle(RequestInfo request) {
+    public HttpResponse handle(HttpRequestInfo request) {
         String path = request.getPath();
 
         FileContentType extension = FileContentType.getExtensionFromPath(path);
