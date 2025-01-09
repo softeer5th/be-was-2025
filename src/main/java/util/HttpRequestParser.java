@@ -34,13 +34,13 @@ public abstract class HttpRequestParser {
 
         // 3. HTTP 메서드와 URL을 파싱
 
-        String[] requestInfo = requests.toLowerCase().split(REQUEST_LINE_SEPARATOR);
+        String[] requestInfo = requests.split(REQUEST_LINE_SEPARATOR);
 
         if (requestInfo.length != 3) {
             throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
         }
 
-        HttpMethod method = HttpMethod.match(requestInfo[0]);
+        HttpMethod method = HttpMethod.match(requestInfo[0].toLowerCase());
         String url = requestInfo[1];
         logger.debug("Request mehtod = {}, url = {}", method, url);
 
