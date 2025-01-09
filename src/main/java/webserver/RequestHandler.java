@@ -2,6 +2,7 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 import http.*;
 import http.enums.HttpStatus;
@@ -26,7 +27,7 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream();OutputStream out = connection.getOutputStream()) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             DataOutputStream dos = new DataOutputStream(out);
 
             HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(br);
@@ -35,13 +36,14 @@ public class RequestHandler implements Runnable {
 
             if(resultFile != null){
                 byte[] data = FileUtil.readFileToByteArray(resultFile);
-                httpResponseResolver.send200Response(dos, resultFile.getPath(), data);
+                httpResponseResolver.sendResponse(dos, HttpStatus.OK, resultFile.getPath(), data);
             }
             else if(httpRequest.getPath().startsWith("/api")){
                 webServlet.process(httpRequest);
             }
             else{
-                httpResponseResolver.send404Response(dos);
+                byte[] data = "Request Not Found!".getBytes();
+                httpResponseResolver.sendResponse(dos, HttpStatus.NOT_FOUND, httpRequest.getPath(), data);
             }
         }
         catch (IOException e) {

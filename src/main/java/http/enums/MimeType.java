@@ -29,6 +29,10 @@ public enum MimeType {
         this.type = type;
     }
 
+    public String getMimeType(){
+        return this.type;
+    }
+
     public static String getMimeType(String extension){
         MimeType mimeType = extensionToMimeMap.get(extension);
         if(mimeType != null){
@@ -36,4 +40,6 @@ public enum MimeType {
         }
         return defaultMimeType;
     }
+
+
 }

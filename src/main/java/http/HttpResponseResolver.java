@@ -5,7 +5,6 @@ import http.enums.MimeType;
 import util.FileUtil;
 
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 
 public class HttpResponseResolver {
@@ -17,21 +16,16 @@ public class HttpResponseResolver {
     public HttpResponseResolver(){
     }
 
-    public void send200Response(DataOutputStream dos, String path, byte[] data) throws IOException {
-        String extension = FileUtil.extractFileExtension(path);
-        String contentType = Mime.getMimeType(extension);
+    public void sendResponse(DataOutputStream dos, HttpStatus httpStatus, String path, byte[] data) throws IOException {
+        String mimeType = MimeType.TEXT_PLAIN.getMimeType();
 
-        writeHeader(dos, HttpStatus.OK, contentType, data.length);
+        if(httpStatus == HttpStatus.OK){
+            String extension = FileUtil.extractFileExtension(path);
+            mimeType = MimeType.getMimeType(extension);
+        }
+
+        writeHeader(dos, httpStatus, mimeType, data.length);
         writeBody(dos, data);
-    }
-
-    public void send404Response(DataOutputStream dos) throws IOException{
-        String responseData = "Request file Not Found";
-
-        byte[] byteData = responseData.getBytes();
-
-        writeHeader(dos, HttpStatus.NOT_FOUND, "text/plain", byteData.length);
-        writeBody(dos, byteData);
     }
 
     private void writeHeader(DataOutputStream dos, HttpStatus httpStatus, String contentType, int contentLength) throws IOException {
