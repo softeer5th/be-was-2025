@@ -53,7 +53,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                Runnable requestHandler = new RequestHandler(config, connection, requestParser, responseWriter, handlerMapping);
+                Runnable requestHandler = new FrontController(config, connection, requestParser, responseWriter, handlerMapping);
                 es.submit(requestHandler);
             }
         }

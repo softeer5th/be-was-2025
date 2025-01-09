@@ -16,8 +16,9 @@ import java.io.*;
 import java.net.Socket;
 import java.util.List;
 
-public class RequestHandler implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+// 클라이언트의 요청을 받아 HttpHandler에게 위임하는 Front-Controller
+public class FrontController implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(FrontController.class);
 
     private final Socket connection;
     private final HttpRequestParser requestParser;
@@ -27,7 +28,7 @@ public class RequestHandler implements Runnable {
     private final List<HttpVersion> supportedHttpVersions;
 
 
-    public RequestHandler(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, HttpHandlerMapping handlerMapping) {
+    public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, HttpHandlerMapping handlerMapping) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
