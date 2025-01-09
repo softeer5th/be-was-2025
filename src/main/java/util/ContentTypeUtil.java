@@ -20,11 +20,11 @@ public class ContentTypeUtil {
     private ContentTypeUtil() {
     }
 
-    public static String getContentType(String fileType) {
-        return MAPPER.get(fileType);
+    public static String getContentType(String fileExtension) {
+        return MAPPER.get(fileExtension);
     }
 
-    public static boolean isValidExtension(String fileType) {
-        return MAPPER.containsKey(fileType);
+    public static boolean isValidExtension(String fileExtension) {
+        return MAPPER.containsKey(fileExtension);
     }
 }
