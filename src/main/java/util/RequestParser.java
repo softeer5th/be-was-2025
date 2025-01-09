@@ -1,6 +1,8 @@
 package util;
 
 import enums.HttpMethod;
+import exception.ClientErrorException;
+import exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.RequestInfo;
@@ -19,7 +21,7 @@ public abstract class RequestParser {
         // http method와 path를 파싱한다.
         String[] requestInfo = requests.split(" ");
         if(requestInfo.length != 3){
-            throw new IllegalArgumentException("Invalid request format");
+            throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
         }
 
         HttpMethod method = HttpMethod.match(requestInfo[0]);
