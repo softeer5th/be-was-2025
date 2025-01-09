@@ -7,8 +7,6 @@ import webserver.response.HttpResponse;
 
 import java.util.Map;
 
-import static webserver.enums.HttpStatusCode.OK;
-
 // 회원가입 요청 처리
 public class RegistrationHandler implements HttpHandler {
 
@@ -19,8 +17,7 @@ public class RegistrationHandler implements HttpHandler {
         User user = mapToUser(query);
         // 데이터베이스에 사용자 추가
         Database.addUser(user);
-        return new HttpResponse(OK)
-                .setBody(user.toString());
+        return HttpResponse.redirect("/login");
     }
 
     // Map을 User 객체로 변환

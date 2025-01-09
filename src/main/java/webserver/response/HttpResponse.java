@@ -24,6 +24,11 @@ public class HttpResponse {
         this.body = Body.empty();
     }
 
+    public static HttpResponse redirect(String location) {
+        return new HttpResponse(HttpStatusCode.SEE_OTHER)
+                .setHeader(HttpHeader.LOCATION.value, location);
+    }
+
     public HttpStatusCode getStatusCode() {
         return statusCode;
     }
