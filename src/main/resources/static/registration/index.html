@@ -67,7 +67,7 @@
     document.getElementById("registration-btn").addEventListener("click", function () {
       const user_id = document.getElementById("user_id").value;
       const user_nickname = document.getElementById("user_nickname").value;
-      const user_password = document.getElementById("user_password");
+      const user_password = document.getElementById("user_password").value;
 
       const url = `/user/create?id=${encodeURIComponent(user_id)}&nickname=${encodeURIComponent(user_nickname)}&password=${encodeURIComponent(user_password)}`;
 
