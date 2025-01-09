@@ -1,7 +1,7 @@
 package enums;
 
 public enum FileContentType {
-    HTML("text/html"),
+    HTML_UTF_8("text/html charset=utf-8"),
     CSS("text/css"),
     JS("text/javascript"),
     ICO("image/x-icon"),
@@ -21,7 +21,7 @@ public enum FileContentType {
 
     public static FileContentType getExtensionFromPath(String path) {
         if (path.endsWith(".html")) {
-            return HTML;
+            return HTML_UTF_8;
         } else if (path.endsWith(".css")) {
             return CSS;
         } else if (path.endsWith(".js")) {

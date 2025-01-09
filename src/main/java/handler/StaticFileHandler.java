@@ -38,7 +38,7 @@ public class StaticFileHandler implements Handler {
 
         } catch (ClientErrorException e) {
             response.setStatus(HttpStatus.NOT_FOUND);
-            response.setContentType(FileContentType.HTML);
+            response.setContentType(FileContentType.HTML_UTF_8);
             response.setBody(e.getMessage());
 
         }

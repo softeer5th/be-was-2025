@@ -28,9 +28,9 @@ public class UserRequestHandler implements Handler {
                 UserCreateRequest userCreateRequest = UserCreateRequest.of(path.substring("create?".length()));
                 createUser(userCreateRequest);
 
-                response.setResponse(HttpStatus.CREATED, FileContentType.HTML, "successfully created.!");
+                response.setResponse(HttpStatus.CREATED, FileContentType.HTML_UTF_8, "successfully created.!");
             } catch (ClientErrorException e) {
-                response.setResponse(HttpStatus.BAD_REQUEST, FileContentType.HTML, e.getMessage());
+                response.setResponse(HttpStatus.BAD_REQUEST, FileContentType.HTML_UTF_8, e.getMessage());
             }
         }
 
