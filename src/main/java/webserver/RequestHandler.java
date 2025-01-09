@@ -58,24 +58,17 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private byte[] readFileToBytes(String path){
-        File file = new File(path);
-        byte[] bytes = new byte[(int) file.length()];
-
-        try(FileInputStream fis = new FileInputStream(file)) {
-            fis.read(bytes);
+    private byte[] makeBody(String url){
+        byte[] body = null;
+        try {
+            FileFinder fileFinder = new FileFinder(url);
+            if (fileFinder.find()) {
+                body = fileFinder.readFileToBytes();
+            }
         }
         catch (IOException e) {
             logger.error(e.getMessage());
         }
-        return bytes;
-    }
-
-    private byte[] makeBody(String url){
-        FileFinder fileFinder = new FileFinder(url);
-        if(fileFinder.find()){
-            return readFileToBytes(fileFinder.getPath());
-        }
-        else return null;
+        return body;
     }
 }
