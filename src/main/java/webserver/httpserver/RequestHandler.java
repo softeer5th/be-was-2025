@@ -1,18 +1,21 @@
-package webserver;
+package webserver.httpserver;
 
 import java.io.*;
 import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import servlet.ServletManager;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private Socket connection;
+    private ServletManager servletManager;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, ServletManager servletManager) {
         this.connection = connectionSocket;
+        this.servletManager = servletManager;
     }
 
     public void run() {
@@ -22,27 +25,13 @@ public class RequestHandler implements Runnable {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
             HttpRequest request = new HttpRequest(reader);
-
             HttpResponse response = new HttpResponse();
             response.setProtocol(request.getProtocol());
-            response.setStatusCode(StatusCode.OK);
-            response.setHeader("Content-Type", ContentType.guessContentType(request.getUri()));
 
-            File file = new File("src/main/resources/static" + request.getUri());
-            byte[] readFile = getFile(file);
-            response.setBody(readFile);
-
+            servletManager.serve(request, response);
             response.send(dos);
         } catch (IOException e) {
             logger.error(e.getMessage());
-        }
-    }
-
-    private static byte[] getFile(File file) throws IOException {
-        try(FileInputStream fis = new FileInputStream(file)) {
-            byte[] bytes = new byte[(int) file.length()];
-            fis.read(bytes);
-            return bytes;
         }
     }
 }
