@@ -2,8 +2,6 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import Response.HTTPResponseHandler;
@@ -11,13 +9,12 @@ import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static util.Utils.fileToByteArray;
 import static util.Utils.readInputToArray;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private final String STATIC_FILE_DIRECTORY_PATH = "src/main/resources/static";
-    private static final HTTPResponseHandler httpResponseHandler = new HTTPResponseHandler();
+    public static final HTTPResponseHandler httpResponseHandler = new HTTPResponseHandler();
+    private static final URIHandler uriHandler = new URIHandler();
 
     private Socket connection;
 
@@ -45,13 +42,15 @@ public class RequestHandler implements Runnable {
                     return;
                 }
 
-
-                File file = new File(STATIC_FILE_DIRECTORY_PATH, resourceName);
-                if (!file.exists()) {
-                    httpResponseHandler.responseFailHandler(dos, HTTPCode.NOT_FOUND);
+                if(uriHandler.handleDynamicRequest(httpMethod, resourceName, dos)){
+                    return;
                 }
-                byte[] body = fileToByteArray(file);
-                httpResponseHandler.responseSuccessHandler(dos, body.length, resourceName, body);
+
+                if(uriHandler.handleStaticRequest(resourceName, dos)){
+                    return;
+                }
+
+                httpResponseHandler.responseFailHandler(dos, HTTPCode.NOT_FOUND);
 
             } catch (IOException e) {
                 logger.error(e.getMessage());
