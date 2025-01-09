@@ -19,6 +19,16 @@ dependencies {
 
 }
 
+// main 애플리케이션 실행 시 환경 변수 설정
+tasks.withType(JavaExec).configureEach {
+    environment("STATIC_FILE_PATH", "src/main/resources/static")
+}
+// 테스트 실행 시 환경변수 설정
+tasks.withType(Test).configureEach {
+    environment("STATIC_FILE_PATH", "src/test/resources")
+}
+
+
 test {
-    useJUnitPlatform()
+    useJUnitPlatform()  // JUnit5를 사용할 경우
 }

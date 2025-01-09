@@ -13,7 +13,11 @@ import java.io.FileNotFoundException;
  *  정적 파일 요청을 담당하는  Handler
  */
 public class StaticFileHandler implements Handler {
-    private static final String STATIC_FILE_PATH = "src/main/resources/static";
+    private final String STATIC_FILE_PATH;
+
+    public StaticFileHandler() {
+        STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
+    }
 
     @Override
     public HttpResponse handle(RequestInfo request) {
