@@ -3,11 +3,13 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 
+import db.Database;
 import model.Mime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileFinder;
 import util.RequestParser;
+import util.UserManeger;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -29,10 +31,22 @@ public class RequestHandler implements Runnable {
 
             DataOutputStream dos = new DataOutputStream(out);
             String contentType = Mime.getByExtension(requestParser.extension).getContentType();
-            byte[] body = makeBody(requestParser.url);
-
-            response200Header(dos, body.length, contentType);
-            responseBody(dos, body);
+            String url = requestParser.url;
+            if(url.equals("/user/create")){
+                UserManeger userManeger = new UserManeger();
+                try {
+                    userManeger.addUser(requestParser.parameter);
+                } catch (IllegalArgumentException e) {
+                    logger.error(e.getMessage());
+                    response303Header(dos, "/registration");
+                }
+                response303Header(dos, "/login");
+            }
+            else {
+                byte[] body = makeBody(url);
+                response200Header(dos, body.length, contentType);
+                responseBody(dos, body);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -44,6 +58,17 @@ public class RequestHandler implements Runnable {
             dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void response303Header(DataOutputStream dos, String url) throws IOException {
+        try {
+            dos.writeBytes("HTTP/1.1 303 See Other \r\n");
+            dos.writeBytes("Location: " + url + "\r\n");
+            dos.writeBytes("\r\n");
+            dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

@@ -23,10 +23,12 @@ public class RequestParser {
                 requests.add(line);
                 line = br.readLine();
             }
-            String url = requests.get(0).split(" ")[1];
+            String[] tokens = requests.get(0).split(" ");
+            String url = tokens[1];
             setUrl(url);
             String[] parts = url.split("\\?");
             if(parts.length > 1){
+                setUrl(parts[0]);
                 setParameter(parts[1]);
             }
             else{
