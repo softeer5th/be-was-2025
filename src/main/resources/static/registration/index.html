@@ -36,7 +36,7 @@
             <div class="textfield textfield_size_s">
                 <p class="title_textfield">닉네임</p>
                 <input
-                        id="user_nickname"
+                        id="user_name"
                         class="input_textfield"
                         placeholder="닉네임을 입력해주세요"
                         autocomplete="username"
@@ -66,13 +66,13 @@
 <script>
     document.getElementById("registration-btn").addEventListener("click", function () {
         const user_id = document.getElementById("user_id").value;
-        const user_nickname = document.getElementById("user_nickname").value;
+        const user_name = document.getElementById("user_name").value;
         const user_password = document.getElementById("user_password").value;
 
         if (!user_id) {
             alert("아이디를 입력하세요.");
             return;
-        } else if (!user_nickname) {
+        } else if (!user_name) {
             alert("닉네임을 입력하세요.");
             return;
         } else if (!user_password) {
@@ -80,7 +80,7 @@
             return;
         }
 
-        const url = `/user/create?id=${encodeURIComponent(user_id)}&nickname=${encodeURIComponent(user_nickname)}&password=${encodeURIComponent(user_password)}`;
+        const url = `/user/create?id=${encodeURIComponent(user_id)}&name=${encodeURIComponent(user_name)}&password=${encodeURIComponent(user_password)}`;
 
         // 서버에 요청 전송
         fetch(url, {method: "GET"})
