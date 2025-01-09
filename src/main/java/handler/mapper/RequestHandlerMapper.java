@@ -13,6 +13,10 @@ public class RequestHandlerMapper {
         requestHandlerMap.put("/create", new UserRequestHandler());
     }
 
+    public boolean hasRequestHandlerByPath(String path){
+        return requestHandlerMap.containsKey(path);
+    }
+
     public RequestHandler mapRequestHandler(String path){
         return requestHandlerMap.get(path);
     }
