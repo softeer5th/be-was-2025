@@ -469,3 +469,59 @@ String httpVersion = firstLineTokens[2];
   - 현재는 `null` 반환 → `400 Bad Request` 처리로 일단락.
 
 ---
+
+# **1월 9일 학습일지**
+
+## **1. 학습 내용**
+
+1. **JSON 응답 처리**
+  - 기존에 HTML로만 응답하던 방식을 확장해, **JSON 형식**으로 데이터를 반환하는 방법을 학습.
+  - `sendJson` 메서드를 도입해 `Content-Type: application/json`으로 순수 JSON만 전송하도록 구현.
+
+2. **HTTP 헤더와 바디 분리**
+  - `HTTP/1.1 200 OK` 등 헤더가 JSON 바디에 섞이면 클라이언트 파싱 오류(`Unexpected token 'H'`) 발생.
+  - **헤더와 바디를 정확히 구분**하고, 클라이언트 측에서 `response.json()`으로 올바르게 파싱하도록 수정.
+
+---
+
+## **2. 구현 내용**
+
+1. **`LoadResult`에 `contentType` 필드 추가 (선택적)**
+  - 일부 구현에서는 JSON/HTML 응답을 분기하기 위해 `LoadResult`에 `contentType` 저장.
+  - `handleApiRequest`에서 분기하여 `sendJson` vs `send200` 결정.
+
+2. **`HttpResponse.sendJson` 수정**
+  - 순수 JSON만 바디에 담아 전송하도록 수정.
+  - 헤더 정보가 섞이지 않도록 `writeHeader` 호출 시에도 `application/json`을 명시, 클라이언트는 `response.json()`으로 파싱 가능.
+
+3. **토큰 기반 예외 처리**
+  - `UserDataHandler`에서 `token == null`인 경우 `TOKEN_MISSING`,
+  - `TokenStore`에서 못 찾은 경우 `TOKEN_NOT_FOUND` 예외.
+  - 예외 발생 시 HTML로 에러 노출 대신 JSON 또는 별도 흐름으로 처리(상위 레벨에서 예외 잡기 가능).
+
+---
+
+## **3. 고민한 내용**
+
+1. **“Unexpected token 'H'” 파싱 오류**
+  - 클라이언트(`fetch(...).json()`)에서 JSON으로 파싱하는데, 서버 응답에 **HTTP 헤더**가 섞여버림.
+  - **원인**: 단일 메서드(`sendJson`)에서 헤더+바디를 구분하지 않은 채 전송한 경우, 또는 응답에 추가 정보가 들어간 경우.
+  - **해결**: 오직 JSON 바디만 전송, 브라우저 개발자 도구(Network)에서 응답 형태가 순수 JSON인지 확인.
+
+2. **화면에서 기존 입력값 복원 실패**
+  - 위 파싱 오류로 인해 `fetchUserData(token)`이 `SyntaxError` 발생.
+  - JSON 데이터를 제대로 받지 못하니 `userData`가 `null`이 되어 `<input>`에 값을 세팅하지 못함.
+  - **해결**: 순수 JSON 반환 후, 클라이언트 로직(`await response.json()`)이 정상 동작 → 기존 값 복원됨.
+
+3. **Handler 별 응답 형식 차이**
+  - `UserCreationHandler`: HTML 리다이렉트 용도.
+  - `UserDataHandler`: JSON 응답 용도.
+  - **처리 방식**:
+    - `LoadResult` 혹은 `contentType`으로 분기,
+    - API 라우터에서 헤더 타입을 지정 후 `handleApiRequest` 메서드가 판단.
+
+4. **HTTP와 유사한 구조**
+  - 프로젝트가 순수 자바이지만, 스프링 MVC처럼 **`ApiRouter`**, **핸들러 분리**(Controller 유사), **에러 코드**(ExceptionHandler 유사) 등 구조가 유사해진 점 확인.
+  - 핸들러 추가 시마다 **“HTML vs JSON vs 기타”** 구분 로직 고민 필요.
+
+---
