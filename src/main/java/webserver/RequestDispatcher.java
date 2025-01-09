@@ -1,5 +1,6 @@
 package webserver;
 
+import exception.ClientErrorException;
 import handler.RequestRoute;
 import handler.Handler;
 import org.slf4j.Logger;
@@ -14,11 +15,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class RequestHandler implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+import static exception.ErrorCode.*;
+
+public class RequestDispatcher implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(RequestDispatcher.class);
     private Socket connection;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestDispatcher(Socket connectionSocket) {
         this.connection = connectionSocket;
 
     }
@@ -34,7 +37,7 @@ public class RequestHandler implements Runnable {
             DataOutputStream dos = new DataOutputStream(out);
 
             Handler handler = RequestRoute.getHandler(path)
-                    .orElseThrow(() -> new UnsupportedOperationException("No handler found for path" + path));
+                    .orElseThrow(() -> new ClientErrorException(NOT_ALLOWED_PATH));
 
 
             HttpResponse response = handler.handle(requestInfo);

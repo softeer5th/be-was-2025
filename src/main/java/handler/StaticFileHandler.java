@@ -3,11 +3,12 @@ package handler;
 
 import enums.FileContentType;
 import enums.HttpStatus;
-import util.FileReader;
-import response.HttpResponse;
+import exception.ClientErrorException;
 import request.RequestInfo;
+import response.HttpResponse;
+import util.FileReader;
 
-import java.io.FileNotFoundException;
+import static exception.ErrorCode.FILE_NOT_FOUND;
 
 /*
  *  정적 파일 요청을 담당하는  Handler
@@ -32,13 +33,13 @@ public class StaticFileHandler implements Handler {
 
         try {
             byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
-                    .orElseThrow(() -> new FileNotFoundException(path));
+                    .orElseThrow(() -> new ClientErrorException(FILE_NOT_FOUND));
             response.setBody(body);
 
-        } catch (FileNotFoundException e) {
+        } catch (ClientErrorException e) {
             response.setStatus(HttpStatus.NOT_FOUND);
             response.setContentType(FileContentType.HTML);
-            response.setBody("file not found");
+            response.setBody(e.getMessage());
 
         }
         return response;
