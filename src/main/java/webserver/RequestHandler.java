@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import resolver.DynamicResourceResolver;
 import resolver.ResourceResolver;
 import resolver.StaticResourceResolver;
 import webserver.message.HTTPRequest;
@@ -31,7 +32,7 @@ public class RequestHandler implements Runnable {
             HTTPRequest request = parser.parse(in);
             HTTPResponse.Builder responseBuilder = new HTTPResponse.Builder();
             DataOutputStream dos = new DataOutputStream(out);
-            ResourceResolver resolver = StaticResourceResolver.getInstance();
+            ResourceResolver resolver = DynamicResourceResolver.getInstance();
             resolver.resolve(request, responseBuilder);
             HTTPResponse response = responseBuilder.build();
             ResponseWriter.write(dos, request, response);
