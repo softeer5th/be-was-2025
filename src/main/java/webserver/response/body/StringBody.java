@@ -24,8 +24,8 @@ class StringBody extends Body {
     }
 
     @Override
-    public Long getContentLength() {
-        return (long) body.getBytes().length;
+    public Optional<Long> getContentLength() {
+        return Optional.of((long) body.getBytes().length);
     }
 
     @Override

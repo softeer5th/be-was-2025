@@ -14,8 +14,8 @@ class EmptyBody extends Body {
     }
 
     @Override
-    public Long getContentLength() {
-        return 0L;
+    public Optional<Long> getContentLength() {
+        return Optional.empty();
     }
 
     @Override

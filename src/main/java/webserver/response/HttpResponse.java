@@ -65,7 +65,8 @@ public class HttpResponse {
     }
 
     private void setContentHeaders() {
-        headers.put(HttpHeader.CONTENT_LENGTH.value, body.getContentLength().toString());
+        body.getContentLength()
+                .ifPresent(contentLength -> headers.put(HttpHeader.CONTENT_LENGTH.value, contentLength.toString()));
         body.getContentType()
                 .ifPresent(contentType -> headers.put(HttpHeader.CONTENT_TYPE.value, contentType.mimeType));
 

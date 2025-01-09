@@ -29,8 +29,8 @@ class FileBody extends Body {
     }
 
     @Override
-    public Long getContentLength() {
-        return file.length();
+    public Optional<Long> getContentLength() {
+        return Optional.of(file.length());
     }
 
     @Override
