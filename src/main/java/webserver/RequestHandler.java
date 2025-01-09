@@ -69,8 +69,7 @@ public class RequestHandler implements Runnable {
             fileInputStream.read(body);
             HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
             httpResponse.respond();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
     }
@@ -81,8 +80,7 @@ public class RequestHandler implements Runnable {
         try {
             HttpResponse httpResponse = new HttpResponse(HttpStatus.NOT_FOUND, dos, body, "text/html");
             httpResponse.respond();
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             logger.error(exception.getMessage());
         }
     }

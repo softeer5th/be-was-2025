@@ -18,7 +18,7 @@ public class HttpResponse {
         this.contentType = contentType;
     }
 
-    public void respond() throws IOException{
+    public void respond() throws IOException {
         makeHeader();
         makeBody();
         send();
@@ -37,10 +37,7 @@ public class HttpResponse {
         dos.flush();
     }
 
-    private void send() throws IOException{
+    private void send() throws IOException {
         dos.flush();
     }
-
-
-
 }
