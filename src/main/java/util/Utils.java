@@ -3,6 +3,7 @@ package util;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Utils {
 
@@ -31,5 +32,10 @@ public class Utils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static boolean isValidHttpMethod(String httpMethod) {
+        Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH");
+        return httpMethods.contains(httpMethod);
     }
 }

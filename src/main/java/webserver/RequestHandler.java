@@ -9,6 +9,7 @@ import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static util.Utils.isValidHttpMethod;
 import static util.Utils.readInputToArray;
 
 public class RequestHandler implements Runnable {
@@ -35,9 +36,7 @@ public class RequestHandler implements Runnable {
                 String httpMethod = httpRequestHeader[0].split(" ")[0];
                 String resourceName = httpRequestHeader[0].split(" ")[1];
 
-                Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH");
-
-                if(!httpMethods.contains(httpMethod)) {
+                if(isValidHttpMethod(httpMethod)) {
                     httpResponseHandler.responseFailHandler(dos, HTTPCode.METHOD_NOT_ALLOWED);
                     return;
                 }
