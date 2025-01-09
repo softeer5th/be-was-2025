@@ -9,7 +9,7 @@ public enum HttpMethod {
     public static HttpMethod of(String method) {
         try {
             return HttpMethod.valueOf(method.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException | IllegalArgumentException e) {
             throw new NotImplemented("Unsupported HTTP Method", e);
         }
     }
