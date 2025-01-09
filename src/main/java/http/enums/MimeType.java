@@ -1,9 +1,10 @@
-package model;
+package http;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Mime {
+public enum MimeType {
+    TEXT_PLAIN("", "text/plain"),
     TEXT_HTML("html", "text/html"),
     TEXT_CSS("css", "text/css"),
     TEXT_JAVASCRIPT("js", "text/js"),
@@ -14,24 +15,24 @@ public enum Mime {
 
     private String extension;
     private final String type;
-    private static final Map<String, Mime> extensionToMimeMap = new HashMap<>();
+    private static final Map<String, MimeType> extensionToMimeMap = new HashMap<>();
     private static final String defaultMimeType = "application/octet-stream";
 
     static{
-        for(Mime mime: Mime.values()){
-            extensionToMimeMap.put(mime.extension, mime);
+        for(MimeType mimeType : MimeType.values()){
+            extensionToMimeMap.put(mimeType.extension, mimeType);
         }
     }
 
-    Mime(String extension, String type) {
+    MimeType(String extension, String type) {
         this.extension = extension;
         this.type = type;
     }
 
     public static String getMimeType(String extension){
-        Mime mime = extensionToMimeMap.get(extension);
-        if(mime != null){
-            return mime.type;
+        MimeType mimeType = extensionToMimeMap.get(extension);
+        if(mimeType != null){
+            return mimeType.type;
         }
         return defaultMimeType;
     }

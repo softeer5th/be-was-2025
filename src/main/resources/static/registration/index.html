@@ -27,7 +27,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">아이디</p>
             <input
-              id="loginId-input"
+              id="userId-input"
               class="input_textfield"
               placeholder="아이디를 입력해주세요"
               autocomplete="username"
@@ -36,7 +36,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">닉네임</p>
             <input
-              id="nickname-input"
+              id="name-input"
               class="input_textfield"
               placeholder="닉네임을 입력해주세요"
               autocomplete="username"
@@ -69,8 +69,8 @@
       const path = '/api/create';
 
       const queryParams = new URLSearchParams({
-        loginId: `${document.getElementById('loginId-input').value}`,
-        nickname: `${document.getElementById('nickname-input').value}`,
+        userId: `${document.getElementById('userId-input').value}`,
+        name: `${document.getElementById('name-input').value}`,
         password: `${document.getElementById('password-input').value}`
       });
 
