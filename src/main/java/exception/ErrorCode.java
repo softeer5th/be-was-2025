@@ -4,6 +4,8 @@ public enum ErrorCode {
     INVALID_USER_INPUT("유효하지 않은 사용자 입력입니다."),
     USER_ALREADY_EXISTS("사용자가 이미 존재합니다."),
     DUPLICATED_NAME("이미 사용 중인 닉네임입니다."),
+    TOKEN_MISSING("토큰이 요청에 포함되어 있지 않습니다."),
+    TOKEN_NOT_FOUND("토큰을 찾을 수 없습니다."),
     INTERNAL_ERROR("내부 서버 오류가 발생했습니다.");
 
     private final String message;
