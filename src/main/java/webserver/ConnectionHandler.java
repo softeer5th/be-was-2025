@@ -2,21 +2,17 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
-import http.*;
-import http.enums.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.FileUtil;
 
-public class RequestHandler implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+public class ConnectionHandler implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionHandler.class);
     private final WebServlet webServlet = WebServlet.getInstance();
 
     private Socket connection;
 
-    public RequestHandler(Socket connectionSocket) {
+    public ConnectionHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
     }
 
@@ -31,5 +27,4 @@ public class RequestHandler implements Runnable {
             logger.error(e.getMessage());
         }
     }
-
 }
