@@ -12,9 +12,12 @@ import java.util.Map;
 
 // 사용자의 요청을 파싱하여 HttpRequest 객체를 생성
 public class HttpRequestParser {
+    public static final String HTTP_LINE_SEPARATOR = "\\r?\\n";
     public static final String REQUEST_LINE_SEPARATOR = " ";
     public static final String HEADER_KEY_SEPARATOR = ":";
     public static final String HEADER_VALUES_SEPARATOR = ";";
+    public static final String QUERY_PARAMETER_SEPARATOR = "&";
+    public static final String QUERY_KEY_VALUE_SEPARATOR = "=";
 
     // request input reader로부터 데이터를 읽어들여 HttpRequest 객체를 생성
     public HttpRequest parse(BufferedReader requestInputReader) {
@@ -22,8 +25,9 @@ public class HttpRequestParser {
             // Request Body 전 까지 읽어들임
             String beforeBody = readUntilCRLF(requestInputReader);
             // Request Line과 Header Lines 를 분리
-            String requestLineString = beforeBody.substring(0, beforeBody.indexOf("\n"));
-            String headerLines = beforeBody.substring(beforeBody.indexOf("\n") + 1);
+            String[] tokens = beforeBody.split(HTTP_LINE_SEPARATOR, 2);
+            String requestLineString = tokens[0].strip();
+            String headerLines = tokens[1].strip();
 
             // Request Line 문자열 파싱
             RequestLine requestLine = parseRequestLine(requestLineString);
@@ -39,8 +43,13 @@ public class HttpRequestParser {
     private String readUntilCRLF(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
         String buffer;
-        while (!(buffer = reader.readLine()).isBlank()) {
+        while (true) {
+            buffer = reader.readLine();
+            if (buffer == null || buffer.isBlank()) {
+                break;
+            }
             sb.append(buffer);
+            sb.append('\r');
             sb.append('\n');
         }
         return sb.toString();
@@ -61,9 +70,9 @@ public class HttpRequestParser {
     // Header Line 문자열을 파싱하여 Map<String, String> 객체 생성
     private Map<String, String> parseHeaders(String headerLines) {
         Map<String, String> headers = new HashMap<>();
-        for (String line : headerLines.split("\n")) {
-            String[] tokens = line.split(HEADER_KEY_SEPARATOR);
-            headers.put(tokens[0], tokens[1]);
+        for (String line : headerLines.split(HTTP_LINE_SEPARATOR)) {
+            String[] tokens = line.split(HEADER_KEY_SEPARATOR, 2);
+            headers.put(tokens[0].strip(), tokens[1].strip());
         }
         return headers;
     }
@@ -75,14 +84,14 @@ public class HttpRequestParser {
         String query = uri.getQuery();
         Map<String, String> queryMap = new HashMap<>();
         if (query != null && !query.isBlank()) {
-            String[] paramTokens = query.split("&");
+            String[] paramTokens = query.split(QUERY_PARAMETER_SEPARATOR);
             for (String paramToken : paramTokens) {
-                String[] keyValue = paramToken.split("=");
+                String[] keyValue = paramToken.split(QUERY_KEY_VALUE_SEPARATOR, 2);
                 if (keyValue.length != 2) {
                     throw new BadRequest("Invalid Query Parameter: " + paramToken);
                 }
                 // key가 중복되는 경우 앞선 값을 덮어씀
-                queryMap.put(keyValue[0], keyValue[1]);
+                queryMap.put(keyValue[0].strip(), keyValue[1].strip());
             }
         }
         return new RequestTarget(path, queryMap);
