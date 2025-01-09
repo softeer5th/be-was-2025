@@ -135,3 +135,75 @@ classDiagram
 -[ ] 테스트 커버리지가 낮음
 -[ ] 현재 Servlet 클래스가 지나치게 많아 패키지 구조 이해에 어려움을 주는 중
   - ContentType Enum 처럼, 리플렉션을 이용해 루프를 돌면서 URL을 매핑하는건 어떨까?
+
+# Level 4
+## 현재 문제점
+-[ ] 현재 Servlet 클래스가 지나치게 많아 패키지 구조 이해에 어려움을 주는 중
+  - ContentType Enum 처럼, 리플렉션을 이용해 루프를 돌면서 URL을 매핑하는건 어떨까?
+-[ ] 추후에 게시판을 만들텐데, 게시글의 id를 구분하려면 Path Variable이 필요할텐데, 우아하게 처리하는 방법 없을까?
+-[ ] Http 메시지의 헤더는 대소문자를 가리지 않는다. 해당 부분 처리 필요.
+-[ ] 쿼리 파라미터나 헤더가 여러개 있을 경우의 처리가 필요할듯.
+-[ ] 테스트 커버리지가 낮음
+
+
+## 도메인 모델 - level 4
+```mermaid
+classDiagram
+    class WebServer {
+        - logger: Logger
+    }
+
+    class RequestHandler {
+        - connectionSocket: Socket
+    }
+
+    class HttpRequest {
+        - method: HttpMethod
+        - uri: String
+        - parameters: Map<String, String>
+        - protocol: String
+        - headers: Map<String, String>
+        - body: String
+    }
+
+    class HttpResponse {
+        - logger: Logger
+        - protocol: String
+        - statusCode: StatusCode
+        - headers: Map<String, String>
+        - cookies: Map<String, String>
+        - body: byte[]
+    }
+    
+    class ServletManager {
+        - Servlets: Map<String, Servlet>
+    }
+    
+    class Servlet {
+        
+    }
+    
+    class User{
+        - userId: String
+        - password: String
+        - name: String
+        - email: String
+    }
+    
+    class Database{
+        - users: Map<String, User>
+    }
+
+    WebServer "1" -- "0..*" RequestHandler : creates
+    WebServer *-- "1" ServletManager : create
+    RequestHandler "1" -- "1" HttpRequest : uses
+    RequestHandler "1" -- "1" HttpResponse : uses
+    RequestHandler --> ServletManager : use
+    ServletManager *-- DispatcherServlet
+    DispatcherServlet --> HandlerMapping
+    DispatcherServlet --> HandlerAdaptor
+    DispatcherServlet "1" -- "0..*" Controller
+    Controller "0..*" -- "1" Database
+    Controller --> User
+    Database "1" -- "0..*" User
+```
