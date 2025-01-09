@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import request.RequestInfo;
 import response.HttpResponse;
 import router.Router;
-import util.RequestParser;
+import util.HttpRequestParser;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class RequestDispatcher implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            RequestInfo requestInfo = RequestParser.parse(in);
+            RequestInfo requestInfo = HttpRequestParser.parse(in);
             String path = requestInfo.getPath();
 
             DataOutputStream dos = new DataOutputStream(out);

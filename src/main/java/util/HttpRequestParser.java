@@ -11,8 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 
-public abstract class RequestParser {
-    private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
+public abstract class HttpRequestParser {
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
 
     public static RequestInfo parse(InputStream inputStream) throws IOException {
         BufferedReader br = new BufferedReader(new java.io.InputStreamReader(inputStream));
