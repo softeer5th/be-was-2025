@@ -1,12 +1,11 @@
 package http.handler;
 
-import http.request.HttpRequest;
-import util.HttpRequestUtil;
-import http.response.HttpResponse;
-import http.request.TargetInfo;
-import http.response.ContentType;
-import util.FileUtil;
 import http.enums.HttpResponseStatus;
+import http.request.HttpRequest;
+import http.request.TargetInfo;
+import http.response.HttpResponse;
+import util.FileUtil;
+import util.HttpRequestUtil;
 
 import java.io.IOException;
 
@@ -26,7 +25,6 @@ public class StaticResourceHandler implements Handler {
     public void handle(HttpRequest request, HttpResponse response) {
         TargetInfo target = request.getTarget();
         String path = STATIC_RESOURCE_PATH + target.getPath();
-        System.out.println(path);
 
         path = HttpRequestUtil.buildPath(path);
         String type = HttpRequestUtil.getType(path); // 파일 유형 별로 Content-Type 할당

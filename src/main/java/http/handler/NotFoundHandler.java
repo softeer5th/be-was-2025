@@ -3,7 +3,6 @@ package http.handler;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.enums.HttpResponseStatus;
-import http.response.ContentType;
 
 import java.io.IOException;
 

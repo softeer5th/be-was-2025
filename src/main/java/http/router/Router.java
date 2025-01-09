@@ -33,7 +33,6 @@ public class Router {
         sb.deleteCharAt(sb.length()-1);
         sb.append(")$");
         compareExtensionRegex = sb.toString();
-        System.out.println(compareExtensionRegex);
     }
 
     private void initializeRoutes() {
