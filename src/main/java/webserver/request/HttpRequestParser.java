@@ -89,12 +89,14 @@ public class HttpRequestParser {
         if (query != null && !query.isBlank()) {
             String[] paramTokens = query.split(QUERY_PARAMETER_SEPARATOR);
             for (String paramToken : paramTokens) {
-                String[] keyValue = paramToken.split(QUERY_KEY_VALUE_SEPARATOR, 2);
-                if (keyValue.length != 2) {
+                if (!paramToken.contains(QUERY_KEY_VALUE_SEPARATOR))
                     throw new BadRequest("Invalid Query Parameter: " + paramToken);
-                }
-                // key가 중복되는 경우 앞선 값을 덮어씀
-                queryMap.put(keyValue[0].strip(), keyValue[1].strip());
+
+                String[] keyValue = paramToken.split(QUERY_KEY_VALUE_SEPARATOR, 2);
+                if (keyValue.length == 1)
+                    queryMap.put(keyValue[0].strip(), "");
+                else
+                    queryMap.put(keyValue[0].strip(), keyValue[1].strip());
             }
         }
         return new RequestTarget(path, queryMap);

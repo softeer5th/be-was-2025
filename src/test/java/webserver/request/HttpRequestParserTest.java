@@ -21,7 +21,7 @@ class HttpRequestParserTest {
     void parseTest1() throws IOException {
         // given
         var requestString = String.join("\r\n",
-                "GET /index.html?page=1&pageSize=10 HTTP/1.1",
+                "GET /index.html?page=1&pageSize=10&filter= HTTP/1.1",
                 "Host: localhost:8080",
                 "Accept: text/html",
                 "");
@@ -34,7 +34,8 @@ class HttpRequestParserTest {
         assertThat(request.getRequestTarget().getPath()).isEqualTo("/index.html");
         assertThat(request.getRequestTarget().getQuery())
                 .containsEntry("page", "1")
-                .containsEntry("pageSize", "10");
+                .containsEntry("pageSize", "10")
+                .containsEntry("filter", "");
         assertThat(request.getVersion().version).isEqualTo("HTTP/1.1");
         assertThat(request.getHeaders())
                 .containsEntry("Host", "localhost:8080")
@@ -116,7 +117,7 @@ class HttpRequestParserTest {
         // given
 
         var requestString = String.join("\r\n",
-                "GET /users?id=a; HTTP/1.1",
+                "GET /users?id=a&password HTTP/1.1",
                 "Host: localhost:8080",
                 "");
         var reader = new BufferedReader(new StringReader(requestString));
@@ -124,7 +125,7 @@ class HttpRequestParserTest {
         // when
         // then
         assertThatThrownBy(() -> parser.parse(reader))
-                .isInstanceOf(NotImplemented.class);
+                .isInstanceOf(BadRequest.class);
         reader.close();
     }
 }
