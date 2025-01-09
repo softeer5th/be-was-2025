@@ -8,28 +8,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class HandlerMapping {
+public class ControllerMapping {
     private static final String DASH = "/";
     private final List<Object> controllers;
 
-    public HandlerMapping(List<Object> controllers) {
+    public ControllerMapping(List<Object> controllers) {
         validateControllers(controllers);
         this.controllers = controllers;
     }
 
-    public Optional<ControllerMethod> getControllerMethod(String path, HttpMethod httpMethod) {
+    public ControllerMethod getControllerMethod(String path, HttpMethod httpMethod) {
         for (Object controller : controllers) {
             Method[] methods = controller.getClass().getMethods();
             for (Method method : methods) {
-                if (isSupportedHandler(path, httpMethod, method)) {
-                    return Optional.of(new ControllerMethod(controller, method));
+                if (isSupportedController(path, httpMethod, method)) {
+                    return new ControllerMethod(controller, method);
                 }
             }
         }
-        return Optional.empty();
+        return null;
     }
 
-    private boolean isSupportedHandler(String path, HttpMethod httpMethod, Method method) {
+    private boolean isSupportedController(String path, HttpMethod httpMethod, Method method) {
         Mapping mappingInfo = method.getDeclaredAnnotation(Mapping.class);
         if (isSameHttpMethod(httpMethod, mappingInfo)) {
             String[] requestPathParts = path.split(DASH);
@@ -49,7 +49,7 @@ public class HandlerMapping {
         }
         for (int i = 0; i < requestPathParts.length; i++) {
             if (!requestPathParts[i].equals(controllerPathParts[i])) {
-                if (!requestPathParts[i].startsWith("{") || !requestPathParts[i].endsWith("}")) {
+                if (!controllerPathParts[i].startsWith("{") || !controllerPathParts[i].endsWith("}")) {
                     return false;
                 }
             }
