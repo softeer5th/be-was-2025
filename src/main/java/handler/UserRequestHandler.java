@@ -14,12 +14,14 @@ import static enums.HttpMethod.GET;
 
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
+    final String USER_REQUEST_PREFIX = "/user/";
 
     @Override
     public HttpResponse handle(RequestInfo request) {
         logger.debug("request : {} ", request);
 
-        String path = request.getPath().substring("/user/".length());
+
+        String path = request.getPath().substring(USER_REQUEST_PREFIX.length());
         HttpResponse response = new HttpResponse();
 
         if (request.getMethod().equals(GET) && path.startsWith("create?")) {
