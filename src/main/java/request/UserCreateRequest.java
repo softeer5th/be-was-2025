@@ -6,6 +6,8 @@ import exception.ErrorCode;
 import java.util.HashMap;
 import java.util.Map;
 
+import static exception.ErrorCode.INVALID_FORM;
+
 public record UserCreateRequest(
         String userId,
         String nickname,
@@ -24,7 +26,7 @@ public record UserCreateRequest(
 
     private static String getOrElseThrow(Map<String, String> map, String key) {
         if (!map.containsKey(key))
-            throw new ClientErrorException(ErrorCode.INVALID_FORM);
+            throw new ClientErrorException(INVALID_FORM);
         return map.get(key);
     }
 
@@ -34,6 +36,9 @@ public record UserCreateRequest(
 
         for (String param : params) {
             String[] nameAnyKey = param.split("=");
+            if (nameAnyKey.length != 2) {
+                throw new ClientErrorException(ErrorCode.MISSING_FIELD);
+            }
             paramMap.put(nameAnyKey[0], nameAnyKey[1]);
         }
         return paramMap;
