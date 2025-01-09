@@ -57,12 +57,16 @@ public class HttpRequest {
 		return requestLine.getVersion();
 	}
 
-	public HttpHeaders getHeaders() {
-		return headers;
-	}
-
 	public String getBody() {
 		return body;
+	}
+
+	public boolean hasExtension() {
+		return requestLine.hasExtension();
+	}
+
+	public String getPathWithoutFileName() {
+		return requestLine.getPathWithoutFileName();
 	}
 }
 

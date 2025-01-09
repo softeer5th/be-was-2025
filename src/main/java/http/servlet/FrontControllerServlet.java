@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import enums.ContentType;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 
@@ -19,7 +20,9 @@ public class FrontControllerServlet implements Servlet {
 
 		// TODO: 해당 객체는 정적인 객체인데 서블릿를 추가해주는 위치가 바람직한가?
 		controllerMap.put(STATIC_RESOURCES, new StaticResourceServlet());
-		controllerMap.put("/registration", new RegisterServlet());
+
+		controllerMap.put("/", new HomeServlet());
+		controllerMap.put("/registration", new StaticResourceServlet());
 		controllerMap.put("/user/create", null);
 	}
 
@@ -30,21 +33,21 @@ public class FrontControllerServlet implements Servlet {
 	@Override
 	public void service(HttpRequest request, HttpResponse response) throws IOException {
 
-		// 정적 리소스 처리
-		if(isResourceRequest(request)) {
+		// TODO: HTML이 아닌 경우에만, 정적 리소스 서블릿으로 처리하는게 맞는가?
+		if(request.hasExtension() && !request.inferContentType().equals(ContentType.TEXT_HTML)){
 			Servlet servlet = controllerMap.get(STATIC_RESOURCES);
 			servlet.service(request, response);
 			return;
 		}
 
-		// 동적 리소스 처리
-		Servlet servlet = controllerMap.get(request.getPath());
-		servlet.service(request, response);
-	}
+		// path 기반으로 서블릿을 찾아서 실행하기에 순수한 path 만 추출
+		String pathWithoutFileName = request.getPathWithoutFileName();
 
-	private boolean isResourceRequest(HttpRequest request) {
-		// TODO: 과연 이 조건만으로 정적 리소스 요청을 판단할 수 있을까?
+		if(!controllerMap.containsKey(pathWithoutFileName)){
+			// TODO: 에러 페이지 이동
+			return;
+		}
 
-		return request.getPath().lastIndexOf('.') != -1;
+		controllerMap.get(pathWithoutFileName).service(request, response);
 	}
 }
