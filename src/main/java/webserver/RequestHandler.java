@@ -39,7 +39,6 @@ public class RequestHandler implements Runnable {
             String[] tokens = lines.get(0).split(" ");
             String filePath = tokens[1];
 
-//            System.out.println("filePath = " + filePath);
             String fileExtension = "html";
             if (!filePath.contains("?")) {
                 fileExtension = tokens[1].split("\\.")[1];
@@ -89,11 +88,11 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private void logRequestDetails(List<String> lines) {
+    private void logRequestDetails(List<String> headers) {
         StringBuilder logMessageBuilder = new StringBuilder();
         logMessageBuilder.append("\n{\n");
-        for (String eachLine : lines) {
-            logMessageBuilder.append(eachLine).append('\n');
+        for (String eachHeader : headers) {
+            logMessageBuilder.append(eachHeader).append('\n');
         }
         logMessageBuilder.append("}\n");
         logger.debug(logMessageBuilder.toString());
