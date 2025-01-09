@@ -1,5 +1,6 @@
 package webserver;
 
+import constant.HTTPCode;
 import manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class URIHandler {
         return false;
     }
 
-    public boolean handleStaticRequest(String uri, DataOutputStream dos){
+    public void handleStaticRequest(String uri, DataOutputStream dos){
         File file = new File(STATIC_FILE_DIRECTORY_PATH, uri);
         if (!file.exists() || file.isDirectory()) {
             file = new File(STATIC_FILE_DIRECTORY_PATH, uri + "/index.html");
@@ -57,17 +58,17 @@ public class URIHandler {
                 byte[] body = fileToByteArray(file);
                 httpResponseHandler.responseRedirectHandler(dos, uri + "/index.html");
                 logger.debug("Successfully served static file for " + uri);
-                return true;
+                return;
             } else {
                 logger.debug("There is no static request for " + uri);
-                return false;
+                httpResponseHandler.responseFailHandler(dos, HTTPCode.NOT_FOUND);
+                return;
             }
         }
 
         byte[] body = fileToByteArray(file);
         httpResponseHandler.responseSuccessHandler(dos, body.length, uri, body);
         logger.debug("Successfully served static file for " + uri);
-        return true;
     }
 
     private Object[] combineArgs(String uri, Object... params) {

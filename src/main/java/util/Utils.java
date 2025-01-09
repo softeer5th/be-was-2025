@@ -1,11 +1,20 @@
 package util;
 
+import constant.HTTPCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.RequestHandler;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static webserver.RequestHandler.httpResponseHandler;
+
 public class Utils {
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static final Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH");
 
     public static String[] readInputToArray(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -29,13 +38,16 @@ public class Utils {
             }
             return fileBytes;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             return null;
         }
     }
 
-    public static boolean isValidHttpMethod(String httpMethod) {
-        Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH");
-        return httpMethods.contains(httpMethod);
+    public static boolean isValidHttpMethod(String httpMethod, DataOutputStream dos) {
+        if (httpMethods.contains(httpMethod)) {
+            return true;
+        }
+        httpResponseHandler.responseFailHandler(dos, HTTPCode.METHOD_NOT_ALLOWED);
+        return false;
     }
 }

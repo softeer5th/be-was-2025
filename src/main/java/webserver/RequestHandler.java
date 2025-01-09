@@ -36,8 +36,7 @@ public class RequestHandler implements Runnable {
                 String httpMethod = httpRequestHeader[0].split(" ")[0];
                 String resourceName = httpRequestHeader[0].split(" ")[1];
 
-                if(isValidHttpMethod(httpMethod)) {
-                    httpResponseHandler.responseFailHandler(dos, HTTPCode.METHOD_NOT_ALLOWED);
+                if(!isValidHttpMethod(httpMethod, dos)) {
                     return;
                 }
 
@@ -45,11 +44,7 @@ public class RequestHandler implements Runnable {
                     return;
                 }
 
-                if(uriHandler.handleStaticRequest(resourceName, dos)){
-                    return;
-                }
-
-                httpResponseHandler.responseFailHandler(dos, HTTPCode.NOT_FOUND);
+                uriHandler.handleStaticRequest(resourceName, dos);
 
             } catch (IOException e) {
                 logger.error(e.getMessage());
