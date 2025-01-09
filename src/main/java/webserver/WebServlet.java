@@ -1,7 +1,7 @@
 package webserver;
 
-import api.Controller;
-import api.UserController;
+import handler.RequestHandler;
+import handler.mapper.RequestHandlerMapper;
 import http.HttpRequestResolver;
 import http.HttpResponseResolver;
 import http.enums.HttpMethod;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class WebServlet {
     private static final WebServlet INSTANCE = new WebServlet();
-    private final Map<String, Controller> controllerMap = new HashMap<>();
+    private final RequestHandlerMapper requestHandlerMapper;
     private final HttpRequestResolver httpRequestResolver = HttpRequestResolver.getInstance();
     private final HttpResponseResolver httpResponseResolver = HttpResponseResolver.getInstance();
 
@@ -25,7 +25,7 @@ public class WebServlet {
     }
 
     public WebServlet(){
-        controllerMap.put("/create", new UserController());
+        requestHandlerMapper = new RequestHandlerMapper();
     }
 
     public void process(InputStream is, OutputStream os) throws IOException {
@@ -44,9 +44,9 @@ public class WebServlet {
         // 경로에서 api 제거
         String parsedPath = removeApiPrefixFromPath(httpRequest.getPath());
 
-        if(hasControllerByPath(parsedPath)){
-            Controller controller = controllerMap.get(parsedPath);
-            invokeControllerMethod(controller, httpRequest.getMethod(), httpRequest);
+        if(requestHandlerMapper.hasRequestHandlerByPath(parsedPath)){
+            RequestHandler requestHandler = requestHandlerMapper.mapRequestHandler(parsedPath);
+            requestHandler.handle(httpRequest);
             httpResponseResolver.sendRedirectResponse(dos, HttpStatus.MOVED_PERMANENTLY, "http://localhost:8080/");
             return;
         }
@@ -58,14 +58,7 @@ public class WebServlet {
     private String removeApiPrefixFromPath(String path){
         return path.substring(4);
     }
-    private boolean hasControllerByPath(String path){
-        return controllerMap.containsKey(path);
-    }
 
-    private void invokeControllerMethod(Controller controller, HttpMethod httpMethod, HttpRequest httpRequest){
-        if(httpMethod.equals(HttpMethod.GET)){
-            controller.processGet(httpRequest);
-        }
-    }
+
 
 }
