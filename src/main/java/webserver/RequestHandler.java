@@ -35,7 +35,7 @@ public class RequestHandler implements Runnable {
                 }
 
                 String httpMethod = httpRequestHeader[0].split("\\s+")[0];
-                String resourceName = httpRequestHeader[0].split("\\s+")[1];
+                String resourceName = removeLastSlash(httpRequestHeader[0].split("\\s+")[1]);
 
                 if(!isValidHttpMethod(httpMethod, dos)) {
                     return;

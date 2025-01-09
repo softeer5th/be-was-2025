@@ -33,6 +33,7 @@ public class URIHandler {
         }
     }
 
+    // 동적 URI 가 존재하는지 확인
     public boolean handleDynamicRequest(String httpMethod, String uri, Object... params){
         Method method = uriMethodMap.get(generateUriMethodKey(httpMethod,uri));
         if(method != null){
@@ -50,6 +51,7 @@ public class URIHandler {
         return false;
     }
 
+    // 정적 리소스가 존재하는지 확인 후 없으면 400에러 발생
     public void handleStaticRequest(String uri, DataOutputStream dos){
         File file = new File(STATIC_FILE_DIRECTORY_PATH, uri);
         if (!file.exists() || file.isDirectory()) {

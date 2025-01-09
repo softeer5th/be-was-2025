@@ -58,4 +58,11 @@ public class Utils {
         }
         return true;
     }
+
+    public static String removeLastSlash(String resourceName) {
+        if (resourceName != null && resourceName.endsWith("/")) {
+            return resourceName.substring(0, resourceName.length() - 1);
+        }
+        return resourceName;
+    }
 }
