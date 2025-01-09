@@ -11,7 +11,7 @@ public class HttpRequestLine {
 	private static final int REQUEST_LINE_LENGTH = 3;
 
 	private HttpMethod method;
-	private String uri;
+	private String path;
 	private String version;
 
 	public HttpRequestLine(BufferedReader reader) throws IOException {
@@ -28,7 +28,7 @@ public class HttpRequestLine {
 		}
 
 		this.method = HttpMethod.resolve(parts[0]);
-		this.uri = parts[1];
+		this.path = parts[1];
 		this.version = parts[2];
 	}
 
@@ -36,8 +36,8 @@ public class HttpRequestLine {
 		return method;
 	}
 
-	public String getUri() {
-		return uri;
+	public String getPath() {
+		return path;
 	}
 
 	public String getVersion() {
@@ -45,7 +45,7 @@ public class HttpRequestLine {
 	}
 
 	public ContentType inferContentType(){
-		String extention = uri.substring(uri.lastIndexOf(".") + 1);
+		String extention = path.substring(path.lastIndexOf(".") + 1);
 		return ContentType.from(extention);
 	}
 }

@@ -46,7 +46,7 @@ public class HttpRequest {
 	}
 
 	public String getPath() {
-		return requestLine.getUri();
+		return requestLine.getPath();
 	}
 
 	public ContentType inferContentType(){
