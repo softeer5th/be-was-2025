@@ -9,7 +9,6 @@ import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 import webserver.message.header.records.AcceptRecord;
 
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -23,7 +22,7 @@ public class StaticResourceResolver implements ResourceResolver {
     private static final StaticResourceResolver instance = new StaticResourceResolver();
     private static final Logger logger = LoggerFactory.getLogger(StaticResourceResolver.class);
 
-    private static final Pattern EXT_PATTERN = Pattern.compile("(\\.\\w+)$");
+    private static final Pattern EXTENSION_PATTERN = Pattern.compile("(\\.\\w+)?$");
 
     private StaticResourceResolver() {}
 
@@ -50,8 +49,10 @@ public class StaticResourceResolver implements ResourceResolver {
     private Optional<byte []> tryFindFile(HTTPRequest request, HTTPResponse.Builder response) throws IOException {
         String url = request.getUri();
         url = url.startsWith("/") ? url.replaceFirst("/", "static/"): url;
+        logger.info(url);
         Optional<byte []> acceptTypedFile = tryAcceptTypedFile(request, response, url);
         if (acceptTypedFile.isPresent()) {
+            logger.info("Found accepted file : {}", url);
             return acceptTypedFile;
         }
         Optional<byte[]> namedFile = loadResourceAsBytes(url);
@@ -69,7 +70,7 @@ public class StaticResourceResolver implements ResourceResolver {
             return Optional.empty();
         }
         AcceptRecord[] acceptHeaders = optionalHeader.get();
-        Matcher matcher = EXT_PATTERN.matcher(url);
+        Matcher matcher = EXTENSION_PATTERN.matcher(url);
         for (AcceptRecord acceptHeader : acceptHeaders) {
             Optional<byte[]> filePath = tryFindAcceptType(acceptHeader.type(), matcher);
             if (filePath.isEmpty()) {
@@ -83,7 +84,7 @@ public class StaticResourceResolver implements ResourceResolver {
 
     private Optional<byte []> tryFindAcceptType(HTTPContentType contentType, Matcher matcher)
             throws IOException {
-        String acceptUrl = matcher.replaceFirst(contentType.detail);
+        String acceptUrl = matcher.replaceFirst("." + contentType.detail);
         Optional<byte[]> filePath = loadResourceAsBytes(acceptUrl);
         if (filePath.isPresent()) {
             return filePath;
