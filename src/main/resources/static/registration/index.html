@@ -32,6 +32,9 @@
               placeholder="아이디를 입력해주세요"
               autocomplete="username"
             />
+            <p id="userId-error" class="error-message" style="color: red; display: none;">
+              아이디는 필수로 입력해야 해요
+            </p>
           </div>
           <div class="textfield textfield_size_s">
             <p class="title_textfield">닉네임</p>
@@ -41,6 +44,9 @@
               placeholder="닉네임을 입력해주세요"
               autocomplete="username"
             />
+            <p id="name-error" class="error-message" style="color: red; display: none;">
+              닉네임은 필수로 입력해야 해요
+            </p>
           </div>
           <div class="textfield textfield_size_s">
             <p class="title_textfield">비밀번호</p>
@@ -51,6 +57,9 @@
               placeholder="비밀번호를 입력해주세요"
               autocomplete="current-password"
             />
+            <p id="password-error" class="error-message" style="color: red; display: none;">
+              비밀번호는 필수로 입력해야 해요
+            </p>
           </div>
           <button
             id="registration-btn"
@@ -67,12 +76,45 @@
 
     <script>
       function submitRegistration() {
-        const userId = encodeURIComponent(document.getElementById("userId-input").value);
-        const name = encodeURIComponent(document.getElementById("name-input").value);
-        const password = encodeURIComponent(document.getElementById("password-input").value);
+        const userIdInput = document.getElementById("userId-input");
+        const nameInput = document.getElementById("name-input");
+        const passwordInput = document.getElementById("password-input");
 
-        const url = `/create?userId=${userId}&name=${name}&password=${password}`;
-        window.location.href = url;
+        const userIdError = document.getElementById("userId-error");
+        const nameError = document.getElementById("name-error");
+        const passwordError = document.getElementById("password-error");
+
+        let isValid = true;
+
+        if (!userIdInput.value.trim()) {
+          userIdError.style.display = "block";
+          isValid = false;
+        } else {
+          userIdError.style.display = "none";
+        }
+
+        if (!nameInput.value.trim()) {
+          nameError.style.display = "block";
+          isValid = false;
+        } else {
+          nameError.style.display = "none";
+        }
+
+        if (!passwordInput.value.trim()) {
+          passwordError.style.display = "block";
+          isValid = false;
+        } else {
+          passwordError.style.display = "none";
+        }
+
+        if (isValid) {
+          const userId = encodeURIComponent(userIdInput.value);
+          const name = encodeURIComponent(nameInput.value);
+          const password = encodeURIComponent(passwordInput.value);
+
+          const url = `/create?userId=${userId}&name=${name}&password=${password}`;
+          window.location.href = url;
+        }
       }
     </script>
   </body>
