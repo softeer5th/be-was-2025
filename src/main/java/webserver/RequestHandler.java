@@ -31,32 +31,10 @@ public class RequestHandler implements Runnable {
             requestParser.getLogs(logger);
 
             DataOutputStream dos = new DataOutputStream(out);
-            String contentType = Mime.getByExtension(requestParser.extension).getContentType();
-            String url = requestParser.url;
-            if (url.equals("/user/create")) {
-                UserManeger userManeger = new UserManeger();
-                try {
-                    userManeger.addUser(requestParser.parameter);
-                } catch (IllegalArgumentException e) {
-                    logger.error(e.getMessage());
-                    response303Header(dos, "/registration");
-                }
-                response303Header(dos, "/login");
-            } else {
-                ResponseBuilder responseBuilder = new ResponseBuilder();
-                responseBuilder.buildResponse(dos, requestParser);
-            }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-    
-    private void response303Header(DataOutputStream dos, String url) throws IOException {
-        try {
-            dos.writeBytes("HTTP/1.1 303 See Other \r\n");
-            dos.writeBytes("Location: " + url + "\r\n");
-            dos.writeBytes("\r\n");
-            dos.flush();
+
+            ResponseBuilder responseBuilder = new ResponseBuilder();
+            responseBuilder.buildResponse(dos, requestParser);
+
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
