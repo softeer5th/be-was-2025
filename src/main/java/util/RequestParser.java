@@ -59,10 +59,7 @@ public class RequestParser {
         this.parameter = parameter;
     }
 
-    public void getLogs(Logger logger){
-        logger.debug("request: ");
-        for(String request : requests){
-            logger.debug(request);
-        }
+    public List<String> getRequests(){
+        return requests;
     }
 }
