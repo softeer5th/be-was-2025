@@ -18,14 +18,25 @@ public class HttpHeaders {
 		String line;
 		while ((line = reader.readLine()) != null && !line.isEmpty()) {
 			String[] headerParts = line.split(HEADER_DELIMITER, 2);
+
+			if (headerParts.length < 2) {
+				throw new IllegalArgumentException("Invalid header format: " + line);
+			}
+
 			String headerName = headerParts[0].strip().toLowerCase();
+			String headerValue = headerParts[1].strip();
 
-			String headerValue = (headerParts.length > 1) ? headerParts[1].strip() : "";
+			if (headerName.isEmpty() || headerValue.isEmpty()) {
+				throw new IllegalArgumentException("Invalid header format: " + line);
+			}
+
+			List<String> valueList = headers.getOrDefault(headerName, new ArrayList<>());
 			String[] values = headerValue.split(HEADER_VALUE_DELIMITER);
-
-			List<String> valueList = new ArrayList<>();
 			for (String value : values) {
-				valueList.add(value.strip());
+				String strippedValue = value.strip();
+				if (!strippedValue.isEmpty()) {
+					valueList.add(strippedValue);
+				}
 			}
 
 			headers.put(headerName, valueList);
@@ -44,6 +55,7 @@ public class HttpHeaders {
 	}
 
 	public void setHeader(String headerName, String... values) {
+		headerName = headerName.toLowerCase();
 		List<String> valueList = headers.getOrDefault(headerName, new ArrayList<>());
 
 		for (String value : values) {
@@ -58,7 +70,7 @@ public class HttpHeaders {
 			return;
 		}
 
-		headers.put(headerName, Collections.unmodifiableList(valueList));
+		headers.put(headerName, valueList);
 	}
 
 	public Map<String, List<String>> getHeaders() {
