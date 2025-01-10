@@ -1,15 +1,18 @@
 package model;
 
+import db.Database;
+
 public class User {
+
     private String userId;
     private String password;
-    private String name;
+    private String nickname;
     private String email;
 
-    public User(String userId, String password, String name, String email) {
+    public User(String userId, String password, String nickname, String email) {
         this.userId = userId;
         this.password = password;
-        this.name = name;
+        this.nickname = nickname;
         this.email = email;
     }
 
@@ -21,8 +24,8 @@ public class User {
         return password;
     }
 
-    public String getName() {
-        return name;
+    public String getNickname() {
+        return nickname;
     }
 
     public String getEmail() {
@@ -31,6 +34,11 @@ public class User {
 
     @Override
     public String toString() {
-        return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
+        return "User [userId=" + userId + ", password=" + password + ", nickname=" + nickname + ", email="
+            + email + "]";
+    }
+
+    public void registerUser() {
+        Database.addUser(this);
     }
 }
