@@ -19,7 +19,7 @@ class RequestDispatcherTest {
 
     @BeforeEach
     void setHttpRequestSample() throws IOException {
-        HTTP_REQUEST_SAMPLE = Files.readAllBytes(new File("src/test/java/fixtureUtil/HttpRequestSample").toPath());
+        HTTP_REQUEST_SAMPLE = Files.readAllBytes(new File("src/test/resources/static/HttpRequestSample").toPath());
     }
 
     @Test

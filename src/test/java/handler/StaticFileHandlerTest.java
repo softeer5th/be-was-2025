@@ -2,6 +2,7 @@ package handler;
 
 import enums.HttpMethod;
 import enums.HttpStatus;
+import enums.HttpVersion;
 import exception.ClientErrorException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,8 +22,8 @@ class StaticFileHandlerTest {
     @Test
     @DisplayName("서버가 제공하는 유효한 정적 파일이면 200 상태코드와 함께 body에 파일의 내용을 전송한다..")
     void handle() throws IOException {
-        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/test.html");
-        byte[] expected = Files.readAllBytes(new File("src/test/resources/test.html").toPath());
+        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/static/test.html", HttpVersion.HTTP1);
+        byte[] expected = Files.readAllBytes(new File("src/test/resources/static/test.html").toPath());
 
         HttpResponse response = staticFileHandler.handle(request);
 
@@ -35,7 +36,7 @@ class StaticFileHandlerTest {
     @Test
     @DisplayName("서버가 제공하지 않는 정적파일이면 예외가 발생한다.")
     void handle_invalidFileRequest() {
-        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/invalid.html");
+        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/invalid.html",HttpVersion.HTTP1);
 
         Assertions.assertThatThrownBy(() -> staticFileHandler.handle(request))
                 .isInstanceOf(ClientErrorException.class)
