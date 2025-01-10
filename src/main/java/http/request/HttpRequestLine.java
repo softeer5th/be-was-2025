@@ -21,13 +21,13 @@ public class HttpRequestLine {
 	private Map<String, String> queries;
 
 	public HttpRequestLine(BufferedReader reader) throws IOException {
-		String requestLine = reader.readLine().strip();
+		String requestLine = reader.readLine();
 
 		if (requestLine == null || requestLine.isEmpty()) {
 			throw new IllegalArgumentException("Empty request line");
 		}
 
-		String[] parts = requestLine.split(REQUEST_LINE_SPACE);
+		String[] parts = requestLine.strip().split(REQUEST_LINE_SPACE);
 
 		if (parts.length != REQUEST_LINE_LENGTH) {
 			throw new IllegalArgumentException("Malformed request line: " + requestLine);
