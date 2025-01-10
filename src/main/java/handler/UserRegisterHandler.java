@@ -45,7 +45,7 @@ public class UserRegisterHandler implements Handler {
             throw new BaseException(HttpErrorCode.INVALID_QUERY_PARAM);
         }
         String[] pairs = query.split("&");
-        if (pairs.length != 2) {
+        if (pairs.length != 4) {
             throw new BaseException(HttpErrorCode.INVALID_QUERY_PARAM);
         }
         for (String pair : pairs) {
