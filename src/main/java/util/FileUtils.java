@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 public class FileUtils {
 
-	private static final int BUFFER_SIZE = 8192; // 8KB 버퍼 크기, 보통 디스크 페이지 크기는 8KB 이다.
+	public static final int BUFFER_SIZE = 8192; // 8KB 버퍼 크기, 보통 디스크 페이지 크기는 8KB 이다.
 
 	// 파일을 byte[]로 반환하는 메서드
 	// 일정 크기의 버퍼를 두어, 데이터를 여러 바이트씩 한 번에 읽어오는 방식으로 성능을 최적화
