@@ -1,7 +1,6 @@
 package api.user;
 
 import api.ApiHandler;
-import db.TokenStore;
 import exception.ErrorCode;
 import exception.UserCreationException;
 import db.Database;
