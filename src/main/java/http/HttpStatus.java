@@ -1,8 +1,12 @@
-package common;
+package http;
 
 public enum HttpStatus {
     OK(200, "OK"),
-    NOT_FOUND(404, "NOT FOUND");
+    CREATED(201, "Created" ),
+    FOUND(302, "Found" ),
+    BAD_REQUEST(400, "Bad Request"),
+    NOT_FOUND(404, "Unsupported Media Type"),
+    UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type");
 
     private final int code;
     private final String message;
