@@ -25,6 +25,10 @@ public class HttpResponse {
         return status;
     }
 
+    public String getHeaderValue(String name) {
+        return headers.get(name);
+    }
+
     public byte[] getBody() {
         return body;
     }
