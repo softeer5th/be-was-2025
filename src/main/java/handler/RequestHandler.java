@@ -1,7 +1,9 @@
 package handler;
 
 import http.HttpRequest;
+import http.HttpResponse;
 
 public interface RequestHandler {
-    void handle(HttpRequest httpRequest);
+    boolean canHandle(HttpRequest httpRequest);
+    HttpResponse handle(HttpRequest httpRequest);
 }
