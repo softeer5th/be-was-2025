@@ -2,6 +2,8 @@ package enums;
 
 import exception.ClientErrorException;
 
+import java.util.Arrays;
+
 import static exception.ErrorCode.UNSUPPORTED_HTTP_VERSION;
 
 public enum HttpVersion {
@@ -16,11 +18,13 @@ public enum HttpVersion {
     }
 
 
-    public static HttpVersion matchOrElseThrow(String versionString) {
+    public static HttpVersion matchOrElseThrow(String versionString, HttpVersion[] supportedVersions) {
         final MajorAndMinor result = getMajorAndMinor(versionString);
 
         for (HttpVersion version : HttpVersion.values()) {
-            if (version.majorVersion == result.major() && version.minorVersion == result.minor())
+            if (Arrays.stream(supportedVersions).anyMatch(v -> v == version)
+                    && version.majorVersion == result.major()
+                    && version.minorVersion == result.minor())
                 return version;
         }
 

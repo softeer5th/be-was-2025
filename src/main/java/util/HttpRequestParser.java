@@ -1,5 +1,6 @@
 package util;
 
+import config.ServerConfig;
 import enums.HttpMethod;
 import enums.HttpVersion;
 import exception.ClientErrorException;
@@ -17,6 +18,7 @@ import java.util.Map;
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
     private static final String REQUEST_LINE_SEPARATOR = " ";
+    private static final HttpVersion[] supportedVersions = ServerConfig.getSupportedHttpVersions();
 
     public static HttpRequestInfo parse(InputStream inputStream) throws IOException {
         BufferedReader br = new BufferedReader(new java.io.InputStreamReader(inputStream));
@@ -43,7 +45,7 @@ public abstract class HttpRequestParser {
 
         HttpMethod method = HttpMethod.matchOrElseThrow(requestInfo[0].toLowerCase());
         String url = requestInfo[1];
-        HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2].toLowerCase());
+        HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2].toLowerCase(), supportedVersions);
         logger.debug("Request mehtod = {}, url = {}", method, url);
 
         // request의 내용을 로깅한다.
