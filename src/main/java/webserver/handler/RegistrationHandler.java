@@ -2,6 +2,7 @@ package webserver.handler;
 
 import db.Database;
 import model.User;
+import webserver.exception.Conflict;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
@@ -15,6 +16,11 @@ public class RegistrationHandler implements HttpHandler {
         Map<String, String> query = request.getRequestTarget().getQuery();
 
         User user = mapToUser(query);
+        // 중복 사용자 검사
+        if (Database.findUserById(user.getUserId()) != null) {
+            throw new Conflict("User Id Already Exists");
+        }
+
         // 데이터베이스에 사용자 추가
         Database.addUser(user);
         return HttpResponse.redirect("/login");
