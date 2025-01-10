@@ -21,7 +21,7 @@ public abstract class HttpRequestParser {
     private static final String REQUEST_LINE_SEPARATOR = " ";
     private static final String PARAMETER_SEPARATOR = "=";
     private static final String HEADER_SEPARATOR = ": ";
-    private static final String QUERY_PARAMS = "\\?";
+    private static final String QUERY_PARAMS = "&";
     private static final List<HttpVersion> supportedVersions = ServerConfig.getSupportedHttpVersions();
 
     public static HttpRequestInfo parse(InputStream inputStream) throws IOException {
@@ -47,9 +47,9 @@ public abstract class HttpRequestParser {
             throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
         }
 
-        HttpMethod method = HttpMethod.matchOrElseThrow(requestInfo[0].toLowerCase());
+        HttpMethod method = HttpMethod.matchOrElseThrow(requestInfo[0]);
         String url = requestInfo[1];
-        HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2].toLowerCase(), supportedVersions);
+        HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2], supportedVersions);
         logger.debug("Request mehtod = {}, url = {}, version = {}", method, url, version);
 
         // request의 내용을 로깅한다.
