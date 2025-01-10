@@ -9,10 +9,10 @@ public enum HttpMethod {
     POST;
 
     public static HttpMethod matchOrElseThrow(String method) {
-        return switch (method) {
-            case "get" -> GET;
-            case "post" -> POST;
-            default -> throw new ClientErrorException(INVALID_HTTP_METHOD);
-        };
+        try {
+            return HttpMethod.valueOf(method);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new ClientErrorException(INVALID_HTTP_METHOD);
+        }
     }
 }
