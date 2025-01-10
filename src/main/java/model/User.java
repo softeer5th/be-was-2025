@@ -13,6 +13,14 @@ public class User {
         this.email = email;
     }
 
+    // 회원가입 시 이메일 등록을 하지 않은 경우
+    // 추후 이메일 등록이 필수일 경우 삭제 필요
+    public User(String userId, String password, String name) {
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+    }
+
     public String getUserId() {
         return userId;
     }
