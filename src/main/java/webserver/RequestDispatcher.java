@@ -21,7 +21,7 @@ public class RequestDispatcher implements Runnable {
     private Socket connection;
     private final Router router;
 
-    public RequestDispatcher(Socket connectionSocket,Router router) {
+    public RequestDispatcher(Socket connectionSocket, Router router) {
         this.connection = connectionSocket;
         this.router = router;
     }
@@ -31,13 +31,12 @@ public class RequestDispatcher implements Runnable {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            HttpRequestInfo httpRequestInfo = HttpRequestParser.parse(in);
-            String path = httpRequestInfo.getPath();
-
             DataOutputStream dos = new DataOutputStream(out);
             HttpResponse response;
-
             try {
+                HttpRequestInfo httpRequestInfo = HttpRequestParser.parse(in);
+                String path = httpRequestInfo.getPath();
+
                 final Handler handler = router.route(path);
                 response = handler.handle(httpRequestInfo);
             } catch (ClientErrorException e) {
