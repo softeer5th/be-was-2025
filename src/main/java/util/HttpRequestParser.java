@@ -19,6 +19,9 @@ import java.util.Map;
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
     private static final String REQUEST_LINE_SEPARATOR = " ";
+    private static final String PARAMETER_SEPARATOR = "=";
+    private static final String HEADER_SEPARATOR = ": ";
+    private static final String QUERY_PARAMS = "\\?";
     private static final List<HttpVersion> supportedVersions = ServerConfig.getSupportedHttpVersions();
 
     public static HttpRequestInfo parse(InputStream inputStream) throws IOException {
@@ -51,7 +54,7 @@ public abstract class HttpRequestParser {
 
         // request의 내용을 로깅한다.
         while (!(requests = br.readLine()).isEmpty()) {
-            String[] nameAndValue = requests.split(":", 2);
+            String[] nameAndValue = requests.split(HEADER_SEPARATOR, 2);
             logger.debug("{} = {}", nameAndValue[0], nameAndValue[1]);
         }
 
@@ -59,11 +62,11 @@ public abstract class HttpRequestParser {
     }
 
     public static Map<String, String> parseParamString(String paramString) {
-        String[] params = paramString.split("&");
+        String[] params = paramString.split(QUERY_PARAMS);
         Map<String, String> paramMap = new HashMap<>();
 
         for (String param : params) {
-            String[] nameAnyKey = param.split("=");
+            String[] nameAnyKey = param.split(PARAMETER_SEPARATOR);
             if (nameAnyKey.length != 2) {
                 throw new ClientErrorException(ErrorCode.MISSING_FIELD);
             }
