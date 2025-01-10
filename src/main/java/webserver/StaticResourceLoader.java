@@ -20,6 +20,7 @@ public class StaticResourceLoader {
         String mappedPath = switch (cleanedPath) {
             case "/" -> "/index.html";
             case "/registration" -> "/registration/index.html";
+            case "/login" -> "/login/index.html";
             default -> path;
         };
 
