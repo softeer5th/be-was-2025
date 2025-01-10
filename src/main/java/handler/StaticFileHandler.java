@@ -14,11 +14,7 @@ import static exception.ErrorCode.FILE_NOT_FOUND;
  *  정적 파일 요청을 담당하는  Handler
  */
 public class StaticFileHandler implements Handler {
-    private final String STATIC_FILE_PATH;
-
-    public StaticFileHandler() {
-        STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
-    }
+    private static final String STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
@@ -30,7 +26,6 @@ public class StaticFileHandler implements Handler {
 
         response.setStatus(HttpStatus.OK);
         response.setContentType(extension);
-
 
         byte[] body = FileReader.readFile(STATIC_FILE_PATH + path)
                 .orElseThrow(() -> new ClientErrorException(FILE_NOT_FOUND));
