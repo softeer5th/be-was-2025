@@ -52,6 +52,14 @@ public class HttpResponse {
         setBody(content);
     }
 
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    public byte[] getBody() {
+        return body;
+    }
+
     public void send(DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 " + status.getCode() + " " + status.getMessage() + "\r\n");
