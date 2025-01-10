@@ -68,5 +68,9 @@ public class HttpRequest {
 	public String getPathWithoutFileName() {
 		return requestLine.getPathWithoutFileName();
 	}
+
+	public String getParameter(String parameterName) {
+		return requestLine.getParameter(parameterName);
+	}
 }
 

@@ -106,4 +106,8 @@ public class HttpRequestLine {
 		}
 		return path;  // '/'만 있을 경우 그대로 반환
 	}
+
+	public String getParameter(String parameterName) {
+		return queries.get(parameterName);
+	}
 }
