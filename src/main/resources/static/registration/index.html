@@ -1,64 +1,156 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
-        <ul class="header__menu">
-          <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
-          </li>
-          <li class="header__menu__item">
-            <a class="btn btn_ghost btn_size_s" href="/registration">
-              회원 가입
-            </a>
-          </li>
-        </ul>
-      </header>
-      <div class="page">
-        <h2 class="page-title">회원가입</h2>
-        <form class="form">
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">아이디</p>
-            <input
-              class="input_textfield"
-              placeholder="아이디를 입력해주세요"
-              autocomplete="username"
-            />
-          </div>
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">닉네임</p>
-            <input
-              class="input_textfield"
-              placeholder="닉네임을 입력해주세요"
-              autocomplete="username"
-            />
-          </div>
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">비밀번호</p>
-            <input
-              class="input_textfield"
-              type="password"
-              placeholder="비밀번호를 입력해주세요"
-              autocomplete="current-password"
-            />
-          </div>
-          <button
-            id="registration-btn"
-            class="btn btn_contained btn_size_m"
-            style="margin-top: 24px"
-            type="button"
-          >
-            회원가입
-          </button>
-        </form>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="../reset.css" rel="stylesheet" />
+  <link href="../global.css" rel="stylesheet" />
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <a href="/"><img src="../img/signiture.svg" /></a>
+    <ul class="header__menu">
+      <li class="header__menu__item">
+        <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
+      </li>
+      <li class="header__menu__item">
+        <a class="btn btn_ghost btn_size_s" href="/registration">
+          회원 가입
+        </a>
+      </li>
+    </ul>
+  </header>
+  <div class="page">
+    <h2 class="page-title">회원가입</h2>
+    <form class="form">
+      <div class="textfield textfield_size_s">
+        <p class="title_textfield">아이디</p>
+        <input
+                id="userId-input"
+                class="input_textfield"
+                placeholder="아이디를 입력해주세요"
+                autocomplete="username"
+        />
+        <p id="userId-error" class="error-message" style="color: red; display: none;">
+          아이디는 필수로 입력해야 해요
+        </p>
+        <p id="userId-dup-error" class="error-message" style="color: red; display: none;">
+          중복된 아이디예요
+        </p>
       </div>
-    </div>
-  </body>
+      <div class="textfield textfield_size_s">
+        <p class="title_textfield">닉네임</p>
+        <input
+                id="name-input"
+                class="input_textfield"
+                placeholder="닉네임을 입력해주세요"
+                autocomplete="username"
+        />
+        <p id="name-error" class="error-message" style="color: red; display: none;">
+          닉네임은 필수로 입력해야 해요
+        </p>
+        <p id="name-dup-error" class="error-message" style="color: red; display: none;">
+          중복된 닉네임이에요
+        </p>
+      </div>
+      <div class="textfield textfield_size_s">
+        <p class="title_textfield">비밀번호</p>
+        <input
+                id="password-input"
+                class="input_textfield"
+                type="password"
+                placeholder="비밀번호를 입력해주세요"
+                autocomplete="current-password"
+        />
+        <p id="password-error" class="error-message" style="color: red; display: none;">
+          비밀번호는 필수로 입력해야 해요
+        </p>
+      </div>
+      <button
+              id="registration-btn"
+              class="btn btn_contained btn_size_m"
+              style="margin-top: 24px"
+              type="button"
+              onclick="submitRegistration()"
+      >
+        회원가입
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  async function submitRegistration() {
+    const userIdInput = document.getElementById("userId-input");
+    const nameInput = document.getElementById("name-input");
+    const passwordInput = document.getElementById("password-input");
+
+    const userIdError = document.getElementById("userId-error");
+    const nameError = document.getElementById("name-error");
+    const passwordError = document.getElementById("password-error");
+    const userIdDupError = document.getElementById("userId-dup-error");
+    const nameDupError = document.getElementById("name-dup-error");
+
+    userIdDupError.style.display = "none";
+    nameDupError.style.display = "none";
+
+    let isValid = true;
+
+    if (!userIdInput.value.trim()) {
+      userIdError.style.display = "block";
+      isValid = false;
+    } else {
+      userIdError.style.display = "none";
+    }
+
+    if (!nameInput.value.trim()) {
+      nameError.style.display = "block";
+      isValid = false;
+    } else {
+      nameError.style.display = "none";
+    }
+
+    if (!passwordInput.value.trim()) {
+      passwordError.style.display = "block";
+      isValid = false;
+    } else {
+      passwordError.style.display = "none";
+    }
+
+    if (!isValid) return;
+
+    const userId = encodeURIComponent(userIdInput.value);
+    const name = encodeURIComponent(nameInput.value);
+    const password = encodeURIComponent(passwordInput.value);
+
+    try {
+      const response = await fetch(`/api/create?userId=${userId}&name=${name}&password=${password}`);
+
+      if (!response.ok) {
+        console.error("서버 응답 오류:", response.status);
+        return;
+      }
+
+      const result = await response.json();
+
+      if (result.isSuccess) {
+        alert("회원가입에 성공했어요");
+        window.location.href = "/login";
+      } else {
+        if (result.code === "SIGNUP-01") {
+          // 아이디 중복
+          userIdDupError.style.display = "block";
+        } else if (result.code === "SIGNUP-02") {
+          // 닉네임 중복
+          nameDupError.style.display = "block";
+        }
+      }
+    } catch (err) {
+      alert("오류가 발생했어요! 다시 시도해 주세요");
+      console.error("회원가입 요청 중 오류 발생:", err);
+    }
+  }
+</script>
+</body>
 </html>

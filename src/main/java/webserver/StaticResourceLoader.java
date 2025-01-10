@@ -1,5 +1,7 @@
 package webserver;
 
+import global.model.LoadResult;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,15 +14,28 @@ public class StaticResourceLoader {
         this.baseDirectory = baseDirectory;
     }
 
-    public byte[] load(String path) throws IOException {
-        if ("/".equals(path)) {
-            path = "/index.html";
-        }
+    public LoadResult load(String path) throws IOException {
+        String cleanedPath = removeQueryParameters(path);
 
-        Path filePath = Paths.get(baseDirectory + path);
+        String mappedPath = switch (cleanedPath) {
+            case "/" -> "/index.html";
+            case "/registration" -> "/registration/index.html";
+            case "/login" -> "/login/index.html";
+            default -> path;
+        };
+
+        Path filePath = Paths.get(baseDirectory + mappedPath);
         if (!Files.exists(filePath)) {
-            return null;
+            return new LoadResult(null, mappedPath, "text/html");
         }
-        return Files.readAllBytes(filePath);
+        return new LoadResult(Files.readAllBytes(filePath), mappedPath, "text/html");
+    }
+
+    private String removeQueryParameters(String path) {
+        int questionMarkIndex = path.indexOf('?');
+        if (questionMarkIndex != -1) {
+            return path.substring(0, questionMarkIndex);
+        }
+        return path;
     }
 }

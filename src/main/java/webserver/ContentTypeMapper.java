@@ -11,12 +11,13 @@ public class ContentTypeMapper {
             "png", "image/png",
             "jpg", "image/jpeg",
             "jpeg", "image/jpeg",
-            "svg", "image/svg+xml"
+            "svg", "image/svg+xml",
+            "json", "application/json"
     );
 
     public static String getContentType(String path) {
         String extension = getExtension(path);
-        return MIME_TYPES.getOrDefault(extension, "application/octet-stream");
+        return MIME_TYPES.getOrDefault(extension, "text/html");
     }
 
     private static String getExtension(String path) {

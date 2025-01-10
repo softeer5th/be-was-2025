@@ -29,6 +29,10 @@ public class User {
         return email;
     }
 
+    public static User of(String userId, String password, String name) {
+        return new User(userId, password, name, null);
+    }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
