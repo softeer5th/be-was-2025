@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
 import webserver.file.StaticResourceManager;
-import webserver.handler.HttpHandlerMapping;
 import webserver.handler.RegistrationHandler;
 import webserver.handler.ServeStaticFileHandler;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponseWriter;
+import webserver.router.PathRouter;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -42,9 +42,10 @@ public class WebServer {
         HttpResponseWriter responseWriter = new HttpResponseWriter();
         StaticResourceManager resourceManager = new StaticResourceManager(config);
         // path와 handler를 매핑한다.
-        HttpHandlerMapping handlerMapping = new HttpHandlerMapping()
+        PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
                 .setHandler("/create", new RegistrationHandler());
+
 
         // 서버소켓을 생성한다. 웹서버는 기본적으로 8080번 포트를 사용한다.
         try (ServerSocket listenSocket = new ServerSocket(port)) {
@@ -53,7 +54,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                Runnable requestHandler = new FrontController(config, connection, requestParser, responseWriter, handlerMapping);
+                Runnable requestHandler = new FrontController(config, connection, requestParser, responseWriter, router);
                 es.submit(requestHandler);
             }
         }

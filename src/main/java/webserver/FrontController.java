@@ -6,11 +6,11 @@ import webserver.config.ServerConfig;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpException;
 import webserver.handler.HttpHandler;
-import webserver.handler.HttpHandlerMapping;
 import webserver.request.HttpRequest;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponse;
 import webserver.response.HttpResponseWriter;
+import webserver.router.PathRouter;
 
 import java.io.*;
 import java.net.Socket;
@@ -23,16 +23,16 @@ public class FrontController implements Runnable {
     private final Socket connection;
     private final HttpRequestParser requestParser;
     private final HttpResponseWriter responseWriter;
-    private final HttpHandlerMapping handlerMapping;
+    private final PathRouter router;
 
     private final List<HttpVersion> supportedHttpVersions;
 
 
-    public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, HttpHandlerMapping handlerMapping) {
+    public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, PathRouter router) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
-        this.handlerMapping = handlerMapping;
+        this.router = router;
         this.supportedHttpVersions = config.getSupportedHttpVersions();
     }
 
@@ -51,10 +51,14 @@ public class FrontController implements Runnable {
                 // request http version이 서버에서 지원하는지 검증
                 request.validateSupportedHttpVersion(supportedHttpVersions);
 
-                // request path에 해당하는 handler 찾기
-                HttpHandler handler = handlerMapping.getHandler(request.getRequestTarget().getPath());
+                // request path에 해당하는 handler와 매칭된 path variable 찾기
+                PathRouter.RoutingResult routingResult = router.route(request.getRequestTarget().getPath());
 
-                // Http Method에 따라 로직 분기(processXXX 메서드)
+                HttpHandler handler = routingResult.handler();
+                // requst에 매칭된 path variable 설정
+                request.setPathVariables(routingResult.pathVariables());
+
+                // handler에게 요청 위임
                 HttpResponse response = handler.handle(request);
 
                 responseWriter.writeResponse(request, response, out);

@@ -22,6 +22,7 @@ public class HttpRequest {
     private final Map<String, String> headers;
     // body를 읽어들이기 위한 Reader
     private final BufferedReader body;
+    private Map<String, String> pathVariables;
 
     public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, Map<String, String> headers, BufferedReader body) {
         this.httpMethod = httpMethod;
@@ -29,8 +30,16 @@ public class HttpRequest {
         this.version = version;
         this.headers = headers;
         this.body = body;
+        this.pathVariables = Map.of();
     }
 
+    public void setPathVariables(Map<String, String> pathVariables) {
+        this.pathVariables = pathVariables;
+    }
+
+    public String getPathVariable(String key) {
+        return pathVariables.get(key);
+    }
 
     public HttpMethod getMethod() {
         return httpMethod;
