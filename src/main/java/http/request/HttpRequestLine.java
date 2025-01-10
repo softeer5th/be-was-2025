@@ -21,7 +21,7 @@ public class HttpRequestLine {
 	private Map<String, String> queries;
 
 	public HttpRequestLine(BufferedReader reader) throws IOException {
-		String requestLine = reader.readLine();
+		String requestLine = reader.readLine().strip();
 
 		if (requestLine == null || requestLine.isEmpty()) {
 			throw new IllegalArgumentException("Empty request line");
