@@ -1,5 +1,7 @@
 package util;
 
+import exception.BaseException;
+import exception.FileErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
@@ -10,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class FileUtil {
+
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     public static byte[] readHtmlFileAsBytes(String filepath) {
@@ -17,7 +20,7 @@ public class FileUtil {
             File file = new File(filepath);
             if (!file.exists() || file.isDirectory()) {
                 logger.error("File not found or is a directory: {}", filepath);
-                return null;
+                throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
             }
 
             FileInputStream fis = new FileInputStream(file);
@@ -28,7 +31,7 @@ public class FileUtil {
             return body;
         } catch (IOException e) {
             logger.error(e.getMessage());
-            return null;
+            throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
         }
     }
 
