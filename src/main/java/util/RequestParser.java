@@ -1,5 +1,6 @@
 package util;
 
+import model.Mime;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ public class RequestParser {
     public String url = "/";
     public String extension = "html";
     public String parameter = null;
+    public String contentType = "text/html";
 
     public RequestParser(InputStream in){
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -49,6 +51,7 @@ public class RequestParser {
         String[] tokens = url.split("\\.");
         if(tokens.length > 1) {
             this.extension = tokens[1];
+            this.contentType = Mime.getByExtension(extension).getContentType();
         }
     }
 

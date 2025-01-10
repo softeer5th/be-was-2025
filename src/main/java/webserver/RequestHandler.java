@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileFinder;
 import util.RequestParser;
+import util.ResponseBuilder;
 import util.UserManeger;
 
 public class RequestHandler implements Runnable {
@@ -32,7 +33,7 @@ public class RequestHandler implements Runnable {
             DataOutputStream dos = new DataOutputStream(out);
             String contentType = Mime.getByExtension(requestParser.extension).getContentType();
             String url = requestParser.url;
-            if(url.equals("/user/create")){
+            if (url.equals("/user/create")) {
                 UserManeger userManeger = new UserManeger();
                 try {
                     userManeger.addUser(requestParser.parameter);
@@ -41,28 +42,15 @@ public class RequestHandler implements Runnable {
                     response303Header(dos, "/registration");
                 }
                 response303Header(dos, "/login");
-            }
-            else {
-                byte[] body = makeBody(url);
-                response200Header(dos, body.length, contentType);
-                responseBody(dos, body);
+            } else {
+                ResponseBuilder responseBuilder = new ResponseBuilder();
+                responseBuilder.buildResponse(dos, requestParser);
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) throws IOException {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
+    
     private void response303Header(DataOutputStream dos, String url) throws IOException {
         try {
             dos.writeBytes("HTTP/1.1 303 See Other \r\n");
@@ -72,28 +60,5 @@ public class RequestHandler implements Runnable {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private byte[] makeBody(String url){
-        byte[] body = null;
-        try {
-            FileFinder fileFinder = new FileFinder(url);
-            if (fileFinder.find()) {
-                body = fileFinder.readFileToBytes();
-            }
-        }
-        catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        return body;
     }
 }
