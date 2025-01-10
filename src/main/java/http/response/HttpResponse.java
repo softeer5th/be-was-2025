@@ -12,7 +12,7 @@ import http.request.HttpHeaders;
 
 public class HttpResponse {
 	private static final String CRLF = "\r\n";
-	private static final String STATUS_LINE_BLANK = " ";
+	private static final String STATUS_LINE_SPACE = " ";
 
 	private String version;
 	private HttpStatus statusCode;
@@ -27,8 +27,8 @@ public class HttpResponse {
 
 	private void writeStatusLine(DataOutputStream out) throws IOException {
 		out.writeBytes(
-			version + STATUS_LINE_BLANK +
-				statusCode.getValue() + STATUS_LINE_BLANK +
+			version + STATUS_LINE_SPACE +
+				statusCode.getValue() + STATUS_LINE_SPACE +
 				statusCode.getReasonPhrase() + CRLF);
 	}
 
@@ -63,5 +63,10 @@ public class HttpResponse {
 	public void setBody(byte[] body) {
 		this.body = body;
 		setHeader(CONTENT_LENGTH.getValue(), String.valueOf(body.length));
+	}
+
+	// sendRedirect 메서드 구현
+	public void setRedirect(String location) {
+		setHeader("Location", location); // Location 헤더에 리디렉션 URL 설정
 	}
 }
