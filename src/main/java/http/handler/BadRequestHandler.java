@@ -6,18 +6,18 @@ import http.enums.HttpResponseStatus;
 
 import java.io.IOException;
 
-public class NotFoundHandler implements Handler {
-    private static NotFoundHandler instance = new NotFoundHandler();
+public class BadRequestHandler implements Handler {
+    private static BadRequestHandler instance = new BadRequestHandler();
 
-    private NotFoundHandler() {}
+    private BadRequestHandler() {}
 
-    public static NotFoundHandler getInstance() {
+    public static BadRequestHandler getInstance() {
         return instance;
     }
 
     @Override
     public void handle(HttpRequest request, HttpResponse response) throws IOException {
-        response.sendErrorResponse(HttpResponseStatus.NOT_FOUND);
+        response.sendErrorResponse(HttpResponseStatus.BAD_REQUEST);
     }
 }
 
