@@ -1,13 +1,14 @@
 package webserver;
 
+import handler.FileRequestHandler;
 import handler.RequestHandler;
-import handler.mapper.RequestHandlerMapper;
+import handler.UserRequestHandler;
 import http.HttpRequestResolver;
+import http.HttpResponse;
 import http.HttpResponseResolver;
-import http.enums.HttpMethod;
 import http.HttpRequest;
 import http.enums.HttpStatus;
-import util.FileUtil;
+import http.enums.MimeType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -16,7 +17,8 @@ import java.util.Map;
 
 public class WebServlet {
     private static final WebServlet INSTANCE = new WebServlet();
-    private final RequestHandlerMapper requestHandlerMapper;
+    private final Map<String, RequestHandler> apiRequestHandlerMap;
+    private final FileRequestHandler fileRequestHandler;
     private final HttpRequestResolver httpRequestResolver = HttpRequestResolver.getInstance();
     private final HttpResponseResolver httpResponseResolver = HttpResponseResolver.getInstance();
 
@@ -25,7 +27,9 @@ public class WebServlet {
     }
 
     public WebServlet(){
-        requestHandlerMapper = new RequestHandlerMapper();
+        apiRequestHandlerMap = new HashMap<>();
+        apiRequestHandlerMap.put("/create", new UserRequestHandler());
+        fileRequestHandler = new FileRequestHandler();
     }
 
     public void process(InputStream is, OutputStream os) throws IOException {
@@ -34,31 +38,22 @@ public class WebServlet {
 
         HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(br);
 
-        File resultFile = FileUtil.findFileByPath(httpRequest.getPath());
-
-        if(resultFile != null){
-            byte[] fileData = FileUtil.readFileToByteArray(resultFile);
-            httpResponseResolver.sendResponse(dos, HttpStatus.OK, resultFile.getPath(), fileData);
-            return;
-        }
-        // 경로에서 api 제거
-        String parsedPath = removeApiPrefixFromPath(httpRequest.getPath());
-
-        if(requestHandlerMapper.hasRequestHandlerByPath(parsedPath)){
-            RequestHandler requestHandler = requestHandlerMapper.mapRequestHandler(parsedPath);
-            requestHandler.handle(httpRequest);
-            httpResponseResolver.sendRedirectResponse(dos, HttpStatus.MOVED_PERMANENTLY, "http://localhost:8080/");
+        if(fileRequestHandler.canHandle(httpRequest)){
+            HttpResponse httpResponse = fileRequestHandler.handle(httpRequest);
+            httpResponseResolver.sendResponse(dos, httpResponse);
             return;
         }
 
-        httpResponseResolver.sendResponse(dos, HttpStatus.NOT_FOUND, httpRequest.getPath(), "Request Not Found".getBytes());
+        if(apiRequestHandlerMap.containsKey(httpRequest.getPath())){
+            RequestHandler requestHandler = apiRequestHandlerMap.get(httpRequest.getPath());
+
+            if(requestHandler.canHandle(httpRequest)){
+                HttpResponse httpResponse = requestHandler.handle(httpRequest);
+                httpResponseResolver.sendResponse(dos, httpResponse);
+            }
+        }
+
+        httpResponseResolver.sendResponse(dos, new HttpResponse(HttpStatus.NOT_FOUND, MimeType.TEXT_PLAIN.getMimeType(), "Request Not Found".getBytes()));
     }
-
-    // 경로에서 api 제거
-    private String removeApiPrefixFromPath(String path){
-        return path.substring(4);
-    }
-
-
 
 }
