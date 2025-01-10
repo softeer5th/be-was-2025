@@ -10,6 +10,8 @@ import http.HttpResponseResolver;
 import http.HttpRequest;
 import http.enums.HttpStatus;
 import http.enums.MimeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WebServlet {
+    private static final Logger logger = LoggerFactory.getLogger(WebServlet.class);
     private static final WebServlet INSTANCE = new WebServlet();
     private final Map<String, RequestHandler> apiRequestHandlerMap;
     private final FileRequestHandler fileRequestHandler;
