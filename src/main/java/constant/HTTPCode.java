@@ -3,7 +3,7 @@ package constant;
 public enum HTTPCode {
 
 
-    OK(200, "Success"),
+    OK(200, "OK"),
     FOUND(302, "Found"),
     BAD_REQUEST(400, "Bad Request"),
     FORBIDDEN(403, "Forbidden"),
@@ -21,7 +21,7 @@ public enum HTTPCode {
         return this.message;
     }
 
-    private HTTPCode(int httpCode, String message) {
+    HTTPCode(int httpCode, String message) {
         this.HTTPCode = httpCode;
         this.message = message;
     }
