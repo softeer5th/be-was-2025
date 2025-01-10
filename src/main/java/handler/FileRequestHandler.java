@@ -25,6 +25,10 @@ public class FileRequestHandler implements RequestHandler{
         String extension = FileUtil.extractFileExtension(file.getPath());
         byte[] data = FileUtil.readFileToByteArray(file);
 
-        return new HttpResponse(HttpStatus.OK, MimeType.getMimeType(extension), data);
+        return new HttpResponse.Builder()
+                .httpStatus(HttpStatus.OK)
+                .contentType(MimeType.getMimeType(extension))
+                .body(data)
+                .build();
     }
 }
