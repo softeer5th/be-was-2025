@@ -1,0 +1,14 @@
+post /test HTTP/1.1
+
+Accept: application/json
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Content-Length: 83
+Content-Type: application/json
+Host: google.com
+User-Agent: HTTPie/0.9.3
+
+{
+    "test_id": "tmp_1234567",
+    "order_id": "8237352"
+}
