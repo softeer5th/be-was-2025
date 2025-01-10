@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import http.HttpResponse;
 import http.HttpStatus;
 import util.ContentTypeUtil;
+import util.ParsingUtil;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -36,7 +37,7 @@ public class RequestHandler implements Runnable {
     }
 
     private void handleRequest(BufferedReader br, DataOutputStream dos) throws Exception {
-        List<String> headerLines = parseRequestHeader(br);
+        List<String> headerLines = ParsingUtil.parseRequestHeader(br);
         logRequestDetails(headerLines);
         String[] tokens = headerLines.get(0).split(" ");
         String requestPath = tokens[1];
@@ -53,15 +54,6 @@ public class RequestHandler implements Runnable {
         byte[] body = readFile(file);
         HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
         httpResponse.respond();
-    }
-
-    private List<String> parseRequestHeader(BufferedReader br) throws Exception {
-        List<String> lines = new ArrayList<>();
-        String line;
-        while (!(line = br.readLine()).isEmpty()) {
-            lines.add(line);
-        }
-        return lines;
     }
 
     private void creatUser(String queries, DataOutputStream dos) throws Exception {
