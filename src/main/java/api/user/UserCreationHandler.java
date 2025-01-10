@@ -91,22 +91,13 @@ public class UserCreationHandler implements ApiHandler {
     private LoadResult handleSignupFailure(UserCreationException e) {
         CommonResponse commonResponse = new CommonResponse(
                 false,
-                getCodeForError(e.getErrorCode()),
+                e.getErrorCode().getCode(),
                 e.getErrorCode().getMessage(),
                 null
         );
 
         String json = toJson(commonResponse);
         return new LoadResult(json.getBytes(StandardCharsets.UTF_8), "/api/create", "application/json");
-    }
-
-    private String getCodeForError(ErrorCode errorCode) {
-        return switch (errorCode) {
-            case USER_ALREADY_EXISTS -> "SIGNUP-01";
-            case DUPLICATED_NAME -> "SIGNUP-02";
-            case INVALID_USER_INPUT -> "SIGNUP-03";
-            default -> "UNKNOWN_ERROR";
-        };
     }
 
     private LoadResult createSuccessResponse() {
