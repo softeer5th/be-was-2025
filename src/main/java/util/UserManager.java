@@ -5,22 +5,15 @@ import model.User;
 
 public class UserManager {
     public void addUser(String parameter) throws IllegalArgumentException {
-        String[] tokens = parameter.split("&");
-        String[] params = new String[tokens.length];
-        try{
-            for(int i = 0; i < tokens.length; i++){
-                params[i] = tokens[i].split("=")[1];
-            }
+        ParameterParser parameterParser = new ParameterParser(parameter);
+        String userId = parameterParser.getId();
+        String userName = parameterParser.getName();
+        String password = parameterParser.getPassword();
 
-            if(Database.findUserById(params[0]) == null){
-                User user = new User(params[0], params[1], params[2], "");
-                Database.addUser(user);
-            }
-            else throw new IllegalArgumentException("id: " + params[0] + " is already exists");
-        }
-        catch (ArrayIndexOutOfBoundsException e){
-            throw new IllegalArgumentException("Invalid parameter: " + parameter);
-        }
+        if (Database.findUserById(userId) == null) {
+            User user = new User(userId, userName, password, "");
+            Database.addUser(user);
+        } else throw new IllegalArgumentException("id: " + userId + " is already exists");
     }
 
 
