@@ -2,6 +2,8 @@ package handler;
 
 import static http.HttpMethod.GET;
 
+import exception.BaseException;
+import exception.HttpErrorCode;
 import http.HttpRequestInfo;
 import http.HttpStatus;
 import java.util.HashMap;
@@ -37,13 +39,21 @@ public class UserRegisterHandler implements Handler {
         return response;
     }
 
-    private Map<String, String> parseQueryParams(String query) {
+    private Map<String, String> parseQueryParams(String query) throws BaseException {
         Map<String, String> params = new HashMap<>();
+        if (query.isEmpty()) {
+            throw new BaseException(HttpErrorCode.INVALID_QUERY_PARAM);
+        }
         String[] pairs = query.split("&");
+        if (pairs.length != 2) {
+            throw new BaseException(HttpErrorCode.INVALID_QUERY_PARAM);
+        }
         for (String pair : pairs) {
             String[] keyValue = pair.split("=");
             if (keyValue.length == 2) {
                 params.put(keyValue[0], keyValue[1]);
+            } else {
+                throw new BaseException(HttpErrorCode.INVALID_QUERY_PARAM);
             }
         }
         return params;

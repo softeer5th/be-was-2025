@@ -43,6 +43,7 @@ public class RequestHandler implements Runnable {
                 response = handler.handle(httpRequestInfo);
             } catch (BaseException e) {
                 response = new HttpResponse(e.getStatus(), "text/html; charset=utf-8", e.getMessage());
+                logger.error(e.getMessage());
             }
 
             response.send(dos);

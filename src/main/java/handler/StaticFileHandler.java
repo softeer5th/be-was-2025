@@ -22,11 +22,7 @@ public class StaticFileHandler implements Handler {
         String fileExtension = FileUtil.getContentType(path);
 
         HttpResponse response = new HttpResponse();
-
         byte[] body = FileUtil.readHtmlFileAsBytes(STATIC_FILE_PATH + path);
-        if (body == null) {
-            throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
-        }
         response.setStatus(HttpStatus.OK);
         response.setContentType(fileExtension);
         response.setBody(body);
