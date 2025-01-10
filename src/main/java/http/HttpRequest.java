@@ -26,6 +26,10 @@ public class HttpRequest {
         return this.protocol;
     }
 
+    public String getQueryParam(String key){
+        return queryParams.get(key);
+    }
+
     public void setMethod(String methodName){
         HttpMethod httpMethod;
         // 모든 http 메소드를 등록한 것이 아니기 때문에 존재하지 않은 메서드가 들어왔을 때 GET으로 처리한다.
