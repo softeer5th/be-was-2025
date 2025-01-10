@@ -3,7 +3,7 @@ package util;
 import db.Database;
 import model.User;
 
-public class UserManeger {
+public class UserManager {
     public void addUser(String parameter) throws IllegalArgumentException {
         String[] tokens = parameter.split("&");
         String[] params = new String[tokens.length];

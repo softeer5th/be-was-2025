@@ -1,7 +1,7 @@
 package handler;
 
 import util.RequestParser;
-import util.UserManeger;
+import util.UserManager;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,8 +12,8 @@ public class CreateUserHandler implements Handler{
     @Override
     public void handle(DataOutputStream dos, RequestParser requestParser) throws IOException {
         try {
-            UserManeger userManeger = new UserManeger();
-            userManeger.addUser(requestParser.parameter);
+            UserManager userManager = new UserManager();
+            userManager.addUser(requestParser.parameter);
             dos.writeBytes("HTTP/1.1 303 See Other \r\n");
             dos.writeBytes("Location: " + login + " \r\n");
             dos.writeBytes("\r\n");
