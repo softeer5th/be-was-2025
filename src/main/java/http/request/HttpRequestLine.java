@@ -43,6 +43,7 @@ public class HttpRequestLine {
 		}
 	}
 
+	// TODO: 동일한 키가 여러번 들어올 경우 처리 필요
 	private static Map<String, String> getQueries(String path) {
 		Map<String, String> requestQueries = new HashMap<>();
 
