@@ -2,6 +2,7 @@ package handler;
 
 import enums.HttpMethod;
 import enums.HttpStatus;
+import enums.HttpVersion;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.HttpRequestInfo;
@@ -17,7 +18,7 @@ class UserRequestHandlerTest {
     @Test
     @DisplayName("회원가입에 성공하면 201을 반환한다.")
     void handle_createUser() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, HttpVersion.HTTP1);
         HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
         assertThat(response.getStatus())
