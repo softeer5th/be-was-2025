@@ -20,7 +20,7 @@ public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
     private static final String REQUEST_LINE_SEPARATOR = " ";
     private static final String PARAMETER_SEPARATOR = "=";
-    private static final String HEADER_SEPARATOR = ": ";
+    private static final String HEADER_SEPARATOR = ":";
     private static final String QUERY_PARAMS = "&";
     private static final List<HttpVersion> supportedVersions = ServerConfig.getSupportedHttpVersions();
 
