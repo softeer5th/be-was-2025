@@ -1,4 +1,4 @@
-package exception;
+package global.exception;
 
 public class UserCreationException extends RuntimeException {
     private final ErrorCode errorCode;

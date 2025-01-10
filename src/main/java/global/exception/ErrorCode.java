@@ -1,4 +1,4 @@
-package exception;
+package global.exception;
 
 public enum ErrorCode {
     INVALID_USER_INPUT("유효하지 않은 사용자 입력입니다."),

@@ -2,12 +2,12 @@ package api;
 
 import api.user.UserCreationHandler;
 import db.Database;
-import model.RequestData;
+import global.model.RequestData;
 import model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import webserver.load.LoadResult;
+import global.model.LoadResult;
 
 import java.nio.charset.StandardCharsets;
 

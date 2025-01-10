@@ -1,4 +1,4 @@
-package webserver.http;
+package global.model;
 
 import webserver.ContentTypeMapper;
 

@@ -5,13 +5,11 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 import api.ApiRouter;
-import model.RequestData;
+import global.model.RequestData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.http.HttpRequestParser;
-import webserver.http.HttpResponse;
-import webserver.load.LoadResult;
-import webserver.load.StaticResourceLoader;
+import global.model.HttpResponse;
+import global.model.LoadResult;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);

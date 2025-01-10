@@ -1,12 +1,12 @@
 package api.user;
 
 import api.ApiHandler;
-import exception.ErrorCode;
-import exception.UserCreationException;
+import global.exception.ErrorCode;
+import global.exception.UserCreationException;
 import db.Database;
 import model.User;
-import model.RequestData;
-import webserver.load.LoadResult;
+import global.model.RequestData;
+import global.model.LoadResult;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;

@@ -1,8 +1,8 @@
 package api;
 
 import api.user.UserCreationHandler;
-import model.RequestData;
-import webserver.load.LoadResult;
+import global.model.RequestData;
+import global.model.LoadResult;
 
 import java.io.IOException;
 import java.util.ArrayList;

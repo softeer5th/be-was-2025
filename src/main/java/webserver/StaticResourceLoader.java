@@ -1,6 +1,6 @@
-package webserver.load;
+package webserver;
 
-import webserver.load.LoadResult;
+import global.model.LoadResult;
 
 import java.io.IOException;
 import java.nio.file.Files;
