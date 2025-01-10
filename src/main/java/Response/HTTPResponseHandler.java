@@ -69,7 +69,7 @@ public class HTTPResponseHandler {
 
     private StringBuilder buildSuccessResponse(int lengthOfBodyContent, String contentType, HTTPCode httpCode) {
         StringBuilder response = new StringBuilder();
-        response.append("HTTP/1.1 ").append(httpCode.getHTTPCode()).append(" ").append(httpCode.getMessage()).append("\r\n");
+        response.append("HTTP/1.1 ").append(httpCode.getStatusCode()).append(" ").append(httpCode.getReasonPhrase()).append("\r\n");
         response.append("Content-Type: ").append(contentType).append("\r\n");
         response.append("Content-Length: ").append(lengthOfBodyContent).append("\r\n");
         response.append("\r\n");
@@ -78,7 +78,7 @@ public class HTTPResponseHandler {
 
     private StringBuilder buildRedirectResponse(HTTPCode httpCode, String location){
         StringBuilder response = new StringBuilder();
-        response.append("HTTP/1.1 ").append(httpCode.getHTTPCode()).append(" ").append(httpCode.getMessage()).append("\r\n");
+        response.append("HTTP/1.1 ").append(httpCode.getStatusCode()).append(" ").append(httpCode.getReasonPhrase()).append("\r\n");
         response.append("Location: ").append(location).append("\r\n");
         response.append("\r\n");
         return response;
@@ -89,11 +89,11 @@ public class HTTPResponseHandler {
         try {
             StringBuilder responseBodyBuilder = new StringBuilder()
                     .append("<html><body><h1>")
-                    .append(httpCode.getMessage())
+                    .append(httpCode.getResponseBody())
                     .append("</h1></body></html>");
 
             int lengthOfBodyContent = responseBodyBuilder.toString().getBytes(defaultCharset).length;
-            response.append("HTTP/1.1 ").append(httpCode.getHTTPCode()).append(" ").append(httpCode.getMessage()).append("\r\n");
+            response.append("HTTP/1.1 ").append(httpCode.getStatusCode()).append(" ").append(httpCode.getReasonPhrase()).append("\r\n");
             response.append("Content-Type: text/html\r\n");
             response.append("Content-Length: ").append(lengthOfBodyContent).append("\r\n");
             response.append("\r\n");

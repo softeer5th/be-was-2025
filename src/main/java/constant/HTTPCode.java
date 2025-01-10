@@ -3,28 +3,34 @@ package constant;
 public enum HTTPCode {
 
 
-    OK(200, "OK"),
-    FOUND(302, "Found"),
-    BAD_REQUEST(400, "Bad Request"),
-    FORBIDDEN(403, "Forbidden"),
-    NOT_FOUND(404, "Not Found"),
-    METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
-    ALREADY_EXIST_USER(409, "User already exist");
+    OK(200, "OK", "Request success"),
+    FOUND(302, "Found", "Redirected to another resource"),
+    BAD_REQUEST(400, "Bad Request", "Bad request"),
+    FORBIDDEN(403, "Forbidden", "Forbidden"),
+    NOT_FOUND(404, "Not Found", "Not Found"),
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed", "Method not allowed"),
+    ALREADY_EXIST_USER(409, "Conflict", "User already exists");
 
 
-    final private int HTTPCode;
-    final private String message;
+    final private int statusCode;
+    final private String reasonPhrase;
+    final private String responseBody;
 
-    public int getHTTPCode() {
-        return this.HTTPCode;
+    public int getStatusCode() {
+        return this.statusCode;
     }
-    public String getMessage() {
-        return this.message;
+    public String getResponseBody() {
+        return this.responseBody;
     }
 
-    HTTPCode(int httpCode, String message) {
-        this.HTTPCode = httpCode;
-        this.message = message;
+    public String getReasonPhrase() {
+        return this.reasonPhrase;
+    }
+
+    HTTPCode(int httpCode, String reasonPhrase, String responseBody) {
+        this.statusCode = httpCode;
+        this.reasonPhrase = reasonPhrase;
+        this.responseBody = responseBody;
     }
 
 }
