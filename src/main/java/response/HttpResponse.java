@@ -1,4 +1,4 @@
-package util;
+package response;
 
 import enums.FileContentType;
 import enums.HttpStatus;
@@ -23,6 +23,10 @@ public class HttpResponse {
 
     public HttpStatus getStatus() {
         return status;
+    }
+
+    public String getHeaderValue(String name) {
+        return headers.get(name);
     }
 
     public byte[] getBody() {
