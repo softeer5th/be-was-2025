@@ -20,7 +20,7 @@ public class UserHandler {
         String userId = queries.get("userId");
         String username = queries.get("username");
         String password = queries.get("password");
-        if (userId == null || username == null || password == null) {
+        if (userId == null || username == null || password == null || Database.findUserById(userId) != null) {
             HttpResponseHandler.redirect(dos, redirectPath);
             return;
         }
