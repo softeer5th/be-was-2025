@@ -31,7 +31,7 @@ public class UserRegisterHandler implements Handler {
             user.registerUser();
 
             response.setStatus(HttpStatus.FOUND);
-            response.setHeaders("Location", "/index.html");
+            response.setHeaders("Location", "/registration/success.html");
         }
 
         return response;
