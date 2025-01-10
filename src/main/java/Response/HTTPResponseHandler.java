@@ -11,14 +11,16 @@ import constant.HTTPCode;
 public class HTTPResponseHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPResponseHandler.class);
+    private static final String defaultCharset = "UTF-8";
+    private static final String defaultContentType = "text/html;charset=" + defaultCharset;
 
-    public void responseSuccessHandler(DataOutputStream dos, int lengthOfBodyContent, String resourceName, byte[] body) {
+    // 정적파일 리턴 메서드
+    public void responseSuccessHandler(DataOutputStream dos, HTTPCode httpCode, String resourceName, byte[] body) {
         try {
             String contentType = getContentType(resourceName);
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
+            StringBuilder responseHeader = buildSuccessResponse(body.length,contentType,httpCode);
+
+            dos.writeBytes(responseHeader.toString());
             dos.write(body, 0, body.length);
             dos.flush();
         } catch (IOException e) {
@@ -26,24 +28,27 @@ public class HTTPResponseHandler {
         }
     }
 
-    public void responseSuccessHandler(DataOutputStream dos, int lengthOfBodyContent, byte[] body) {
+    //String 리턴 메서드 (추후 필요에 따라 json 리턴 메서드 등도 추가예정)
+    public void responseSuccessHandler(DataOutputStream dos, HTTPCode httpCode, String body) {
         try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/plain;charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-            dos.write(body, 0, body.length);
+            String contentType = defaultContentType;
+            int lengthOfBodyContent = body.getBytes(defaultCharset).length;
+            StringBuilder response = buildSuccessResponse(lengthOfBodyContent,contentType,httpCode);
+            response.append(body);
+
+            dos.writeBytes(response.toString());
             dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    public void responseRedirectHandler(DataOutputStream dos, String location) {
+
+    public void responseRedirectHandler(DataOutputStream dos, HTTPCode httpCode, String location) {
         try {
-            dos.writeBytes("HTTP/1.1 302 Found\r\n");
-            dos.writeBytes("Location: " + location + "\r\n");
-            dos.writeBytes("\r\n");
+            StringBuilder response = buildRedirectResponse(httpCode,location);
+
+            dos.writeBytes(response.toString());
             dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -52,14 +57,52 @@ public class HTTPResponseHandler {
 
     public void responseFailHandler(DataOutputStream dos, HTTPCode httpCode){
         try {
-            dos.writeBytes("HTTP/1.1 " + httpCode.getHTTPCode() + " " + httpCode.getMessage() + "\r\n");
-            dos.writeBytes("Content-Type: text/html\r\n");
-            dos.writeBytes("\r\n");
-            dos.writeBytes("<html><body><h1>" + httpCode.getMessage() + "</h1></body></html>");
+            StringBuilder response = buildFailResponse(httpCode);
+
+            dos.writeBytes(response.toString());
+            dos.flush();
         }
         catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private StringBuilder buildSuccessResponse(int lengthOfBodyContent, String contentType, HTTPCode httpCode) {
+        StringBuilder response = new StringBuilder();
+        response.append("HTTP/1.1 ").append(httpCode.getHTTPCode()).append(" ").append(httpCode.getMessage()).append("\r\n");
+        response.append("Content-Type: ").append(contentType).append("\r\n");
+        response.append("Content-Length: ").append(lengthOfBodyContent).append("\r\n");
+        response.append("\r\n");
+        return response;
+    }
+
+    private StringBuilder buildRedirectResponse(HTTPCode httpCode, String location){
+        StringBuilder response = new StringBuilder();
+        response.append("HTTP/1.1 ").append(httpCode.getHTTPCode()).append(" ").append(httpCode.getMessage()).append("\r\n");
+        response.append("Location: ").append(location).append("\r\n");
+        response.append("\r\n");
+        return response;
+    }
+
+    private StringBuilder buildFailResponse(HTTPCode httpCode){
+        StringBuilder response = new StringBuilder();
+        try {
+            StringBuilder responseBodyBuilder = new StringBuilder()
+                    .append("<html><body><h1>")
+                    .append(httpCode.getMessage())
+                    .append("</h1></body></html>");
+
+            int lengthOfBodyContent = responseBodyBuilder.toString().getBytes(defaultCharset).length;
+            response.append("HTTP/1.1 ").append(httpCode.getHTTPCode()).append(" ").append(httpCode.getMessage()).append("\r\n");
+            response.append("Content-Type: text/html\r\n");
+            response.append("Content-Length: ").append(lengthOfBodyContent).append("\r\n");
+            response.append("\r\n");
+            response.append(responseBodyBuilder);
+        }
+        catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return response;
     }
 
     private String getContentType(String resourceName) {

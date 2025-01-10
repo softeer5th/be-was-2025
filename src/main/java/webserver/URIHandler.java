@@ -58,7 +58,7 @@ public class URIHandler {
             file = new File(STATIC_FILE_DIRECTORY_PATH, uri + "/index.html");
             if (file.exists()) {
                 byte[] body = fileToByteArray(file);
-                httpResponseHandler.responseRedirectHandler(dos, uri + "/index.html");
+                httpResponseHandler.responseRedirectHandler(dos, HTTPCode.FOUND,uri + "/index.html");
                 logger.debug("Successfully served static file for " + uri);
                 return;
             } else {
@@ -69,7 +69,7 @@ public class URIHandler {
         }
 
         byte[] body = fileToByteArray(file);
-        httpResponseHandler.responseSuccessHandler(dos, body.length, uri, body);
+        httpResponseHandler.responseSuccessHandler(dos, HTTPCode.OK, uri, body);
         logger.debug("Successfully served static file for " + uri);
     }
 

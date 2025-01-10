@@ -1,6 +1,7 @@
 package manager;
 
 import Response.HTTPResponseHandler;
+import constant.HTTPCode;
 import db.Database;
 import model.User;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class UserManager {
 
             User user = new User(userId, password, name, email);
             Database.addUser(user);
-            httpResponseHandler.responseRedirectHandler(dos, "/main/index.html");
+            httpResponseHandler.responseRedirectHandler(dos, HTTPCode.FOUND,"/main/index.html");
 
         }
         catch (Exception e){
