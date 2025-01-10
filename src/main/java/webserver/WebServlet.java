@@ -1,5 +1,6 @@
 package webserver;
 
+import exception.NotExistApiRequestException;
 import handler.FileRequestHandler;
 import handler.RequestHandler;
 import handler.UserRequestHandler;
