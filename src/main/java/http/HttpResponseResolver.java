@@ -35,7 +35,9 @@ public class HttpResponseResolver {
     }
 
     private void writeBody(DataOutputStream dos, byte[] body) throws IOException {
-        dos.write(body, 0, body.length);
+        if(body != null){
+            dos.write(body, 0, body.length);
+        }
         dos.flush();
     }
 }
