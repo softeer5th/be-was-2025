@@ -47,7 +47,7 @@ public abstract class HttpRequestParser {
         HttpMethod method = HttpMethod.matchOrElseThrow(requestInfo[0].toLowerCase());
         String url = requestInfo[1];
         HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2].toLowerCase(), supportedVersions);
-        logger.debug("Request mehtod = {}, url = {}", method, url);
+        logger.debug("Request mehtod = {}, url = {}, version = {}", method, url, version);
 
         // request의 내용을 로깅한다.
         while (!(requests = br.readLine()).isEmpty()) {
