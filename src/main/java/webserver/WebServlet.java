@@ -38,22 +38,32 @@ public class WebServlet {
 
         HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(br);
 
-        if(fileRequestHandler.canHandle(httpRequest)){
-            HttpResponse httpResponse = fileRequestHandler.handle(httpRequest);
-            httpResponseResolver.sendResponse(dos, httpResponse);
-            return;
-        }
-
-        if(apiRequestHandlerMap.containsKey(httpRequest.getPath())){
-            RequestHandler requestHandler = apiRequestHandlerMap.get(httpRequest.getPath());
-
-            if(requestHandler.canHandle(httpRequest)){
-                HttpResponse httpResponse = requestHandler.handle(httpRequest);
+        try {
+            if (fileRequestHandler.canHandle(httpRequest)) {
+                HttpResponse httpResponse = fileRequestHandler.handle(httpRequest);
                 httpResponseResolver.sendResponse(dos, httpResponse);
+                return;
             }
-        }
 
-        httpResponseResolver.sendResponse(dos, new HttpResponse(HttpStatus.NOT_FOUND, MimeType.TEXT_PLAIN.getMimeType(), "Request Not Found".getBytes()));
+            if (apiRequestHandlerMap.containsKey(httpRequest.getPath())) {
+                RequestHandler requestHandler = apiRequestHandlerMap.get(httpRequest.getPath());
+
+                if (requestHandler.canHandle(httpRequest)) {
+                    HttpResponse httpResponse = requestHandler.handle(httpRequest);
+                    httpResponseResolver.sendResponse(dos, httpResponse);
+                }
+            }
+        }catch(NotExistApiRequestException e){
+            logger.error(e.getMessage());
+            byte[] errorData = "Request Not Found".getBytes();
+            httpResponseResolver.sendResponse(dos,
+                    new HttpResponse.Builder()
+                            .httpStatus(HttpStatus.NOT_FOUND)
+                            .contentType(MimeType.TEXT_PLAIN.getMimeType())
+                            .body(errorData)
+                            .build()
+            );
+        }
     }
 
 }
