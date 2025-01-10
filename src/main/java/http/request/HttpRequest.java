@@ -13,8 +13,6 @@ public class HttpRequest {
     private TargetInfo target;
     private HttpVersion version;
 
-    public static final String INVALID_REQUEST = "INVALID REQUEST";
-
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     public HttpRequest(InputStream in) throws IOException, URISyntaxException {

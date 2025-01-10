@@ -20,3 +20,4 @@ public class NotFoundHandler implements Handler {
         response.sendErrorResponse(HttpResponseStatus.NOT_FOUND);
     }
 }
+

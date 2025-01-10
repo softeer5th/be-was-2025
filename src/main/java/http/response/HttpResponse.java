@@ -1,5 +1,6 @@
 package http.response;
 
+import http.enums.ContentType;
 import http.enums.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

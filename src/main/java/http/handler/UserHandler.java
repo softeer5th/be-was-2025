@@ -4,7 +4,7 @@ import db.Database;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import http.response.ContentType;
+import http.enums.ContentType;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.enums.HttpResponseStatus;
@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class UserHandler implements Handler {
+    private static final String REDIRECT_MAIN_HTML = "<a href=\"/\">메인 화면으로 가기</a>";
+
     private static final Logger logger = LoggerFactory.getLogger(UserHandler.class);
 
     private static UserHandler instance = new UserHandler();
@@ -51,7 +53,7 @@ public class UserHandler implements Handler {
         Database.addUser(new User(userId.get(), name.get(), password.get(), email.get()));
 
         logger.debug("Add User Complete: {} {} {} {}", userId.get(), name.get(), password.get(), email.get());
-        String body = String.format("<h1>%s님 회원 가입 완료</h1>", name.get());
+        String body = String.format("<h1>%s님 회원 가입 완료</h1>", name.get()) + REDIRECT_MAIN_HTML;
         response.sendSuccessResponse(HttpResponseStatus.CREATED, ContentType.HTML.getMimeType(), body);
     }
 
