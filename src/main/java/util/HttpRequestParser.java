@@ -1,6 +1,7 @@
 package util;
 
 import enums.HttpMethod;
+import enums.HttpVersion;
 import exception.ClientErrorException;
 import exception.ErrorCode;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ public abstract class HttpRequestParser {
 
         HttpMethod method = HttpMethod.match(requestInfo[0].toLowerCase());
         String url = requestInfo[1];
+        HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2].toLowerCase());
         logger.debug("Request mehtod = {}, url = {}", method, url);
 
         // request의 내용을 로깅한다.
@@ -50,7 +52,7 @@ public abstract class HttpRequestParser {
             logger.debug("{} = {}", nameAndValue[0], nameAndValue[1]);
         }
 
-        return new HttpRequestInfo(method, url);
+        return new HttpRequestInfo(method, url, version);
     }
 
     public static Map<String, String> parseParamString(String paramString) {
