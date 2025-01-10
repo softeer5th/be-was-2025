@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String resourcePath = "src/main/resources/";
+    private static final String resourcePath = "src/main/resources/static/";
 
     private Socket connection;
 
@@ -49,23 +49,20 @@ public class RequestHandler implements Runnable {
             // default page에 대한 처리
             if (path.equals("/")) {
                 byte[] body = "<h2>Hello World</h2>".getBytes();
-                response200Header(dos, body.length, "text/html");
-                responseBody(dos, body);
+                ResponseHandler.respond(dos, body, null, 200);
             }
             // 회원가입 요청에 대한 처리
             else if (path.equals("/registration")) {
-                File file = new File(resourcePath + "static/registration/index.html");
+                File file = new File(resourcePath + "registration/index.html");
                 if (file.exists()) {
                     byte[] body = Files.readAllBytes(file.toPath());
-                    response200Header(dos, body.length, "text/html");
-                    responseBody(dos, body);
+                    ResponseHandler.respond(dos, body, ".html", 200);
                 } else {
                     logger.error("{}File not found", path);
                     byte[] body = "<h2> HTTP 404 Not Found</h2>".getBytes();
 
                     // 404 Not Found
-                    response404Header(dos, body.length);
-                    responseBody(dos, body);
+                    ResponseHandler.respond(dos, body, null, 404);
                 }
             }
             // 회원가입 완료에 대한 처리
@@ -83,27 +80,22 @@ public class RequestHandler implements Runnable {
                     Database.addUser(user);
 
                     // 메인 화면으로 리다이렉트
-                    response302Header(dos, "/main/index.html");
-                    responseWithoutBody(dos);
+                    ResponseHandler.respond302(dos, "/main/index.html");
                 }
                 // 중복된 id를 가진 사용자가 있을 경우
                 else {
                     logger.error("User already exists");
 
                     // 409 Conflict
-                    response409Header(dos, 0);
-                    responseWithoutBody(dos);
+                    ResponseHandler.respond(dos, null, null, 409);
                 }
-            }
-            else {
-                File file = new File(resourcePath + "static" + path);
+            } else {
+                File file = new File(resourcePath + path);
                 // file 요청에 대한 처리
                 if (file.exists()) {
                     byte[] body = Files.readAllBytes(file.toPath());
-                    String contentType = ContentTypeMapper.getContentType(path);
 
-                    response200Header(dos, body.length, contentType);
-                    responseBody(dos, body);
+                    ResponseHandler.respond(dos, body, path, 200);
                 }
                 // 유효하지 않은 path에 대한 처리
                 else {
@@ -111,81 +103,9 @@ public class RequestHandler implements Runnable {
                     byte[] body = "<h2> HTTP 400 Bad Request</h2>".getBytes();
 
                     // 400 Bad Request
-                    response400Header(dos, body.length);
-                    responseBody(dos, body);
+                    ResponseHandler.respond(dos, body, null, 400);
                 }
             }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) throws IOException {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response302Header(DataOutputStream dos, String location) throws IOException {
-        try {
-            dos.writeBytes("HTTP/1.1 302 Found\r\n");
-            dos.writeBytes("Location: " + location + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response400Header(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
-        try {
-            dos.writeBytes("HTTP/1.1 400 Bad Request\r\n");
-            dos.writeBytes("Content-Type: text/html\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response404Header(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
-        try {
-            dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
-            dos.writeBytes("Content-Type: text/html\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void response409Header(DataOutputStream dos, int lengthOfBodyContent) throws IOException {
-        try {
-            dos.writeBytes("HTTP/1.1 409 Conflict\r\n");
-            dos.writeBytes("Content-Type: text/html\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseWithoutBody(DataOutputStream dos) {
-        try {
-            dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
