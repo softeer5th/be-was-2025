@@ -41,7 +41,7 @@ public abstract class HttpRequestParser {
             throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
         }
 
-        HttpMethod method = HttpMethod.match(requestInfo[0].toLowerCase());
+        HttpMethod method = HttpMethod.matchOrElseThrow(requestInfo[0].toLowerCase());
         String url = requestInfo[1];
         HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2].toLowerCase());
         logger.debug("Request mehtod = {}, url = {}", method, url);
