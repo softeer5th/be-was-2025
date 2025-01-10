@@ -8,7 +8,8 @@ public enum HTTPCode {
     BAD_REQUEST(400, "Bad Request"),
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found"),
-    METHOD_NOT_ALLOWED(405, "Method Not Allowed");
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
+    ALREADY_EXIST_USER(409, "User already exist");
 
 
     final private int HTTPCode;

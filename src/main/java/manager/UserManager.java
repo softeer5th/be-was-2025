@@ -19,6 +19,11 @@ public class UserManager {
     public void signUp(String query, DataOutputStream dos){
         QueryString queryString = new QueryString(query);
 
+        if(Database.userExists(queryString.getSingleValueByKey("userId"))){
+            httpResponseHandler.responseFailHandler(dos, HTTPCode.ALREADY_EXIST_USER);
+            return;
+        }
+
         User user = new User(queryString.getSingleValueByKey("userId")
                 ,queryString.getSingleValueByKey("password")
                 ,queryString.getSingleValueByKey("nickname")

@@ -17,6 +17,8 @@ public class Database {
         return users.get(userId);
     }
 
+    public static boolean userExists(String userId) {return users.containsKey(userId);}
+
     public static Collection<User> findAll() {
         return users.values();
     }
