@@ -4,8 +4,6 @@ package util;
 import handler.CreateUserHandler;
 import handler.Handler;
 import handler.StaticFileHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,7 +12,6 @@ import java.util.Map;
 
 
 public class ResponseBuilder {
-    private static final Logger logger = LoggerFactory.getLogger(ResponseBuilder.class);
     private static final Map<String, Handler> responses = new HashMap<>();
 
     public ResponseBuilder() {
