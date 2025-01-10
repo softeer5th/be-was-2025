@@ -11,6 +11,9 @@ import enums.HttpMethod;
 public class HttpRequestLine {
 	private static final String REQUEST_LINE_DELIMITER = " ";
 	private static final int REQUEST_LINE_LENGTH = 3;
+	private static final String QUERY_SEPARATOR = "?";
+	private static final String KEY_VALUE_SEPARATOR = "=";
+	private static final String PARAM_SEPARATOR = "&";
 
 	private HttpMethod method;
 	private String path;
@@ -36,20 +39,20 @@ public class HttpRequestLine {
 		queries = getQueries(this.path);
 
 		if(queries.size() > 0){
-			this.path = this.path.substring(0, this.path.indexOf("?"));
+			this.path = this.path.substring(0, this.path.indexOf(QUERY_SEPARATOR));
 		}
 	}
 
 	private static Map<String, String> getQueries(String path) {
 		Map<String, String> requestQueries = new HashMap<>();
 
-		if (path.contains("?")) {
-			int queryStartIndex = path.indexOf("?") + 1;
+		if (path.contains(QUERY_SEPARATOR)) {
+			int queryStartIndex = path.indexOf(QUERY_SEPARATOR) + 1;
 			String requestQueryString = path.substring(queryStartIndex);
-			String[] queries = requestQueryString.split("&");
+			String[] queries = requestQueryString.split(PARAM_SEPARATOR);
 
 			for (String query : queries) {
-				String[] q = query.split("=");
+				String[] q = query.split(KEY_VALUE_SEPARATOR);
 				String key = q[0];
 				String value = q[1];
 				requestQueries.put(key, value);
