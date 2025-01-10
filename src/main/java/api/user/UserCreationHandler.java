@@ -20,17 +20,16 @@ public class UserCreationHandler implements ApiHandler {
 
     @Override
     public boolean canHandle(RequestData requestData) {
-        if (!"GET".equalsIgnoreCase(requestData.method())) {
-            throw new UserCreationException(ErrorCode.INVALID_USER_INPUT);
-        }
-        return requestData.path().startsWith("/api/create");
+        return "GET".equalsIgnoreCase(requestData.method())
+                && requestData.path().startsWith("/api/create");
     }
 
     @Override
     public LoadResult handle(RequestData requestData) {
-        String queryString = extractQueryString(requestData.path());
-        User user = createUserFromQuery(queryString);
+        User user;
         try {
+            String queryString = extractQueryString(requestData.path());
+            user = createUserFromQuery(queryString);
             validateUser(user);
         } catch (UserCreationException e) {
             return handleSignupFailure(e);
@@ -90,33 +89,24 @@ public class UserCreationHandler implements ApiHandler {
     }
 
     private LoadResult handleSignupFailure(UserCreationException e) {
-        CommonResponse commonResponse;
-
-        if (e.getErrorCode() == ErrorCode.USER_ALREADY_EXISTS) {
-            commonResponse = new CommonResponse(
-                    false,
-                    "SIGNUP-01",
-                    e.getErrorCode().getMessage(),
-                    null
-            );
-        } else if (e.getErrorCode() == ErrorCode.DUPLICATED_NAME) {
-            commonResponse = new CommonResponse(
-                    false,
-                    "SIGNUP-02",
-                    e.getErrorCode().getMessage(),
-                    null
-            );
-        } else {
-            commonResponse = new CommonResponse(
-                    false,
-                    "UNKNOWN_ERROR",
-                    e.getErrorCode().getMessage(),
-                    null
-            );
-        }
+        CommonResponse commonResponse = new CommonResponse(
+                false,
+                getCodeForError(e.getErrorCode()),
+                e.getErrorCode().getMessage(),
+                null
+        );
 
         String json = toJson(commonResponse);
         return new LoadResult(json.getBytes(StandardCharsets.UTF_8), "/api/create", "application/json");
+    }
+
+    private String getCodeForError(ErrorCode errorCode) {
+        return switch (errorCode) {
+            case USER_ALREADY_EXISTS -> "SIGNUP-01";
+            case DUPLICATED_NAME -> "SIGNUP-02";
+            case INVALID_USER_INPUT -> "SIGNUP-03";
+            default -> "UNKNOWN_ERROR";
+        };
     }
 
     private LoadResult createSuccessResponse() {
