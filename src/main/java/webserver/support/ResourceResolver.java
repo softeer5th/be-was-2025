@@ -19,11 +19,11 @@ public class ResourceResolver {
     }
 
 
-    private static File readResource(String resourcePath) throws IOException {
+    private static File readResource(String resourcePath) {
         ClassLoader classLoader = ResourceResolver.class.getClassLoader();
         URL resourceUrl = classLoader.getResource(resourcePath);
         if (resourceUrl == null) {
-            throw new IOException("Resource not found: " + resourcePath);
+            return new File(resourcePath);
         }
 
         return new File(resourceUrl.getFile());
