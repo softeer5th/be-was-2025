@@ -13,12 +13,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
     private static final String REQUEST_LINE_SEPARATOR = " ";
-    private static final HttpVersion[] supportedVersions = ServerConfig.getSupportedHttpVersions();
+    private static final List<HttpVersion> supportedVersions = ServerConfig.getSupportedHttpVersions();
 
     public static HttpRequestInfo parse(InputStream inputStream) throws IOException {
         BufferedReader br = new BufferedReader(new java.io.InputStreamReader(inputStream));
