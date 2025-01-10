@@ -1,5 +1,6 @@
 package util;
 
+import http.response.ContentType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 

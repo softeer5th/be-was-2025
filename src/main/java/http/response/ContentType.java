@@ -1,4 +1,4 @@
-package util;
+package http.response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,11 +17,11 @@ public enum ContentType {
     private final String extension;
     private final String mimeType;
 
-    private static final Map<String, ContentType> LOOKUP = new HashMap<>();
+    private static final Map<String, ContentType> CONTENT_TYPE_MAP = new HashMap<>();
 
     static {
         for (ContentType ct : values()) {
-            LOOKUP.put(ct.extension, ct);
+            CONTENT_TYPE_MAP.put(ct.extension, ct);
         }
     }
 
@@ -39,7 +39,7 @@ public enum ContentType {
     }
 
     public static String getMimeTypeByExtension(String extension) {
-        ContentType ct = LOOKUP.get(extension.toLowerCase());
+        ContentType ct = CONTENT_TYPE_MAP.get(extension.toLowerCase());
         return ct != null ? ct.getMimeType() : ContentType.DEFAULT.getMimeType();
     }
 }
