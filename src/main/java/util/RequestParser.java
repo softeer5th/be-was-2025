@@ -17,29 +17,27 @@ public class RequestParser {
     public String parameter = null;
     public String contentType = "text/html";
 
-    public RequestParser(InputStream in){
+    public RequestParser(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        try {
-            String line = br.readLine();
-            while (!line.isEmpty()) {
-                requests.add(line);
-                line = br.readLine();
-            }
-            String[] tokens = requests.get(0).split(" ");
-            String url = tokens[1];
-            setUrl(url);
-            String[] parts = url.split("\\?");
-            if(parts.length > 1){
-                setUrl(parts[0]);
-                setParameter(parts[1]);
-            }
-            else{
-                setContentType(parts[0]);
-            }
-
+        String line = br.readLine();
+        while (!line.isEmpty()) {
+            requests.add(line);
+            line = br.readLine();
         }
-        catch (IOException e){
-            e.printStackTrace();
+        parse();
+    }
+
+    private void parse(){
+        String[] tokens = requests.get(0).split(" ");
+        String url = tokens[1];
+        setUrl(url);
+        String[] parts = url.split("\\?");
+        if(parts.length > 1){
+            setUrl(parts[0]);
+            setParameter(parts[1]);
+        }
+        else{
+            setContentType(parts[0]);
         }
     }
 
