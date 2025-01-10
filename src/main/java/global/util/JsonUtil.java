@@ -1,5 +1,7 @@
 package global.util;
 
+import global.model.CommonResponse;
+
 import java.util.Map;
 
 public class JsonUtil {
@@ -14,6 +16,17 @@ public class JsonUtil {
             sb.append("\"").append(escape(entry.getValue())).append("\"");
             cnt++;
         }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public static String toJson(CommonResponse response) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"isSuccess\":").append(response.isSuccess()).append(",");
+        sb.append("\"code\":").append(response.code() == null ? "null" : "\"" + escape(String.valueOf(response.code())) + "\"").append(",");
+        sb.append("\"message\":").append(response.message() == null ? "null" : "\"" + escape(response.message()) + "\"").append(",");
+        sb.append("\"data\":").append(response.data() == null ? "null" : "\"" + escape(String.valueOf(response.data())) + "\"");
         sb.append("}");
         return sb.toString();
     }

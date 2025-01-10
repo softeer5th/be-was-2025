@@ -4,6 +4,7 @@ import api.ApiHandler;
 import global.exception.ErrorCode;
 import global.exception.UserCreationException;
 import db.Database;
+import global.model.CommonResponse;
 import model.User;
 import global.model.RequestData;
 import global.model.LoadResult;
@@ -13,6 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static global.util.JsonUtil.toJson;
+
 public class UserCreationHandler implements ApiHandler {
 
     @Override
@@ -20,7 +23,7 @@ public class UserCreationHandler implements ApiHandler {
         if (!"GET".equalsIgnoreCase(requestData.method())) {
             throw new UserCreationException(ErrorCode.INVALID_USER_INPUT);
         }
-        return requestData.path().startsWith("/create");
+        return requestData.path().startsWith("/api/create");
     }
 
     @Override
@@ -30,15 +33,10 @@ public class UserCreationHandler implements ApiHandler {
         try {
             validateUser(user);
         } catch (UserCreationException e) {
-            if (e.getErrorCode() == ErrorCode.USER_ALREADY_EXISTS) {
-                return createRedirectionResponseForError("duplicatedUser", user);
-            }
-            if (e.getErrorCode() == ErrorCode.DUPLICATED_NAME) {
-                return createRedirectionResponseForError("duplicatedName", user);
-            }
+            return handleSignupFailure(e);
         }
         Database.addUser(user);
-        return createRedirectionResponse();
+        return createSuccessResponse();
     }
 
     private String extractQueryString(String path) {
@@ -91,25 +89,39 @@ public class UserCreationHandler implements ApiHandler {
         }
     }
 
-    private LoadResult createRedirectionResponse() {
-        String redirectionHtml = "<meta http-equiv='refresh' content='0;url=/index.html' />";
-        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create", "text/html");
+    private LoadResult handleSignupFailure(UserCreationException e) {
+        CommonResponse commonResponse;
+
+        if (e.getErrorCode() == ErrorCode.USER_ALREADY_EXISTS) {
+            commonResponse = new CommonResponse(
+                    false,
+                    "SIGNUP-01",
+                    e.getErrorCode().getMessage(),
+                    null
+            );
+        } else if (e.getErrorCode() == ErrorCode.DUPLICATED_NAME) {
+            commonResponse = new CommonResponse(
+                    false,
+                    "SIGNUP-02",
+                    e.getErrorCode().getMessage(),
+                    null
+            );
+        } else {
+            commonResponse = new CommonResponse(
+                    false,
+                    "UNKNOWN_ERROR",
+                    e.getErrorCode().getMessage(),
+                    null
+            );
+        }
+
+        String json = toJson(commonResponse);
+        return new LoadResult(json.getBytes(StandardCharsets.UTF_8), "/api/create", "application/json");
     }
 
-    private LoadResult createRedirectionResponseForError(String errorParam, User user) {
-        String token = java.util.UUID.randomUUID().toString();
-
-        TokenStore.put(token, new UserData(
-                user.getUserId(),
-                user.getName(),
-                user.getPassword()
-        ));
-
-        String redirectionHtml = String.format(
-                "<meta http-equiv='refresh' content='0;url=/registration?error=%s&token=%s' />",
-                errorParam,
-                token
-        );
-        return new LoadResult(redirectionHtml.getBytes(StandardCharsets.UTF_8), "/create", "text/html");
+    private LoadResult createSuccessResponse() {
+        CommonResponse commonResponse = new CommonResponse(true, null, null, null);
+        String json = toJson(commonResponse);
+        return new LoadResult(json.getBytes(StandardCharsets.UTF_8), "/api/create", "application/json");
     }
 }
