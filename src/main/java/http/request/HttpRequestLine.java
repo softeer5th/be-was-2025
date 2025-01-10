@@ -9,7 +9,7 @@ import enums.ContentType;
 import enums.HttpMethod;
 
 public class HttpRequestLine {
-	private static final String REQUEST_LINE_DELIMITER = " ";
+	private static final String REQUEST_LINE_SPACE = " ";
 	private static final int REQUEST_LINE_LENGTH = 3;
 	private static final String QUERY_SEPARATOR = "?";
 	private static final String KEY_VALUE_SEPARATOR = "=";
@@ -27,7 +27,7 @@ public class HttpRequestLine {
 			throw new IllegalArgumentException("Empty request line");
 		}
 
-		String[] parts = requestLine.split(REQUEST_LINE_DELIMITER);
+		String[] parts = requestLine.split(REQUEST_LINE_SPACE);
 
 		if (parts.length != REQUEST_LINE_LENGTH) {
 			throw new IllegalArgumentException("Malformed request line: " + requestLine);
