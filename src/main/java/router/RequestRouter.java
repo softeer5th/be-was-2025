@@ -3,6 +3,7 @@ package router;
 import exception.ClientErrorException;
 import exception.ErrorCode;
 import handler.Handler;
+import handler.HomeHandler;
 import handler.StaticFileHandler;
 import handler.UserRequestHandler;
 
@@ -20,6 +21,7 @@ public class RequestRouter implements Router {
         // 초기 경로와 핸들러 등록
         routeMap.put(Pattern.compile("^/user(/.*)?$"), new UserRequestHandler());
         routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg)$"), new StaticFileHandler());
+        routeMap.put(Pattern.compile("^/$"), new HomeHandler());
     }
 
     public Handler route(String path) {
