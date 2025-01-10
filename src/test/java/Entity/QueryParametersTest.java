@@ -1,6 +1,7 @@
 package Entity;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,6 +17,7 @@ class QueryParametersTest {
     }
 
     @Test
+    @DisplayName("각 key에 대한 value 조회")
     void get() {
         assertThat(queryParameters.get("email").equals("u1@gmail.com")).isTrue();
         assertThat(queryParameters.get("userId").equals("u1")).isTrue();
@@ -29,6 +31,7 @@ class QueryParametersTest {
     }
 
     @Test
+    @DisplayName("모든 key 값 조회")
     void getKeySet() {
         Set<String> set = queryParameters.getKeySet();
         assertThat(set.contains("userId")).isTrue();
