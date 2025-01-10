@@ -1,5 +1,7 @@
 package http;
 
+import http.enums.HttpMethod;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +9,7 @@ public class HttpRequest {
     private HttpMethod method;
     private String path;
     private String protocol;
+    private final Map<String, String> queryParams = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
 
     public HttpRequest(){}
@@ -21,6 +24,10 @@ public class HttpRequest {
 
     public String getProtocol(){
         return this.protocol;
+    }
+
+    public String getQueryParam(String key){
+        return queryParams.get(key);
     }
 
     public void setMethod(String methodName){
@@ -39,5 +46,9 @@ public class HttpRequest {
 
     public void setProtocol(String protocol){
         this.protocol = protocol;
+    }
+
+    public void putQueryParam(String key, String value){
+        queryParams.put(key, value);
     }
 }
