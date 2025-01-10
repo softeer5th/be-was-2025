@@ -1,7 +1,5 @@
 package http;
 
-import db.Database;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
@@ -12,7 +10,7 @@ import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
 
 import java.io.*;
-import java.util.Map;
+import java.lang.reflect.Method;
 
 public class HttpRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
@@ -31,11 +29,12 @@ public class HttpRequestHandler {
             File file = FileUtils.findFile(path);
 
             if (!file.exists()) {
-                if (PathPool.getInstance().get(path) == null) {
+                Method method = PathPool.getInstance().getMethod(httpRequest.getMethod().toLowerCase(), path);
+                if (method == null) {
                     throw new NoSuchPathException();
                 }
 
-                createUser(httpRequest);
+                method.invoke(PathPool.getInstance().getClass(path), httpRequest, dos);
                 return;
             }
 
@@ -61,23 +60,9 @@ public class HttpRequestHandler {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             HttpResponseHandler.responseHeader(dos, body.length, "text/plain", e.httpStatus);
             HttpResponseHandler.responseBody(dos, body);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    private void createUser(HttpRequest httpRequest) {
-        String redirectPath = "/registration";
-        Map<String, String> queries = httpRequest.getQueries();
-        String userId = queries.get("userId");
-        String username = queries.get("username");
-        String password = queries.get("password");
-        if (userId == null || username == null || password == null) {
-            HttpResponseHandler.redirect(dos, redirectPath);
-            return;
-        }
-        User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
-        redirectPath = "/main";
-        Database.addUser(user);
-        HttpResponseHandler.redirect(dos, redirectPath);
     }
 
     private byte[] createBody(File file) throws IOException {
