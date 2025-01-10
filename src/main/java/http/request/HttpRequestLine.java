@@ -34,6 +34,8 @@ public class HttpRequestLine {
 		}
 
 		this.method = HttpMethod.valueOf(parts[0]);
+
+		// TODO: Reconstructing the Target URI 작업 필요
 		this.path = parts[1];
 		this.version = parts[2];
 		queries = getQueries(this.path);
