@@ -79,12 +79,17 @@
       fetch(url, {
         method: "GET",
       }).then((response) => {
-        if(!response.ok){
-          throw new Error("Network response was not ok.");
+        if(response.ok){
+          alert("회원가입 성공!");
+          window.location.href = "/";
+        }else{
+          response.text().then((errorMessage) =>{
+            alert(errorMessage);
+          })
         }
-        // 홈 화면으로 리다이렉트
-         window.location.href = "/";
-      }).catch((error) => console.log(error));
+      }).catch((error) => {
+        console.log(error);
+      })
     })
   </script>
 </html>
