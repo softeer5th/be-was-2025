@@ -1,5 +1,9 @@
 package model;
 
+import Entity.QueryParameters;
+
+import java.util.Set;
+
 public class User {
     private String userId;
     private String password;
@@ -11,6 +15,13 @@ public class User {
         this.password = password;
         this.name = name;
         this.email = email;
+    }
+
+    public static void validateUserParameters(QueryParameters queryParameters) {
+        Set<String> keys = queryParameters.getKeySet();
+        if (!keys.contains("userId") || !keys.contains("password") || !keys.contains("name") || !keys.contains("email")) {
+            throw new IllegalArgumentException("User 정보 중 누락된 항목이 존재합니다.");
+        }
     }
 
     public String getUserId() {
