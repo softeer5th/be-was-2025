@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class ControllerMapping {
     private static final String DASH = "/";
+    public static final String WILD_CARD = "\\?";
     private final List<Object> controllers;
 
     public ControllerMapping(List<Object> controllers) {
@@ -67,16 +67,29 @@ public class ControllerMapping {
         }
     }
 
+
     private void validateControllerMethod(Method method, Map<UrlMapping, Method> controllerMethods) {
         Mapping mappingInfo = method.getDeclaredAnnotation(Mapping.class);
         if (mappingInfo != null) {
-            UrlMapping urlMapping = new UrlMapping(mappingInfo.path(), mappingInfo.method());
-            if(controllerMethods.containsKey(urlMapping)) {
+            String pathWithWildcard = replacePathWithWildcard(mappingInfo.path());
+            UrlMapping urlMapping = new UrlMapping(pathWithWildcard, mappingInfo.method());
+            if (controllerMethods.containsKey(urlMapping)) {
                 throw new IllegalArgumentException("Controller method already exists: " + urlMapping + ", " +
                         "First Method: " + controllerMethods.get(urlMapping) + ", Second Method: " + method);
             }
             controllerMethods.put(urlMapping, method);
         }
+    }
+
+
+    private String replacePathWithWildcard(String path) {
+        String[] pathParts = path.split(DASH);
+        for (int i = 0; i < pathParts.length; i++) {
+            if (pathParts[i].startsWith("{") && pathParts[i].endsWith("}")) {
+                pathParts[i] = WILD_CARD;
+            }
+        }
+        return String.join(DASH, pathParts);
     }
 
     private record UrlMapping(String path, HttpMethod httpMethod) {
