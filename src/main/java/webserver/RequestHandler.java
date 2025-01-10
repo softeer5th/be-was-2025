@@ -68,7 +68,7 @@ public class RequestHandler implements Runnable {
         String mainPagePath = RESOURCES_PATH + "/main/index.html";
         File file = new File(mainPagePath);
         byte[] body = readFile(file);
-        HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos ,body, "text/html");
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.CREATED, dos ,body, "text/html");
         httpResponse.respond();
     }
 

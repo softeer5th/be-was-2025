@@ -33,7 +33,7 @@ public class HttpResponse {
 
     private void makeHeader() throws IOException {
         StringBuilder header = new StringBuilder();
-        header.append("HTTP/1.1 ").append(httpStatus.code()).append(' ').append(httpStatus.name()).append(" \r\n");
+        header.append("HTTP/1.1 ").append(httpStatus.getCode()).append(' ').append(httpStatus.getStatus()).append(" \r\n");
         header.append("Content-Type: ").append(contentType).append(";charset=utf-8\r\n");
         header.append("Content-Length: ").append(body.length).append("\r\n\r\n");
         dos.writeBytes(header.toString());
