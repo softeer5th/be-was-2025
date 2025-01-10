@@ -23,7 +23,7 @@ public class FrontControllerServlet implements Servlet {
 
 		controllerMap.put("/", new HomeServlet());
 		controllerMap.put("/registration", new StaticResourceServlet());
-		controllerMap.put("/user/create", null);
+		controllerMap.put("/user/create", new RegisterServlet());
 	}
 
 	public static FrontControllerServlet getInstance(){
@@ -42,7 +42,6 @@ public class FrontControllerServlet implements Servlet {
 
 		// path 기반으로 서블릿을 찾아서 실행하기에 순수한 path 만 추출
 		String pathWithoutFileName = request.getPathWithoutFileName();
-
 		if(!controllerMap.containsKey(pathWithoutFileName)){
 			// TODO: 에러 페이지 이동
 			return;
