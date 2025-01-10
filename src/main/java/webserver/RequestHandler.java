@@ -1,50 +1,73 @@
 package webserver;
 
+import http.HttpMethod;
+import http.HttpRequestInfo;
+import exception.BaseException;
+import exception.HttpErrorCode;
+import handler.Handler;
 import java.io.*;
 import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.FileUtil;
-import common.HttpStatus;
-import util.HttpResponse;
+import router.Router;
+import http.HttpResponse;
 
 public class RequestHandler implements Runnable {
+
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String BASE_DIRECTORY = "src/main/resources/static";
 
     private Socket connection;
-    private HttpResponse httpResponse = new HttpResponse();
+    private final Router router;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, Router router) {
         this.connection = connectionSocket;
+        this.router = router;
     }
 
     public void run() {
-        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
+        logger.debug("New Client Connect! Connected IP : {}, Port : {}",
+            connection.getInetAddress(),
+            connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            HttpRequestInfo httpRequestInfo = requestParse(in);
             DataOutputStream dos = new DataOutputStream(out);
 
+            HttpResponse response;
 
-            String requestLine = reader.readLine();
-            if (requestLine == null) return;
-            logger.debug("Request : {}", requestLine);
+            try {
+                final Handler handler = router.route(httpRequestInfo.getPath());
+                logger.debug("Url = " + httpRequestInfo.getPath());
 
-            String[] tokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
-            String filepath = FileUtil.getFilePath(BASE_DIRECTORY + tokens[1]);
-            byte[] body = FileUtil.readHtmlFileAsBytes(filepath);
-            if (body != null) {
-                httpResponse.responseHeader(HttpStatus.OK, dos, body.length, filepath);
-                httpResponse.responseBody(dos, body);
-            } else {
-                httpResponse.responseHeader(HttpStatus.NOT_FOUND, dos, 0, null);
-                httpResponse.responseBody(dos, null);
+                response = handler.handle(httpRequestInfo);
+            } catch (BaseException e) {
+                response = new HttpResponse(e.getStatus(), "text/html; charset=utf-8", e.getMessage());
             }
+
+            response.send(dos);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private HttpRequestInfo requestParse(InputStream in) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+        String requestLine = reader.readLine();
+        if (requestLine == null || requestLine.trim().isEmpty()) {
+            throw new BaseException(HttpErrorCode.INVALID_HTTP_REQUEST);
+        }
+
+        String[] requestTokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
+        if (requestTokens.length != 3) {
+            throw new BaseException(HttpErrorCode.INVALID_HTTP_REQUEST);
+        }
+
+        HttpMethod httpMethod = HttpMethod.match(requestTokens[0].toLowerCase());
+        String url = requestTokens[1];
+        logger.debug("Request mehtod = {}, url = {}", httpMethod, url);
+
+        return new HttpRequestInfo(httpMethod, url);
     }
 }

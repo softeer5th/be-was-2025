@@ -12,16 +12,6 @@ import java.io.IOException;
 public class FileUtil {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    public static String getFilePath(String path) {
-        // URL에 점(.)이 있으면 확장자가 있는 파일로 간주하여 그대로 사용
-        if (path.contains(".")) {
-            return path;
-        }
-
-        // 점(.)이 없다면 디렉토리로 간주하고 /index.html을 붙임
-        return path + "/index.html";
-    }
-
     public static byte[] readHtmlFileAsBytes(String filepath) {
         try {
             File file = new File(filepath);
