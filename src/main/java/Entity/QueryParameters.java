@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class QueryParameters {
-    Map<String, String> map;
+    private final Map<String, String> parameters;
 
     public QueryParameters(String query) {
-        map = new HashMap<>();
+        parameters = new HashMap<>();
         String[] pairs = query.split("&");
         for (String pair : pairs) {
             String[] tokens = pair.split("=");
@@ -17,14 +17,14 @@ public class QueryParameters {
     }
 
     public String get(String key) {
-        return map.get(key);
+        return parameters.get(key);
     }
 
     public Set<String> getKeySet() {
-        return map.keySet();
+        return parameters.keySet();
     }
 
     private void add(String key, String value) {
-        map.put(key, value);
+        parameters.put(key, value);
     }
 }
