@@ -3,13 +3,14 @@ package http.request;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HttpHeaders {
 	private static final String CRLF = "\r\n";
-	private final String HEADER_DELIMITER = ": ";
+	private final String HEADER_DELIMITER = ":";
 	private final String HEADER_VALUE_DELIMITER = ",";
 	private Map<String, List<String>> headers = new HashMap<>();
 
@@ -43,11 +44,21 @@ public class HttpHeaders {
 	}
 
 	public void setHeader(String headerName, String... values) {
-		List<String> valueList = new ArrayList<>();
+		List<String> valueList = headers.getOrDefault(headerName, new ArrayList<>());
+
 		for (String value : values) {
-			valueList.add(value.strip());
+			String strippedValue = value.strip();
+			if (!strippedValue.isEmpty()) {
+				valueList.add(strippedValue);
+			}
 		}
-		headers.put(headerName, valueList);
+
+		if(valueList.isEmpty()){
+			headers.remove(headerName);
+			return;
+		}
+
+		headers.put(headerName, Collections.unmodifiableList(valueList));
 	}
 
 	public Map<String, List<String>> getHeaders() {
