@@ -27,8 +27,8 @@ class HttpResponseTest {
         // then
 
         assertThat(httpResponse.getHeaders())
-                .containsEntry(CONTENT_TYPE.value, TEXT_HTML.mimeType)
-                .containsKeys(CONTENT_LENGTH.value);
+                .matches(headers -> headers.getHeader(CONTENT_TYPE).equals(TEXT_HTML.mimeType))
+                .matches(headers -> headers.containsHeader(CONTENT_LENGTH));
     }
 
     @Test
@@ -43,8 +43,8 @@ class HttpResponseTest {
 
         // then
         assertThat(httpResponse.getHeaders())
-                .containsEntry(CONTENT_TYPE.value, TEXT_PLAIN.mimeType)
-                .containsEntry(CONTENT_LENGTH.value, "13");
+                .matches(headers -> headers.getHeader(CONTENT_TYPE).equals(TEXT_PLAIN.mimeType))
+                .matches(headers -> headers.getHeader(CONTENT_LENGTH).equals("13"));
     }
 
     @Test
@@ -57,8 +57,8 @@ class HttpResponseTest {
 
         // then
         assertThat(httpResponse.getHeaders())
-                .doesNotContainKey(CONTENT_TYPE.value)
-                .doesNotContainKey(CONTENT_LENGTH.value);
+                .matches(headers -> !headers.containsHeader(CONTENT_TYPE))
+                .matches(headers -> !headers.containsHeader(CONTENT_LENGTH));
     }
 
 }

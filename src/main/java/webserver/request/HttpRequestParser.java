@@ -1,5 +1,6 @@
 package webserver.request;
 
+import webserver.common.HttpHeaders;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 import webserver.exception.BadRequest;
@@ -33,7 +34,7 @@ public class HttpRequestParser {
             // Request Line 문자열 파싱
             RequestLine requestLine = parseRequestLine(requestLineString);
             // Header Line 문자열 파싱
-            Map<String, String> headers = parseHeaders(headerLines);
+            HttpHeaders headers = parseHeaders(headerLines);
             return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, requestInputReader);
         } catch (HttpException e) {
             throw e;
@@ -71,11 +72,11 @@ public class HttpRequestParser {
     }
 
     // Header Line 문자열을 파싱하여 Map<String, String> 객체 생성
-    private Map<String, String> parseHeaders(String headerLines) {
-        Map<String, String> headers = new HashMap<>();
+    private HttpHeaders parseHeaders(String headerLines) {
+        HttpHeaders headers = new HttpHeaders();
         for (String line : headerLines.split(HTTP_LINE_SEPARATOR)) {
             String[] tokens = line.split(HEADER_KEY_SEPARATOR, 2);
-            headers.put(tokens[0].strip(), tokens[1].strip());
+            headers.setHeader(tokens[0].strip(), tokens[1].strip());
         }
         return headers;
     }

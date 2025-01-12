@@ -29,7 +29,7 @@ public class HttpResponseWriter {
             // status line
             out.write("%s %d %s\r\n".formatted(version.version, response.getStatusCode().statusCode, response.getStatusCode().reasonPhrase).getBytes());
             // response headers
-            for (Map.Entry<String, String> header : response.getHeaders().entrySet()) {
+            for (Map.Entry<String, String> header : response.getHeaders().getFormattedHeaders().entrySet()) {
                 out.write("%s: %s\r\n".formatted(header.getKey(), header.getValue()).getBytes());
             }
             // blank line

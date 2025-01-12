@@ -2,6 +2,7 @@ package webserver.request;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import webserver.common.HttpHeaders;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpVersionNotSupported;
@@ -25,7 +26,7 @@ class HttpRequestTest {
                     HttpMethod.GET,
                     new RequestTarget("/index.html", Map.of()),
                     HttpVersion.HTTP_0_9,
-                    Map.of(),
+                    new HttpHeaders(),
                     body);
             var supportedVersions = List.of(HttpVersion.HTTP_1_1, HttpVersion.HTTP_1_0);
             // when
@@ -46,7 +47,7 @@ class HttpRequestTest {
                     HttpMethod.GET,
                     new RequestTarget("/index.html", Map.of()),
                     HttpVersion.HTTP_1_1,
-                    Map.of(),
+                    new HttpHeaders(),
                     body);
             var supportedVersions = List.of(HttpVersion.HTTP_1_1, HttpVersion.HTTP_1_0);
             // when

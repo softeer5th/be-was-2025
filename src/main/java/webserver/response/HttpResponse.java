@@ -1,24 +1,23 @@
 package webserver.response;
 
+import webserver.common.HttpHeaders;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
 import webserver.response.body.Body;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 // HTTP 응답에 대한 정보를 담는 객체
 public class HttpResponse {
     private final HttpStatusCode statusCode;
-    private final Map<String, String> headers;
+    private final HttpHeaders headers;
     private Body body;
 
     public HttpResponse(HttpStatusCode statusCode) {
-        this(statusCode, new HashMap<>());
+        this(statusCode, new HttpHeaders());
     }
 
-    public HttpResponse(HttpStatusCode statusCode, Map<String, String> headers) {
+    public HttpResponse(HttpStatusCode statusCode, HttpHeaders headers) {
         this.statusCode = statusCode;
         this.headers = headers;
         this.body = Body.empty();
@@ -33,7 +32,7 @@ public class HttpResponse {
         return statusCode;
     }
 
-    public Map<String, String> getHeaders() {
+    public HttpHeaders getHeaders() {
         return headers;
     }
 
@@ -60,15 +59,15 @@ public class HttpResponse {
     }
 
     public HttpResponse setHeader(String key, String value) {
-        headers.put(key, value);
+        headers.setHeader(key, value);
         return this;
     }
 
     private void setContentHeaders() {
         body.getContentLength()
-                .ifPresent(contentLength -> headers.put(HttpHeader.CONTENT_LENGTH.value, contentLength.toString()));
+                .ifPresent(contentLength -> headers.setHeader(HttpHeader.CONTENT_LENGTH, contentLength.toString()));
         body.getContentType()
-                .ifPresent(contentType -> headers.put(HttpHeader.CONTENT_TYPE.value, contentType.mimeType));
+                .ifPresent(contentType -> headers.setHeader(HttpHeader.CONTENT_TYPE, contentType.mimeType));
 
     }
 

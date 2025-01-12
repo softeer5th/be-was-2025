@@ -37,9 +37,8 @@ class HttpRequestParserTest {
                 .containsEntry("pageSize", "10")
                 .containsEntry("filter", "");
         assertThat(request.getVersion().version).isEqualTo("HTTP/1.1");
-        assertThat(request.getHeaders())
-                .containsEntry("Host", "localhost:8080")
-                .containsEntry("Accept", "text/html");
+        assertThat(request.getHeaders().getHeader("Host")).isEqualTo("localhost:8080");
+        assertThat(request.getHeaders().getHeader("Accept")).isEqualTo("text/html");
         reader.close();
     }
 
@@ -65,10 +64,9 @@ class HttpRequestParserTest {
         assertThat(request.getMethod()).isEqualTo(HttpMethod.POST);
         assertThat(request.getRequestTarget().getPath()).isEqualTo("/users");
         assertThat(request.getVersion().version).isEqualTo("HTTP/1.1");
-        assertThat(request.getHeaders())
-                .containsEntry("Host", "localhost:8080")
-                .containsEntry("Content-Length", "25")
-                .containsEntry("Content-Type", "text/plain");
+        assertThat(request.getHeaders().getHeader("Host")).isEqualTo("localhost:8080");
+        assertThat(request.getHeaders().getHeader("Content-Length")).isEqualTo("25");
+        assertThat(request.getHeaders().getHeader("Content-Type")).isEqualTo("text/plain");
         assertThat(request.readBodyAsString()).isEqualTo("""
                 id=id1
                 password=password1""");
@@ -126,6 +124,25 @@ class HttpRequestParserTest {
         // then
         assertThatThrownBy(() -> parser.parse(reader))
                 .isInstanceOf(BadRequest.class);
+        reader.close();
+    }
+
+    @Test
+    @DisplayName("Header name이 대소문자 섞여있을 때")
+    void parseTest6() throws IOException {
+        // given
+        var requestString = String.join("\r\n",
+                "GET /index.html?page=1&pageSize=10&filter= HTTP/1.1",
+                "Host: localhost:8080",
+                "aCcEpT: text/html",
+                "");
+        var reader = new BufferedReader(new StringReader(requestString));
+        var parser = new HttpRequestParser();
+        // when
+        var request = parser.parse(reader);
+        // then
+        assertThat(request.getHeaders().getHeader("Host")).isEqualTo("localhost:8080");
+        assertThat(request.getHeaders().getHeader("Accept")).isEqualTo("text/html");
         reader.close();
     }
 }

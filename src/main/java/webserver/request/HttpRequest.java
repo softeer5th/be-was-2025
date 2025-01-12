@@ -1,6 +1,7 @@
 package webserver.request;
 
 
+import webserver.common.HttpHeaders;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 import webserver.exception.BadRequest;
@@ -19,12 +20,12 @@ public class HttpRequest {
     private final HttpMethod httpMethod;
     private final RequestTarget requestTarget;
     private final HttpVersion version;
-    private final Map<String, String> headers;
+    private final HttpHeaders headers;
     // body를 읽어들이기 위한 Reader
     private final BufferedReader body;
     private Map<String, String> pathVariables;
 
-    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, Map<String, String> headers, BufferedReader body) {
+    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, BufferedReader body) {
         this.httpMethod = httpMethod;
         this.requestTarget = requestTarget;
         this.version = version;
@@ -53,17 +54,13 @@ public class HttpRequest {
         return version;
     }
 
-    public String getHeader(String key) {
-        return headers.get(key);
-    }
-
-    public Map<String, String> getHeaders() {
+    public HttpHeaders getHeaders() {
         return headers;
     }
 
     // request body를 읽어들여 문자열로 반환
     public String readBodyAsString() {
-        String contentLengthString = headers.get(CONTENT_LENGTH.value);
+        String contentLengthString = headers.getHeader(CONTENT_LENGTH);
         if (contentLengthString == null)
             throw new BadRequest(CONTENT_LENGTH.value + "헤더가 없습니다.");
 
