@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 public class HttpResponse {
     private static final String HTTP_OK = "HTTP/1.1 200 OK";
+    // todo: 확장성 고려
     private static final String HTTP_NOT_FOUND = "HTTP/1.1 404 Not Found";
     private final DataOutputStream dos;
 

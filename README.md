@@ -525,3 +525,71 @@ String httpVersion = firstLineTokens[2];
   - 핸들러 추가 시마다 **“HTML vs JSON vs 기타”** 구분 로직 고민 필요.
 
 ---
+
+아래는 **1월 9일 학습일지** 이후 작업(질문·답변 과정)에서 진행된 내용을 정리한 학습일지입니다. 기존과 마찬가지로 **학습 내용**, **구현 내용**, **고민한 내용**으로 구분했습니다. (1월 9일 학습일지에 이미 언급된 사항은 생략하고, 그 이후 추가/변경된 내용만 담았습니다.)
+
+---
+
+# **1월 10일 학습일지**
+
+## **1. 학습 내용**
+
+1. **쿼리 파라미터 누락/없음 처리 방식**
+  - 기존에는 `extractQueryString`에서 예외(`UserCreationException`)를 던졌고, 테스트에서 JSON 응답이 아닌 예외 발생으로 실패가 뜸.
+  - 이를 개선해 **쿼리 문자열이 없는 경우**나 **필수 파라미터 누락** 시에도 **JSON 응답**을 반환
+
+2**테스트 독립성**
+  - **DB 초기화**(`Database.clear()`)를 통해 테스트 간 상태 공유를 방지하는 방법.
+  - 각 테스트 메서드 실행 전/후 `clear()`를 호출하거나, `@BeforeEach`와 `@AfterEach`에 추가해 독립성 보장.
+
+3**테스트 코드 수정**
+  - 기존 테스트에서 “쿼리 문자열 없을 시 `null` 반환” 로직을 삭제하고, **JSON 응답**을 검증하도록 변경.
+  - `SIGNUP-03` 응답이 오는지 확인하는 방식으로 테스트 시나리오 조정.
+
+---
+
+## **2. 구현 내용**
+
+1. **`UserCreationHandler` 수정**
+  - `canHandle`
+    - 예외 제거, `boolean`만 반환.
+  - `extractQueryString`
+    - 로직은 유지하되, 발생한 예외는 `handleSignupFailure`에서 잡아 **JSON 응답**으로 전환.
+  - `handleSignupFailure`:  
+    - 스위치 대신 `getCodeForError` 메서드에서 `ErrorCode`를 `"SIGNUP-01"`, `"SIGNUP-02"`, `"SIGNUP-03"`, `"UNKNOWN_ERROR"`로 매핑.
+  - 성공 시
+    ```json
+    { "isSuccess": true, "code": null, "message": null, "data": null }
+    ```
+    실패 시 `SIGNUP-01/02/03`과 함께 `ErrorCode` 메시지 응답.
+
+2. **테스트 코드 수정**
+  - “쿼리 문자열 없을 때” & “필수 파라미터 누락 시” → `SIGNUP-03` 응답 확인.
+  - 기존에 **`assertThat(loadResult).isNull()`** 했던 부분을 **JSON 응답** 비교로 변경.
+
+3. **`Database.clear()`**
+  - 테스트 클래스에 `@BeforeEach`나 `@AfterEach`를 달아 `Database.clear()`를 호출,
+  - 데이터베이스를 항상 빈 상태로 만들어 테스트 독립성 확보.
+
+---
+
+## **3. 고민한 내용**
+
+1. **예외 처리 vs JSON 응답**
+  - 예외를 던졌을 때 바로 종료되므로, 어디서 JSON 응답을 생성할지 결정이 필요.
+  - 현재 방식: `try { ... } catch (UserCreationException e) { return handleSignupFailure(e); }`
+  - 던져진 예외를 핸들러 내부에서 잡아 **JSON 응답**으로 변환하는 구조.
+
+2. **‘필수 파라미터 없음’과 ‘쿼리 파라미터 없음’ 예외처리**
+  - 모두 `INVALID_USER_INPUT`로 보고 `SIGNUP-03` 코드 부여.
+  - 필요하다면 “쿼리 없음” vs “필드 누락”을 세분화할 수도 있으나, 현재는 단일 코드로 처리.
+
+3. **데이터베이스 상태 공유 문제**
+  - 테스트들이 `Database`의 static 필드에 영향을 주고, 다른 테스트에 반영됨 → 각 테스트 끝에 `clear()`.
+  - “테스트 독립성” 확보가 우선.
+
+4. **확장성 고민**
+  - 아이디/닉네임 중복 외에 이메일 중복 등 추후 요구사항이 생기면, `validateUser`와 `ErrorCode`에 추가하여 확장.
+  - 응답 형식(`data`)에 추가 정보를 넣어줄 수도 있음.
+
+---
