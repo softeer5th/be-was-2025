@@ -29,4 +29,13 @@ class HttpMethodTest {
         assertThatThrownBy(() -> HttpMethod.of(null))
                 .isInstanceOf(NotImplemented.class);
     }
+
+    @Test
+    @DisplayName("대소문자가 다른 HttpMethod을 입력받을 경우 NotImplemented 예외 발생")
+    void of_CaseSensitiveMethod() {
+        assertThatThrownBy(() -> HttpMethod.of("Get"))
+                .isInstanceOf(NotImplemented.class);
+        assertThatThrownBy(() -> HttpMethod.of("Post"))
+                .isInstanceOf(NotImplemented.class);
+    }
 }

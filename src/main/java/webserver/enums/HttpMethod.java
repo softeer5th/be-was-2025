@@ -8,7 +8,8 @@ public enum HttpMethod {
 
     public static HttpMethod of(String method) {
         try {
-            return HttpMethod.valueOf(method.toUpperCase());
+            // Method 이름은 case-sensitive (rfc9110#section-9.1)
+            return HttpMethod.valueOf(method);
         } catch (NullPointerException | IllegalArgumentException e) {
             throw new NotImplemented("Unsupported HTTP Method", e);
         }
