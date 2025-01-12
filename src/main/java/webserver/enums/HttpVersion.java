@@ -3,8 +3,6 @@ package webserver.enums;
 
 import webserver.exception.NotImplemented;
 
-import java.util.Arrays;
-
 public enum HttpVersion {
     HTTP_0_9("HTTP/0.9"),
     HTTP_1_0("HTTP/1.0"),
@@ -19,9 +17,12 @@ public enum HttpVersion {
     }
 
     public static HttpVersion of(String version) {
-        return Arrays.stream(values())
-                .filter(httpVersion -> httpVersion.version.equalsIgnoreCase(version))
-                .findFirst()
-                .orElseThrow(() -> new NotImplemented("Invalid HTTP version"));
+        for (HttpVersion httpVersion : values()) {
+            // HTTP Version은 case-sensitive (rfc9112#section-2.3)
+            if (httpVersion.version.equals(version)) {
+                return httpVersion;
+            }
+        }
+        throw new NotImplemented("Invalid HTTP version");
     }
 }

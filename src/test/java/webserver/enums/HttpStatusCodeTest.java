@@ -2,7 +2,7 @@ package webserver.enums;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import webserver.exception.BadRequest;
+import webserver.exception.InternalServerError;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,13 +26,13 @@ class HttpStatusCodeTest {
     }
 
     @Test
-    @DisplayName("100~599 범위 밖의 값을 입력받을 경우 BadRequest 예외 발생")
+    @DisplayName("없는 상태 코드일 경우 Internal Server Error 예외 발생")
     void of_InvalidCode() {
-        assertThatThrownBy(() -> HttpStatusCode.of(600))
-                .isInstanceOf(BadRequest.class);
-        assertThatThrownBy(() -> HttpStatusCode.of(99))
-                .isInstanceOf(BadRequest.class);
+        assertThatThrownBy(() -> HttpStatusCode.of(509))
+                .isInstanceOf(InternalServerError.class);
+        assertThatThrownBy(() -> HttpStatusCode.of(104))
+                .isInstanceOf(InternalServerError.class);
     }
-    
+
 
 }
