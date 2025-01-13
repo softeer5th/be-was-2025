@@ -24,12 +24,13 @@ class UserCreateRequestTest {
         final String email = "email";
         final String password = "password";
         final String nickname = "nickname";
+        // 한글 URI.create
         final String validForm = String.format("userId=%s&email=%s&password=%s&nickname=%s", userId, email, password, nickname);
         final UserCreateRequest expected = new UserCreateRequest(userId, nickname, password, email);
 
         final UserCreateRequest actual = UserCreateRequest.of(validForm);
 
         Assertions.assertThat(actual)
-                .isEqualToComparingFieldByField(expected);
+                .isEqualTo(expected);
     }
 }
