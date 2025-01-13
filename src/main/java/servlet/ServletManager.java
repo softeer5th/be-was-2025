@@ -24,8 +24,8 @@ public class ServletManager {
     private static final Logger log = LoggerFactory.getLogger(ServletManager.class);
     private final Map<String, Servlet> servlets = new HashMap<>();
     public ServletManager(List<Object> controllers) {
-        servlets.put("default", new StaticResourceServlet());
-        servlets.put("dispatcher", new DispatcherServlet(controllers));
+        servlets.put(DEFAULT, new StaticResourceServlet());
+        servlets.put(DISPATCHER, new DispatcherServlet(controllers));
         servlets.put(FILE_NOT_SUPPORTED, new FileNotSupportedErrorPageServlet());
         servlets.put(NOT_FOUND, new FileNotFoundPageServlet());
         servlets.put(BAD_REQUEST, new BadRequestServlet());
