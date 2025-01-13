@@ -25,7 +25,7 @@ public class UserHandler {
             return;
         }
         User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
-        redirectPath = "/main";
+        redirectPath = "/login";
         Database.addUser(user);
         HttpResponseHandler.redirect(dos, redirectPath);
     }
