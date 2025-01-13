@@ -14,16 +14,10 @@ import java.util.Collection;
 public class UserRequestHandler implements  RequestHandler{
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
-        if(httpRequest.getMethod() == HttpMethod.GET){
-            return true;
-        }
-        return false;
+        return true;
     }
     @Override
     public HttpResponse handle(HttpRequest httpRequest) {
-        if(httpRequest.getMethod() != HttpMethod.GET){
-            throw new NotExistApiRequestException("존재하지 않는 api 요청입니다.");
-        }
         try {
             signUp(httpRequest.getQueryParam("userId"), httpRequest.getQueryParam("password"), httpRequest.getQueryParam("name"));
         }catch(SignUpException e){
