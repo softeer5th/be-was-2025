@@ -30,7 +30,7 @@ public class SignUpController {
         response.setBody(readFile);
     }
 
-    @Mapping(path = "/create", method = HttpMethod.GET)
+    @Mapping(path = "/user/create", method = HttpMethod.POST)
     public void createUser(HttpRequest request, HttpResponse response) throws IOException {
         String userId = request.getParameter("userId");
         String password = request.getParameter("password");
@@ -40,7 +40,7 @@ public class SignUpController {
         addUser(user);
 
         log.info("User created: " + user);
-        response.setLocation("/success");
+        response.setLocation("/");
     }
 
     @Mapping(path = "/success", method = HttpMethod.GET)
