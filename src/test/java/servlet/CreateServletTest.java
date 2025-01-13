@@ -36,7 +36,6 @@ class CreateServletTest {
         Assertions.assertThat(testUser.getPassword()).isEqualTo("testPassword");
         Assertions.assertThat(testUser.getName()).isEqualTo("testName");
 
-        verify(response).setStatusCode(StatusCode.SEE_OTHER);
-        verify(response).setHeader("Location", "/success");
+        verify(response).setLocation("/success");
     }
 }

@@ -22,9 +22,9 @@ public class RequestHandler implements Runnable {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        try (BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
              DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
-            HttpRequest request = new HttpRequest(reader);
+            HttpRequest request = new HttpRequest(bis);
             HttpResponse response = new HttpResponse();
             response.setProtocol(request.getProtocol());
 

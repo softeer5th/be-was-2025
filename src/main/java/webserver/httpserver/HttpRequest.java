@@ -3,20 +3,24 @@ package webserver.httpserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import exception.FileNotSupportedException;
+import webserver.ContentType;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
+import java.io.BufferedInputStream;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static webserver.httpserver.ContentType.X_WWW_FORM_URLENCODED;
 
 public class HttpRequest {
     public static final String HEADER_KEY_VALUE_DELIMITER = ":";
     public static final String QUERYPARAMETER_DELIMITER = "&";
     public static final String QUERYPARAMETER_KEVALUE_DELIMITER = "=";
     public static final String URI_QUERYPARAM_DELIMITER = "\\?";
+    public static final String CONTENT_LENGTH = "content-length";
+    public static final String CONTENT_TYPE = "content-type";
     private HttpMethod method;
     private String uri;
     private final Map<String, String> parameters = new HashMap<>();
@@ -26,9 +30,10 @@ public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(BufferedReader reader) throws IOException {
-        parseRequestLine(reader);
-        parseHeader(reader);
+    public HttpRequest(BufferedInputStream bis) throws IOException {
+        parseRequestLine(bis);
+        parseHeader(bis);
+        parseBody(bis);
     }
 
     public String getHeader(String key) {
@@ -55,9 +60,9 @@ public class HttpRequest {
         return body;
     }
 
-    private void parseRequestLine(BufferedReader reader) throws IOException {
-        String requestLine = reader.readLine();
-        if (requestLine == null) {
+    private void parseRequestLine(BufferedInputStream bis) throws IOException {
+        String requestLine = readLine(bis);
+        if (requestLine.isEmpty()) {
             throw new IOException("Method not supported");
         }
         String[] requestLineParts = requestLine.trim().split(" ");
@@ -73,6 +78,8 @@ public class HttpRequest {
         this.protocol = requestLineParts[2];
     }
 
+
+
     private void parseQueryParameter(String rawQueryParams) throws IOException {
         String[] queryParams = rawQueryParams.split(QUERYPARAMETER_DELIMITER);
         for (String queryParam : queryParams) {
@@ -86,16 +93,37 @@ public class HttpRequest {
         }
     }
 
-    private void parseHeader(BufferedReader reader) throws IOException {
+    private void parseHeader(BufferedInputStream bis) throws IOException {
         String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.isEmpty()) break;
+        while (!(line = readLine(bis)).isEmpty()) {
             String[] parts = line.split(HEADER_KEY_VALUE_DELIMITER,2);
-            String key = parts[0].trim();
+            String key = parts[0].trim().toLowerCase();
             String value = parts[1].trim();
             logger.debug("{}: {}", key, value);
             headers.put(key, value);
         }
+    }
+    
+    private void parseBody(BufferedInputStream bis) throws IOException {
+        if (X_WWW_FORM_URLENCODED.getMimeType().equals(headers.get(CONTENT_TYPE))) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < Integer.parseInt(headers.get(CONTENT_LENGTH)); i++) {
+                builder.append((char) bis.read());
+            }
+            parseQueryParameter(builder.toString());
+        }
+    }
+
+    private static String readLine(BufferedInputStream bis) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int inputData = 0;
+        while((inputData = bis.read())!=-1){
+            if(inputData=='\n'){
+                break;
+            }
+            sb.append((char)inputData);
+        }
+        return sb.toString().trim();
     }
 }
 
