@@ -12,6 +12,7 @@ import webserver.httpserver.StatusCode;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static db.Database.addUser;
 import static utils.FileUtils.getFile;
@@ -23,7 +24,7 @@ public class SignUpController {
     @Mapping(path = "/registration", method = HttpMethod.GET)
     public void registerPage(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
-        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
 
         File file = new File("src/main/resources/static/registration/index.html");
         byte[] readFile = getFile(file);
@@ -46,7 +47,7 @@ public class SignUpController {
     @Mapping(path = "/success", method = HttpMethod.GET)
     public void signUpSuccess(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
-        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Content-Type", "text/html;charset=utf-8");
 
         File file = new File("src/main/resources/static/registration/success.html");
         byte[] readFile = getFile(file);
@@ -56,8 +57,8 @@ public class SignUpController {
     @Mapping(path = "/test/{id}", method = HttpMethod.GET)
     public void signUpTest(HttpRequest request, HttpResponse response, @PathVariable("id") int id) {
         response.setStatusCode(StatusCode.OK);
-        response.setHeader("Content-Type", "text/html");
-        String body = "<h1>id value is " + id + ". </h1>";
-        response.setBody(body.getBytes());
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+        String body = "<h1>id 값은 " + id + "입니다. </h1>";
+        response.setBody(body.getBytes(StandardCharsets.UTF_8));
     }
 }

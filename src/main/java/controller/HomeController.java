@@ -16,7 +16,7 @@ public class HomeController {
     @Mapping(path = "/", method = HttpMethod.GET)
     public void handle(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
-        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
 
         File file = new File("src/main/resources/static/index.html");
         byte[] readFile = getFile(file);
