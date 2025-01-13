@@ -44,7 +44,7 @@
 * [ ] 가입 후 페이지 이동을 위해 HTTP redirection 기능을 구현한다.
 
 ## 개인 할일
-- [ ] [HTTP Method 스펙 공부]
+- [x] [HTTP Method 스펙 공부](https://gamxong.tistory.com/157)
 - [ ] HTTP HEAD 메서드 구현
 - [ ] HTTP POST 스펙 공부
 - [ ] redirection 스펙 공부
