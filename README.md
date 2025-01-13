@@ -209,19 +209,22 @@ classDiagram
 ```
 
 ## 남은 문제점
--[ ] setBody로 한글이 작성되지 않는 문제 - UTF-8, ISO 관련 인코딩 문제일수도
--[ ] 동적 리소스의 예외 처리 로직을 디스패처 서블릿이 하는 문제
-  - @ExceptionHandler 구현 고려
--[ ] Ambiguous Mapping 검증
-  - /test/{id} 와 /test/hello 는 충돌해야 함
--[ ] Create 서블릿"Location" 문자열 하드코딩되어있음 
--[ ] 에러 페이지를 파일로 만들어서 그냥 파일로 찾아서 서빙하는게 좋을듯
--[ ] Map 접근할 때 getOrDefault 사용하는게 좋을듯
--[ ] 예외 안에 상태 코드를 넣는 것도 좋아보임
+-[x] setBody로 한글이 작성되지 않는 문제 - UTF-8, ISO 관련 인코딩 문제일수도
+  - Content-Type: text/html; charset=utf-8 로 해결
+-[x] Create 서블릿"Location" 문자열 하드코딩되어있음
+-[x] Header ": " 공백 지우기
 -[x] uri 보단 path 라는 변수명을 사용하는게 좋아보임
   - 너무 늦었다. 테스트 코드 작성한 뒤 리팩토링에 대한 두려움 제거되면 시도
--[ ] forward 서블릿을 생각해보면 좋을듯
--[ ] Request 요청 시 BufferedReader 사용하면 안됨
+-[x] Request 요청 시 BufferedReader 사용하면 안됨
   - 문자열 기반이라
   - byte[] 이진 데이터 받을 땐 Reader Writer 사용 불가
--[ ] Header ": " 공백 지우기
+-[ ] 예외 처리의 혼재
+  - 동적 리소스 서빙 예외 처리
+  - 정적 리소스 서빙 예외 처리
+  - HTTP 메시지 파싱 예외 처리
+-[ ] 에러 페이지를 파일로 만들어서 그냥 파일로 찾아서 서빙하는게 좋을듯
+-[ ] 리소스 생성 시 반복해서 등장하는 파일 입력 받은 후 Response에 기록하는 코드를 제거할 방법
+-[ ] 스프링과 아키텍처가 지나치게 유사한 문제 해결
+-[ ] Ambiguous Mapping 검증
+  - /test/{id} 와 /test/hello 는 충돌해야 함
+- plain 도 렌더링이 되는 이유?
