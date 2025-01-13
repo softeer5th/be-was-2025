@@ -39,7 +39,7 @@ public class PathPool {
 
         Method method = rp.getClass().getDeclaredMethod("createUser", HttpRequest.class, HttpResponse.class);
 
-        methods.put("get", method);
+        methods.put("post", method);
         methodMap.put("/user/create", methods);
         classMap.put("/user/create", rp);
 
