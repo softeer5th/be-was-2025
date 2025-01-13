@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static webserver.enums.HttpHeader.CONTENT_LENGTH;
+import static webserver.enums.HttpHeader.HOST;
 import static webserver.enums.ParsingConstant.*;
 
 // 사용자의 요청을 파싱하여 HttpRequest 객체를 생성
@@ -113,10 +114,18 @@ public class HttpRequestParser {
         for (String line : headerLines.split(HTTP_LINE_SEPARATOR.value)) {
             String[] tokens = line.split(HEADER_KEY_SEPARATOR.value, 2);
             // header name과 : 사이에 공백이 있으면 400 응답해야 함. (rfc9112#section-5.1)
-            if (tokens[0].endsWith(SP.value))
+            String headerName = tokens[0];
+            String headerValue = tokens[1].strip();
+            if (headerName.endsWith(SP.value))
                 throw new BadRequest("Header name 뒤에 공백이 있습니다.");
-            headers.setHeader(tokens[0], tokens[1].strip());
+            // 서버는 클라이언트가 Host 헤더를 여러번 보내면 400 응답해야 함. (rfc9112#section-3.2)
+            if (headerName.equalsIgnoreCase(HOST.value) && headers.containsHeader(HOST))
+                throw new BadRequest("Host Header가 중복되었습니다.");
+            headers.setHeader(headerName, headerValue);
         }
+        // 서버는 클라이언트가 Host 헤더를 보내지 않으면 400 응답해야 함. (rfc9112#section-3.2)
+        if (!headers.containsHeader(HOST))
+            throw new BadRequest("Host Header가 없습니다.");
         return headers;
     }
 

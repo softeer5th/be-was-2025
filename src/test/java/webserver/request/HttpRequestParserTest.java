@@ -95,7 +95,7 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("잘못된 Method")
+    @DisplayName("잘못된 Method 라면 501 오류가 발생해야 함")
     void parseTest4() throws IOException {
         // given
 
@@ -113,7 +113,7 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("잘못된 Query")
+    @DisplayName("잘못된 Query라면 400 오류가 발생해야 함")
     void parseTest5() throws IOException {
         // given
 
@@ -207,7 +207,7 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("request line 앞에 LF가 있는 경우 오류가 발생해야 함")
+    @DisplayName("request line 앞에 LF가 있는 경우 400 오류가 발생해야 함")
     void parseTest9() throws IOException {
         // given
         var requestString = "\r" +
@@ -263,6 +263,46 @@ class HttpRequestParserTest {
             // then
             assertThatThrownBy(() -> parser.parse(in))
                     .isInstanceOf(BadRequest.class);
+        }
+    }
+
+    @Test
+    @DisplayName("Host Header가 없는 경우 400 오류가 발생해야 함")
+    void parseTest12() throws IOException {
+        // given
+        var requestString = String.join("\r\n",
+                "GET /index.html?page=1&pageSize=10&filter= HTTP/1.1",
+                "Accept: text/html",
+                "\r\n");
+
+        try (var in = new ByteArrayInputStream(requestString.getBytes())) {
+            var parser = new HttpRequestParser();
+            // when
+            // then
+            assertThatThrownBy(() -> parser.parse(in))
+                    .isInstanceOf(BadRequest.class);
+
+        }
+    }
+
+    @Test
+    @DisplayName("Host Header가 여러개인 경우 400 오류가 발생해야 함")
+    void parseTest13() throws IOException {
+        // given
+        var requestString = String.join("\r\n",
+                "GET /index.html?page=1&pageSize=10&filter= HTTP/1.1",
+                "Host: localhost:8080",
+                "Accept: text/html",
+                "Host: localhost:8080",
+                "\r\n");
+
+        try (var in = new ByteArrayInputStream(requestString.getBytes())) {
+            var parser = new HttpRequestParser();
+            // when
+            // then
+            assertThatThrownBy(() -> parser.parse(in))
+                    .isInstanceOf(BadRequest.class);
+
         }
     }
 
