@@ -1,32 +1,40 @@
 package webserver.request;
 
 
+import webserver.common.HttpHeaders;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpVersionNotSupported;
 
-import java.io.BufferedReader;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 // HTTP 요청과 관련된 정보를 담는 객체
 public class HttpRequest {
     private final HttpMethod httpMethod;
     private final RequestTarget requestTarget;
     private final HttpVersion version;
-    private final Map<String, String> headers;
+    private final HttpHeaders headers;
     // body를 읽어들이기 위한 Reader
-    private final BufferedReader body;
+    private final byte[] body;
+    private Map<String, String> pathVariables;
 
-    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, Map<String, String> headers, BufferedReader body) {
+    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, byte[] body) {
         this.httpMethod = httpMethod;
         this.requestTarget = requestTarget;
         this.version = version;
         this.headers = headers;
         this.body = body;
+        this.pathVariables = Map.of();
     }
 
+    public void setPathVariables(Map<String, String> pathVariables) {
+        this.pathVariables = pathVariables;
+    }
+
+    public String getPathVariable(String key) {
+        return pathVariables.get(key);
+    }
 
     public HttpMethod getMethod() {
         return httpMethod;
@@ -40,16 +48,13 @@ public class HttpRequest {
         return version;
     }
 
-    public String getHeader(String key) {
-        return headers.get(key);
-    }
-
-    public Map<String, String> getHeaders() {
+    public HttpHeaders getHeaders() {
         return headers;
     }
 
-    public String getBodyAsString() {
-        return body.lines().collect(Collectors.joining());
+    // request body를 읽어들여 문자열로 반환
+    public String readBodyAsString() {
+        return new String(body);
     }
 
     public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {

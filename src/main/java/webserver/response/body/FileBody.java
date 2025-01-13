@@ -29,12 +29,19 @@ class FileBody extends Body {
     }
 
     @Override
-    public Long getContentLength() {
-        return file.length();
+    public Optional<Long> getContentLength() {
+        return Optional.of(file.length());
     }
 
     @Override
     public Optional<ContentType> getContentType() {
         return Optional.of(ContentType.of(FileUtil.getFileExtension(file.getName())));
+    }
+
+    @Override
+    public String toString() {
+        return "FileBody{" +
+                "file=" + file.getName() +
+                '}';
     }
 }

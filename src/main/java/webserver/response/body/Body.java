@@ -27,7 +27,7 @@ public abstract class Body {
     public abstract void writeBody(OutputStream out);
 
     // body의 길이를 반환하는 메서드
-    public abstract Long getContentLength();
+    public abstract Optional<Long> getContentLength();
 
     // body의 ContentType을 반환하는 메서드
     public abstract Optional<ContentType> getContentType();
