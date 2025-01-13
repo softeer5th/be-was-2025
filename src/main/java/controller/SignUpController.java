@@ -40,8 +40,7 @@ public class SignUpController {
         addUser(user);
 
         log.info("User created: " + user);
-        response.setStatusCode(StatusCode.SEE_OTHER);
-        response.setHeader("Location", "/success");
+        response.setLocation("/success");
     }
 
     @Mapping(path = "/success", method = HttpMethod.GET)

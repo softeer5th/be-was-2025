@@ -60,6 +60,11 @@ public class HttpResponse {
         }
     }
 
+    public void setLocation(String location) {
+        setStatusCode(StatusCode.SEE_OTHER);
+        setHeader("Location", location);
+    }
+
     public void send(DataOutputStream dos) throws IOException {
         dos.writeBytes(protocol + " " + statusCode.code + " " + statusCode.message + "\n");
         for (Map.Entry<String, String> header : headers.entrySet()) {
