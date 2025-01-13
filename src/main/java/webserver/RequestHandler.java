@@ -6,6 +6,8 @@ import java.util.List;
 
 import Entity.QueryParameters;
 import db.Database;
+import http.HttpMethod;
+import http.HttpRequest;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,26 +39,40 @@ public class RequestHandler implements Runnable {
 
     private void handleRequest(BufferedReader br, DataOutputStream dos) throws Exception {
         List<String> headerLines = ParsingUtil.parseRequestHeader(br);
-        logRequestDetails(headerLines);
-        String[] tokens = headerLines.get(0).split(" ");
-        String requestPath = tokens[1];
-        if (requestPath.contains("/create") && requestPath.contains("?")) {
-            creatUser(requestPath, dos);
-            return;
+        HttpRequest httpRequest = new HttpRequest(headerLines);
+        if (httpRequest.getHttpMethod() == HttpMethod.POST) {
+            int contentLength = httpRequest.getContentLength();
+            char[] requestBody = new char[contentLength];
+            br.read(requestBody, 0, contentLength);
+            httpRequest.setBody(new String(requestBody));
         }
-        String fileExtension = requestPath.split("\\.")[1];
-        File file = new File(RESOURCES_PATH + requestPath);
-        if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
-            HttpResponse.respond404(dos);
-            return;
+        httpRequest.log(logger);
+
+        String requestPath = httpRequest.getRequestPath();
+        if (httpRequest.getHttpMethod() == HttpMethod.GET) {
+            String fileExtension = requestPath.split("\\.")[1];
+            File file = new File(RESOURCES_PATH + requestPath);
+            if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
+                HttpResponse.respond404(dos);
+                return;
+            }
+            byte[] body = readFile(file);
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
+            httpResponse.respond();
         }
-        byte[] body = readFile(file);
-        HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
-        httpResponse.respond();
+        else if (httpRequest.getHttpMethod() == HttpMethod.POST) {
+            if (requestPath.startsWith("/user/create")) {
+                creatUser(httpRequest.getBody(), dos);
+                return;
+            }
+        }
+        else {
+            logger.error("Invalid Http Method");
+        }
     }
 
-    private void creatUser(String queries, DataOutputStream dos) throws Exception {
-        QueryParameters queryParameters = new QueryParameters(queries.split("\\?")[1]);
+    private void creatUser(String requestBody, DataOutputStream dos) throws Exception {
+        QueryParameters queryParameters = new QueryParameters(requestBody);
         User.validateUserParameters(queryParameters);
         User user = new User(queryParameters.get("userId"),
                 queryParameters.get("password"),
@@ -64,7 +80,7 @@ public class RequestHandler implements Runnable {
                 queryParameters.get("email"));
         logger.debug("user = {}", user);
         Database.addUser(user);
-        String mainPagePath = RESOURCES_PATH + "/main/index.html";
+        String mainPagePath = RESOURCES_PATH + "/index.html";
         File file = new File(mainPagePath);
         byte[] body = readFile(file);
         HttpResponse httpResponse = new HttpResponse(HttpStatus.CREATED, dos ,body, "text/html");
@@ -76,15 +92,5 @@ public class RequestHandler implements Runnable {
         byte[] fileBytes= new byte[(int) file.length()];
         fileInputStream.read(fileBytes);
         return fileBytes;
-    }
-
-    private void logRequestDetails(List<String> headers) {
-        StringBuilder logMessageBuilder = new StringBuilder();
-        logMessageBuilder.append("\n{\n");
-        for (String eachHeader : headers) {
-            logMessageBuilder.append(eachHeader).append('\n');
-        }
-        logMessageBuilder.append("}\n");
-        logger.debug(logMessageBuilder.toString());
     }
 }
