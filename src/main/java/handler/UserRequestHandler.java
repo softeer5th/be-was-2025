@@ -1,11 +1,11 @@
 package handler;
 
-import db.Database;
 import enums.FileContentType;
 import enums.HttpHeader;
+import enums.HttpMethod;
 import enums.HttpStatus;
 import exception.ClientErrorException;
-import model.User;
+import manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HttpRequestInfo;
@@ -13,13 +13,18 @@ import request.UserCreateRequest;
 import response.HttpResponse;
 
 import static enums.HttpMethod.POST;
-import static exception.ErrorCode.ALREAD_EXIST_USERID;
 import static exception.ErrorCode.METHOD_NOT_ALLOWED;
 
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
     private static final String USER_REQUEST_PREFIX = "/user/";
     private static final String REDIRECT_URL = "http://localhost:8080/index.html";
+
+    private final UserManager userManager;
+
+    public UserRequestHandler() {
+        userManager = new UserManager();
+    }
 
     @Override
     public HttpResponse handle(final HttpRequestInfo request) {
@@ -30,11 +35,11 @@ public class UserRequestHandler implements Handler {
         HttpResponse response = new HttpResponse();
 
         if (path.startsWith("create")) {
-            if(request.getMethod() != POST)
-                throw new ClientErrorException(METHOD_NOT_ALLOWED);
+            validHttpMethodForCreateUser(request.getMethod());
+
             UserCreateRequest userCreateRequest = UserCreateRequest.of((String) request.getBody());
 
-            createUser(userCreateRequest);
+            userManager.createUser(userCreateRequest);
 
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "successssssss");
             response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_URL);
@@ -43,14 +48,10 @@ public class UserRequestHandler implements Handler {
         return response;
     }
 
-    private void createUser(final UserCreateRequest request) {
-        if (Database.findUserById(request.userId()) != null)
-            throw new ClientErrorException(ALREAD_EXIST_USERID);
-
-        User user = new User(request.userId(),
-                request.password(),
-                request.nickname(),
-                request.email());
-        Database.addUser(user);
+    private void validHttpMethodForCreateUser(HttpMethod method) {
+        if (method != POST)
+            throw new ClientErrorException(METHOD_NOT_ALLOWED);
     }
+
+
 }
