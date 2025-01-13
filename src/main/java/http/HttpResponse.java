@@ -49,7 +49,9 @@ public class HttpResponse {
                 dos.writeBytes(String.format("%s: %s\r\n", key, headers.get(key)));
             }
             dos.writeBytes("\r\n");
-            dos.write(body, 0, body.length);
+            if (body != null) {
+                dos.write(body, 0, body.length);
+            }
             dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
