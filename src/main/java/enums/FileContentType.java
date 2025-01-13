@@ -1,7 +1,11 @@
 package enums;
 
+import exception.ClientErrorException;
+
+import static exception.ErrorCode.UNSUPPORTED_FILE_EXTENSION;
+
 public enum FileContentType {
-    HTML("text/html"),
+    HTML_UTF_8("text/html; charset=utf-8"),
     CSS("text/css"),
     JS("text/javascript"),
     ICO("image/x-icon"),
@@ -20,22 +24,17 @@ public enum FileContentType {
     }
 
     public static FileContentType getExtensionFromPath(String path) {
-        if (path.endsWith(".html")) {
-            return HTML;
-        } else if (path.endsWith(".css")) {
-            return CSS;
-        } else if (path.endsWith(".js")) {
-            return JS;
-        } else if (path.endsWith(".ico")) {
-            return ICO;
-        } else if (path.endsWith(".svg")) {
-            return SVG;
-        } else if (path.endsWith(".png")) {
-            return PNG;
-        } else if (path.endsWith(".jpg")) {
-            return JPG;
-        } else {
-            throw new IllegalArgumentException("지원하지 않는 파일 확장자 형식입니다.");
-        }
+        int dotIndex = path.toLowerCase().lastIndexOf('.');
+        String extension = path.substring(dotIndex + 1);
+        return switch (extension) {
+            case "html" -> HTML_UTF_8;
+            case "css" -> CSS;
+            case "js" -> JS;
+            case "ico" -> ICO;
+            case "svg" -> SVG;
+            case "png" -> PNG;
+            case "jpg" -> JPG;
+            default -> throw new ClientErrorException(UNSUPPORTED_FILE_EXTENSION);
+        };
     }
 }

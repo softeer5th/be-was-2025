@@ -1,14 +1,17 @@
-package util;
+package request;
 
 import enums.HttpMethod;
+import enums.HttpVersion;
 
-public class RequestInfo {
+public class HttpRequestInfo {
     private final HttpMethod method;
     private final String path;
+    private final HttpVersion version;
 
-    public RequestInfo(HttpMethod method, String path) {
+    public HttpRequestInfo(HttpMethod method, String path, HttpVersion version) {
         this.method = method;
         this.path = path;
+        this.version = version;
     }
 
     public String getPath() {

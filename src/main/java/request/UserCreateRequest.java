@@ -1,7 +1,11 @@
 package request;
 
-import java.util.HashMap;
+import exception.ClientErrorException;
+import util.HttpRequestParser;
+
 import java.util.Map;
+
+import static exception.ErrorCode.INVALID_FORM;
 
 public record UserCreateRequest(
         String userId,
@@ -10,7 +14,7 @@ public record UserCreateRequest(
         String email
 ) {
     public static UserCreateRequest of(String paramString) {
-        Map<String, String> paramMap = parseParamString(paramString);
+        Map<String, String> paramMap = HttpRequestParser.parseParamString(paramString);
         return new UserCreateRequest(
                 getOrElseThrow(paramMap, "userId"),
                 getOrElseThrow(paramMap, "nickname"),
@@ -21,18 +25,7 @@ public record UserCreateRequest(
 
     private static String getOrElseThrow(Map<String, String> map, String key) {
         if (!map.containsKey(key))
-            throw new IllegalArgumentException(key + " is invalid...");
+            throw new ClientErrorException(INVALID_FORM);
         return map.get(key);
-    }
-
-    private static Map<String, String> parseParamString(String paramString) {
-        String[] params = paramString.split("&");
-        Map<String, String> paramMap = new HashMap<>();
-
-        for (String param : params) {
-            String[] nameAnyKey = param.split("=");
-            paramMap.put(nameAnyKey[0], nameAnyKey[1]);
-        }
-        return paramMap;
     }
 }

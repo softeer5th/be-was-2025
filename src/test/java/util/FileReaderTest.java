@@ -18,7 +18,7 @@ class FileReaderTest {
         byte[] test = "test".getBytes();
         // when
 
-        Optional<byte[]> file = FileReader.readFile(STATIC_FILE_PATH + "/test.txt");
+        Optional<byte[]> file = FileReader.readFile(STATIC_FILE_PATH + "/static/test.txt");
 
         // then
         assertTrue(file.isPresent());
