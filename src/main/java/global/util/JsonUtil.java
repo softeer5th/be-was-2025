@@ -24,7 +24,7 @@ public class JsonUtil {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("\"isSuccess\":").append(response.isSuccess()).append(",");
-        sb.append("\"code\":").append(response.code() == null ? "null" : "\"" + escape(String.valueOf(response.code())) + "\"").append(",");
+        sb.append("\"code\":").append(response.code() == null ? "null" : "\"" + escape(response.code()) + "\"").append(",");
         sb.append("\"message\":").append(response.message() == null ? "null" : "\"" + escape(response.message()) + "\"").append(",");
         sb.append("\"data\":").append(response.data() == null ? "null" : "\"" + escape(String.valueOf(response.data())) + "\"");
         sb.append("}");

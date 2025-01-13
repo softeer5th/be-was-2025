@@ -1,6 +1,6 @@
 package webserver;
 
-import global.model.RequestData;
+import global.model.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 public class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
 
-    public RequestData parse(InputStream in) throws IOException {
+    public HttpRequest parse(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
         String requestLine = parseRequestLine(br);
@@ -55,7 +55,7 @@ public class HttpRequestParser {
         return body.toString();
     }
 
-    private RequestData createRequestData(String requestLine, String headers, String body) throws IOException {
+    private HttpRequest createRequestData(String requestLine, String headers, String body) throws IOException {
         String[] firstLineTokens = requestLine.split("\\s+");
         if (firstLineTokens.length < 3) {
             throw new IOException("Invalid HTTP request: Malformed request line");
@@ -63,6 +63,6 @@ public class HttpRequestParser {
 
         String method = firstLineTokens[0];
         String path = firstLineTokens[1];
-        return new RequestData(method, path, headers, body);
+        return new HttpRequest(method, path, headers, body);
     }
 }

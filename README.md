@@ -433,7 +433,7 @@ String httpVersion = firstLineTokens[2];
     - `canHandle(RequestData)`로 `/create` 경로인지 확인.
     - `handle(RequestData)`에서 `queryString` 파싱 → `User` 생성 → DB 저장.
   - `ApiRouter`: 여러 `ApiHandler`(예: `UserCreationHandler`)를 모아서, 경로에 맞는 API를 찾도록 구현.
-  - `RequestHandler`에서는 `apiRouter.route(requestData)`로 API 핸들러 호출. 처리되지 않으면 정적 리소스로 넘어가는 구조.
+  - `RequestHandler`에서는 `apiRouter.route(httpRequest)`로 API 핸들러 호출. 처리되지 않으면 정적 리소스로 넘어가는 구조.
 
 2. **`User` 모델 변경**
   - 회원가입 시 이메일 필드는 null로 처리해서 User 객체 저장.

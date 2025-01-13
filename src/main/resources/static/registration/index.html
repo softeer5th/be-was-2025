@@ -120,7 +120,7 @@
 
     if (!isValid) return;
 
-    const requestData = {
+    const httpRequest = {
       userId: userIdInput.value.trim(),
       name: nameInput.value.trim(),
       password: passwordInput.value.trim(),
@@ -132,7 +132,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify(httpRequest),
       });
 
       if (!response.ok) {

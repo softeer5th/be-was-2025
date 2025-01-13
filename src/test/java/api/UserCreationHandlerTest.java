@@ -4,9 +4,8 @@ import api.user.UserCreationHandler;
 import db.Database;
 import global.exception.ErrorCode;
 import global.model.CommonResponse;
-import global.model.RequestData;
+import global.model.HttpRequest;
 import model.User;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,10 +31,10 @@ class UserCreationHandlerTest {
     @DisplayName("GET 메서드와 /api/create 경로가 주어졌을 때 처리 가능 여부를 확인한다.")
     void handlesGetCreatePath() {
         // given
-        RequestData requestData = new RequestData("GET", "/api/create?userId=mun&password=1234&name=Hee", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/api/create?userId=mun&password=1234&name=Hee", "", "");
 
         // when
-        boolean result = userCreationHandler.canHandle(requestData);
+        boolean result = userCreationHandler.canHandle(httpRequest);
 
         // then
         assertThat(result).isTrue();
@@ -45,10 +44,10 @@ class UserCreationHandlerTest {
     @DisplayName("POST 메서드일 때 처리 불가 여부를 확인한다.")
     void doesNotHandlePostMethod() {
         // given
-        RequestData requestData = new RequestData("POST", "/api/create?userId=mun", "", "");
+        HttpRequest httpRequest = new HttpRequest("POST", "/api/create?userId=mun", "", "");
 
         // when
-        boolean result = userCreationHandler.canHandle(requestData);
+        boolean result = userCreationHandler.canHandle(httpRequest);
 
         // then
         assertThat(result).isFalse();
@@ -58,10 +57,10 @@ class UserCreationHandlerTest {
     @DisplayName("/api/create 경로가 아닌 경우 처리 불가 여부를 확인한다.")
     void doesNotHandleInvalidPath() {
         // given
-        RequestData requestData = new RequestData("GET", "/unknown?userId=mun", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/unknown?userId=mun", "", "");
 
         // when
-        boolean result = userCreationHandler.canHandle(requestData);
+        boolean result = userCreationHandler.canHandle(httpRequest);
 
         // then
         assertThat(result).isFalse();
@@ -71,10 +70,10 @@ class UserCreationHandlerTest {
     @DisplayName("쿼리 문자열이 없는 요청일 때 실패 응답을 반환한다.")
     void returnsFailureIfNoQueryString() {
         // given
-        RequestData requestData = new RequestData("GET", "/api/create", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/api/create", "", "");
 
         // when
-        LoadResult loadResult = userCreationHandler.handle(requestData);
+        LoadResult loadResult = userCreationHandler.handle(httpRequest);
 
         // then
         assertThat(loadResult).isNotNull();
@@ -88,10 +87,10 @@ class UserCreationHandlerTest {
     @DisplayName("필수 파라미터(userId, password, name)가 누락된 경우 실패 응답을 반환한다.")
     void returnsFailureIfRequiredParamsMissing() {
         // given
-        RequestData requestData = new RequestData("GET", "/api/create?userId=mun&name=Hee", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/api/create?userId=mun&name=Hee", "", "");
 
         // when
-        LoadResult loadResult = userCreationHandler.handle(requestData);
+        LoadResult loadResult = userCreationHandler.handle(httpRequest);
 
         // then
         assertThat(loadResult).isNotNull();
@@ -105,10 +104,10 @@ class UserCreationHandlerTest {
     @DisplayName("정상적인 회원가입 요청 시 성공 응답을 반환한다.")
     void returnsSuccessOnValidSignup() {
         // given
-        RequestData requestData = new RequestData("GET", "/api/create?userId=mun&password=qwerty&name=Hee", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/api/create?userId=mun&password=qwerty&name=Hee", "", "");
 
         // when
-        LoadResult loadResult = userCreationHandler.handle(requestData);
+        LoadResult loadResult = userCreationHandler.handle(httpRequest);
 
         // then
         assertThat(loadResult).isNotNull();
@@ -126,10 +125,10 @@ class UserCreationHandlerTest {
         User existingUser = User.of("mun", "1234", "Hee");
         Database.addUser(existingUser);
 
-        RequestData requestData = new RequestData("GET", "/api/create?userId=mun&password=5678&name=NewHee", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/api/create?userId=mun&password=5678&name=NewHee", "", "");
 
         // when
-        LoadResult loadResult = userCreationHandler.handle(requestData);
+        LoadResult loadResult = userCreationHandler.handle(httpRequest);
 
         // then
         assertThat(loadResult).isNotNull();
@@ -147,10 +146,10 @@ class UserCreationHandlerTest {
         User existingUser = User.of("user123", "1234", "Hee");
         Database.addUser(existingUser);
 
-        RequestData requestData = new RequestData("GET", "/api/create?userId=newUser&password=5678&name=Hee", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/api/create?userId=newUser&password=5678&name=Hee", "", "");
 
         // when
-        LoadResult loadResult = userCreationHandler.handle(requestData);
+        LoadResult loadResult = userCreationHandler.handle(httpRequest);
 
         // then
         assertThat(loadResult).isNotNull();
@@ -165,10 +164,10 @@ class UserCreationHandlerTest {
     @DisplayName("정상적인 회원가입 요청 시 DB에 유저가 저장되는지 확인한다.")
     void savesUserToDatabase() {
         // given
-        RequestData requestData = new RequestData("GET", "/api/create?userId=mun&password=qwerty&name=Hee", "", "");
+        HttpRequest httpRequest = new HttpRequest("GET", "/api/create?userId=mun&password=qwerty&name=Hee", "", "");
 
         // when
-        userCreationHandler.handle(requestData);
+        userCreationHandler.handle(httpRequest);
 
         // then
         User savedUser = Database.findUserById("mun");

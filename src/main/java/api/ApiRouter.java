@@ -1,7 +1,7 @@
 package api;
 
 import api.user.UserCreationHandler;
-import global.model.RequestData;
+import global.model.HttpRequest;
 import global.model.LoadResult;
 
 import java.io.IOException;
@@ -15,10 +15,10 @@ public class ApiRouter {
         handlers.add(new UserCreationHandler());
     }
 
-    public LoadResult route(RequestData requestData) throws IOException {
+    public LoadResult route(HttpRequest httpRequest) throws IOException {
         for (ApiHandler handler : handlers) {
-            if (handler.canHandle(requestData)) {
-                return handler.handle(requestData);
+            if (handler.canHandle(httpRequest)) {
+                return handler.handle(httpRequest);
             }
         }
         return null;

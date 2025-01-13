@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 import api.ApiRouter;
-import global.model.RequestData;
+import global.model.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import global.model.HttpResponse;
@@ -26,21 +26,21 @@ public class RequestHandler implements Runnable {
     public void run() {
         logger.debug("New Client Connect! IP : {}, Port : {}", connection.getInetAddress(), connection.getPort());
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            RequestData requestData = requestParser.parse(in);
+            HttpRequest httpRequest = requestParser.parse(in);
             HttpResponse response = new HttpResponse(new DataOutputStream(out));
 
-            if (handleApiRequest(requestData, response)) {
+            if (handleApiRequest(httpRequest, response)) {
                 return;
             }
 
-            handleStaticResource(requestData, response);
+            handleStaticResource(httpRequest, response);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private boolean handleApiRequest(RequestData requestData, HttpResponse response) throws IOException {
-        LoadResult apiResult = apiRouter.route(requestData);
+    private boolean handleApiRequest(HttpRequest httpRequest, HttpResponse response) throws IOException {
+        LoadResult apiResult = apiRouter.route(httpRequest);
 
         if (apiResult == null) {
             return false;
@@ -63,8 +63,8 @@ public class RequestHandler implements Runnable {
         return true;
     }
 
-    private void handleStaticResource(RequestData requestData, HttpResponse response) throws IOException {
-        LoadResult resourceResult = resourceLoader.load(requestData.path());
+    private void handleStaticResource(HttpRequest httpRequest, HttpResponse response) throws IOException {
+        LoadResult resourceResult = resourceLoader.load(httpRequest.path());
 
         if (resourceResult.content() == null) {
             byte[] notFoundBody = "<h1>404 File Not Found</h1>".getBytes();
