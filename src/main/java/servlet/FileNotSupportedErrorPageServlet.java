@@ -11,11 +11,12 @@ import static utils.FileUtils.getFile;
 
 public class FileNotSupportedErrorPageServlet implements Servlet {
     @Override
-    public void handle(HttpRequest request, HttpResponse response) throws IOException {
+    public boolean handle(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.NOT_SUPPORTED);
         response.setHeader("Content-Type", "text/html");
         File file = new File("src/main/resources/static/error/notAcceptable.html");
         byte[] readFile = getFile(file);
         response.setBody(readFile);
+        return true;
     }
 }

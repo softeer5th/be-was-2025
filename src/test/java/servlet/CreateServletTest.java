@@ -1,5 +1,6 @@
 package servlet;
 
+import controller.SignUpController;
 import db.Database;
 import model.User;
 import org.assertj.core.api.Assertions;
@@ -28,14 +29,13 @@ class CreateServletTest {
         when(request.getParameter("password")).thenReturn("testPassword");
         when(request.getParameter("name")).thenReturn("testName");
 
-        CreateServlet servlet = new CreateServlet();
-        servlet.handle(request, response);
+        SignUpController signUpController = new SignUpController();
+        signUpController.createUser(request, response);
 
         User testUser = findUserById("testUser");
         Assertions.assertThat(testUser.getPassword()).isEqualTo("testPassword");
         Assertions.assertThat(testUser.getName()).isEqualTo("testName");
 
-        verify(response).setStatusCode(StatusCode.SEE_OTHER);
-        verify(response).setHeader("Location", "/success");
+        verify(response).setLocation("/success");
     }
 }
