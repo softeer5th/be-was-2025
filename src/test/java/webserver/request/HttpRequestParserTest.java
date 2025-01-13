@@ -245,4 +245,25 @@ class HttpRequestParserTest {
     }
 
 
+    @Test
+    @DisplayName("header name에 공백이 있는 경우 오류가 발생해야 함")
+    void parseTest11() throws IOException {
+        // given
+        var bodyString = "id=admin&name=sara&email=sara@test.com";
+        var requestString = String.join("\r\n",
+                "PUT /users/admin HTTP/1.1",
+                "Host: localhost:8080",
+                "Content-Length : 38",
+                "Content-Type: text/plain",
+                "",
+                bodyString);
+        try (var in = new ByteArrayInputStream(requestString.getBytes())) {
+            var parser = new HttpRequestParser();
+            // when
+            // then
+            assertThatThrownBy(() -> parser.parse(in))
+                    .isInstanceOf(BadRequest.class);
+        }
+    }
+
 }

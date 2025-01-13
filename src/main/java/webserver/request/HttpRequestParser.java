@@ -112,7 +112,10 @@ public class HttpRequestParser {
         HttpHeaders headers = new HttpHeaders();
         for (String line : headerLines.split(HTTP_LINE_SEPARATOR.value)) {
             String[] tokens = line.split(HEADER_KEY_SEPARATOR.value, 2);
-            headers.setHeader(tokens[0].strip(), tokens[1].strip());
+            // header name과 : 사이에 공백이 있으면 400 응답해야 함. (rfc9112#section-5.1)
+            if (tokens[0].endsWith(SP.value))
+                throw new BadRequest("Header name 뒤에 공백이 있습니다.");
+            headers.setHeader(tokens[0], tokens[1].strip());
         }
         return headers;
     }

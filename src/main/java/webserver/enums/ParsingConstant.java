@@ -3,6 +3,7 @@ package webserver.enums;
 public enum ParsingConstant {
     CRLF("\r\n"),
     LF("\n"),
+    SP(" "),
     HTTP_LINE_SEPARATOR("\r?\n"),
     HTTP_HEADERS_END_DELIMITER("\r?\n\r?\n"),
     REQUEST_LINE_SEPARATOR(" "),
