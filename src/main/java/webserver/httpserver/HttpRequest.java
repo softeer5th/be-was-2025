@@ -13,7 +13,7 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpRequest {
-    public static final String HEADER_KEY_VALUE_DELIMITER = ": ";
+    public static final String HEADER_KEY_VALUE_DELIMITER = ":";
     public static final String QUERYPARAMETER_DELIMITER = "&";
     public static final String QUERYPARAMETER_KEVALUE_DELIMITER = "=";
     public static final String URI_QUERYPARAM_DELIMITER = "\\?";
@@ -90,7 +90,7 @@ public class HttpRequest {
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.isEmpty()) break;
-            String[] parts = line.split(HEADER_KEY_VALUE_DELIMITER);
+            String[] parts = line.split(HEADER_KEY_VALUE_DELIMITER,2);
             String key = parts[0].trim();
             String value = parts[1].trim();
             logger.debug("{}: {}", key, value);
