@@ -57,11 +57,13 @@ public class RequestHandler implements Runnable {
 
         String requestLine = reader.readLine();
         if (requestLine == null || requestLine.trim().isEmpty()) {
+            logger.error("Request line is empty");
             throw new BaseException(HttpErrorCode.INVALID_HTTP_REQUEST);
         }
 
         String[] requestTokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
         if (requestTokens.length != 3) {
+            logger.error("Request token length is not 3");
             throw new BaseException(HttpErrorCode.INVALID_HTTP_REQUEST);
         }
 

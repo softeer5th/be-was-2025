@@ -30,7 +30,7 @@ public class FileUtil {
             bis.read(body);
             return body;
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("File read error: {}", e.getMessage());
             throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
         }
     }
@@ -46,7 +46,7 @@ public class FileUtil {
             case "jpg" -> "image/jpeg";
             case "svg" -> "image/svg+xml";
             case "png" -> "image/png";
-            default -> throw new RuntimeException();
+            default -> "application/octet-stream";
         };
     }
 }

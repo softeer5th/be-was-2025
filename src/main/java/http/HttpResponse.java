@@ -75,7 +75,7 @@ public class HttpResponse {
 
             dos.flush();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("Response send error : {}", e.getMessage());
         }
     }
 }

@@ -9,8 +9,13 @@ import handler.UserRegisterHandler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.RequestHandler;
 
 public class RequestRouter implements Router {
+
+    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Map<Pattern, Handler> routeMap;
 
@@ -29,6 +34,8 @@ public class RequestRouter implements Router {
                 return entry.getValue();
             }
         }
+
+        logger.error("No handler found for path {}", path);
         throw new BaseException(HttpErrorCode.NOT_FOUND_PATH);
     }
 }
