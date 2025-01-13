@@ -42,6 +42,35 @@ class HttpRequestParserTest {
     }
 
     @Test
+    @DisplayName("올바른 http 요청을 파싱한다. 첫줄에 crlf가 있을 경우는 무시한다.")
+    void parse_validHttpRequest2() throws IOException {
+        String httpRequest =
+                "\r\n"+
+                "POST /test HTTP/1.1\r\n" +
+                "Accept: application/json\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Host: google.com\r\n" +
+                "User-Agent: HTTPie/0.9.3\r\n" +
+                "\r\n" +
+                "gigi\r\n";
+
+        byte[] byteArray = httpRequest.getBytes(StandardCharsets.UTF_8);
+        InputStream inputStream = new ByteArrayInputStream(byteArray);
+
+        final HttpRequestInfo requestInfo = HttpRequestParser.parse(inputStream);
+
+        Assertions.assertThat(requestInfo.getMethod())
+                .isEqualTo(HttpMethod.POST);
+        Assertions.assertThat(requestInfo.getPath())
+                .isEqualTo("/test");
+        Assertions.assertThat(requestInfo.getBody())
+                .isEqualTo("gigi");
+    }
+
+    @Test
     @DisplayName("http method는 대소문자를 구분한다")
     void parse_httpMethod() {
         String httpRequest = "post /test HTTP/1.1\r\n" +
