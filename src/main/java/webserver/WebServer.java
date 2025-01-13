@@ -10,13 +10,13 @@ import org.slf4j.LoggerFactory;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
-    private static final int DEFAULT_PORT = 8080;
-    private static final ExecutorService executor = Executors.newFixedThreadPool(5);
+    private static final ServerConfig serverConfig = new ServerConfig();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(serverConfig.getThreadPoolSize());
 
     public static void main(String args[]) throws Exception {
         int port = 0;
         if (args == null || args.length == 0) {
-            port = DEFAULT_PORT;
+            port = serverConfig.getDefaultPort();
         } else {
             port = Integer.parseInt(args[0]);
         }
