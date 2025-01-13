@@ -3,24 +3,16 @@ package webserver;
 import fixtureUtil.ExceptionRouter;
 import fixtureUtil.TestRouter;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 
 import static org.mockito.Mockito.when;
 
 class RequestDispatcherTest {
-    private byte[] HTTP_REQUEST_SAMPLE;
-
-    @BeforeEach
-    void setHttpRequestSample() throws IOException {
-        HTTP_REQUEST_SAMPLE = Files.readAllBytes(new File("src/test/resources/static/HttpRequestSample").toPath());
-    }
 
     @Test
     @DisplayName("핸들러에서 정상적인 응답을 반환하면 요청을 클라이언트에 전송한다.")
@@ -29,9 +21,20 @@ class RequestDispatcherTest {
         Socket connection = Mockito.mock(Socket.class);
         RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new TestRouter());
 
-        byte[] httpRequest = HTTP_REQUEST_SAMPLE;
+        String httpRequest = "POST /test HTTP/1.1\r\n" +
+                "Accept: application/json\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Host: google.com\r\n" +
+                "User-Agent: HTTPie/0.9.3\r\n" +
+                "\r\n" +
+                "gigi\r\n";
 
-        InputStream mockInputStream = new ByteArrayInputStream(httpRequest);
+        byte[] httpRequestBytes = httpRequest.getBytes();
+
+        InputStream mockInputStream = new ByteArrayInputStream(httpRequestBytes);
         OutputStream mockOutputStream = new ByteArrayOutputStream();
 
         when(connection.getInputStream())
@@ -63,9 +66,20 @@ class RequestDispatcherTest {
         RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new ExceptionRouter());
 
 
-        byte[] httpRequest = HTTP_REQUEST_SAMPLE;
+        String httpRequest = "POST /test HTTP/1.1\r\n" +
+                "Accept: application/json\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Host: google.com\r\n" +
+                "User-Agent: HTTPie/0.9.3\r\n" +
+                "\r\n" +
+                "gigi\r\n";
 
-        InputStream mockInputStream = new ByteArrayInputStream(httpRequest);
+        byte[] httpRequestBytes = httpRequest.getBytes();
+
+        InputStream mockInputStream = new ByteArrayInputStream(httpRequestBytes);
         OutputStream mockOutputStream = new ByteArrayOutputStream();
 
         when(connection.getInputStream())

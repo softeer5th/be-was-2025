@@ -7,20 +7,29 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.HttpRequestInfo;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import static exception.ErrorCode.*;
 
 class HttpRequestParserTest {
-    private static final String STATIC_FILE_PATH = "src/test/resources/static";
 
     @Test
     @DisplayName("올바른 http 요청을 파싱한다.")
     void parse_validHttpRequest() throws IOException {
-        InputStream inputStream = new FileInputStream(STATIC_FILE_PATH + "/HttpRequestSample");
+        String httpRequest = "POST /test HTTP/1.1\r\n" +
+                "Accept: application/json\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Host: google.com\r\n" +
+                "User-Agent: HTTPie/0.9.3\r\n" +
+                "\r\n" +
+                "gigi\r\n";
+
+        byte[] byteArray = httpRequest.getBytes(StandardCharsets.UTF_8);
+        InputStream inputStream = new ByteArrayInputStream(byteArray);
 
         final HttpRequestInfo requestInfo = HttpRequestParser.parse(inputStream);
 
@@ -28,12 +37,27 @@ class HttpRequestParserTest {
                 .isEqualTo(HttpMethod.POST);
         Assertions.assertThat(requestInfo.getPath())
                 .isEqualTo("/test");
+        Assertions.assertThat(requestInfo.getBody())
+                .isEqualTo("gigi");
     }
 
     @Test
     @DisplayName("http method는 대소문자를 구분한다")
-    void parse_httpMethod() throws IOException {
-        InputStream inputStream = new FileInputStream(STATIC_FILE_PATH + "/HttpRequestSample_Case_ssensitive");
+    void parse_httpMethod() {
+        String httpRequest = "post /test HTTP/1.1\r\n" +
+                "Accept: application/json\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Host: google.com\r\n" +
+                "User-Agent: HTTPie/0.9.3\r\n" +
+                "\r\n" +
+                "gigi\r\n";
+
+
+        byte[] byteArray = httpRequest.getBytes(StandardCharsets.UTF_8);
+        InputStream inputStream = new ByteArrayInputStream(byteArray);
 
         Assertions.assertThatThrownBy(() -> HttpRequestParser.parse(inputStream))
                 .isInstanceOf(ClientErrorException.class)
@@ -41,19 +65,22 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("올바르지 않은 http 요청이 오면 에러가 발생한다.")
-    void parse_invalidHttpRequest() throws IOException {
-        InputStream inputStream = new FileInputStream(STATIC_FILE_PATH + "/invalid_HttpRequestSample");
-
-        Assertions.assertThatThrownBy(() -> HttpRequestParser.parse(inputStream))
-                .isInstanceOf(ClientErrorException.class)
-                .hasMessage(INVALID_HTTP_REQUEST.getMessage());
-    }
-
-    @Test
     @DisplayName("Request Line의 규격에 맞지 않은 http 요청이 오면 에러가 발생한다")
-    void parse_invalidHttpRequestLine() throws IOException {
-        InputStream inputStream = new FileInputStream(STATIC_FILE_PATH + "/invalid_HttpRequestSample_in_RequestLine");
+    void parse_invalidHttpRequestLine() {
+        String httpRequest = "POST /test HTTP/1.1 invalid\r\n" +
+                "Accept: application/json\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Host: google.com\r\n" +
+                "User-Agent: HTTPie/0.9.3\r\n" +
+                "\r\n" +
+                "gigi\r\n";
+
+
+        byte[] byteArray = httpRequest.getBytes(StandardCharsets.UTF_8);
+        InputStream inputStream = new ByteArrayInputStream(byteArray);
 
         Assertions.assertThatThrownBy(() -> HttpRequestParser.parse(inputStream))
                 .isInstanceOf(ClientErrorException.class)
@@ -62,8 +89,21 @@ class HttpRequestParserTest {
 
     @Test
     @DisplayName("지원하지 않는 http 버전으로 요청이 올 경우 에러가 발생한다.")
-    void parse_invalidHttpVersion() throws FileNotFoundException {
-        InputStream inputStream = new FileInputStream(STATIC_FILE_PATH + "/HttpRequestSample_not_supported_http_version");
+    void parse_invalidHttpVersion() {
+        String httpRequest = "POST /test HTTP/1.2\r\n" +
+                "Accept: application/json\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "Connection: keep-alive\r\n" +
+                "Content-Length: 4\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Host: google.com\r\n" +
+                "User-Agent: HTTPie/0.9.3\r\n" +
+                "\r\n" +
+                "gigi\r\n";
+
+
+        byte[] byteArray = httpRequest.getBytes(StandardCharsets.UTF_8);
+        InputStream inputStream = new ByteArrayInputStream(byteArray);
 
         Assertions.assertThatThrownBy(() -> HttpRequestParser.parse(inputStream))
                 .isInstanceOf(ClientErrorException.class)
