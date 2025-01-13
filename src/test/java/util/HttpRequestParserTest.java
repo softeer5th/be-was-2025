@@ -12,8 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static exception.ErrorCode.INVALID_HTTP_REQUEST;
-import static exception.ErrorCode.UNSUPPORTED_HTTP_VERSION;
+import static exception.ErrorCode.*;
 
 class HttpRequestParserTest {
     private static final String STATIC_FILE_PATH = "src/test/resources/static";
@@ -32,16 +31,13 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("http method는 대소문자를 구분하지 않는다.")
+    @DisplayName("http method는 대소문자를 구분한다")
     void parse_httpMethod() throws IOException {
-        InputStream inputStream = new FileInputStream(STATIC_FILE_PATH + "/HttpRequestSample_CaseInsensitive");
+        InputStream inputStream = new FileInputStream(STATIC_FILE_PATH + "/HttpRequestSample_Case_ssensitive");
 
-        final HttpRequestInfo requestInfo = HttpRequestParser.parse(inputStream);
-
-        Assertions.assertThat(requestInfo.getMethod())
-                .isEqualTo(HttpMethod.POST);
-        Assertions.assertThat(requestInfo.getPath())
-                .isEqualTo("/test");
+        Assertions.assertThatThrownBy(() -> HttpRequestParser.parse(inputStream))
+                .isInstanceOf(ClientErrorException.class)
+                .hasMessage(INVALID_HTTP_METHOD.getMessage());
     }
 
     @Test
