@@ -12,7 +12,9 @@ import webserver.response.HttpResponse;
 import webserver.response.HttpResponseWriter;
 import webserver.router.PathRouter;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
@@ -40,10 +42,9 @@ public class FrontController implements Runnable {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             HttpRequest request = null;
             try {
-                request = requestParser.parse(reader);
+                request = requestParser.parse(in);
 
                 logger.debug("New Client: {}:{}, Request: {}", connection.getInetAddress(),
                         connection.getPort(), request);

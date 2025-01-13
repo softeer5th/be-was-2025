@@ -4,16 +4,10 @@ package webserver.request;
 import webserver.common.HttpHeaders;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
-import webserver.exception.BadRequest;
 import webserver.exception.HttpVersionNotSupported;
-import webserver.exception.InternalServerError;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static webserver.enums.HttpHeader.CONTENT_LENGTH;
 
 // HTTP 요청과 관련된 정보를 담는 객체
 public class HttpRequest {
@@ -22,10 +16,10 @@ public class HttpRequest {
     private final HttpVersion version;
     private final HttpHeaders headers;
     // body를 읽어들이기 위한 Reader
-    private final BufferedReader body;
+    private final byte[] body;
     private Map<String, String> pathVariables;
 
-    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, BufferedReader body) {
+    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, byte[] body) {
         this.httpMethod = httpMethod;
         this.requestTarget = requestTarget;
         this.version = version;
@@ -60,29 +54,7 @@ public class HttpRequest {
 
     // request body를 읽어들여 문자열로 반환
     public String readBodyAsString() {
-        String contentLengthString = headers.getHeader(CONTENT_LENGTH);
-        if (contentLengthString == null)
-            throw new BadRequest(CONTENT_LENGTH.value + "헤더가 없습니다.");
-
-        try {
-            int contentLength = Integer.parseInt(contentLengthString);
-            char[] buffer = new char[contentLength];
-            int remainBytes = contentLength;
-            // // Contetnt-Length 크기만큼 읽어들임
-            while (remainBytes > 0) {
-                int readBytes = body.read(buffer, contentLength - remainBytes, remainBytes);
-                if (readBytes == -1) {
-                    throw new BadRequest(CONTENT_LENGTH.value + "값이 올바르지 않습니다.");
-                }
-                remainBytes -= readBytes;
-            }
-            return new String(buffer);
-        } catch (NumberFormatException e) {
-            throw new BadRequest(CONTENT_LENGTH.value + "값이 올바르지 않습니다.");
-        } catch (IOException e) {
-            throw new InternalServerError("요청 Body를 읽는 중 오류가 발생했습니다.");
-        }
-
+        return new String(body);
     }
 
     public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {
