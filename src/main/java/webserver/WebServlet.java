@@ -1,9 +1,7 @@
 package webserver;
 
-import exception.NotExistApiRequestException;
+import exception.NotFoundRequestHandlerException;
 import handler.FileRequestHandler;
-import handler.RequestHandler;
-import handler.UserRequestHandler;
 import handler.mapping.RequestHandlerMapping;
 import http.HttpRequestResolver;
 import http.HttpResponse;
@@ -16,9 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 public class WebServlet {
     private static final Logger logger = LoggerFactory.getLogger(WebServlet.class);
@@ -53,11 +48,11 @@ public class WebServlet {
                         if (fileRequestHandler.canHandle(httpRequest)) {
                             return fileRequestHandler.handle(httpRequest);
                         }
-                        throw new RuntimeException("ㅎㅎ");
+                        throw new NotFoundRequestHandlerException("적절한 요청 핸들러가 없습니다.");
                     });
 
             httpResponseResolver.sendResponse(dos, httpResponse);
-        }catch(NotExistApiRequestException e){
+        }catch(NotFoundRequestHandlerException e){
             logger.error(e.getMessage());
             byte[] errorData = "Request Not Found".getBytes();
             httpResponseResolver.sendResponse(dos,
