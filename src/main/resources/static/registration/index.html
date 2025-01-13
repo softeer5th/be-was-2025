@@ -120,12 +120,20 @@
 
     if (!isValid) return;
 
-    const userId = encodeURIComponent(userIdInput.value);
-    const name = encodeURIComponent(nameInput.value);
-    const password = encodeURIComponent(passwordInput.value);
+    const requestData = {
+      userId: userIdInput.value.trim(),
+      name: nameInput.value.trim(),
+      password: passwordInput.value.trim(),
+    };
 
     try {
-      const response = await fetch(`/api/create?userId=${userId}&name=${name}&password=${password}`);
+      const response = await fetch("/api/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
 
       if (!response.ok) {
         console.error("서버 응답 오류:", response.status);
