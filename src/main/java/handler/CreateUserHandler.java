@@ -4,6 +4,7 @@ import model.HttpStatusCode;
 import model.Page;
 import util.RequestParser;
 import util.UserManager;
+import webserver.response.ResponseWriter;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,18 +12,13 @@ import java.io.IOException;
 public class CreateUserHandler implements Handler{
     @Override
     public void handle(DataOutputStream dos, RequestParser requestParser) throws IOException {
+        ResponseWriter responseWriter = new ResponseWriter(dos, requestParser);
         try {
             UserManager userManager = new UserManager();
             userManager.addUser(requestParser.parameter);
-            dos.writeBytes(HttpStatusCode.SEE_OTHER.getStartLine());
-            dos.writeBytes("Location: " + Page.MAIN_PAGE.getPath() + " \r\n");
-            dos.writeBytes("\r\n");
-            dos.flush();
+            responseWriter.redirect(Page.MAIN_PAGE.getPath());
         } catch (IllegalArgumentException e) {
-            dos.writeBytes(HttpStatusCode.SEE_OTHER.getStartLine());
-            dos.writeBytes("Location: " + Page.REGISTRATION.getPath() + " \r\n");
-            dos.writeBytes("\r\n");
-            dos.flush();
+            responseWriter.redirect(Page.REGISTRATION.getPath());
         }
     }
 }

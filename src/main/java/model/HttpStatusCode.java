@@ -40,9 +40,5 @@ public enum HttpStatusCode {
     public List<String> getHeaders() {
         return headers;
     }
-
-    public String getStartLine() {
-        return "HTTP/1.1 " + code + " " + description + "\r\n";
-    }
 }
 

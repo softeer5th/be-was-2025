@@ -12,7 +12,7 @@ public class ResponseWriter {
     private final String COLON = ": ";
     private final DataOutputStream out;
     private final RequestParser request;
-    private final String HTTP_VERSION = "HTTP/1.1";
+    private final String HTTP_VERSION = "HTTP/1.1 ";
 
     public ResponseWriter(DataOutputStream dos, RequestParser request) {
         this.out = dos;
@@ -41,5 +41,11 @@ public class ResponseWriter {
     public void writeBody(byte[] body) throws IOException {
         out.writeBytes(CRLF);
         out.write(body, 0, body.length);
+    }
+
+    public void redirect(String location) throws IOException {
+        out.writeBytes(HTTP_VERSION + HttpStatusCode.SEE_OTHER.getCode() + " " + HttpStatusCode.SEE_OTHER.getDescription() + CRLF);
+        out.writeBytes("Location: " + location + CRLF + CRLF);
+        out.flush();
     }
 }
