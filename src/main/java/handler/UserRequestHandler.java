@@ -14,6 +14,7 @@ import response.HttpResponse;
 
 import static enums.HttpMethod.POST;
 import static exception.ErrorCode.ALREAD_EXIST_USERID;
+import static exception.ErrorCode.METHOD_NOT_ALLOWED;
 
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
@@ -28,7 +29,9 @@ public class UserRequestHandler implements Handler {
         String path = request.getPath().substring(USER_REQUEST_PREFIX.length());
         HttpResponse response = new HttpResponse();
 
-        if (request.getMethod().equals(POST) && path.startsWith("create")) {
+        if (path.startsWith("create")) {
+            if(request.getMethod() != POST)
+                throw new ClientErrorException(METHOD_NOT_ALLOWED);
             UserCreateRequest userCreateRequest = UserCreateRequest.of((String) request.getBody());
 
             createUser(userCreateRequest);
