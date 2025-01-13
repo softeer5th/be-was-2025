@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import util.FileUtils;
 import util.MimeType;
 import util.PathPool;
-import util.RequestParser;
 import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
 
@@ -14,16 +13,11 @@ import java.lang.reflect.Method;
 
 public class HttpRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
-    private final DataOutputStream dos;
 
-    public HttpRequestHandler(DataOutputStream dos) {
-        this.dos = dos;
-    }
+    public HttpRequestHandler() {}
 
-    public void handleRequest(InputStream in) {
+    public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
         try {
-            HttpRequest httpRequest = RequestParser.getInstance().parse(in);
-
             String path = httpRequest.getPath();
 
             File file = FileUtils.findFile(path);
@@ -34,7 +28,7 @@ public class HttpRequestHandler {
                     throw new NoSuchPathException();
                 }
 
-                method.invoke(PathPool.getInstance().getClass(path), httpRequest, dos);
+                method.invoke(PathPool.getInstance().getClass(path), httpRequest, httpResponse);
                 return;
             }
 
@@ -48,18 +42,27 @@ public class HttpRequestHandler {
 
             String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
 
-            HttpResponseHandler.responseHeader(dos, body.length, mimeType, HttpStatus.OK);
-            HttpResponseHandler.responseBody(dos, body);
+            httpResponse.writeStatusLine(HttpStatus.OK);
+            httpResponse.writeHeader("Content-Type", mimeType);
+            httpResponse.writeHeader("Content-Length", body.length);
+            httpResponse.writeBody(body);
+            httpResponse.send();
         } catch (IOException e) {
             logger.error(e.getMessage());
         } catch (InvalidRequestLineSyntaxException e) {
             byte[] body = e.getMessage().getBytes();
-            HttpResponseHandler.responseHeader(dos, body.length, "text/plain", e.httpStatus);
-            HttpResponseHandler.responseBody(dos, body);
+            httpResponse.writeStatusLine(e.httpStatus);
+            httpResponse.writeHeader("Content-Type", "text/plain");
+            httpResponse.writeHeader("Content-Length", body.length);
+            httpResponse.writeBody(body);
+            httpResponse.send();
         } catch (NoSuchPathException e) {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
-            HttpResponseHandler.responseHeader(dos, body.length, "text/plain", e.httpStatus);
-            HttpResponseHandler.responseBody(dos, body);
+            httpResponse.writeStatusLine(e.httpStatus);
+            httpResponse.writeHeader("Content-Type", "text/plain");
+            httpResponse.writeHeader("Content-Length", body.length);
+            httpResponse.writeBody(body);
+            httpResponse.send();
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

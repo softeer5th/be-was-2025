@@ -5,7 +5,6 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
 import java.util.Map;
 
 public class UserHandler {
@@ -14,19 +13,23 @@ public class UserHandler {
     public UserHandler() {
     }
 
-    public void createUser(HttpRequest request, DataOutputStream dos) {
+    public void createUser(HttpRequest request, HttpResponse response) {
         String redirectPath = "/registration";
         Map<String, String> queries = request.getQueries();
         String userId = queries.get("userId");
         String username = queries.get("username");
         String password = queries.get("password");
         if (userId == null || username == null || password == null || Database.findUserById(userId) != null) {
-            HttpResponseHandler.redirect(dos, redirectPath);
+            response.writeStatusLine(HttpStatus.SEE_OTHER);
+            response.writeHeader("Location", redirectPath);
+            response.send();
             return;
         }
         User user = new User(queries.get("userId"), queries.get("username"), queries.get("password"), null);
         redirectPath = "/login";
         Database.addUser(user);
-        HttpResponseHandler.redirect(dos, redirectPath);
+        response.writeStatusLine(HttpStatus.SEE_OTHER);
+        response.writeHeader("Location", redirectPath);
+        response.send();
     }
 }

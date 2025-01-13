@@ -1,33 +1,32 @@
 package util;
 
 import http.HttpRequest;
+import http.HttpRequestHandler;
+import http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.exception.InvalidRequestLineSyntaxException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RequestParser {
     private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
-    private static final RequestParser instance = new RequestParser();
 
-    public RequestParser() {}
-
-    public static RequestParser getInstance() {
-        return instance;
+    public RequestParser() {
     }
 
-    public HttpRequest parse(InputStream in) throws IOException, InvalidRequestLineSyntaxException{
+    public void parse(InputStream in, DataOutputStream dos) throws IOException, InvalidRequestLineSyntaxException{
         List<String> headers = logAndReturnHeaders(in);
 
         String[] requestLine = resolveRequestLine(headers.get(0));
 
-        return new HttpRequest(requestLine[0], requestLine[1], requestLine[2], headers.subList(1, headers.size()));
+        HttpRequest httpRequest =  new HttpRequest(requestLine[0], requestLine[1], requestLine[2], headers.subList(1, headers.size()));
+        HttpResponse httpResponse = new HttpResponse(dos);
+        HttpRequestHandler requestHandler = new HttpRequestHandler();
+
+        requestHandler.handleRequest(httpRequest, httpResponse);
     }
 
     private List<String> logAndReturnHeaders(InputStream in) throws IOException {
