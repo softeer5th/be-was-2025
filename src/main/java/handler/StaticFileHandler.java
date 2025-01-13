@@ -21,11 +21,12 @@ public class StaticFileHandler implements Handler {
             dos.writeBytes("Content-Length: " + body.length + "\r\n");
             dos.writeBytes("\r\n");
             dos.write(body, 0, body.length);
-            dos.flush();
         } catch(NullPointerException e){
             dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
         } catch (IOException e){
             dos.writeBytes("HTTP/1.1 500 Internal Server Error\r\n");
+        } finally {
+            dos.flush();
         }
     }
 }

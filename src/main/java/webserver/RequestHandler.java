@@ -11,7 +11,7 @@ import util.ResponseBuilder;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final ResponseBuilder responseBuilder = new ResponseBuilder();
+    private final ResponseBuilder responseBuilder = new ResponseBuilder();
 
     private Socket connection;
 
@@ -36,7 +36,7 @@ public class RequestHandler implements Runnable {
             logger.error(e.getMessage());
         }
     }
-    public void getLogs(List<String> requests) {
+    private void getLogs(List<String> requests) {
         logger.debug("request: ");
         for(String request : requests){
             logger.debug(request);

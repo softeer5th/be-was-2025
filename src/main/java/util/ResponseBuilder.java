@@ -12,10 +12,11 @@ import java.util.Map;
 
 
 public class ResponseBuilder {
-    private static final Map<String, Handler> responses = new HashMap<>();
+    private final Map<String, Handler> responses = new HashMap<>();
 
     public ResponseBuilder() {
         responses.put("/user/create", new CreateUserHandler());
+        responses.put("default", new StaticFileHandler());
     }
 
     public void buildResponse(DataOutputStream dos, RequestParser requestParser) throws IOException {
@@ -24,8 +25,7 @@ public class ResponseBuilder {
             handler.handle(dos, requestParser);
         }
         else{
-            Handler handler = new StaticFileHandler();
-            handler.handle(dos, requestParser);
+            responses.get("default").handle(dos, requestParser);
         }
     }
 }
