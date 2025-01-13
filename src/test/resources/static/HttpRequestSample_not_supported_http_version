@@ -1,5 +1,4 @@
 POST /test HTTP/1.2
-
 Accept: application/json
 Accept-Encoding: gzip, deflate
 Connection: keep-alive
