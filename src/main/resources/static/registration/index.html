@@ -80,10 +80,21 @@
             return;
         }
 
-        const url = `/user/create?id=${encodeURIComponent(user_id)}&name=${encodeURIComponent(user_name)}&password=${encodeURIComponent(user_password)}`;
+        const url = "/user/create";
+        const data = {
+            id: user_id,
+            name: user_name,
+            password: user_password;
+        }
 
         // 서버에 요청 전송
-        fetch(url, {method: "GET"})
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
             .then(response => {
                 if (response.redirected) {
                     alert("회원가입 성공");
