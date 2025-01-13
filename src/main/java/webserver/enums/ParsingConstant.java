@@ -13,8 +13,7 @@ public enum ParsingConstant {
     QUERY_PARAMETER_SEPARATOR("&"),
     QUERY_KEY_VALUE_SEPARATOR("="),
     QUERY_DEFAULT_VALUE(" ");
-
-    public static final int MAX_HEADER_SIZE = 8192;
+    
     public final String value;
 
     ParsingConstant(String value) {

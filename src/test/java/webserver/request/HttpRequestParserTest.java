@@ -2,9 +2,9 @@ package webserver.request;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import webserver.config.ServerConfig;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpStatusCode;
-import webserver.enums.ParsingConstant;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
 import webserver.exception.NotImplemented;
@@ -16,6 +16,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class HttpRequestParserTest {
+
+    private HttpRequestParser createParser(int maxHeaderSize) {
+        return new HttpRequestParser(new ServerConfig() {
+            @Override
+            public Integer getMaxHeaderSize() {
+                return maxHeaderSize;
+            }
+        });
+    }
+
+    private HttpRequestParser createParser() {
+        return new HttpRequestParser(new ServerConfig());
+    }
+
 
     @Test
     @DisplayName("GET Request Parsing")
@@ -29,7 +43,7 @@ class HttpRequestParserTest {
 
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
 
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             var request = parser.parse(in);
             // then
@@ -61,7 +75,7 @@ class HttpRequestParserTest {
                 "",
                 bodyString);
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             var request = parser.parse(in);
             // then
@@ -86,7 +100,7 @@ class HttpRequestParserTest {
                 "Host: localhost:8080",
                 "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             var request = parser.parse(in);
             // then
@@ -107,7 +121,7 @@ class HttpRequestParserTest {
                 "Host: localhost:8080",
                 "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             // then
             assertThatThrownBy(() -> parser.parse(in))
@@ -125,7 +139,7 @@ class HttpRequestParserTest {
                 "Host: localhost:8080",
                 "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             // then
             assertThatThrownBy(() -> parser.parse(in))
@@ -143,7 +157,7 @@ class HttpRequestParserTest {
                 "aCcEpT: text/html",
                 "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             var request = parser.parse(in);
             // then
@@ -165,7 +179,7 @@ class HttpRequestParserTest {
                 "Accept: text/html",
                 "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             var request = parser.parse(in);
             // then
@@ -193,7 +207,7 @@ class HttpRequestParserTest {
                                 "Accept: text/html",
                                 "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             var request = parser.parse(in);
             // then
@@ -219,7 +233,7 @@ class HttpRequestParserTest {
                         "Host: localhost:8080",
                         "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             // then
             assertThatThrownBy(() -> parser.parse(in))
@@ -231,14 +245,15 @@ class HttpRequestParserTest {
     @DisplayName("header가 너무 크면 431 오류가 발생해야 함")
     void parseTest10() throws IOException {
         // given
+        int MAX_HEADER_SIZE = 8192;
         var requestString = "\r" +
                 String.join("\r\n",
                         "GET /users HTTP/1.1",
                         "Host: localhost:8080",
-                        "Accept: " + "a".repeat(ParsingConstant.MAX_HEADER_SIZE),
+                        "Accept: " + "a".repeat(MAX_HEADER_SIZE),
                         "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser(MAX_HEADER_SIZE);
             // when
             // then
             assertThatThrownBy(() -> parser.parse(in))
@@ -261,7 +276,7 @@ class HttpRequestParserTest {
                 "",
                 bodyString);
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             // then
             assertThatThrownBy(() -> parser.parse(in))
@@ -279,7 +294,7 @@ class HttpRequestParserTest {
                 "\r\n");
 
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             // then
             assertThatThrownBy(() -> parser.parse(in))
@@ -300,7 +315,7 @@ class HttpRequestParserTest {
                 "\r\n");
 
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
-            var parser = new HttpRequestParser();
+            var parser = createParser();
             // when
             // then
             assertThatThrownBy(() -> parser.parse(in))

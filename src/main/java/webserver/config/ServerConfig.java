@@ -17,6 +17,8 @@ public class ServerConfig {
     private final String staticResourceDirectory;
     // 기본 페이지 파일 이름
     private final String defaultPageFileName;
+    // 헤더의 최대 크기. byte 단위
+    private final Integer maxHeaderSize;
 
     public ServerConfig() {
         supportedHttpVersions = List.of(HttpVersion.HTTP_1_1);
@@ -24,14 +26,16 @@ public class ServerConfig {
         threadPoolSize = 20;
         staticResourceDirectory = "static";
         defaultPageFileName = "index.html";
+        maxHeaderSize = 8192;
     }
 
-    public ServerConfig(List<HttpVersion> supportedHttpVersions, Integer port, Integer threadPoolSize, String staticResourceDirectory, String defaultPage) {
+    public ServerConfig(List<HttpVersion> supportedHttpVersions, Integer port, Integer threadPoolSize, String staticResourceDirectory, String defaultPage, Integer maxHeaderSize) {
         this.supportedHttpVersions = supportedHttpVersions;
         this.port = port;
         this.threadPoolSize = threadPoolSize;
         this.staticResourceDirectory = staticResourceDirectory;
         this.defaultPageFileName = defaultPage;
+        this.maxHeaderSize = maxHeaderSize;
     }
 
     public String getStaticResourceDirectory() {
@@ -52,5 +56,9 @@ public class ServerConfig {
 
     public String getDefaultPageFileName() {
         return defaultPageFileName;
+    }
+
+    public Integer getMaxHeaderSize() {
+        return maxHeaderSize;
     }
 }

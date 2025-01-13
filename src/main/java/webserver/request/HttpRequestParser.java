@@ -1,6 +1,7 @@
 package webserver.request;
 
 import webserver.common.HttpHeaders;
+import webserver.config.ServerConfig;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
@@ -24,6 +25,11 @@ import static webserver.enums.ParsingConstant.*;
 public class HttpRequestParser {
     private static final Pattern EMPTY_LINE_PATTERN = Pattern.compile("^((" + HTTP_LINE_SEPARATOR.value + ")*)");
     private static final Pattern END_OF_HEADER_PATTERN = Pattern.compile(HTTP_HEADERS_END_DELIMITER.value);
+    private final int MAX_HEADER_SIZE;
+
+    public HttpRequestParser(ServerConfig config) {
+        this.MAX_HEADER_SIZE = config.getMaxHeaderSize();
+    }
 
     // request input reader로부터 데이터를 읽어들여 HttpRequest 객체를 생성
     public HttpRequest parse(InputStream in) {

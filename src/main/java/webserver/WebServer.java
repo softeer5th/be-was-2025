@@ -38,7 +38,7 @@ public class WebServer {
         }
 
         ExecutorService es = Executors.newFixedThreadPool(config.getThreadPoolSize());
-        HttpRequestParser requestParser = new HttpRequestParser();
+        HttpRequestParser requestParser = new HttpRequestParser(config);
         HttpResponseWriter responseWriter = new HttpResponseWriter();
         StaticResourceManager resourceManager = new StaticResourceManager(config);
         // path와 handler를 매핑한다.
