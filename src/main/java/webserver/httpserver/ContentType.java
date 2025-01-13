@@ -13,7 +13,8 @@ public enum ContentType {
     JSON(new String[] {"json"},        "application/json"),
     SVG(new String[] {"svg", "xml"},   "image/svg+xml"),
     ICO(new String[] {"ico"},          "image/x-icon"),
-    OCTET_STREAM(new String[] {"bin"}, "application/octet-stream");
+    OCTET_STREAM(new String[] {"bin"}, "application/octet-stream"),
+    X_WWW_FORM_URLENCODED(new String[]{}, "application/x-www-form-urlencoded");
 
     private final String[] extensions;
     private final String mimeType;
