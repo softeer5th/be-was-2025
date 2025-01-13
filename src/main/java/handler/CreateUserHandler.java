@@ -1,5 +1,6 @@
 package handler;
 
+import model.HttpStatusCode;
 import model.Page;
 import util.RequestParser;
 import util.UserManager;
@@ -13,12 +14,12 @@ public class CreateUserHandler implements Handler{
         try {
             UserManager userManager = new UserManager();
             userManager.addUser(requestParser.parameter);
-            dos.writeBytes("HTTP/1.1 303 See Other \r\n");
+            dos.writeBytes(HttpStatusCode.SEE_OTHER.getStartLine());
             dos.writeBytes("Location: " + Page.MAIN_PAGE.getPath() + " \r\n");
             dos.writeBytes("\r\n");
             dos.flush();
         } catch (IllegalArgumentException e) {
-            dos.writeBytes("HTTP/1.1 303 See Other \r\n");
+            dos.writeBytes(HttpStatusCode.SEE_OTHER.getStartLine());
             dos.writeBytes("Location: " + Page.REGISTRATION.getPath() + " \r\n");
             dos.writeBytes("\r\n");
             dos.flush();
