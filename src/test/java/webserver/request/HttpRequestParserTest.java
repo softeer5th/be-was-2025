@@ -78,19 +78,22 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("잘못된 Request Line separator")
+    @DisplayName("Request Line 구분자로 SP, HTAB, VTAB, FF, CR이 여러번 올 수 있음")
     void parseTest3() throws IOException {
         // given
         var requestString = String.join("\r\n",
-                "GET  /users HTTP/1.1",
+                "PUT \t  \r\r \u000B\f /users   \u000B  HTTP/1.1",
                 "Host: localhost:8080",
                 "\r\n");
         try (var in = new ByteArrayInputStream(requestString.getBytes())) {
             var parser = new HttpRequestParser();
             // when
+            var request = parser.parse(in);
             // then
-            assertThatThrownBy(() -> parser.parse(in))
-                    .isInstanceOf(BadRequest.class);
+            assertThat(request.getMethod()).isEqualTo(HttpMethod.PUT);
+            assertThat(request.getRequestTarget().getPath()).isEqualTo("/users");
+            assertThat(request.getVersion().version).isEqualTo("HTTP/1.1");
+            assertThat(request.getHeaders().getHeader("Host")).isEqualTo("localhost:8080");
         }
     }
 
