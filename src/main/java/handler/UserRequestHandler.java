@@ -41,7 +41,7 @@ public class UserRequestHandler implements Handler {
     }
 
     private void createUser(final UserCreateRequest request) {
-        if (Database.findUserById(request.userId()) == null)
+        if (Database.findUserById(request.userId()) != null)
             throw new ClientErrorException(ALREAD_EXIST_USERID);
 
         User user = new User(request.userId(),
