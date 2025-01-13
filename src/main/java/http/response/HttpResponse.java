@@ -67,6 +67,6 @@ public class HttpResponse {
 
 	// sendRedirect 메서드 구현
 	public void setRedirect(String location) {
-		setHeader("Location", location); // Location 헤더에 리디렉션 URL 설정
+		setHeader(LOCATION.name(), location); // Location 헤더에 리디렉션 URL 설정
 	}
 }
