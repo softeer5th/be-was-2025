@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import request.HttpRequestInfo;
 import response.HttpResponse;
 
+import java.util.HashMap;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserRequestHandlerTest {
@@ -18,7 +20,7 @@ class UserRequestHandlerTest {
     @Test
     @DisplayName("회원가입에 성공하면 201을 반환한다.")
     void handle_createUser() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, HttpVersion.HTTP1_1);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, HttpVersion.HTTP1_1, new HashMap<>(), null);
         HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
         assertThat(response.getStatus())
