@@ -14,7 +14,7 @@ public class CreateUserHandler implements Handler{
         ResponseWriter responseWriter = new ResponseWriter(dos, request);
         try {
             UserManager userManager = new UserManager();
-            userManager.addUser(request.parameter);
+            userManager.addUser(request.getBody());
             responseWriter.redirect(Page.MAIN_PAGE.getPath());
         } catch (IllegalArgumentException e) {
             responseWriter.redirect(Page.REGISTRATION.getPath());

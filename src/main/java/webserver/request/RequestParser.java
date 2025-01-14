@@ -1,5 +1,8 @@
 package webserver.request;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,11 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestParser {
+    private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
     public static Request parse(InputStream in) throws IOException {
         Request request = new Request();
         List<String> headers = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String startLine = br.readLine();
+        logger.debug(startLine);
         String line = br.readLine();
         while (!line.isEmpty()) {
             headers.add(line);
@@ -20,6 +25,17 @@ public class RequestParser {
         }
         setStartLine(request, startLine);
         setHeaders(request, headers);
+        String contentLengthHeader = request.getHeader("CONTENT-LENGTH");
+
+        if (contentLengthHeader != null) {
+            int contentLength = Integer.parseInt(contentLengthHeader);
+            char[] bodyChars = new char[contentLength];
+            int read = br.read(bodyChars, 0, contentLength);
+            if (read > 0) {
+                String body = new String(bodyChars);
+                request.setBody(body);
+            }
+        }
 
         return request;
     }
