@@ -7,6 +7,7 @@ import util.MimeType;
 import util.PathPool;
 import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
+import util.exception.NotAllowedMethodException;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -18,17 +19,14 @@ public class HttpRequestHandler {
 
     public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
         try {
-            String path = httpRequest.getPath();
-
+            String path = httpRequest.getPath().toLowerCase();
+            String method = httpRequest.getMethod().toLowerCase();
             File file = FileUtils.findFile(path);
 
             if (!file.exists()) {
-                Method method = PathPool.getInstance().getMethod(httpRequest.getMethod().toLowerCase(), path);
-                if (method == null) {
-                    throw new NoSuchPathException();
-                }
-
-                method.invoke(PathPool.getInstance().getClass(path), httpRequest, httpResponse);
+                PathPool.getInstance().isAvailable(method, path);
+                Method classMethod = PathPool.getInstance().getMethod(method, path);
+                classMethod.invoke(PathPool.getInstance().getClass(path), httpRequest, httpResponse);
                 return;
             }
 
@@ -57,6 +55,13 @@ public class HttpRequestHandler {
             httpResponse.writeBody(body);
             httpResponse.send();
         } catch (NoSuchPathException e) {
+            byte[] body = e.httpStatus.getReasonPhrase().getBytes();
+            httpResponse.writeStatusLine(e.httpStatus);
+            httpResponse.writeHeader("Content-Type", "text/plain");
+            httpResponse.writeHeader("Content-Length", body.length);
+            httpResponse.writeBody(body);
+            httpResponse.send();
+        } catch (NotAllowedMethodException e) {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
             httpResponse.writeHeader("Content-Type", "text/plain");

@@ -5,6 +5,8 @@ import http.HttpResponse;
 import http.UserHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.exception.NoSuchPathException;
+import util.exception.NotAllowedMethodException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -43,6 +45,15 @@ public class PathPool {
         methodMap.put("/user/create", methods);
         classMap.put("/user/create", rp);
 
+    }
+
+    public void isAvailable(String method, String path) {
+        if (!classMap.containsKey(path)) {
+            throw new NoSuchPathException();
+        }
+        if (!methodMap.get(path).containsKey(method)) {
+            throw new NotAllowedMethodException();
+        }
     }
 
     public static PathPool getInstance() {
