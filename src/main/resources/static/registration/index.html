@@ -23,11 +23,12 @@
   </header>
   <div class="page">
     <h2 class="page-title">회원가입</h2>
-    <form class="form">
+    <form class="form" id="registration-form" method="POST" onsubmit="submitRegistration(event)">
       <div class="textfield textfield_size_s">
         <p class="title_textfield">아이디</p>
         <input
                 id="userId-input"
+                name="userId"
                 class="input_textfield"
                 placeholder="아이디를 입력해주세요"
                 autocomplete="username"
@@ -43,6 +44,7 @@
         <p class="title_textfield">닉네임</p>
         <input
                 id="name-input"
+                name="name"
                 class="input_textfield"
                 placeholder="닉네임을 입력해주세요"
                 autocomplete="username"
@@ -58,6 +60,7 @@
         <p class="title_textfield">비밀번호</p>
         <input
                 id="password-input"
+                name="password"
                 class="input_textfield"
                 type="password"
                 placeholder="비밀번호를 입력해주세요"
@@ -71,8 +74,7 @@
               id="registration-btn"
               class="btn btn_contained btn_size_m"
               style="margin-top: 24px"
-              type="button"
-              onclick="submitRegistration()"
+              type="submit"
       >
         회원가입
       </button>
@@ -81,7 +83,8 @@
 </div>
 
 <script>
-  async function submitRegistration() {
+  async function submitRegistration(event) {
+    event.preventDefault(); // 폼 기본 제출 동작 막기
     const userIdInput = document.getElementById("userId-input");
     const nameInput = document.getElementById("name-input");
     const passwordInput = document.getElementById("password-input");
@@ -92,35 +95,34 @@
     const userIdDupError = document.getElementById("userId-dup-error");
     const nameDupError = document.getElementById("name-dup-error");
 
+    // Reset error messages
+    userIdError.style.display = "none";
+    nameError.style.display = "none";
+    passwordError.style.display = "none";
     userIdDupError.style.display = "none";
     nameDupError.style.display = "none";
 
     let isValid = true;
 
+    // Validation
     if (!userIdInput.value.trim()) {
       userIdError.style.display = "block";
       isValid = false;
-    } else {
-      userIdError.style.display = "none";
     }
 
     if (!nameInput.value.trim()) {
       nameError.style.display = "block";
       isValid = false;
-    } else {
-      nameError.style.display = "none";
     }
 
     if (!passwordInput.value.trim()) {
       passwordError.style.display = "block";
       isValid = false;
-    } else {
-      passwordError.style.display = "none";
     }
 
     if (!isValid) return;
 
-    const httpRequest = {
+    const requestBody = {
       userId: userIdInput.value.trim(),
       name: nameInput.value.trim(),
       password: passwordInput.value.trim(),
@@ -132,31 +134,28 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(httpRequest),
+        body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        console.error("서버 응답 오류:", response.status);
+      if (response.redirected) {
+        window.location.href = response.url;
         return;
       }
 
-      const result = await response.json();
-
-      if (result.isSuccess) {
-        alert("회원가입에 성공했어요");
-        window.location.href = "/login";
-      } else {
-        if (result.code === "SIGNUP-01") {
-          // 아이디 중복
-          userIdDupError.style.display = "block";
-        } else if (result.code === "SIGNUP-02") {
-          // 닉네임 중복
-          nameDupError.style.display = "block";
+      if (response.ok) {
+        const result = await response.json();
+        if (!result.isSuccess) {
+          if (result.code === "SIGNUP-01") {
+            userIdDupError.style.display = "block";
+          } else if (result.code === "SIGNUP-02") {
+            nameDupError.style.display = "block";
+          }
         }
+      } else {
+        console.error(`HTTP 응답 상태 코드: ${response.status}`);
       }
-    } catch (err) {
-      alert("오류가 발생했어요! 다시 시도해 주세요");
-      console.error("회원가입 요청 중 오류 발생:", err);
+    } catch (error) {
+      console.error("회원가입 도중 에러가 발생하였습니다:", error);
     }
   }
 </script>
