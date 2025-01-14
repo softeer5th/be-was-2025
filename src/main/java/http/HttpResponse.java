@@ -12,6 +12,7 @@ public class HttpResponse {
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
 
     private final DataOutputStream dos;
+    private String statusLine;
     private final Map<String, String> headers = new HashMap<>();
     private byte[] body;
 
@@ -20,11 +21,7 @@ public class HttpResponse {
     }
 
     public void writeStatusLine(HttpStatus httpStatus) {
-        try {
-            dos.writeBytes(String.format("%s %d %s\r\n", HttpHeader.PROTOCOL.value() ,httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+        statusLine = String.format("%s %d %s\r\n", HttpHeader.PROTOCOL.value() ,httpStatus.getStatusCode(), httpStatus.getReasonPhrase());
     }
 
     public void writeHeader(String name, String value) {
@@ -63,6 +60,7 @@ public class HttpResponse {
 
     public void send() {
         try {
+            dos.writeBytes(statusLine);
             for (String key : headers.keySet()) {
                 dos.writeBytes(String.format("%s: %s\r\n", key, headers.get(key)));
             }
