@@ -3,6 +3,7 @@ package http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
+import util.MimeType;
 import util.PathPool;
 import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
@@ -40,22 +41,22 @@ public class HttpRequestHandler {
             logger.error(e.getMessage());
             byte[] body = e.getMessage().getBytes();
             httpResponse.writeStatusLine(HttpStatus.INTERNAL_SERVER_ERROR);
-            httpResponse.writeBody(body, "text/plain");
+            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
             httpResponse.send();
         } catch (InvalidRequestLineSyntaxException e) {
             byte[] body = e.getMessage().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeBody(body, "text/plain");
+            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
             httpResponse.send();
         } catch (NoSuchPathException e) {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeBody(body, "text/plain");
+            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
             httpResponse.send();
         } catch (NotAllowedMethodException e) {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeBody(body, "text/plain");
+            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
             httpResponse.send();
         } catch (Throwable e) {
             throw new RuntimeException(e);

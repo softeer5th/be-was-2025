@@ -66,7 +66,7 @@ public class RequestParser {
 
     private void response(DataOutputStream dos, HttpStatus httpStatus, byte[] body) throws IOException {
         dos.writeBytes(String.format("%s %d %s", HttpHeader.PROTOCOL.value(), httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
-        dos.writeBytes(String.format("%s: %s", HttpHeader.CONTENT_TYPE.value(), "text/plain"));
+        dos.writeBytes(String.format("%s: %s", HttpHeader.CONTENT_TYPE.value(), MimeType.TXT.getMimeType()));
         dos.writeBytes(String.format("%s: %d", HttpHeader.CONTENT_LENGTH, body.length));
         dos.writeBytes("\r\n");
         dos.write(body, 0, body.length);
