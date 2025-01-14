@@ -34,50 +34,28 @@ public class HttpRequestHandler {
                 file = FileUtils.findFile(file);
             }
 
-            byte[] body = createBody(file);
-
-            String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
-
-            String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
-
             httpResponse.writeStatusLine(HttpStatus.OK);
-            httpResponse.writeHeader("Content-Type", mimeType);
-            httpResponse.writeHeader("Content-Length", body.length);
-            httpResponse.writeBody(body);
+            httpResponse.writeBody(file);
             httpResponse.send();
         } catch (IOException e) {
             logger.error(e.getMessage());
         } catch (InvalidRequestLineSyntaxException e) {
             byte[] body = e.getMessage().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeHeader("Content-Type", "text/plain");
-            httpResponse.writeHeader("Content-Length", body.length);
-            httpResponse.writeBody(body);
+            httpResponse.writeBody(body, "text/plain");
             httpResponse.send();
         } catch (NoSuchPathException e) {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeHeader("Content-Type", "text/plain");
-            httpResponse.writeHeader("Content-Length", body.length);
-            httpResponse.writeBody(body);
+            httpResponse.writeBody(body, "text/plain");
             httpResponse.send();
         } catch (NotAllowedMethodException e) {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeHeader("Content-Type", "text/plain");
-            httpResponse.writeHeader("Content-Length", body.length);
-            httpResponse.writeBody(body);
+            httpResponse.writeBody(body, "text/plain");
             httpResponse.send();
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private byte[] createBody(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
-        byte[] body = is.readAllBytes();
-        is.close();
-
-        return body;
     }
 }

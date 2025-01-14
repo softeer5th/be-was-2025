@@ -2,9 +2,9 @@ package http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.MimeType;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +41,24 @@ public class HttpResponse {
 
     public void writeBody(byte[] body) {
         this.body = body;
+    }
+
+    public void writeBody(byte[] body, String mimeType) {
+        writeHeader("Content-Type", mimeType);
+        writeHeader("Content-Length", body.length);
+        writeBody(body);
+    }
+
+    public void writeBody(File file) throws IOException{
+        InputStream is = new FileInputStream(file);
+        byte[] body = is.readAllBytes();
+        is.close();
+
+        String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+        String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
+        writeHeader("Content-Type", mimeType);
+        writeHeader("Content-Length", body.length);
+        writeBody(body);
     }
 
     public void send() {
