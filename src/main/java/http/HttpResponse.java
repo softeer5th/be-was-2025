@@ -75,4 +75,10 @@ public class HttpResponse {
             logger.error(e.getMessage());
         }
     }
+
+    public void redirect(String path) {
+        writeStatusLine(HttpStatus.SEE_OTHER);
+        writeHeader(HttpHeader.LOCATION.value(), path);
+        send();
+    }
 }
