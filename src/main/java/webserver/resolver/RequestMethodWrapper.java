@@ -1,5 +1,6 @@
 package webserver.resolver;
 
+import webserver.exception.HTTPException;
 import webserver.resolver.records.ParameterMetaInfo;
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
@@ -30,7 +31,9 @@ public class RequestMethodWrapper implements ResourceResolver {
             response.contentType(HTTPContentType.APPLICATION_JSON);
             response.statusCode(HTTPStatusCode.OK);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new HTTPException.Builder()
+                    .causedBy("method invoke")
+                    .internalServerError(e.getMessage());
         }
     }
 
@@ -39,17 +42,22 @@ public class RequestMethodWrapper implements ResourceResolver {
         int argIndex = 0;
         for (ParameterMetaInfo meta : parameters) {
             Optional<String> parameter = request.getParameter(meta.name(), String.class);
-            // TODO :: null 처리
             if (meta.required() && parameter.isEmpty()) {
-                throw new IllegalArgumentException("Missing required parameter " + meta.name());
+                throw new HTTPException.Builder()
+                        .causedBy(method.getName())
+                        .badRequest("Missing required parameter " + meta.name());
             }
             if (parameter.isPresent()) {
-                Object parsed = meta.parser().parse(parameter.get());
-                System.out.printf("parse : %s\n", parsed);
-                args[argIndex++] = parsed;
+                try {
+                    Object parsed = meta.parser().parse(parameter.get());
+                    args[argIndex++] = parsed;
+                } catch (NumberFormatException e) {
+                    throw new HTTPException.Builder()
+                            .causedBy("meta parser")
+                            .badRequest("Invalid type parameter for " + meta.name());
+                }
             }
         }
-        System.out.println(argIndex);
         return args;
     }
 }

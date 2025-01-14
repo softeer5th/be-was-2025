@@ -1,5 +1,6 @@
 package webserver.resolver;
 
+import webserver.exception.HTTPException;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 
@@ -15,7 +16,9 @@ public class RequestMethodMapper implements ResourceResolver{
     public void resolve(HTTPRequest request, HTTPResponse.Builder response) {
         ResourceResolver resolver = resolvers.get(request.getUri());
         if (resolver == null) {
-            throw new IllegalArgumentException("Unknown resource: " + request.getUri());
+            throw new HTTPException.Builder()
+                    .causedBy(RequestMethodWrapper.class)
+                    .notFound(request.getUri());
         }
         resolver.resolve(request, response);
     }

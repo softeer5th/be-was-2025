@@ -1,5 +1,7 @@
 package webserver.enumeration;
 
+import webserver.exception.HTTPException;
+
 public enum HTTPMethod {
     GET, POST, PUT, DELETE;
 
@@ -14,7 +16,9 @@ public enum HTTPMethod {
             case "DELETE":
                 return DELETE;
             default:
-                throw new IllegalArgumentException("Invalid HTTP method: " + method);
+                throw new HTTPException.Builder()
+                        .causedBy("HTTPMethod from")
+                        .badRequest("Invalid HTTP method: " + method);
         }
     }
 }

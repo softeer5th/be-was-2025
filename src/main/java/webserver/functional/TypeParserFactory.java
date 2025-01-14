@@ -1,5 +1,7 @@
 package webserver.functional;
 
+import webserver.exception.HTTPException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,10 +23,12 @@ public class TypeParserFactory {
         put(float.class, (Float::parseFloat));
         put(byte.class, (Byte::parseByte));
     }};
-    static TypeParser defaultParser = (value) -> {
-        throw new IllegalArgumentException("Not supported Type : " + value);
-    };
+
     public static TypeParser getTypeParser(Class<?> targetType) {
-        return typeParsers.getOrDefault(targetType, defaultParser);
+        TypeParser parser = typeParsers.get(targetType);
+        if (parser == null) {
+            throw new IllegalStateException("Unsupported type: " + targetType);
+        }
+        return parser;
     }
 }

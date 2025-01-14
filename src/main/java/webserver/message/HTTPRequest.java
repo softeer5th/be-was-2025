@@ -2,6 +2,7 @@ package webserver.message;
 
 import util.HeterogeneousContainer;
 import webserver.enumeration.HTTPVersion;
+import webserver.exception.HTTPException;
 
 import java.util.LinkedHashMap;
 import java.util.Objects;
@@ -82,7 +83,9 @@ public class HTTPRequest {
             } else if (version.equals("HTTP/2")) {
                 this.version = HTTPVersion.HTTP_2;
             } else {
-                throw new IllegalArgumentException("invalid version: " + version);
+                throw new HTTPException.Builder()
+                        .causedBy(HTTPRequest.class)
+                        .badRequest("invalid version: " + version);
             }
             return this;
         }

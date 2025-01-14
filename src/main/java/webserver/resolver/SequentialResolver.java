@@ -1,5 +1,7 @@
 package webserver.resolver;
 
+import webserver.enumeration.HTTPStatusCode;
+import webserver.exception.HTTPException;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 
@@ -20,6 +22,8 @@ public class SequentialResolver implements ResourceResolver {
                 lastException = e;
             }
         }
-        throw new RuntimeException("Could not resolve resources", lastException);
+        throw new HTTPException.Builder()
+                .causedBy(SequentialResolver.class)
+                .notFound(request.getUri());
     }
 }
