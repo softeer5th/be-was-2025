@@ -21,7 +21,7 @@ class UserRegisterHandlerTest {
     @Test
     @DisplayName("회원가입 성공")
     void testHandleWithValidUserData() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, null);
         HttpResponse response = userRegisterHandler.handle(httpRequestInfo);
 
         assertEquals(HttpStatus.FOUND, response.getStatus());
@@ -30,7 +30,7 @@ class UserRegisterHandlerTest {
     @Test
     @DisplayName("회원가입 실패")
     void testHandleWithInvalidQueryParams() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, INVALID_REQUEST_PATH);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, INVALID_REQUEST_PATH, null);
 
         BaseException baseException = assertThrows(BaseException.class, () -> userRegisterHandler.handle(httpRequestInfo));
         assertEquals(baseException.getMessage(), HttpErrorCode.INVALID_QUERY_PARAM.getMessage());
