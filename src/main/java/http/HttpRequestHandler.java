@@ -21,18 +21,14 @@ public class HttpRequestHandler {
         try {
             String path = httpRequest.getPath().toLowerCase();
             String method = httpRequest.getMethod().toLowerCase();
-            File file = FileUtils.findFile(path);
 
-            if (!file.exists()) {
-                PathPool.getInstance().isAvailable(method, path);
+            if (PathPool.getInstance().isAvailable(method, path)) {
                 Method classMethod = PathPool.getInstance().getMethod(method, path);
                 classMethod.invoke(PathPool.getInstance().getClass(path), httpRequest, httpResponse);
                 return;
             }
 
-            if (file.exists() && file.isDirectory()) {
-                file = FileUtils.findFile(file);
-            }
+            File file = FileUtils.findFile(path);
 
             httpResponse.writeStatusLine(HttpStatus.OK);
             httpResponse.writeBody(file);

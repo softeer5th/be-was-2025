@@ -5,7 +5,6 @@ import http.HttpResponse;
 import http.UserHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
 
 import java.lang.reflect.Constructor;
@@ -47,13 +46,14 @@ public class PathPool {
 
     }
 
-    public void isAvailable(String method, String path) {
+    public boolean isAvailable(String method, String path) {
         if (!classMap.containsKey(path)) {
-            throw new NoSuchPathException();
+            return false;
         }
         if (!methodMap.get(path).containsKey(method)) {
             throw new NotAllowedMethodException();
         }
+        return true;
     }
 
     public static PathPool getInstance() {
