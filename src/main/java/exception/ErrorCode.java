@@ -2,10 +2,13 @@ package exception;
 
 import enums.HttpStatus;
 
-import static enums.HttpStatus.BAD_REQUEST;
-import static enums.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+import static enums.HttpStatus.*;
 
 public enum ErrorCode {
+    // <------------------- 5XX Error Code ------------------->
+    KEY_VALUE_SHOULD_BE_EVEN(INTERNAL_SERVER_ERROR,"header는 key-value 쌍으로 이루어져야 합니다."),
+
+    // <------------------- 4XX Error Code ------------------->
     INVALID_FORM(BAD_REQUEST, "요청 폼이 잘못되었습니다."),
     MISSING_FIELD(BAD_REQUEST, "누락된 필드가 있습니다"),
     UNSUPPORTED_HTTP_VERSION(BAD_REQUEST, "지원하지 않는 http 요청입니다."),
