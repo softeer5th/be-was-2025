@@ -10,20 +10,29 @@ import util.HttpRequestUtil;
 import java.io.IOException;
 
 public class StaticResourceHandler implements Handler {
-    private static final String STATIC_RESOURCE_PATH = "./src/main/resources/static";
+    private final String staticResourcePath;
 
-    private static StaticResourceHandler instance = new StaticResourceHandler();
+    private static volatile StaticResourceHandler instance;
 
-    private StaticResourceHandler() {}
+    private StaticResourceHandler(String staticResourcePath) {
+        this.staticResourcePath = staticResourcePath;
+    }
 
-    public static StaticResourceHandler getInstance() {
+    public static StaticResourceHandler getInstance(String staticResourcePath) {
+        if (instance == null) {
+            synchronized (StaticResourceHandler.class) {
+                if (instance == null) {
+                    instance = new StaticResourceHandler(staticResourcePath);
+                }
+            }
+        }
         return instance;
     }
 
     @Override
     public void handle(HttpRequest request, HttpResponse response) {
         TargetInfo target = request.getTarget();
-        String path = STATIC_RESOURCE_PATH + target.getPath();
+        String path = staticResourcePath + target.getPath();
 
         path = HttpRequestUtil.buildPath(path);
         String type = HttpRequestUtil.getType(path); // 파일 유형 별로 Content-Type 할당

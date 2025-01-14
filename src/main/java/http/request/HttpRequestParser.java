@@ -40,6 +40,7 @@ public class HttpRequestParser {
             method = HttpMethod.INVALID;
             targetInfo = null;
             version = HttpVersion.INVALID;
+            return new HttpRequest(method, targetInfo, version, null, null);
         }
         logger.debug("Start Line: " + method + " " + targetInfo + " " + version);
 

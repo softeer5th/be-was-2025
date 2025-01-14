@@ -47,7 +47,7 @@ public class HttpResponse {
             dos.writeBytes("Content-Length: 0" + "\r\n");
             dos.writeBytes("Location: " + body);
         } else {
-            dos.writeBytes("Content-Length: 0" + body.getBytes("UTF-8").length + "\r\n");
+            dos.writeBytes("Content-Length: " + body.getBytes("UTF-8").length + "\r\n");
         }
         dos.writeBytes("\r\n");
     }

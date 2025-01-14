@@ -15,8 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Router {
+    private static final String STATIC_RESOURCE_PATH = "./src/main/resources/static";
     private Map<String, Handler> routes = new HashMap<>();
-    private final Handler staticResourceHandler = StaticResourceHandler.getInstance();
+    private final Handler staticResourceHandler = StaticResourceHandler.getInstance(STATIC_RESOURCE_PATH);
     private final Handler userHandler = UserHandler.getInstance();
     private final Handler badRequestHandler = BadRequestHandler.getInstance();
     private static final String compareExtensionRegex;
@@ -61,7 +62,7 @@ public class Router {
                     }
                 }
             }
-            return StaticResourceHandler.getInstance(); // 정적 파일 요청 처리
+            return StaticResourceHandler.getInstance(STATIC_RESOURCE_PATH); // 정적 파일 요청 처리
         }
         return badRequestHandler;
     }
