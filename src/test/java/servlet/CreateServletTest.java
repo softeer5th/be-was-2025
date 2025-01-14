@@ -10,9 +10,7 @@ import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
 import webserver.httpserver.StatusCode;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 
 import static db.Database.findUserById;
 import static org.mockito.Mockito.*;
@@ -36,6 +34,6 @@ class CreateServletTest {
         Assertions.assertThat(testUser.getPassword()).isEqualTo("testPassword");
         Assertions.assertThat(testUser.getName()).isEqualTo("testName");
 
-        verify(response).setLocation("/success");
+        verify(response).setLocation("/");
     }
 }
