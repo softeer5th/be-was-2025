@@ -1,4 +1,4 @@
-package util;
+package webserver.response;
 
 
 import handler.CreateUserHandler;

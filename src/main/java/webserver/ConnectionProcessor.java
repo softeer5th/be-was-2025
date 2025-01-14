@@ -2,14 +2,12 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.request.Request;
-import util.ResponseBuilder;
+import webserver.response.ResponseBuilder;
 import webserver.request.RequestParser;
 
 public class ConnectionProcessor implements Runnable {
