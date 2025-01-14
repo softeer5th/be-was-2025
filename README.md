@@ -47,5 +47,5 @@
 - [x] [HTTP Method 스펙 공부](https://gamxong.tistory.com/157)
 - [ ] HTTP HEAD 메서드 구현
 - [ ] HTTP POST 스펙 공부
-- [ ] redirection 스펙 공부
+- [ ] Redirection 스펙 공부
 - [ ] HTTP body 스펙 공부
