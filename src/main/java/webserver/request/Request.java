@@ -11,6 +11,7 @@ import java.util.List;
 
 public class Request {
     private final List<String> requests = new ArrayList<>();
+    public String method;
     public String url = "/";
     public String extension = "html";
     public String parameter = null;
@@ -28,8 +29,8 @@ public class Request {
 
     private void parse(){
         String[] tokens = requests.get(0).split(" ");
-        String url = tokens[1];
-        setUrl(url);
+        setMethod(tokens[0]);
+        setUrl(tokens[1]);
         String[] parts = url.split("\\?");
         if(parts.length > 1){
             setUrl(parts[0]);
@@ -38,6 +39,10 @@ public class Request {
         else{
             setContentType(parts[0]);
         }
+    }
+
+    private void setMethod(String method){
+        this.method = method;
     }
 
     private void setUrl(String url){
