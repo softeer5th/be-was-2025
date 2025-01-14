@@ -75,18 +75,7 @@ public class HTTPRequest {
             return this;
         }
         public Builder version(String version) {
-            Objects.requireNonNull(version, "version must not be null");
-            if (version.equals("HTTP/1.0")) {
-                this.version = HTTPVersion.HTTP_1_0;
-            } else if (version.equals("HTTP/1.1")) {
-                this.version = HTTPVersion.HTTP_1_1;
-            } else if (version.equals("HTTP/2")) {
-                this.version = HTTPVersion.HTTP_2;
-            } else {
-                throw new HTTPException.Builder()
-                        .causedBy(HTTPRequest.class)
-                        .badRequest("invalid version: " + version);
-            }
+            this.version = HTTPVersion.from(version);
             return this;
         }
         public Builder body(String body) {
