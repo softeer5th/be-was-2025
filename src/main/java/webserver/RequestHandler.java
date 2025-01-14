@@ -8,6 +8,9 @@ import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.HTTPMessageParser.ParseException;
+import webserver.enumeration.HTTPStatusCode;
+import webserver.exception.HTTPException;
 import webserver.resolver.ResourceResolver;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
@@ -37,7 +40,11 @@ public class RequestHandler implements Runnable {
             ResponseWriter.write(dos, request, response);
             dos.flush();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            throw new HTTPException.Builder().causedBy(RequestHandler.class)
+                    .internalServerError(e.getMessage());
+        } catch (ParseException e) {
+            throw new HTTPException.Builder().causedBy(HTTPMessageParser.class)
+                    .badRequest(e.getMessage());
         }
     }
 }
