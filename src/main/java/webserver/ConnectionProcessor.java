@@ -2,12 +2,15 @@ package webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.request.Request;
 import util.ResponseBuilder;
+import webserver.request.RequestParser;
 
 public class ConnectionProcessor implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionProcessor.class);
@@ -25,8 +28,8 @@ public class ConnectionProcessor implements Runnable {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            Request request = new Request(in);
-            getLogs(request.getRequests());
+            Request request = RequestParser.parse(in);
+            getLogs(request);
 
             DataOutputStream dos = new DataOutputStream(out);
 
@@ -36,10 +39,12 @@ public class ConnectionProcessor implements Runnable {
             logger.error(e.getMessage());
         }
     }
-    private void getLogs(List<String> requests) {
+    private void getLogs(Request request) {
         logger.debug("request: ");
-        for(String request : requests){
-            logger.debug(request);
+        logger.debug(request.getRequestLine());
+        for(Map.Entry<String, String> header : request.getHeaders().entrySet()) {
+            String line = header.getKey() + ": " + header.getValue();
+            logger.debug(line);
         }
     }
 }
