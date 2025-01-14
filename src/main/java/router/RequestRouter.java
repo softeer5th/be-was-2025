@@ -2,10 +2,7 @@ package router;
 
 import exception.BaseException;
 import exception.HttpErrorCode;
-import handler.Handler;
-import handler.StaticFileHandler;
-import handler.UserLoginHandler;
-import handler.UserRegisterHandler;
+import handler.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +21,7 @@ public class RequestRouter implements Router {
         routeMap = new HashMap<>();
         routeMap.put(Pattern.compile("^/users/register$"), new UserRegisterHandler());
         routeMap.put(Pattern.compile("^/users/login$"), new UserLoginHandler());
+        routeMap.put(Pattern.compile("^/users/logout$"), new UserLogoutHandler());
         routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg|ico|jpg|png)$"),
                 new StaticFileHandler());
         routeMap.put(Pattern.compile("^/[^/]+$"), new StaticFileHandler());
