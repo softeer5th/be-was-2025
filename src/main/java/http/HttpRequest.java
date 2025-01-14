@@ -45,11 +45,12 @@ public class HttpRequest {
     }
 
     private Map<String, String> parseQuery(String queryString) {
-        if (uri.getQuery() == null) {
+        if (queryString == null) {
             return null;
         }
         Map<String, String> query = new HashMap<>();
-        String[] queryArray = resolveQuery(uri.getQuery());
+        
+        String[] queryArray = resolveQuery(queryString);
         for (String s : queryArray) {
             String[] items = s.split("=");
             String key = items[0];
