@@ -1,10 +1,5 @@
 package router;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import exception.BaseException;
 import exception.HttpErrorCode;
 import handler.Handler;
@@ -12,9 +7,11 @@ import handler.UserRegisterHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class RequestRouterTest {
 
-    private static final String VALID_PATH = "/users/register?userId=test";
+    private static final String VALID_PATH = "/users/register";
     private static final String INVALID_PATH = "invalid/path";
 
     @Test
@@ -24,7 +21,7 @@ public class RequestRouterTest {
 
         Handler handler = router.route(VALID_PATH);
         assertNotNull(handler);
-        assertTrue(handler instanceof UserRegisterHandler);
+        assertInstanceOf(UserRegisterHandler.class, handler);
     }
 
     @Test
