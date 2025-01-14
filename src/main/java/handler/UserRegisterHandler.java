@@ -19,8 +19,6 @@ import webserver.RequestHandler;
 public class UserRegisterHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    private static final String USER_REQUEST_PREFIX = "/users/";
-
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         if (request.getMethod() != POST) {

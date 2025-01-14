@@ -15,24 +15,35 @@ class UserRegisterHandlerTest {
 
     private final UserRegisterHandler userRegisterHandler = new UserRegisterHandler();
 
-    private static final String VALID_REQUEST_PATH = "/users/register?userId=dbfl0461&nickname=yulee&password=qwer1234!&email=dbfl0461@gmail.com";
-    private static final String INVALID_REQUEST_PATH = "/users/register?userId=yulee";
+    private static final HttpMethod HTTP_METHOD = HttpMethod.POST;
+    private static final String VALID_REQUEST_PATH = "/users/register";
+    private static final String VALID_QUERY_PARAM = "userId=yulee&nickname=uri&password=1234&email=1234%40example.com";
+    private static final String INVALID_QUERY_PARAM = "userId=yulee&nickname=uri";
 
     @Test
     @DisplayName("회원가입 성공")
     void testHandleWithValidUserData() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, null);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HTTP_METHOD, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
         HttpResponse response = userRegisterHandler.handle(httpRequestInfo);
 
         assertEquals(HttpStatus.FOUND, response.getStatus());
     }
 
     @Test
-    @DisplayName("회원가입 실패")
-    void testHandleWithInvalidQueryParams() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, INVALID_REQUEST_PATH, null);
+    @DisplayName("잘못된 쿼리문인 경우")
+    void testHandleWithInvalidQueryParam() {
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HTTP_METHOD, VALID_REQUEST_PATH, INVALID_QUERY_PARAM);
 
         BaseException baseException = assertThrows(BaseException.class, () -> userRegisterHandler.handle(httpRequestInfo));
         assertEquals(baseException.getMessage(), HttpErrorCode.INVALID_QUERY_PARAM.getMessage());
+    }
+
+    @Test
+    @DisplayName("잘못된 HTTP Method인 경우")
+    void testHandleWithInvalidHttpMethod() {
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
+
+        BaseException baseException = assertThrows(BaseException.class, () -> userRegisterHandler.handle(httpRequestInfo));
+        assertEquals(baseException.getMessage(), HttpErrorCode.INVALID_HTTP_METHOD.getMessage());
     }
 }
