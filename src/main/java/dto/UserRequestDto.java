@@ -9,11 +9,11 @@ public class UserRequestDto {
 	private final String name;
 	private final String email;
 
-	public UserRequestDto(HttpRequest request) {
-		this.userId = request.getParameter("userId");
-		this.password = request.getParameter("password");
-		this.name = request.getParameter("name");
-		this.email = request.getParameter("email");
+	public UserRequestDto(String userId, String password, String name, String email) {
+		this.userId = userId;
+		this.password = password;
+		this.name = name;
+		this.email = email;
 	}
 
 	public boolean isValid() {
