@@ -46,5 +46,8 @@ public class ConnectionProcessor implements Runnable {
             String line = header.getKey() + ": " + header.getValue();
             logger.debug(line);
         }
+        if(request.getBody() != null) {
+            logger.debug(request.getBody());
+        }
     }
 }

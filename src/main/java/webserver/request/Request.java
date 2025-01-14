@@ -64,9 +64,6 @@ public class Request {
     }
 
     public String getBody() {
-        if(body == null){
-            return "body is empty";
-        }
         return body;
     }
 

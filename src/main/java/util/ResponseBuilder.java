@@ -21,7 +21,6 @@ public class ResponseBuilder {
     public ResponseBuilder() {
         postPages.put("/user/create", new CreateUserHandler());
         postPages.put("default", new Page404Handler());
-        getPages.put("/user/create", new CreateUserHandler());
         getPages.put("default", new StaticFileHandler());
     }
 
