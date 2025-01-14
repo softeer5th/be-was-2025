@@ -6,16 +6,16 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.request.RequestParser;
+import webserver.request.Request;
 import util.ResponseBuilder;
 
-public class RequestHandler implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+public class ConnectionProcessor implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionProcessor.class);
     private final ResponseBuilder responseBuilder = new ResponseBuilder();
 
     private Socket connection;
 
-    public RequestHandler(Socket connectionSocket) {
+    public ConnectionProcessor(Socket connectionSocket) {
         this.connection = connectionSocket;
     }
 
@@ -25,12 +25,12 @@ public class RequestHandler implements Runnable {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            RequestParser requestParser = new RequestParser(in);
-            getLogs(requestParser.getRequests());
+            Request request = new Request(in);
+            getLogs(request.getRequests());
 
             DataOutputStream dos = new DataOutputStream(out);
 
-            responseBuilder.buildResponse(dos, requestParser);
+            responseBuilder.buildResponse(dos, request);
 
         } catch (IOException e) {
             logger.error(e.getMessage());

@@ -4,7 +4,7 @@ package util;
 import handler.CreateUserHandler;
 import handler.Handler;
 import handler.StaticFileHandler;
-import webserver.request.RequestParser;
+import webserver.request.Request;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -20,13 +20,13 @@ public class ResponseBuilder {
         responses.put("default", new StaticFileHandler());
     }
 
-    public void buildResponse(DataOutputStream dos, RequestParser requestParser) throws IOException {
-        if (responses.containsKey(requestParser.url)) {
-            Handler handler = responses.get(requestParser.url);
-            handler.handle(dos, requestParser);
+    public void buildResponse(DataOutputStream dos, Request request) throws IOException {
+        if (responses.containsKey(request.url)) {
+            Handler handler = responses.get(request.url);
+            handler.handle(dos, request);
         }
         else{
-            responses.get("default").handle(dos, requestParser);
+            responses.get("default").handle(dos, request);
         }
     }
 }

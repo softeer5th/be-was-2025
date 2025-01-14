@@ -1,7 +1,7 @@
 package webserver.response;
 
 import util.enums.HttpStatusCode;
-import webserver.request.RequestParser;
+import webserver.request.Request;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,10 +11,10 @@ public class ResponseWriter {
     private final String CRLF = "\r\n";
     private final String COLON = ": ";
     private final DataOutputStream out;
-    private final RequestParser request;
+    private final Request request;
     private final String HTTP_VERSION = "HTTP/1.1 ";
 
-    public ResponseWriter(DataOutputStream dos, RequestParser request) {
+    public ResponseWriter(DataOutputStream dos, Request request) {
         this.out = dos;
         this.request = request;
     }

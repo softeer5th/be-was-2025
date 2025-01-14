@@ -1,7 +1,7 @@
 package webserver.response;
 
 import util.FileFinder;
-import webserver.request.RequestParser;
+import webserver.request.Request;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,10 +9,10 @@ import java.util.Map;
 
 public class Response {
     private final Map<String, String> headers = new HashMap<>();
-    private final RequestParser request;
+    private final Request request;
     private byte[] body;
 
-    public Response(RequestParser request) {
+    public Response(Request request) {
         this.request = request;
         headers.put("Content-Type", request.contentType);
         makeBody();

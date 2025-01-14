@@ -1,7 +1,7 @@
 package handler;
 
 import util.enums.HttpStatusCode;
-import webserver.request.RequestParser;
+import webserver.request.Request;
 import webserver.response.ResponseWriter;
 
 import java.io.DataOutputStream;
@@ -10,8 +10,8 @@ import java.io.IOException;
 public class StaticFileHandler implements Handler {
 
     @Override
-    public void handle(DataOutputStream dos, RequestParser requestParser) throws IOException {
-        ResponseWriter responseWriter = new ResponseWriter(dos, requestParser);
+    public void handle(DataOutputStream dos, Request request) throws IOException {
+        ResponseWriter responseWriter = new ResponseWriter(dos, request);
         try{
             responseWriter.write(HttpStatusCode.OK);
         } catch(NullPointerException e){

@@ -9,14 +9,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RequestParser {
+public class Request {
     private final List<String> requests = new ArrayList<>();
     public String url = "/";
     public String extension = "html";
     public String parameter = null;
     public String contentType = "text/html";
 
-    public RequestParser(InputStream in) throws IOException {
+    public Request(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String line = br.readLine();
         while (!line.isEmpty()) {
