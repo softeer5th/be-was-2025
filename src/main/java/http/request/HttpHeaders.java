@@ -19,11 +19,11 @@ public class HttpHeaders {
 		// HTTP Header는 대부분 문자 기반의 데이터를 포함하고 있기 때문에, 문자 단위로 처리하는 것이 더 적합하다고 판단.
 
 		String line;
-		while ((line = StreamUtil.readUntilCRLFAsString(in)) != null && !line.equals(CRLF) && !line.isEmpty()) {
+		while ((line = StreamUtil.readUntilCRLFAsString(in)) != null && !line.isEmpty()) {
 			String[] headerParts = line.split(HEADER_DELIMITER, 2);
 
 			if (headerParts[0].equals(CRLF)) {
-				continue;
+				break;
 			}
 
 			if (headerParts.length < 2) {
@@ -48,8 +48,6 @@ public class HttpHeaders {
 
 			headers.put(headerName, valueList);
 		}
-
-		System.out.println("header size : " + headers.size());
 	}
 
 	public HttpHeaders() {

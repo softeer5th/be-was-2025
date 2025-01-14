@@ -59,9 +59,11 @@ public class HttpRequestLine {
 
 		for (String query : queryPairs) {
 			String[] keyValue = query.split(KEY_VALUE_SEPARATOR, 2);
-			if (keyValue.length == 2) {
-				queryMap.put(keyValue[0], keyValue[1]);
+			if (keyValue.length < 2) {
+				throw new IllegalArgumentException("Malformed query: " + query);
 			}
+			queryMap.put(keyValue[0], keyValue[1]);
+
 		}
 		return queryMap;
 	}

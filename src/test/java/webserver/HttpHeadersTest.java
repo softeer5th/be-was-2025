@@ -3,8 +3,8 @@ package webserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -21,13 +21,14 @@ class HttpHeadersTest {
 	@Test
 	void testInitializeFromReader_Success() throws Exception {
 		String headerString = """
-                Host: localhost
-                Content-Type: text/html; charset=UTF-8
-                Connection: keep-alive
+                Host: localhost\r
+                Content-Type: text/html; charset=UTF-8\r
+                Connection: keep-alive\r
+                \r
                 """;
 
-		BufferedReader reader = new BufferedReader(new StringReader(headerString));
-		HttpHeaders headers = new HttpHeaders(reader);
+		InputStream inputStream = new ByteArrayInputStream(headerString.getBytes());
+		HttpHeaders headers = new HttpHeaders(inputStream);
 
 		assertThat(headers.containsHeader("host")).isTrue();
 		assertThat(headers.getHeader("host")).containsExactly("localhost");
@@ -42,9 +43,9 @@ class HttpHeadersTest {
                 AnotherInvalidHeader
                 """;
 
-		BufferedReader reader = new BufferedReader(new StringReader(invalidHeaderString));
+		InputStream inputStream = new ByteArrayInputStream(invalidHeaderString.getBytes());
 
-		assertThatThrownBy(() -> new HttpHeaders(reader))
+		assertThatThrownBy(() -> new HttpHeaders(inputStream))
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -54,9 +55,9 @@ class HttpHeadersTest {
                 : empty-header-value
                 """;
 
-		BufferedReader reader = new BufferedReader(new StringReader(headerString));
+		InputStream inputStream = new ByteArrayInputStream(headerString.getBytes());
 
-		assertThatThrownBy(() -> new HttpHeaders(reader))
+		assertThatThrownBy(() -> new HttpHeaders(inputStream))
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -88,8 +89,8 @@ class HttpHeadersTest {
 		String headerString = """
                 """;
 
-		BufferedReader reader = new BufferedReader(new StringReader(headerString));
-		HttpHeaders headers = new HttpHeaders(reader);
+		InputStream inputStream = new ByteArrayInputStream(headerString.getBytes());
+		HttpHeaders headers = new HttpHeaders(inputStream);
 
 		assertThat(headers.getHeaders()).isEmpty();
 	}
