@@ -55,11 +55,22 @@ public class UserRequestHandler implements Handler {
                 final String sessionId = userManager.loginUser(userLoginRequest);
 
                 response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "login success");
-                response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_URL, HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; Path=/", SID, sessionId));
+                response.setHeaders(
+                        HttpHeader.LOCATION.getName(), REDIRECT_URL,
+                        HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; Path=/", SID, sessionId)
+                );
             } catch (LoginException e) {
                 response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, e.getMessage());
                 response.setHeaders(HttpHeader.LOCATION.getName(), LOGIN_FAIL_URL);
             }
+        } else if (path.equals("logout")) {
+            userManager.logoutUser(request.getHeaderValue(HttpHeader.SET_COOKIE.getName()));
+
+            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "logoutSuccess");
+            response.setHeaders(
+                    HttpHeader.LOCATION.getName(), REDIRECT_URL,
+                    HttpHeader.SET_COOKIE.getName(), String.format("%s=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/", SID)
+            );
         }
 
         return response;

@@ -29,4 +29,7 @@ public class SessionManager {
         return sessionId;
     }
 
+    public void deleteSession(String sessionId) {
+        sessionMap.remove(sessionId);
+    }
 }

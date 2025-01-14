@@ -37,7 +37,12 @@ public class HttpRequestInfo {
                 "method = " + method + ", path = " + path;
     }
 
+    public String getHeaderValue(String headerName) {
+        return headers.get(headerName);
+    }
+
     public Object getBody() {
         return body;
     }
+
 }

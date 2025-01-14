@@ -35,6 +35,10 @@ public class UserManager {
         return sessionManager.makeAndSaveSessionId(userLoginRequest.userId());
     }
 
+    public void logoutUser(final String sessionId) {
+        sessionManager.deleteSession(sessionId);
+    }
+
     private void validPassword(final String password, final String requestedPassword) {
         if (!password.equals(requestedPassword))
             throw new LoginException(INCORRECT_PASSWORD);
