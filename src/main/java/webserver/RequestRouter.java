@@ -89,7 +89,7 @@ public class RequestRouter {
         postHandlers.put(path, handler);
     }
 
-    private void creatUser(String requestBody, DataOutputStream dos) throws Exception {
+    private void creatUser(String requestBody, DataOutputStream dos) throws IOException{
         QueryParameters queryParameters = new QueryParameters(requestBody);
         User.validateUserParameters(queryParameters);
         User user = new User(queryParameters.get("userId"),
@@ -98,11 +98,7 @@ public class RequestRouter {
                 queryParameters.get("email"));
         logger.debug("user = {}", user);
         Database.addUser(user);
-        String mainPagePath = RESOURCES_PATH + "/index.html";
-        File file = new File(mainPagePath);
-        byte[] body = readFile(file);
-        HttpResponse httpResponse = new HttpResponse(HttpStatus.CREATED, dos, body, "text/html");
-        httpResponse.respond();
+        HttpResponse.respond302("http://localhost:8080/index.html", dos);
     }
 
     private byte[] readFile(File file) throws IOException {

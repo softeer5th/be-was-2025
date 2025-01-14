@@ -36,6 +36,12 @@ public class HttpResponse {
         httpResponse.respond();
     }
 
+    public static void respond302(String path, DataOutputStream dos) throws IOException {
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
+        httpResponse.addHeader("location", path);
+        httpResponse.respond();
+    }
+
     private void addRequestLine() {
         headerBuilder.append("HTTP/1.1 ").append(httpStatus.getCode()).append(' ').append(httpStatus.getStatus()).append(" \r\n");
     }
