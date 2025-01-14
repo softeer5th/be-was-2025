@@ -1,8 +1,6 @@
 package util;
 
-import http.HttpRequest;
-import http.HttpRequestHandler;
-import http.HttpResponse;
+import http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.exception.InvalidRequestLineSyntaxException;
@@ -17,16 +15,22 @@ public class RequestParser {
     public RequestParser() {
     }
 
-    public void parse(InputStream in, DataOutputStream dos) throws IOException, InvalidRequestLineSyntaxException{
-        List<String> request = logAndReturnRequest(in);
+    public void parse(InputStream in, DataOutputStream dos) throws IOException {
+        try{
+            List<String> request = logAndReturnRequest(in);
 
-        String[] requestLine = resolveRequestLine(request.get(0));
+            String[] requestLine = resolveRequestLine(request.get(0));
 
-        HttpRequest httpRequest =  new HttpRequest(requestLine[0], requestLine[1], requestLine[2], request.subList(1, request.size()));
-        HttpResponse httpResponse = new HttpResponse(dos);
+            HttpRequest httpRequest =  new HttpRequest(requestLine[0], requestLine[1], requestLine[2], request.subList(1, request.size()));
+            HttpResponse httpResponse = new HttpResponse(dos);
 
-        HttpRequestHandler requestHandler = new HttpRequestHandler();
-        requestHandler.handleRequest(httpRequest, httpResponse);
+            HttpRequestHandler requestHandler = new HttpRequestHandler();
+            requestHandler.handleRequest(httpRequest, httpResponse);
+        } catch (InvalidRequestLineSyntaxException e) {
+            logger.error(e.getMessage());
+            byte[] body = e.getMessage().getBytes();
+            response(dos, HttpStatus.BAD_REQUEST, body);
+        }
     }
 
     private List<String> logAndReturnRequest(InputStream in) throws IOException {
@@ -58,5 +62,14 @@ public class RequestParser {
         }
 
         return tokens;
+    }
+
+    private void response(DataOutputStream dos, HttpStatus httpStatus, byte[] body) throws IOException {
+        dos.writeBytes(String.format("%s %d %s", HttpHeader.PROTOCOL.value(), httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
+        dos.writeBytes(String.format("%s: %s", HttpHeader.CONTENT_TYPE.value(), "text/plain"));
+        dos.writeBytes(String.format("%s: %d", HttpHeader.CONTENT_LENGTH, body.length));
+        dos.writeBytes("\r\n");
+        dos.write(body, 0, body.length);
+        dos.flush();
     }
 }
