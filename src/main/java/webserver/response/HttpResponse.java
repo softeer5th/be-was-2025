@@ -3,7 +3,7 @@ package webserver.response;
 import webserver.common.HttpHeaders;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
-import webserver.response.body.Body;
+import webserver.response.body.ResponseBody;
 
 import java.io.File;
 
@@ -11,7 +11,7 @@ import java.io.File;
 public class HttpResponse {
     private final HttpStatusCode statusCode;
     private final HttpHeaders headers;
-    private Body body;
+    private ResponseBody body;
 
     public HttpResponse(HttpStatusCode statusCode) {
         this(statusCode, new HttpHeaders());
@@ -20,11 +20,11 @@ public class HttpResponse {
     public HttpResponse(HttpStatusCode statusCode, HttpHeaders headers) {
         this.statusCode = statusCode;
         this.headers = headers;
-        this.body = Body.empty();
+        this.body = ResponseBody.empty();
     }
 
     public static HttpResponse redirect(String location) {
-        return new HttpResponse(HttpStatusCode.SEE_OTHER)
+        return new HttpResponse(HttpStatusCode.FOUND)
                 .setHeader(HttpHeader.LOCATION.value, location);
     }
 
@@ -36,39 +36,9 @@ public class HttpResponse {
         return headers;
     }
 
-    Body getBody() {
-        return body;
-    }
-
-    public HttpResponse setBody(String string) {
-        if (string == null)
-            this.body = Body.empty();
-        else
-            this.body = Body.of(string);
-        setContentHeaders();
-        return this;
-    }
-
-    public HttpResponse setBody(File file) {
-        if (file == null)
-            this.body = Body.empty();
-        else
-            this.body = Body.of(file);
-        setContentHeaders();
-        return this;
-    }
-
     public HttpResponse setHeader(String key, String value) {
         headers.setHeader(key, value);
         return this;
-    }
-
-    private void setContentHeaders() {
-        body.getContentLength()
-                .ifPresent(contentLength -> headers.setHeader(HttpHeader.CONTENT_LENGTH, contentLength.toString()));
-        body.getContentType()
-                .ifPresent(contentType -> headers.setHeader(HttpHeader.CONTENT_TYPE, contentType.mimeType));
-
     }
 
     @Override
@@ -78,5 +48,33 @@ public class HttpResponse {
                 ", headers=" + headers +
                 ", body=" + body +
                 '}';
+    }
+
+    ResponseBody getBody() {
+        return body;
+    }
+
+    public void setBody(String string) {
+        if (string == null)
+            this.body = ResponseBody.empty();
+        else
+            this.body = ResponseBody.of(string);
+        setContentHeaders();
+    }
+
+    public void setBody(File file) {
+        if (file == null)
+            this.body = ResponseBody.empty();
+        else
+            this.body = ResponseBody.of(file);
+        setContentHeaders();
+    }
+
+    private void setContentHeaders() {
+        body.getContentLength()
+                .ifPresent(contentLength -> headers.setHeader(HttpHeader.CONTENT_LENGTH, contentLength.toString()));
+        body.getContentType()
+                .ifPresent(contentType -> headers.setHeader(HttpHeader.CONTENT_TYPE, contentType.mimeType));
+
     }
 }

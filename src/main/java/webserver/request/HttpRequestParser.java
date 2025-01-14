@@ -7,17 +7,14 @@ import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
-import webserver.exception.InternalServerError;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static webserver.enums.HttpHeader.CONTENT_LENGTH;
 import static webserver.enums.HttpHeader.HOST;
 import static webserver.enums.ParsingConstant.*;
 
@@ -31,30 +28,46 @@ public class HttpRequestParser {
         this.MAX_HEADER_SIZE = config.getMaxHeaderSize();
     }
 
+    // Body 직전 헤더까지 읽기
+    public String readUntilBody(InputStream inputStream) throws IOException {
+        int totalReadBytes = 0;
+        StringBuilder sb = new StringBuilder();
+        int buf;
+        boolean isRequestLineStarted = false;
+        boolean crMark = false;
+        // request line 앞에 오는 연속된 CRLF는 무시해야 함. (rfc9112#section-2.2)
+        while ((buf = inputStream.read()) != -1) {
+            if (++totalReadBytes > MAX_HEADER_SIZE)
+                throw new HttpException(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, "Header Size가 너무 큽니다.");
+            sb.append((char) buf);
+            if (sb.length() >= 2) {
+                if (CRLF.equals(sb.toString())) {
+                    sb.delete(0, sb.length());
+                    continue;
+                }
+                break;
+
+            }
+        }
+
+        // request line ~ header까지 읽기
+        while ((buf = inputStream.read()) != -1) {
+            if (++totalReadBytes > MAX_HEADER_SIZE)
+                throw new HttpException(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, "Header Size가 너무 큽니다.");
+            sb.append((char) buf);
+            // \n 혹은 \r\n이 나오면 header가 끝난 것으로 간주
+            if (sb.length() >= 4 && sb.substring(sb.length() - 4).matches("(" + HTTP_HEADERS_END_DELIMITER.value + ")$")) {
+                break;
+            }
+        }
+        return sb.toString();
+    }
+
     // request input reader로부터 데이터를 읽어들여 HttpRequest 객체를 생성
     public HttpRequest parse(InputStream in) {
         try {
-            byte[] requestBytes = in.readNBytes(MAX_HEADER_SIZE);
-            String requestString = new String(requestBytes);
-
-            // request line 앞에 오는 연속된 CRLF는 무시해야 함. (rfc9112#section-2.2)
-            int requestLineStartIndex = 0;
-            int headerEndIndex;
-            Matcher emptyLineMatcher = EMPTY_LINE_PATTERN.matcher(requestString);
-            Matcher headerEndMatcher = END_OF_HEADER_PATTERN.matcher(requestString);
-            // request line 시작지점 찾기(연속된 CRLF 무시하기 위함)
-            if (emptyLineMatcher.find()) {
-                requestLineStartIndex = emptyLineMatcher.end();
-            }
-            // header 끝지점 찾기
-            if (headerEndMatcher.find(requestLineStartIndex)) {
-                headerEndIndex = headerEndMatcher.end();
-            } else {
-                throw new HttpException(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, "Header Size가 너무 큽니다.");
-            }
-
             // request-line + headers 문자열
-            String headerSection = requestString.substring(requestLineStartIndex, headerEndIndex);
+            String headerSection = readUntilBody(in);
 
             // Request Line과 Header Lines 를 분리
             String[] tokens = headerSection.split(HTTP_LINE_SEPARATOR.value, 2);
@@ -69,31 +82,9 @@ public class HttpRequestParser {
             // Header Line 문자열 파싱
             HttpHeaders headers = parseHeaders(headerLines);
 
+            RequestBody bodyParser = new RequestBody(in, headers);
 
-            String contentLengthString = headers.getHeader(CONTENT_LENGTH);
-            byte[] body;
-            // header를 읽을 때 미리 읽어들인 body의 길이
-            int preReadBodyLength = requestBytes.length - headerEndIndex;
-            if (contentLengthString != null) {
-                try {
-                    int contentLength = Integer.parseInt(contentLengthString);
-                    body = new byte[contentLength];
-                    // Content-Length 크기만큼 읽어들임
-                    // 헤더 읽을 때 같이 읽어들인 부분은 복사
-                    System.arraycopy(requestBytes, headerEndIndex, body, 0, preReadBodyLength);
-                    in.readNBytes(body, preReadBodyLength, contentLength - preReadBodyLength);
-                } catch (NumberFormatException e) {
-                    throw new BadRequest(CONTENT_LENGTH.value + "값이 올바르지 않습니다.");
-                } catch (IOException e) {
-                    throw new InternalServerError("요청 Body를 읽는 중 오류가 발생했습니다.");
-                }
-            } else {
-                byte[] buffer = in.readAllBytes();
-                body = new byte[buffer.length + preReadBodyLength];
-                System.arraycopy(requestBytes, headerEndIndex, body, 0, preReadBodyLength);
-                System.arraycopy(buffer, 0, body, preReadBodyLength, buffer.length);
-            }
-            return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, body);
+            return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, bodyParser);
         } catch (HttpException e) {
             throw e;
         } catch (Exception e) {
@@ -101,6 +92,9 @@ public class HttpRequestParser {
         }
     }
 
+    private record RequestLine(HttpMethod method, RequestTarget requestTarget, HttpVersion version) {
+
+    }
 
     // Request Line 문자열을 파싱하여 RequestLine 객체 생성
     private RequestLine parseRequestLine(String requestLine) {
@@ -155,9 +149,5 @@ public class HttpRequestParser {
             }
         }
         return new RequestTarget(path, queryMap);
-    }
-
-    private record RequestLine(HttpMethod method, RequestTarget requestTarget, HttpVersion version) {
-
     }
 }

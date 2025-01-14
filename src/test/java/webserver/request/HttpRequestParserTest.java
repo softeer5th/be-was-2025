@@ -85,7 +85,7 @@ class HttpRequestParserTest {
             assertThat(request.getHeaders().getHeader("Host")).isEqualTo("localhost:8080");
             assertThat(request.getHeaders().getHeader("Content-Length")).isEqualTo("25");
             assertThat(request.getHeaders().getHeader("Content-Type")).isEqualTo("text/plain");
-            assertThat(request.readBodyAsString()).isEqualTo("""
+            assertThat(request.getBodyAsString()).hasValue("""
                     id=id1
                     password=password1""");
         }
@@ -196,11 +196,11 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("request line 앞에 연속된 CRLF와 LF가 있는 경우 무시해야 함")
+    @DisplayName("request line 앞에 연속된 CRLF가 있는 경우 무시해야 함")
     void parseTest8() throws IOException {
         // given
         var requestString =
-                "\n\n\r\n\n\r\n\r\n" +
+                "\r\n\r\n\r\n" +
                         String.join("\r\n",
                                 "GET /index.html?page=1&pageSize=10&filter= HTTP/1.1",
                                 "Host: localhost:8080",
@@ -224,7 +224,7 @@ class HttpRequestParserTest {
     }
 
     @Test
-    @DisplayName("request line 앞에 LF가 있는 경우 400 오류가 발생해야 함")
+    @DisplayName("request line 앞에 CR이 있는 경우 400 오류가 발생해야 함")
     void parseTest9() throws IOException {
         // given
         var requestString = "\r" +

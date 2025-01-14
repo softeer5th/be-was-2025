@@ -12,6 +12,7 @@ import webserver.response.HttpResponse;
 import webserver.response.HttpResponseWriter;
 import webserver.router.PathRouter;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,7 +41,7 @@ public class FrontController implements Runnable {
 
     public void run() {
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+        try (InputStream in = new BufferedInputStream(connection.getInputStream()); OutputStream out = connection.getOutputStream()) {
 
             HttpRequest request = null;
             try {

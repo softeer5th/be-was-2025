@@ -7,20 +7,20 @@ import java.io.OutputStream;
 import java.util.Optional;
 
 // HTTP 응답 Body를 나타내는 추상 클래스
-public abstract class Body {
+public abstract class ResponseBody {
     // 빈 Body를 반환하는 팩토리 메서드
-    public static Body empty() {
+    public static ResponseBody empty() {
         return new EmptyBody();
     }
 
     // String 타입의 Body를 반환하는 팩토리 메서드
-    public static Body of(String string) {
-        return new StringBody(string);
+    public static ResponseBody of(String body) {
+        return new StringBody(body);
     }
 
     // File 타입의 Body를 반환하는 팩토리 메서드
-    public static Body of(File file) {
-        return new FileBody(file);
+    public static ResponseBody of(File body) {
+        return new FileBody(body);
     }
 
     // 클라이언트 OutputStream에 직접 body 내용을 보내는 메서드

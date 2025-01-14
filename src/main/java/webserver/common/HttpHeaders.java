@@ -49,10 +49,28 @@ public class HttpHeaders {
     public Map<String, String> getFormattedHeaders() {
         Map<String, String> formattedHeaders = new HashMap<>();
         for (Map.Entry<String, String> header : headers.entrySet()) {
-            String formattedHeaderName = HttpHeader.valueOf(header.getKey()).value;
+            String formattedHeaderName = formatHeaderName(header.getKey());
             formattedHeaders.put(formattedHeaderName, header.getValue());
         }
         return formattedHeaders;
+    }
+
+    private String formatHeaderName(String headerName) {
+        StringBuilder formattedName = new StringBuilder();
+        boolean capitalizeNext = true;
+        for (char c : headerName.toCharArray()) {
+            if (capitalizeNext) {
+                formattedName.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+            } else {
+                formattedName.append(c);
+            }
+            if (c == '-') {
+                capitalizeNext = true;
+            }
+        }
+
+        return formattedName.toString();
     }
 
     @Override

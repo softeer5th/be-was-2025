@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 class HttpRequestTest {
 
@@ -23,7 +24,7 @@ class HttpRequestTest {
                 new RequestTarget("/index.html", Map.of()),
                 HttpVersion.HTTP_0_9,
                 new HttpHeaders(),
-                new byte[0]);
+                mock());
         var supportedVersions = List.of(HttpVersion.HTTP_1_1, HttpVersion.HTTP_1_0);
         // when
         // then
@@ -41,7 +42,7 @@ class HttpRequestTest {
                 new RequestTarget("/index.html", Map.of()),
                 HttpVersion.HTTP_1_1,
                 new HttpHeaders(),
-                new byte[0]);
+                mock());
         var supportedVersions = List.of(HttpVersion.HTTP_1_1, HttpVersion.HTTP_1_0);
         // when
         // then
