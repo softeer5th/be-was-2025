@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import util.FileUtils;
 import util.MimeType;
 import util.PathPool;
-import util.exception.InvalidRequestLineSyntaxException;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
 
