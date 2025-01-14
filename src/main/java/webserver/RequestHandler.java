@@ -5,6 +5,7 @@ import http.HttpRequestInfo;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import handler.Handler;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -27,8 +28,8 @@ public class RequestHandler implements Runnable {
 
     public void run() {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}",
-            connection.getInetAddress(),
-            connection.getPort());
+                connection.getInetAddress(),
+                connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             HttpRequestInfo httpRequestInfo = requestParse(in);
@@ -48,7 +49,7 @@ public class RequestHandler implements Runnable {
 
             response.send(dos);
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("Request handler run() : {} ", e.getMessage());
         }
     }
 
@@ -67,8 +68,37 @@ public class RequestHandler implements Runnable {
 
         HttpMethod httpMethod = HttpMethod.match(requestTokens[0].toLowerCase());
         String url = requestTokens[1];
-        logger.debug("Request mehtod = {}, url = {}", httpMethod, url);
+        String body = parseRequestBody(reader);
+        logger.debug("Request method = {}, url = {}", httpMethod, url);
+        logger.debug("Request Body = {}", body);
 
-        return new HttpRequestInfo(httpMethod, url);
+        return new HttpRequestInfo(httpMethod, url, body);
+    }
+
+    public static String parseRequestBody(BufferedReader reader) throws IOException {
+        String line;
+        boolean isBody = false;
+        int contentLength = 0;
+        StringBuilder body = new StringBuilder();
+
+        while ((line = reader.readLine()) != null) {
+            if (line.isEmpty()) { // 헤더와 본문 사이의 빈 줄
+                isBody = true;
+                break;
+            }
+            if (line.toLowerCase().startsWith("content-length:")) {
+                contentLength = Integer.parseInt(line.split(":")[1].trim());
+            }
+        }
+
+        if (isBody && contentLength > 0) {
+            char[] buffer = new char[contentLength];
+            int read = reader.read(buffer, 0, contentLength);
+            if (read > 0) {
+                body.append(buffer, 0, read);
+            }
+            logger.debug("Body = {}", body);
+        }
+        return body.toString();
     }
 }
