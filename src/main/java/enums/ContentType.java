@@ -13,7 +13,7 @@ public enum ContentType {
 	APPLICATION_JAVASCRIPT("application/javascript", "js"),
 	APPLICATION_JSON("application/json", "json"),
 	APPLICATION_XML("application/xml", "xml"),
-	APPLICATION_OCTET_STREAM("application/octet-stream", ".unknown");
+	APPLICATION_OCTET_STREAM("application/octet-stream", ".bin");
 
 	private final String mimeType;
 
