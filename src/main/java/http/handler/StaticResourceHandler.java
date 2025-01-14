@@ -11,7 +11,6 @@ import java.io.IOException;
 
 public class StaticResourceHandler implements Handler {
     private static final String STATIC_RESOURCE_PATH = "./src/main/resources/static";
-    private static final String NOT_FOUND_MESSAGE = "<h1>404 Not Found</h1>";
 
     private static StaticResourceHandler instance = new StaticResourceHandler();
 

@@ -32,6 +32,7 @@ public enum HttpMethod {
     }
 
     public static HttpMethod getMethodFromString(String method) {
+        if (method == null) return INVALID;
         HttpMethod httpMethod = HTTP_METHOD_MAP.get(method.toUpperCase());
         return httpMethod != null ? httpMethod : INVALID;
     }

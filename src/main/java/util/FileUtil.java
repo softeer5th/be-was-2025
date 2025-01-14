@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class FileUtil {
+    private static final String INDEX_HTML = "/index.html";
+
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {}
@@ -25,5 +27,16 @@ public class FileUtil {
         } else {
             return null;
         }
+    }
+
+    public static boolean isExists(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            if (file.isFile()) return true;
+
+            if (!path.endsWith("/")) path += "/";
+            file = new File(path + INDEX_HTML);
+        }
+        return file.exists();
     }
 }

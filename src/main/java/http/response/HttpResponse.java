@@ -35,11 +35,20 @@ public class HttpResponse {
         writeResponseBody(body);
     }
 
+    public void sendRedirectResponse(HttpResponseStatus status, String location) throws IOException {
+        writeResponseHeader(status, ContentType.HTML.getMimeType(), location);
+    }
+
     private void writeResponseHeader(HttpResponseStatus responseStatus, String contentType, String body) throws IOException {
         logger.debug("Output: " + responseStatus + " " + contentType);
         dos.writeBytes(HttpVersion.HTTP_1_1.getVersion() + " " + responseStatus.getStatusCode() + " " + responseStatus.getStatusMessage() + " \r\n");
         dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
-        dos.writeBytes("Content-Length: " + body.getBytes("UTF-8").length + "\r\n");
+        if (responseStatus == HttpResponseStatus.FOUND) {
+            dos.writeBytes("Content-Length: 0" + "\r\n");
+            dos.writeBytes("Location: " + body);
+        } else {
+            dos.writeBytes("Content-Length: 0" + body.getBytes("UTF-8").length + "\r\n");
+        }
         dos.writeBytes("\r\n");
     }
 

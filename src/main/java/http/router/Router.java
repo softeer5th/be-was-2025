@@ -38,16 +38,8 @@ public class Router {
     }
 
     private void initializeRoutes() {
-        routes.put("/",                 staticResourceHandler);
-        routes.put("/article",          staticResourceHandler);
-        routes.put("/comment",          staticResourceHandler);
-        routes.put("/img",              staticResourceHandler);
-        routes.put("/login",            staticResourceHandler);
-        routes.put("/main",             staticResourceHandler);
-        routes.put("/mypage",           staticResourceHandler);
-        routes.put("/registration",     staticResourceHandler);
-        routes.put("/user",             userHandler);
-        routes.put("/user/create",      userHandler);
+        routes.put("/user", userHandler);
+        routes.put("/user/create", userHandler);
     }
 
     public void addRoute(String path, Handler handler) {
@@ -60,15 +52,16 @@ public class Router {
         HttpMethod httpMethod = request.getMethod();
         TargetInfo targetInfo = request.getTarget();
         String path = targetInfo != null ? targetInfo.getPath() : null;
-        if (path != null && httpMethod.equals(HttpMethod.GET)) {
-            if (path.matches(compareExtensionRegex)) {
-                return StaticResourceHandler.getInstance(); // 파일 요청 처리
-            }
-            for (String target : routes.keySet()) {
-                if (path.startsWith(target)) {
-                    return routes.get(target);
+
+        if (path != null) {
+            if (!path.matches(compareExtensionRegex)) { // 확장자를 가지지 않은 파일 및 경로에 대한 요청인 경우 동적 요청에 대해 우선 순위로 처리
+                for (String target : routes.keySet()) {
+                    if (path.startsWith(target)) {
+                        return routes.get(target);
+                    }
                 }
             }
+            return StaticResourceHandler.getInstance(); // 정적 파일 요청 처리
         }
         return badRequestHandler;
     }
