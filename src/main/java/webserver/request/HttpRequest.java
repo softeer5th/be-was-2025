@@ -1,10 +1,10 @@
 package webserver.request;
 
 
-import webserver.common.HttpHeaders;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpVersionNotSupported;
+import webserver.header.RequestHeader;
 
 import java.util.List;
 import java.util.Map;
@@ -15,12 +15,12 @@ public class HttpRequest {
     private final HttpMethod httpMethod;
     private final RequestTarget requestTarget;
     private final HttpVersion version;
-    private final HttpHeaders headers;
+    private final RequestHeader headers;
 
     private final RequestBody bodyParser;
     private Map<String, String> pathVariables;
 
-    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, RequestBody bodyParser) {
+    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, RequestHeader headers, RequestBody bodyParser) {
         this.httpMethod = httpMethod;
         this.requestTarget = requestTarget;
         this.version = version;
@@ -49,7 +49,7 @@ public class HttpRequest {
         return version;
     }
 
-    public HttpHeaders getHeaders() {
+    public RequestHeader getHeaders() {
         return headers;
     }
 

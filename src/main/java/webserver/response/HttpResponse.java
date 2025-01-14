@@ -1,8 +1,9 @@
 package webserver.response;
 
-import webserver.common.HttpHeaders;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
+import webserver.header.ResponseHeader;
+import webserver.header.SetCookie;
 import webserver.response.body.ResponseBody;
 
 import java.io.File;
@@ -10,14 +11,14 @@ import java.io.File;
 // HTTP 응답에 대한 정보를 담는 객체
 public class HttpResponse {
     private final HttpStatusCode statusCode;
-    private final HttpHeaders headers;
+    private final ResponseHeader headers;
     private ResponseBody body;
 
     public HttpResponse(HttpStatusCode statusCode) {
-        this(statusCode, new HttpHeaders());
+        this(statusCode, new ResponseHeader());
     }
 
-    public HttpResponse(HttpStatusCode statusCode, HttpHeaders headers) {
+    public HttpResponse(HttpStatusCode statusCode, ResponseHeader headers) {
         this.statusCode = statusCode;
         this.headers = headers;
         this.body = ResponseBody.empty();
@@ -32,7 +33,7 @@ public class HttpResponse {
         return statusCode;
     }
 
-    public HttpHeaders getHeaders() {
+    public ResponseHeader getHeaders() {
         return headers;
     }
 
@@ -40,6 +41,19 @@ public class HttpResponse {
         headers.setHeader(key, value);
         return this;
     }
+
+    public void setCookie(String name, String value, int maxAge) {
+        SetCookie setCookie = new SetCookie(name, value);
+        setCookie.setMaxAge(maxAge);
+        headers.addSetCookie(setCookie);
+    }
+
+    public void deleteCookie(String name) {
+        SetCookie setCookie = new SetCookie(name, "");
+        setCookie.setMaxAge(0);
+        headers.addSetCookie(setCookie);
+    }
+
 
     @Override
     public String toString() {
@@ -72,9 +86,9 @@ public class HttpResponse {
 
     private void setContentHeaders() {
         body.getContentLength()
-                .ifPresent(contentLength -> headers.setHeader(HttpHeader.CONTENT_LENGTH, contentLength.toString()));
+                .ifPresent(contentLength -> headers.setHeader(HttpHeader.CONTENT_LENGTH.value, contentLength.toString()));
         body.getContentType()
-                .ifPresent(contentType -> headers.setHeader(HttpHeader.CONTENT_TYPE, contentType.mimeType));
+                .ifPresent(contentType -> headers.setHeader(HttpHeader.CONTENT_TYPE.value, contentType.mimeType));
 
     }
 }

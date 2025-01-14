@@ -16,6 +16,12 @@ import java.util.Map;
 public class RegistrationHandler implements HttpHandler {
 
     private static final Logger log = LoggerFactory.getLogger(RegistrationHandler.class);
+    private final Database database;
+
+    public RegistrationHandler(Database database) {
+        this.database = database;
+    }
+
 
     @Override
     public HttpResponse handlePost(HttpRequest request) {
@@ -23,12 +29,12 @@ public class RegistrationHandler implements HttpHandler {
         log.debug("body: {}", body);
         User user = mapToUser(body);
         // 중복 사용자 검사
-        if (Database.findUserById(user.getUserId()) != null) {
+        if (database.findUserById(user.getUserId()) != null) {
             throw new Conflict("User Id Already Exists");
         }
 
         // 데이터베이스에 사용자 추가
-        Database.addUser(user);
+        database.addUser(user);
         return HttpResponse.redirect(PageMappingPath.INDEX.path);
     }
 
