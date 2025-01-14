@@ -5,15 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponse {
-
     private HttpRequest request;
-
     private DataOutputStream dos;
-
     private HttpStatus status = HttpStatus.OK;
-
     private final Map<String, String> headers = new HashMap<>();
-
     private byte[] body;
 
     public HttpResponse() {}
