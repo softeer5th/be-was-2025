@@ -29,4 +29,8 @@ public class ParameterParser {
     public String getPassword(){
         return parameterMap.get("password");
     }
+
+    public String getEmail(){
+        return parameterMap.get("email");
+    }
 }

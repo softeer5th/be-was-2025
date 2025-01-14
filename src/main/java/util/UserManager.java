@@ -9,9 +9,10 @@ public class UserManager {
         String userId = parameterParser.getId();
         String userName = parameterParser.getName();
         String password = parameterParser.getPassword();
+        String email = parameterParser.getEmail();
 
         if (Database.findUserById(userId) == null) {
-            User user = new User(userId, userName, password, "");
+            User user = new User(userId, userName, password, email);
             Database.addUser(user);
         } else throw new IllegalArgumentException("id: " + userId + " is already exists");
     }
