@@ -13,6 +13,7 @@ import java.io.IOException;
 public class HttpResponse {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
 
     private HttpStatus status;
     private final Map<String, String> headers;

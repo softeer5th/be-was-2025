@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
 
 public class UserRegisterHandler implements Handler {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserRegisterHandler.class);
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {

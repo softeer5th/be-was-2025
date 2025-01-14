@@ -15,7 +15,7 @@ import webserver.RequestHandler;
 
 public class RequestRouter implements Router {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestRouter.class);
 
     private final Map<Pattern, Handler> routeMap;
 

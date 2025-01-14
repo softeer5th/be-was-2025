@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class FileUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     public static byte[] readHtmlFileAsBytes(String filepath) {
         try {
