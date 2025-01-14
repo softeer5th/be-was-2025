@@ -4,7 +4,6 @@ import exception.BaseException;
 import exception.FileErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.RequestHandler;
 
 import java.io.BufferedInputStream;
 import java.io.File;

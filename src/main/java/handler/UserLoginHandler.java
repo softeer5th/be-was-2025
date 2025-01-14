@@ -1,41 +1,52 @@
 package handler;
 
-import static http.HttpMethod.POST;
-
+import db.Database;
+import db.SessionManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import http.HttpRequestInfo;
+import http.HttpResponse;
 import http.HttpStatus;
+import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import util.SessionUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import model.User;
-import http.HttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static http.HttpMethod.POST;
 
-public class UserRegisterHandler implements Handler {
-    private static final Logger logger = LoggerFactory.getLogger(UserRegisterHandler.class);
+public class UserLoginHandler implements Handler {
+    private static final Logger logger = LoggerFactory.getLogger(UserLoginHandler.class);
+
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
+        logger.info("UserLoginHandler");
         if (request.getMethod() != POST) {
             throw new BaseException(HttpErrorCode.INVALID_HTTP_METHOD);
         }
         HttpResponse response = new HttpResponse();
         Map<String, String> queryParams = parseQueryParams(request.getBody());
-
         String userId = queryParams.get("userId");
-        String nickname = queryParams.get("nickname");
         String password = queryParams.get("password");
-        String email = queryParams.get("email");
 
-        User user = new User(userId, nickname, password, email);
-        user.registerUser();
+        User user = Database.findUserById(userId);
+        if (user == null || !user.getPassword().equals(password)) {
+            logger.debug("User with id {} and password {} not found", userId, password);
+            response.setStatus(HttpStatus.FOUND);
+            response.setHeaders("Location", "/login/failed.html");
+            return response;
+        }
 
+        String sid = SessionUtil.generateSessionID();
+        SessionManager.saveSession(sid, userId);
+
+        response.setCookies("sid=" + sid);
+        response.setCookies("Path=/");
         response.setStatus(HttpStatus.FOUND);
-        response.setHeaders("Location", "/registration/success.html");
+        response.setHeaders("Location", "/index.html");
 
         return response;
     }
@@ -47,8 +58,8 @@ public class UserRegisterHandler implements Handler {
             throw new BaseException(HttpErrorCode.INVALID_QUERY_PARAM);
         }
         String[] pairs = query.split("&");
-        if (pairs.length != 4) {
-            logger.error("Query pair size is not 4");
+        if (pairs.length != 2) {
+            logger.error("Query pair size is not 2");
             throw new BaseException(HttpErrorCode.INVALID_QUERY_PARAM);
         }
         for (String pair : pairs) {
@@ -62,5 +73,4 @@ public class UserRegisterHandler implements Handler {
         }
         return params;
     }
-
 }

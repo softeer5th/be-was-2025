@@ -1,23 +1,26 @@
 package http;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.RequestHandler;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class HttpResponse {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
+    private static final String NEW_LINE = "\r\n";
 
     private HttpStatus status;
     private final Map<String, String> headers;
     private byte[] body;
+    private final List<String> cookies = new ArrayList<>();
 
     public HttpResponse() {
         this.status = HttpStatus.OK;
@@ -48,6 +51,10 @@ public class HttpResponse {
         headers.put("Content-Type", fileExtension);
     }
 
+    public void setCookies(String value) {
+        cookies.add(value);
+    }
+
     public void setBody(String bodyString) {
         byte[] content = bodyString.getBytes(StandardCharsets.UTF_8);
         setBody(content);
@@ -63,13 +70,22 @@ public class HttpResponse {
 
     public void send(DataOutputStream dos) {
         try {
-            dos.writeBytes("HTTP/1.1 " + status.getCode() + " " + status.getMessage() + "\r\n");
+            dos.writeBytes("HTTP/1.1 " + status.getCode() + " " + status.getMessage() + NEW_LINE);
 
             for (Map.Entry<String, String> entry : headers.entrySet()) {
-                dos.writeBytes(entry.getKey() + ": " + entry.getValue() + "\r\n");
+                dos.writeBytes(entry.getKey() + ": " + entry.getValue() + NEW_LINE);
             }
-            dos.writeBytes("\r\n");
 
+            dos.writeBytes("Set-Cookie: ");
+            int cookieCount = cookies.size();
+            for (int i = 0; i < cookieCount; i++) {
+                dos.writeBytes(cookies.get(i));
+                if (i < cookieCount - 1) {
+                    dos.writeBytes("; ");
+                }
+            }
+
+            dos.writeBytes(NEW_LINE + NEW_LINE);
             if (body != null && body.length > 0) {
                 dos.write(body, 0, body.length);
             }
