@@ -1,77 +1,76 @@
 package webserver;
 
+import http.HttpMethod;
+import http.HttpRequestInfo;
+import exception.BaseException;
+import exception.HttpErrorCode;
+import handler.Handler;
 import java.io.*;
 import java.net.Socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.FileUtil;
+import router.Router;
+import http.HttpResponse;
 
 public class RequestHandler implements Runnable {
+
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String BASE_DIRECTORY = "src/main/resources/static";
 
     private Socket connection;
+    private final Router router;
 
-    public RequestHandler(Socket connectionSocket) {
+    public RequestHandler(Socket connectionSocket, Router router) {
         this.connection = connectionSocket;
+        this.router = router;
     }
 
     public void run() {
-        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
+        logger.debug("New Client Connect! Connected IP : {}, Port : {}",
+            connection.getInetAddress(),
+            connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            HttpRequestInfo httpRequestInfo = requestParse(in);
             DataOutputStream dos = new DataOutputStream(out);
 
+            HttpResponse response;
 
-            String requestLine = reader.readLine();
-            if (requestLine == null) return;
-            logger.debug("Request : {}", requestLine);
+            try {
+                final Handler handler = router.route(httpRequestInfo.getPath());
+                logger.debug("Url = " + httpRequestInfo.getPath());
 
-            String[] tokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
-            String filepath = tokens[1];
-            byte[] body = FileUtil.readHtmlFileAsBytes(BASE_DIRECTORY + filepath);
-            if (body != null) {
-                String contentType = FileUtil.getContentType(filepath);
-                response200Header(dos, body.length, contentType);
-                responseBody(dos, body);
-            } else {
-                response404Header(dos);
-                responseBody(dos, null);
+                response = handler.handle(httpRequestInfo);
+            } catch (BaseException e) {
+                response = new HttpResponse(e.getStatus(), "text/html; charset=utf-8", e.getMessage());
+                logger.error(e.getMessage());
             }
+
+            response.send(dos);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
+    private HttpRequestInfo requestParse(InputStream in) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-    private void response404Header(DataOutputStream dos) {
-        try {
-            dos.writeBytes("HTTP/1.1 404 Not Found \r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+        String requestLine = reader.readLine();
+        if (requestLine == null || requestLine.trim().isEmpty()) {
+            logger.error("Request line is empty");
+            throw new BaseException(HttpErrorCode.INVALID_HTTP_REQUEST);
         }
-    }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+        String[] requestTokens = requestLine.replaceAll("\\s+", " ").trim().split(" ");
+        if (requestTokens.length != 3) {
+            logger.error("Request token length is not 3");
+            throw new BaseException(HttpErrorCode.INVALID_HTTP_REQUEST);
         }
+
+        HttpMethod httpMethod = HttpMethod.match(requestTokens[0].toLowerCase());
+        String url = requestTokens[1];
+        logger.debug("Request mehtod = {}, url = {}", httpMethod, url);
+
+        return new HttpRequestInfo(httpMethod, url);
     }
 }

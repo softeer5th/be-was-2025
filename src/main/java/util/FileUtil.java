@@ -1,5 +1,7 @@
 package util;
 
+import exception.BaseException;
+import exception.FileErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
@@ -10,17 +12,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class FileUtil {
+
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     public static byte[] readHtmlFileAsBytes(String filepath) {
         try {
             File file = new File(filepath);
-
-            // filepath가 디렉토리인 경우 /index.html을 추가
-            if( file.isDirectory()) {
-                filepath += "/index.html";
-                file = new File(filepath);
+            if (!file.exists() || file.isDirectory()) {
+                logger.error("File not found or is a directory: {}", filepath);
+                throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
             }
+
             FileInputStream fis = new FileInputStream(file);
             BufferedInputStream bis = new BufferedInputStream(fis);
 
@@ -28,28 +30,24 @@ public class FileUtil {
             bis.read(body);
             return body;
         } catch (IOException e) {
-            logger.error(e.getMessage());
-            return null;
+            logger.error("File read error: {}", e.getMessage());
+            throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
         }
     }
 
-    public static String getContentType(String filepath) {
-        if (filepath.endsWith(".html")) {
-            return "text/html";
-        } else if (filepath.endsWith(".css")) {
-            return "text/css";
-        } else if (filepath.endsWith(".js")) {
-            return "application/javascript";
-        } else if (filepath.endsWith(".jpg")) {
-            return "image/jpeg";
-        } else if (filepath.endsWith(".png")) {
-            return "image/png";
-        } else if (filepath.endsWith(".ico")) {
-            return "image/x-icon";
-        } else if( filepath.endsWith(".svg")) {
-            return "image/svg+xml";
-        }
-        return "application/octet-stream";
+    public static String getContentType(String path) {
+        int dotIndex = path.toLowerCase().lastIndexOf('.');
+        String extension = path.substring(dotIndex + 1);
+        return switch (extension) {
+            case "html" -> "text/html; charset=utf-8";
+            case "css" -> "text/css";
+            case "js" -> "application/javascript";
+            case "ico" -> "image/x-icon";
+            case "jpg" -> "image/jpeg";
+            case "svg" -> "image/svg+xml";
+            case "png" -> "image/png";
+            default -> "application/octet-stream";
+        };
     }
 }
 
