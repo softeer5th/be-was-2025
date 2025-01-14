@@ -1,6 +1,7 @@
 package webserver.message;
 
 import util.HeterogeneousContainer;
+import webserver.enumeration.HTTPVersion;
 
 import java.util.LinkedHashMap;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package resolver.records;
+package webserver.resolver.records;
 
 import webserver.functional.TypeParser;
 

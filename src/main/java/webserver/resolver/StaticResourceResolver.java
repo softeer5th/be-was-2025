@@ -1,4 +1,4 @@
-package resolver;
+package webserver.resolver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +9,6 @@ import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 import webserver.message.header.records.AcceptRecord;
 
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;

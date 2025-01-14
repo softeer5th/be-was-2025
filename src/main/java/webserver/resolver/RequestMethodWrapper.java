@@ -1,6 +1,6 @@
-package resolver;
+package webserver.resolver;
 
-import resolver.records.ParameterMetaInfo;
+import webserver.resolver.records.ParameterMetaInfo;
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
 import webserver.message.HTTPRequest;

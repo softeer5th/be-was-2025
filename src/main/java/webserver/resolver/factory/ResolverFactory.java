@@ -1,9 +1,9 @@
-package resolver.factory;
+package webserver.resolver.factory;
 
 import entrypoint.UserEntryPoint;
-import resolver.ResourceResolver;
-import resolver.SequentialResolver;
-import resolver.StaticResourceResolver;
+import webserver.resolver.ResourceResolver;
+import webserver.resolver.SequentialResolver;
+import webserver.resolver.StaticResourceResolver;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;

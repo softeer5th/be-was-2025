@@ -1,4 +1,4 @@
-package webserver.message;
+package webserver.enumeration;
 
 public enum HTTPVersion {
     HTTP_1_0,

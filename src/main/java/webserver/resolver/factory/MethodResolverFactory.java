@@ -1,9 +1,9 @@
-package resolver.factory;
+package webserver.resolver.factory;
 
-import resolver.RequestMethodMapper;
-import resolver.RequestMethodWrapper;
-import resolver.ResourceResolver;
-import resolver.records.ParameterMetaInfo;
+import webserver.resolver.RequestMethodMapper;
+import webserver.resolver.RequestMethodWrapper;
+import webserver.resolver.ResourceResolver;
+import webserver.resolver.records.ParameterMetaInfo;
 import webserver.annotation.RequestMapping;
 import webserver.annotation.RequestParam;
 import webserver.functional.TypeParser;

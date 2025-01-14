@@ -1,4 +1,4 @@
-package resolver;
+package webserver.resolver;
 
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
