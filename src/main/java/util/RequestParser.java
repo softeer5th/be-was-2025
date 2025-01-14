@@ -27,9 +27,9 @@ public class RequestParser {
             HttpRequestHandler requestHandler = new HttpRequestHandler();
             requestHandler.handleRequest(httpRequest, httpResponse);
         } catch (InvalidRequestLineSyntaxException e) {
-            logger.error(e.getMessage());
-            byte[] body = e.getMessage().getBytes();
-            response(dos, HttpStatus.BAD_REQUEST, body);
+            errorResponse(dos, HttpStatus.BAD_REQUEST, e);
+        } catch (UnsupportedEncodingException e) {
+            errorResponse(dos, HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
     }
 
@@ -64,7 +64,9 @@ public class RequestParser {
         return tokens;
     }
 
-    private void response(DataOutputStream dos, HttpStatus httpStatus, byte[] body) throws IOException {
+    private void errorResponse(DataOutputStream dos, HttpStatus httpStatus, Exception e) throws IOException {
+        logger.error(e.getMessage());
+        byte[] body = e.getMessage().getBytes();
         dos.writeBytes(String.format("%s %d %s", HttpHeader.PROTOCOL.value(), httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
         dos.writeBytes(String.format("%s: %s", HttpHeader.CONTENT_TYPE.value(), MimeType.TXT.getMimeType()));
         dos.writeBytes(String.format("%s: %d", HttpHeader.CONTENT_LENGTH, body.length));

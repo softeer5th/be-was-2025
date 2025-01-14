@@ -3,7 +3,9 @@ package http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +23,12 @@ public class HttpRequest {
     private final URI uri;
 
 
-    public HttpRequest(String method, String path, String version, List<String> request) {
+    public HttpRequest(String method, String path, String version, List<String> request) throws UnsupportedEncodingException {
         this.method = method;
         this.version = version;
 
         this.uri = URI.create(path);
-        this.path = uri.getPath();
+        this.path = URLDecoder.decode(uri.getPath(), "UTF-8");
 
         this.headers = parseHeaders(request);
         this.queries = parseQuery(uri.getQuery());
@@ -37,7 +39,7 @@ public class HttpRequest {
         Map<String, String> headers = new HashMap<>();
         for (String header: request) {
             if (header.isBlank()) break;
-            String[] tokens = header.split(":");
+            String[] tokens = header.split(":", 2);
             headers.put(tokens[0].trim().toLowerCase(), tokens[1].trim());
         }
 
