@@ -1,8 +1,7 @@
 package handler;
 
-import model.HttpStatusCode;
-import util.FileFinder;
-import util.RequestParser;
+import util.enums.HttpStatusCode;
+import webserver.request.RequestParser;
 import webserver.response.ResponseWriter;
 
 import java.io.DataOutputStream;

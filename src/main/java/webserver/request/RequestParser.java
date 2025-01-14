@@ -1,7 +1,6 @@
-package util;
+package webserver.request;
 
-import model.Mime;
-import org.slf4j.Logger;
+import util.enums.Mime;
 
 import java.io.BufferedReader;
 import java.io.IOException;

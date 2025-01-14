@@ -1,7 +1,7 @@
 package webserver.response;
 
-import model.HttpStatusCode;
-import util.RequestParser;
+import util.enums.HttpStatusCode;
+import webserver.request.RequestParser;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

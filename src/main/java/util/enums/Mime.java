@@ -1,4 +1,4 @@
-package model;
+package util.enums;
 
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package model;
+package util.enums;
 
 public enum Page {
     MAIN_PAGE("/"),

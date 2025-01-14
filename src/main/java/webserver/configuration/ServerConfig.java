@@ -1,4 +1,4 @@
-package webserver;
+package webserver.configuration;
 
 public class ServerConfig {
     private final int DEFAULT_PORT;

@@ -1,8 +1,7 @@
 package handler;
 
-import model.HttpStatusCode;
-import model.Page;
-import util.RequestParser;
+import util.enums.Page;
+import webserver.request.RequestParser;
 import util.UserManager;
 import webserver.response.ResponseWriter;
 

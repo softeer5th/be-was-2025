@@ -1,7 +1,7 @@
 package webserver.response;
 
 import util.FileFinder;
-import util.RequestParser;
+import webserver.request.RequestParser;
 
 import java.io.IOException;
 import java.util.HashMap;

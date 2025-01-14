@@ -1,7 +1,7 @@
 package handler;
 
 
-import util.RequestParser;
+import webserver.request.RequestParser;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
