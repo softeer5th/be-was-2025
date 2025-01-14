@@ -14,6 +14,7 @@ import request.HttpRequestInfo;
 import response.HttpResponse;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -82,5 +83,30 @@ class UserRequestHandlerTest {
                 .isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaderValue(HttpHeader.LOCATION.getName()))
                 .isEqualTo(LOGIN_FAIL_URL);
+    }
+
+    @Test
+    @DisplayName("로그아웃 한다.")
+    void handle_logout() {
+        String userId = "jueun";
+        String password = "password";
+        String email = "email";
+        String name = "name";
+        HttpRequestInfo login = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
+        Database.addUser(new User(userId, password, email, name));
+
+        final HttpResponse loginResponse = userRequestHandler.handle(login);
+
+        final String setCookie = loginResponse.getHeaderValue(HttpHeader.SET_COOKIE.getName());
+        // SID=PpbZz; Path=/
+        final String sessionId = setCookie.split(";")[0].substring("SID=".length());
+        System.out.println(sessionId);
+        HttpRequestInfo logout = new HttpRequestInfo(HttpMethod.GET, "/user/logout", HttpVersion.HTTP1_1, Map.of(HttpHeader.SET_COOKIE.getName(), sessionId), "");
+        final HttpResponse response = userRequestHandler.handle(logout);
+
+        assertThat(response.getHeaderValue(HttpHeader.SET_COOKIE.getName()))
+                .isEqualTo("SID=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/");
+
+
     }
 }
