@@ -25,7 +25,7 @@ public class SessionManager {
 
         final String sessionId = sessionBuilder.toString();
 
-        sessionMap.put(userId, sessionId);
+        sessionMap.put(sessionId, userId);
         return sessionId;
     }
 
