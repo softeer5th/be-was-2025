@@ -3,6 +3,7 @@ package global.util;
 import global.model.CommonResponse;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JsonUtil {
 
@@ -31,10 +32,41 @@ public class JsonUtil {
         return sb.toString();
     }
 
+    public static Map<String, String> fromJson(String json) {
+        Map<String, String> result = new ConcurrentHashMap<>();
+        json = json.trim();
+
+        if (json.startsWith("{") && json.endsWith("}")) {
+            json = json.substring(1, json.length() - 1);
+        } else {
+            throw new IllegalArgumentException("Invalid JSON format");
+        }
+
+        String[] pairs = json.split(",");
+        for (String pair : pairs) {
+            String[] kv = pair.split(":", 2);
+            if (kv.length != 2) {
+                throw new IllegalArgumentException("Invalid JSON format");
+            }
+            String key = unescape(kv[0].trim().replaceAll("^\"|\"$", ""));
+            String value = unescape(kv[1].trim().replaceAll("^\"|\"$", ""));
+            result.put(key, value);
+        }
+
+        return result;
+    }
+
     private static String escape(String str) {
         if (str == null) return "";
         return str
                 .replace("\\", "\\\\")
                 .replace("\"", "\\\"");
+    }
+
+    private static String unescape(String str) {
+        if (str == null) return "";
+        return str
+                .replace("\\\"", "\"")
+                .replace("\\\\", "\\");
     }
 }
