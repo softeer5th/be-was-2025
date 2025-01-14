@@ -39,11 +39,6 @@ public class HttpRequestHandler {
             httpResponse.writeStatusLine(HttpStatus.INTERNAL_SERVER_ERROR);
             httpResponse.writeBody(body, MimeType.TXT.getMimeType());
             httpResponse.send();
-        } catch (InvalidRequestLineSyntaxException e) {
-            byte[] body = e.getMessage().getBytes();
-            httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
-            httpResponse.send();
         } catch (NoSuchPathException e) {
             byte[] body = e.httpStatus.getReasonPhrase().getBytes();
             httpResponse.writeStatusLine(e.httpStatus);
