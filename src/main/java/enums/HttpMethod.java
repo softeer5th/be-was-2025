@@ -1,14 +1,18 @@
 package enums;
 
+import exception.ClientErrorException;
+
+import static exception.ErrorCode.INVALID_HTTP_METHOD;
+
 public enum HttpMethod {
     GET,
     POST;
 
-    public static HttpMethod match(String method) {
-        return switch (method) {
-            case "GET" -> GET;
-            case "POST" -> POST;
-            default -> throw new IllegalArgumentException("잘못된 http method입니다.");
-        };
+    public static HttpMethod matchOrElseThrow(String method) {
+        try {
+            return HttpMethod.valueOf(method);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new ClientErrorException(INVALID_HTTP_METHOD);
+        }
     }
 }
