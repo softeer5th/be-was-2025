@@ -1,13 +1,15 @@
 package handler;
 
-import static http.HttpMethod.GET;
+import static http.HttpMethod.POST;
 
 import exception.BaseException;
 import exception.HttpErrorCode;
 import http.HttpRequestInfo;
 import http.HttpStatus;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import model.User;
 import http.HttpResponse;
 
@@ -17,24 +19,22 @@ public class UserRegisterHandler implements Handler {
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
-        String path = request.getPath().substring(USER_REQUEST_PREFIX.length());
-        HttpResponse response = new HttpResponse();
-
-        if (request.getMethod().equals(GET) && path.startsWith("register?")) {
-            String query = path.substring("register?".length());
-            Map<String, String> queryParams = parseQueryParams(query);
-
-            String userId = queryParams.get("userId");
-            String nickname = queryParams.get("nickname");
-            String password = queryParams.get("password");
-            String email = queryParams.get("email");
-
-            User user = new User(userId, nickname, password, email);
-            user.registerUser();
-
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeaders("Location", "/registration/success.html");
+        if (request.getMethod() != POST) {
+            throw new BaseException(HttpErrorCode.INVALID_HTTP_METHOD);
         }
+        HttpResponse response = new HttpResponse();
+        Map<String, String> queryParams = parseQueryParams(request.getBody());
+
+        String userId = queryParams.get("userId");
+        String nickname = queryParams.get("nickname");
+        String password = queryParams.get("password");
+        String email = queryParams.get("email");
+
+        User user = new User(userId, nickname, password, email);
+        user.registerUser();
+
+        response.setStatus(HttpStatus.FOUND);
+        response.setHeaders("Location", "/registration/success.html");
 
         return response;
     }

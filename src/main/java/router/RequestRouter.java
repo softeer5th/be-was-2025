@@ -16,7 +16,7 @@ public class RequestRouter implements Router {
 
     public RequestRouter() {
         routeMap = new HashMap<>();
-        routeMap.put(Pattern.compile("^/users/register\\?[^?]+$"), new UserRegisterHandler());
+        routeMap.put(Pattern.compile("^/users/register$"), new UserRegisterHandler());
         routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg|ico|jpg|png)$"),
             new StaticFileHandler());
         routeMap.put(Pattern.compile("^/[^/]+$"), new StaticFileHandler());
