@@ -24,12 +24,19 @@ class StringBody extends Body {
     }
 
     @Override
-    public Long getContentLength() {
-        return (long) body.getBytes().length;
+    public Optional<Long> getContentLength() {
+        return Optional.of((long) body.getBytes().length);
     }
 
     @Override
     public Optional<ContentType> getContentType() {
         return Optional.of(ContentType.TEXT_PLAIN);
+    }
+
+    @Override
+    public String toString() {
+        return "StringBody{" +
+                "body='" + body + '\'' +
+                '}';
     }
 }

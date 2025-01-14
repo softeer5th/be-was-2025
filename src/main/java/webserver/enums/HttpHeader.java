@@ -2,7 +2,10 @@ package webserver.enums;
 
 public enum HttpHeader {
     CONTENT_TYPE("Content-Type"),
-    CONTENT_LENGTH("Content-Length");
+    CONTENT_LENGTH("Content-Length"),
+    HOST("Host"),
+    LOCATION("Location");
+
 
     public final String value;
 
