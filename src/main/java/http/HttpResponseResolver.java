@@ -1,11 +1,12 @@
 package http;
 
-import model.Mime;
-import util.StaticFileProvider;
+import http.enums.HttpStatus;
+import http.enums.MimeType;
+import util.FileUtil;
 
-import javax.swing.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 public class HttpResponseResolver {
     private static final HttpResponseResolver INSTANCE = new HttpResponseResolver();
@@ -16,32 +17,27 @@ public class HttpResponseResolver {
     public HttpResponseResolver(){
     }
 
-    public void send200Response(DataOutputStream dos, String path, byte[] data) throws IOException {
-        String extension = StaticFileProvider.extractFileExtension(path);
-        String contentType = Mime.getMimeType(extension);
-
-        writeHeader(dos, HttpStatus.OK, contentType, data.length);
-        writeBody(dos, data);
+    public void sendResponse(DataOutputStream dos, HttpResponse httpResponse) throws IOException {
+        writeStatusLine(dos, httpResponse.getHttpStatus());
+        writeHeaders(dos, httpResponse.getHeaders());
+        writeBody(dos, httpResponse.getBody());
     }
 
-    public void send404Response(DataOutputStream dos) throws IOException{
-        String responseData = "Request file Not Found";
-
-        byte[] byteData = responseData.getBytes();
-
-        writeHeader(dos, HttpStatus.NOT_FOUND, "text/plain", byteData.length);
-        writeBody(dos, byteData);
+    private void writeStatusLine(DataOutputStream dos, HttpStatus httpStatus) throws IOException {
+        dos.writeBytes(String.format("HTTP/1.1 %d %s\r\n", httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
     }
 
-    private void writeHeader(DataOutputStream dos, HttpStatus httpStatus, String contentType, int contentLength) throws IOException {
-        dos.writeBytes(String.format("HTTP/1.1 {} {}\r\n", httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
-        dos.writeBytes(String.format("Content-Type: %s;charset=utf-8\r\n", contentType));
-        dos.writeBytes(String.format("Content-Length: %d\r\n", contentLength));
+    private void writeHeaders(DataOutputStream dos, Map<String, String> headers) throws IOException {
+        for(String headerKey: headers.keySet()){
+            dos.writeBytes(String.format("%s: %s\r\n", headerKey, headers.get(headerKey)));
+        }
         dos.writeBytes("\r\n");
     }
 
-    private void writeBody(DataOutputStream dos, byte[] data) throws IOException {
-        dos.write(data, 0, data.length);
+    private void writeBody(DataOutputStream dos, byte[] body) throws IOException {
+        if(body != null){
+            dos.write(body, 0, body.length);
+        }
         dos.flush();
     }
 }
