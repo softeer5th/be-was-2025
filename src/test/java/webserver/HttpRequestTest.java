@@ -30,8 +30,7 @@ class HttpRequestTest {
 		assertThat(httpRequest.getPath()).isEqualTo("/test/path");
 		assertThat(httpRequest.getParameter("param1")).isEqualTo("value1");
 		assertThat(httpRequest.getParameter("param2")).isEqualTo("value2");
-		String actual = new String(httpRequest.getBody(), StandardCharsets.UTF_8);
-		assertThat(actual).isEqualTo("Hello World");
+		assertThat(httpRequest.getBodyAsString()).isEqualTo("Hello World");
 		assertThat(httpRequest.getVersion()).isEqualTo("HTTP/1.1");
 	}
 
@@ -65,7 +64,7 @@ class HttpRequestTest {
 		HttpRequest httpRequest = new HttpRequest(inputStream);
 
 		// Body는 파싱되지 않아 null 이어야 함
-		assertThat(httpRequest.getBody()).isNull();
+		assertThat(httpRequest.getBodyAsByteArray()).isNull();
 	}
 
 }
