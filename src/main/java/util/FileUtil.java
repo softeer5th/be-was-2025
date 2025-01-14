@@ -12,23 +12,35 @@ public class FileUtil {
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
     private static final String BASE_DIRECTORY = "./src/main/resources/static";
 
-    public static File findFileByPath(String path) {
+    public static boolean isFileExist(String path) {
         String filePath = BASE_DIRECTORY + path;
 
         File file = new File(filePath);
 
+        if(file.exists()){
+            if(file.isFile()){
+                return true;
+            }
+            file = new File(filePath + "/index.html");
+
+            if(file.exists()){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static File getFile(String path){
+        String filePath = BASE_DIRECTORY + path;
+        File file = new File(filePath);
+
         // 해당 파일 객체가 디렉토리라면 해당 디렉토리의 index.html 파일을 보여준다.
         if(file.isDirectory()){
-            filePath += "/index.html";
-            return new File(filePath);
+            return new File(filePath + "/index.html");
         }
 
-        // 파일 객체가 존재하는 지만 확인하는 것이 아닌 해당 파일 객체가 디렉토리인지 확인하는 과정이 필요하다.
-        if(file.exists()){
-            return file;
-        }
-
-        return null;
+        return new File(filePath);
     }
 
     public static byte[] readFileToByteArray(File file){

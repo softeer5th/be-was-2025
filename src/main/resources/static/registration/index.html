@@ -27,7 +27,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">아이디</p>
             <input
-              id="loginId-input"
+              id="userId-input"
               class="input_textfield"
               placeholder="아이디를 입력해주세요"
               autocomplete="username"
@@ -36,7 +36,7 @@
           <div class="textfield textfield_size_s">
             <p class="title_textfield">닉네임</p>
             <input
-              id="nickname-input"
+              id="name-input"
               class="input_textfield"
               placeholder="닉네임을 입력해주세요"
               autocomplete="username"
@@ -66,11 +66,11 @@
   </body>
   <script>
     document.getElementById('registration-btn').addEventListener('click', ()=>{
-      const path = '/api/create';
+      const path = '/user/create';
 
       const queryParams = new URLSearchParams({
-        loginId: `${document.getElementById('loginId-input').value}`,
-        nickname: `${document.getElementById('nickname-input').value}`,
+        userId: `${document.getElementById('userId-input').value}`,
+        name: `${document.getElementById('name-input').value}`,
         password: `${document.getElementById('password-input').value}`
       });
 
@@ -79,12 +79,17 @@
       fetch(url, {
         method: "GET",
       }).then((response) => {
-        if(!response.ok){
-          throw new Error("Network response was not ok.");
+        if(response.ok){
+          alert("회원가입 성공!");
+          window.location.href = "/";
+        }else{
+          response.text().then((errorMessage) =>{
+            alert(errorMessage);
+          })
         }
-        // 홈 화면으로 리다이렉트
-         window.location.href = "/";
-      }).catch((error) => console.log(error));
+      }).catch((error) => {
+        console.log(error);
+      })
     })
   </script>
 </html>

@@ -1,7 +1,10 @@
-package http;
+package http.enums;
 
 public enum HttpStatus {
-    OK(200, "OK"), NOT_FOUND(404, "Not Found");
+    OK(200, "OK"),
+    MOVED_PERMANENTLY(301, "Moved Permanently"),
+    NOT_FOUND(404, "Not Found"),
+    INTERNAL_SERVER_ERROR(500, "INTERNAL SERVER ERROR");
 
     private int statusCode;
     private String reasonPhrase;

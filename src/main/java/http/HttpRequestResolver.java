@@ -20,8 +20,6 @@ public class HttpRequestResolver {
         HttpRequest httpRequest = new HttpRequest();
 
         String line = br.readLine();
-        logger.debug("request line: {}", line);
-
         parseHttpRequestLine(line, httpRequest);
 
         // 요청 헤더 읽기
@@ -29,14 +27,16 @@ public class HttpRequestResolver {
             if(line.isBlank()){
                 break;
             }
-            logger.debug("header: {}", line);
+            parseHttpRequestHeader(line, httpRequest);
         }
 
         return httpRequest;
     }
 
     private void parseHttpRequestLine(String requestLine, HttpRequest httpRequest){
-        String[] requestLineParts = requestLine.split(" ");
+        logger.debug("request line: {}", requestLine);
+
+        String[] requestLineParts = requestLine.split("\\s+");
         String[] urlParts = requestLineParts[1].split("\\?");
 
         httpRequest.setMethod(requestLineParts[0]);
@@ -54,7 +54,13 @@ public class HttpRequestResolver {
         for (String queryParam : queryParams){
             String[] queryParamPart = queryParam.split("=");
             // 한글이 전달되는 경우 url 인코딩 값이 넘어온다. 디코딩을 해서 저장한다.
-            httpRequest.putQueryParam(queryParamPart[0], URLDecoder.decode(queryParamPart[1], StandardCharsets.UTF_8));
+            httpRequest.addQueryParam(queryParamPart[0], URLDecoder.decode(queryParamPart[1], StandardCharsets.UTF_8));
         }
+    }
+
+    private void parseHttpRequestHeader(String headerLine, HttpRequest httpRequest){
+        logger.debug("header: {}", headerLine);
+        String[] headerLineParts = headerLine.split(":\\s*");
+        httpRequest.addHeader(headerLineParts[0], headerLineParts[1]);
     }
 }

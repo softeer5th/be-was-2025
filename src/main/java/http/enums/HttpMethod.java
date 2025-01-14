@@ -1,10 +1,17 @@
-package http;
+package http.enums;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public enum HttpMethod {
-    GET("GET"), POST("POST"), PUT("PUT"), DELETE("DELETE");
+    GET("GET"),
+    POST("POST"),
+    PUT("PUT"),
+    DELETE("DELETE"),
+    CONNECT("CONNECT"),
+    HEAD("HEAD"),
+    OPTIONS("OPTIONS"),
+    TRACE("TRACE");
 
     String methodName;
     private static final Map<String, HttpMethod> httpMethods = new HashMap<>();
