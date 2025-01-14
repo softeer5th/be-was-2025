@@ -62,6 +62,8 @@ public class RequestRouter {
                 }
                 byte[] body = readFile(file);
                 HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
+                httpResponse.addHeader("Content-Type", ContentTypeUtil.getContentType(fileExtension));
+                httpResponse.addHeader("Content-Length", String.valueOf(body.length));
                 httpResponse.respond();
             } catch (IOException e) {
                 logger.error(Arrays.toString(e.getStackTrace()));
