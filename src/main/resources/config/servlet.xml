@@ -1,7 +1,7 @@
 <web-app>
     <servlet>
         <url>/api/registration</url>
-        <method>GET</method>
+        <method>POST</method>
         <class>servlet.RegisterServlet</class>
     </servlet>
 </web-app>

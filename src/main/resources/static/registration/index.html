@@ -5,32 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="../reset.css" rel="stylesheet" />
   <link href="../global.css" rel="stylesheet" />
-  <script>
-    async function handleFormSubmit(event) {
-      event.preventDefault(); // 기본 폼 제출 동작 중단
-
-      const form = event.target;
-      const formData = new FormData(form);
-      const queryParams = new URLSearchParams(formData).toString(); // GET 쿼리 문자열 생성
-
-      try {
-        // 서버로 GET 요청 보내기
-        const response = await fetch(`${form.action}?${queryParams}`, {
-          method: form.method,
-        });
-
-        if (response.status === 201) {
-          alert("회원가입에 성공하셨습니다!");
-          window.location.href = "/login";
-        } else {
-          const errorText = await response.text();
-          alert(`회원가입 실패: ${errorText}`);
-        }
-      } catch (error) {
-        alert(`에러 발생: ${error.message}`);
-      }
-    }
-  </script>
+  <title>회원가입</title>
 </head>
 <body>
 <div class="container">
@@ -49,7 +24,7 @@
   </header>
   <div class="page">
     <h2 class="page-title">회원가입</h2>
-    <form class="form" action="/api/registration" method="GET" onsubmit="handleFormSubmit(event)">
+    <form class="form" action="/api/registration" method="POST">
       <div class="textfield textfield_size_s">
         <p class="title_textfield">아이디</p>
         <input
