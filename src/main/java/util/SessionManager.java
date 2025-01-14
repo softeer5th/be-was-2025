@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class SessionManager {
     public Map<String, String> sessionMap;
-    private static final String SID = "SID";
+
     private static final String CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final int STRING_LENGTH = 5;
 
@@ -14,7 +14,7 @@ public class SessionManager {
         this.sessionMap = new HashMap<>();
     }
 
-    public String makeAndSaveSessionId(String userId) {
+    public String makeAndSaveSessionId(final String userId) {
         Random random = new Random();
         StringBuilder sessionBuilder = new StringBuilder(STRING_LENGTH);
 
@@ -29,7 +29,4 @@ public class SessionManager {
         return sessionId;
     }
 
-    public String makeHeaderValueWithSession(String sessionId) {
-        return String.format("%s=%s; Path=/", SID, sessionId);
-    }
 }

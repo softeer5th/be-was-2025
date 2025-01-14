@@ -13,7 +13,6 @@ import request.HttpRequestInfo;
 import request.UserCreateRequest;
 import request.UserLoginRequest;
 import response.HttpResponse;
-import util.SessionManager;
 
 import static enums.HttpMethod.POST;
 import static exception.ErrorCode.METHOD_NOT_ALLOWED;
@@ -22,13 +21,13 @@ public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
     private static final String USER_REQUEST_PREFIX = "/user/";
     private static final String REDIRECT_URL = "http://localhost:8080/index.html";
+    private static final String LOGIN_FAIL_URL = "http://localhost:8080/login/fail.html";
+    private static final String SID = "SID";
 
     private final UserManager userManager;
-    private final SessionManager sessionManager;
 
     public UserRequestHandler() {
         userManager = new UserManager();
-        sessionManager = new SessionManager();
     }
 
     @Override
@@ -40,7 +39,7 @@ public class UserRequestHandler implements Handler {
         HttpResponse response = new HttpResponse();
 
         if (path.startsWith("create")) {
-            validHttpMethodForCreateUser(request.getMethod());
+            checkPostMethod(request.getMethod());
 
             UserCreateRequest userCreateRequest = UserCreateRequest.of((String) request.getBody());
 
@@ -49,28 +48,24 @@ public class UserRequestHandler implements Handler {
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "successssssss");
             response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_URL);
         } else if (path.startsWith("login")) {
-            validHttpMethodForCreateUser(request.getMethod());
+            checkPostMethod(request.getMethod());
             UserLoginRequest userLoginRequest = UserLoginRequest.of((String) request.getBody());
 
             try {
-                userManager.loginUser(userLoginRequest);
-
-                final String sessionId = sessionManager.makeAndSaveSessionId(userLoginRequest.userId());
+                final String sessionId = userManager.loginUser(userLoginRequest);
 
                 response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "login success");
-                response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_URL);
-                response.setHeaders(HttpHeader.SET_COOKIE.getName(), sessionManager.makeHeaderValueWithSession(sessionId));
+                response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_URL, HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; Path=/", SID, sessionId));
             } catch (LoginException e) {
                 response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, e.getMessage());
-                response.setHeaders(HttpHeader.LOCATION.getName(), "http://localhost:8080/login/fail.html");
-
+                response.setHeaders(HttpHeader.LOCATION.getName(), LOGIN_FAIL_URL);
             }
         }
 
         return response;
     }
 
-    private void validHttpMethodForCreateUser(HttpMethod method) {
+    private void checkPostMethod(final HttpMethod method) {
         if (method != POST)
             throw new ClientErrorException(METHOD_NOT_ALLOWED);
     }
