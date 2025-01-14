@@ -55,7 +55,7 @@ public class HttpRequestParser {
             if (++totalReadBytes > MAX_HEADER_SIZE)
                 throw new HttpException(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, "Header Size가 너무 큽니다.");
             sb.append((char) buf);
-            // \n 혹은 \r\n이 나오면 header가 끝난 것으로 간주
+            // \n 혹은 \r\n이 2번 나오면 header가 끝난 것으로 간주
             if (sb.length() >= 4 && sb.substring(sb.length() - 4).matches("(" + HTTP_HEADERS_END_DELIMITER.value + ")$")) {
                 break;
             }
