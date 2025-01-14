@@ -39,8 +39,10 @@ public class UserHandler {
         Map<String, String> map = new HashMap<>();
         String[] tokens = body.split("&");
         for(String token: tokens) {
-            String[] values = token.split("=");
-            map.putIfAbsent(values[0].trim(), values[1].trim());
+            String[] items = token.split("=");
+            String key = items[0].trim();
+            String value = items.length > 1 ? items[1].trim() : null;
+            map.put(key, value);
         }
         return map;
     }
