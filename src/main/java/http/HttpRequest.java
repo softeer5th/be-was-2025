@@ -11,12 +11,12 @@ import java.util.Map;
 public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    private String method;
-    private String path;
-    private String version;
-    private final Map<String,String> queries = new HashMap<>();
-    private Map<String, String> headers = new HashMap<>();
-    private  String body;
+    private final String method;
+    private final String path;
+    private final String version;
+    private final Map<String,String> queries;
+    private final Map<String, String> headers;
+    private final String body;
 
     private final URI uri;
 
@@ -25,30 +25,44 @@ public class HttpRequest {
         this.method = method;
         this.version = version;
 
-        for (String header: request) {
-            if (header.isBlank()) break;
-            String[] tokens = header.split(": ");
-            this.headers.put(tokens[0].toLowerCase(), tokens[1]);
-        }
-
         this.uri = URI.create(path);
         this.path = uri.getPath();
 
-        if (uri.getQuery() != null) {
-            String[] queryArray = resolveQuery(uri.getQuery());
-            for (String s : queryArray) {
-                String[] items = s.split("=");
-                String key = items[0];
-                String value = items.length > 1 ? items[1] : null;
-                queries.put(key.toLowerCase(), value);
-            }
+        this.headers = parseHeaders(request);
+        this.queries = parseQuery(uri.getQuery());
+        this.body = extractBody(request);
+    }
+
+    private Map<String, String> parseHeaders(List<String> request) {
+        Map<String, String> headers = new HashMap<>();
+        for (String header: request) {
+            if (header.isBlank()) break;
+            String[] tokens = header.split(":");
+            headers.put(tokens[0].trim().toLowerCase(), tokens[1].trim());
         }
 
-        this.headers.computeIfPresent("content-length", (k, v) -> {
-            int len = request.size();
-            this.body = request.get(len - 1);
+        return headers;
+    }
 
-            return v;
+    private Map<String, String> parseQuery(String queryString) {
+        if (uri.getQuery() == null) {
+            return null;
+        }
+        Map<String, String> query = new HashMap<>();
+        String[] queryArray = resolveQuery(uri.getQuery());
+        for (String s : queryArray) {
+            String[] items = s.split("=");
+            String key = items[0];
+            String value = items.length > 1 ? items[1] : null;
+            query.put(key.toLowerCase(), value);
+        }
+        return query;
+    }
+
+    private String extractBody(List<String> request) {
+        return headers.computeIfPresent("content-length", (k, v) -> {
+            int len = request.size();
+            return request.get(len - 1);
         });
     }
 
