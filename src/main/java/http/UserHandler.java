@@ -23,7 +23,7 @@ public class UserHandler {
         String password = data.get("password");
         if (userId == null || username == null || password == null || Database.findUserById(userId) != null) {
             response.writeStatusLine(HttpStatus.SEE_OTHER);
-            response.writeHeader(HttpHeader.LOCATION.name(), redirectPath);
+            response.writeHeader(HttpHeader.LOCATION.value(), redirectPath);
             response.send();
             return;
         }
@@ -31,7 +31,7 @@ public class UserHandler {
         redirectPath = "/";
         Database.addUser(user);
         response.writeStatusLine(HttpStatus.SEE_OTHER);
-        response.writeHeader(HttpHeader.LOCATION.name(), redirectPath);
+        response.writeHeader(HttpHeader.LOCATION.value(), redirectPath);
         response.send();
     }
 

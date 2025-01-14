@@ -49,7 +49,7 @@ public class HttpRequest {
             return null;
         }
         Map<String, String> query = new HashMap<>();
-        
+
         String[] queryArray = resolveQuery(queryString);
         for (String s : queryArray) {
             String[] items = s.split("=");
@@ -61,7 +61,7 @@ public class HttpRequest {
     }
 
     private String extractBody(List<String> request) {
-        return headers.computeIfPresent("content-length", (k, v) -> {
+        return headers.computeIfPresent(HttpHeader.CONTENT_LENGTH.value().toLowerCase(), (k, v) -> {
             int len = request.size();
             return request.get(len - 1);
         });

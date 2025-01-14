@@ -21,7 +21,7 @@ public class HttpResponse {
 
     public void writeStatusLine(HttpStatus httpStatus) {
         try {
-            dos.writeBytes(String.format("%s %d %s \r\n", HttpHeader.PROTOCOL.value() ,httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
+            dos.writeBytes(String.format("%s %d %s\r\n", HttpHeader.PROTOCOL.value() ,httpStatus.getStatusCode(), httpStatus.getReasonPhrase()));
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -44,8 +44,8 @@ public class HttpResponse {
     }
 
     public void writeBody(byte[] body, String mimeType) {
-        writeHeader(HttpHeader.CONTENT_TYPE.name(), mimeType);
-        writeHeader(HttpHeader.CONTENT_LENGTH.name(), body.length);
+        writeHeader(HttpHeader.CONTENT_TYPE.value(), mimeType);
+        writeHeader(HttpHeader.CONTENT_LENGTH.value(), body.length);
         writeBody(body);
     }
 
@@ -56,8 +56,8 @@ public class HttpResponse {
 
         String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
         String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
-        writeHeader(HttpHeader.CONTENT_TYPE.name(), mimeType);
-        writeHeader(HttpHeader.CONTENT_LENGTH.name(), body.length);
+        writeHeader(HttpHeader.CONTENT_TYPE.value(), mimeType);
+        writeHeader(HttpHeader.CONTENT_LENGTH.value(), body.length);
         writeBody(body);
     }
 
