@@ -46,14 +46,17 @@ public class RequestHandler implements Runnable {
             return false;
         }
 
-        if (apiResult.content() == null) {
-            byte[] notFound = "<h1>400 Bad Request</h1>".getBytes();
-            response.send404(notFound);
+        // todo: apiResult에 content가 없을 때 404 처리
+
+        if ("redirect".equals(apiResult.contentType())) {
+            logger.debug("리다이렉션 응답입니다.");
+            response.sendRedirect(apiResult.path());
             return true;
         }
 
         String contentType = apiResult.contentType();
         if ("application/json".equals(contentType)) {
+            logger.debug("JSON 응답입니다.");
             String json = new String(apiResult.content(), StandardCharsets.UTF_8);
             response.sendJson(json);
 

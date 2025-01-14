@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class HttpResponse {
-    private static final String HTTP_OK = "HTTP/1.1 200 OK";
-    // todo: 확장성 고려
-    private static final String HTTP_NOT_FOUND = "HTTP/1.1 404 Not Found";
+    private static final String HTTP_VERSION = "HTTP/1.1 ";
     private final DataOutputStream dos;
 
     public HttpResponse(DataOutputStream dos) {
@@ -18,19 +16,27 @@ public class HttpResponse {
 
     public void send200(byte[] body, String path) throws IOException {
         String contentType = ContentTypeMapper.getContentType(path);
-        writeHeader(HTTP_OK, contentType, body.length);
+        writeHeader(HTTP_VERSION + HttpStatus.OK.getStatusLine(), contentType, body.length);
         writeBody(body);
     }
 
     public void send404(byte[] body) throws IOException {
-        writeHeader(HTTP_NOT_FOUND, "text/html", body.length);
+        writeHeader(HTTP_VERSION + HttpStatus.NOT_FOUND.getStatusLine(), "text/html", body.length);
         writeBody(body);
     }
 
     public void sendJson(String json) throws IOException {
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
-        writeHeader(HTTP_OK, "application/json", body.length);
+        writeHeader(HTTP_VERSION + HttpStatus.OK.getStatusLine(), "application/json", body.length);
         writeBody(body);
+    }
+
+    public void sendRedirect(String location) throws IOException {
+        dos.writeBytes(HTTP_VERSION + HttpStatus.FOUND.getStatusLine() + "\r\n");
+        dos.writeBytes("Location: " + location + "\r\n");
+        dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+        dos.writeBytes("\r\n");
+        dos.flush();
     }
 
     private void writeHeader(String status, String contentType, int contentLength) throws IOException {
