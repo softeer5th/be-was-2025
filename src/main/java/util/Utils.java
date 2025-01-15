@@ -1,5 +1,6 @@
 package util;
 
+import Response.HTTPResponse;
 import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import webserver.RequestHandler;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static webserver.RequestHandler.httpResponseHandler;
@@ -43,17 +45,15 @@ public class Utils {
         }
     }
 
-    public static boolean isValidHttpMethod(String httpMethod, DataOutputStream dos) {
+    public static boolean isValidHttpMethod(String httpMethod) {
         if (httpMethods.contains(httpMethod)) {
             return true;
         }
-        httpResponseHandler.responseFailHandler(dos, HTTPCode.METHOD_NOT_ALLOWED);
         return false;
     }
 
-    public static boolean isValidHeader(String[] parts, DataOutputStream dos) {
+    public static boolean isValidHeader(String[] parts) {
         if(parts.length != 3){
-            httpResponseHandler.responseFailHandler(dos, HTTPCode.BAD_REQUEST);
             return false;
         }
         return true;
@@ -64,5 +64,30 @@ public class Utils {
             return resourceName.substring(0, resourceName.length() - 1);
         }
         return resourceName;
+    }
+
+    public static void flushResponse(HTTPResponse httpResponse, DataOutputStream dos) throws IOException {
+        // 응답 라인 작성
+        dos.writeBytes(httpResponse.getHttpVersion() + " "
+                + httpResponse.getHttpCode().getStatusCode() + " "
+                + httpResponse.getHttpCode().getReasonPhrase() + "\r\n");
+
+        // 헤더 작성
+        for (Map.Entry<String, String> header : httpResponse.getHeaders().entrySet()) {
+            dos.writeBytes(header.getKey() + ": " + header.getValue() + "\r\n");
+        }
+
+        dos.writeBytes("\r\n");
+
+        // 바디 작성
+        if (httpResponse.getBody() != null) {
+            if (httpResponse.getBody() instanceof String) {
+                dos.writeBytes((String) httpResponse.getBody());
+            } else if (httpResponse.getBody() instanceof byte[]) {
+                dos.write((byte[]) httpResponse.getBody());
+            }
+        }
+
+        dos.flush();
     }
 }
