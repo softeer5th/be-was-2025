@@ -107,12 +107,12 @@
                 logger.debug("path: {}, params: {}", path, queryParams);
                 logger.debug("method: {}", method);
 
-                // path 기준으로 탐색
-                // default page에 대한 처리
                 // Todo: 단순히 path를 if-else문으로 하면 길게 나열되는 문제 발생. 이에 대해 처리하는 방법 구상하기
+                // path 기준으로 탐색
+                // default page
                 if (path.equals("/")) {
-                    byte[] body = "<h2>Hello World</h2>".getBytes();
-                    ResponseHandler.respond(dos, body, null, 200);
+                    // 메인 화면으로 리다이렉트
+                    ResponseHandler.respond302(dos, "/index.html");
                 }
                 // 회원가입 요청에 대한 처리
                 else if (path.equals("/registration")) {
