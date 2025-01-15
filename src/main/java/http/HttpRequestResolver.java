@@ -62,9 +62,16 @@ public class HttpRequestResolver {
         }
     }
 
-    private void parseHttpRequestHeader(String headerLine, HttpRequest httpRequest){
-        logger.debug("header: {}", headerLine);
-        String[] headerLineParts = headerLine.split(":\\s*");
-        httpRequest.addHeader(headerLineParts[0], headerLineParts[1]);
+    private void parseHttpRequestHeader(BufferedReader br, HttpRequest httpRequest) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        String line;
+
+        while((line = br.readLine()) != null && !line.isEmpty()){
+            sb.append(line).append("\n");
+            String[] lineParts = line.split(":\\s*");
+            httpRequest.addHeader(lineParts[0].toUpperCase(), lineParts[1].toUpperCase());
+        }
+
+        logger.debug("header: \n{}", sb.toString());
     }
 }
