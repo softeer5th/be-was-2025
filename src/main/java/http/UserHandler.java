@@ -5,10 +5,10 @@ import db.SessionStore;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.Cookie;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class UserHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserHandler.class);
@@ -56,12 +56,13 @@ public class UserHandler {
                     return;
                 }
 
-                String sid = UUID.randomUUID().toString().substring(0, 6);
-                logger.debug("sid: {}", sid);
-                SessionStore.addSession(sid, user);
-                String cookieString = String.format("%s=%s; path=/", "sid", sid);
-                response.writeHeader("Set-Cookie", cookieString);
-                response.redirect("/");
+                Cookie cookie = new Cookie("sid");
+                cookie.setPath("/");
+                cookie.setMaxAge(180);
+                SessionStore.addSession(cookie.getValue(), user);
+
+                response.writeHeader(HttpHeader.SET_COOKIE, cookie.createCookieString());
+                response.redirect("/main");
             }, () -> {
                 response.redirect("/login");
             }

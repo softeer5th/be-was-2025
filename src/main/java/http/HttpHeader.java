@@ -4,7 +4,9 @@ public enum HttpHeader {
     PROTOCOL("HTTP/1.1"),
     LOCATION("Location"),
     CONTENT_TYPE("Content-Type"),
-    CONTENT_LENGTH("Content-Length");
+    CONTENT_LENGTH("Content-Length"),
+    SET_COOKIE("Set-Cookie"),
+    COOKIE("Cookie");
 
     private final String value;
 

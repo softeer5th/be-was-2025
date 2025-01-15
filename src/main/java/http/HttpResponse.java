@@ -24,12 +24,16 @@ public class HttpResponse {
         statusLine = String.format("%s %d %s\r\n", HttpHeader.PROTOCOL.value() ,httpStatus.getStatusCode(), httpStatus.getReasonPhrase());
     }
 
-    public void writeHeader(String name, String value) {
+    private void writeHeader(String name, String value) {
         if (headers.get(name.toLowerCase()) != null) {
             headers.compute(name.toLowerCase(), (k, existed) -> existed + value);
             return;
         }
         headers.put(name.toLowerCase(), value);
+    }
+
+    public void writeHeader(HttpHeader header, String value) {
+        writeHeader(header.value(), value);
     }
 
     public void writeHeader(String name, int value) {
