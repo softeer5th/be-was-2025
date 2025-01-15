@@ -8,13 +8,24 @@ import request.UserCreateRequest;
 import request.UserLoginRequest;
 import util.SessionManager;
 
+import java.util.Optional;
+
 import static exception.ErrorCode.*;
 
 public class UserManager {
     private final SessionManager sessionManager;
+    private static UserManager instance;
 
-    public UserManager() {
-        this.sessionManager = new SessionManager();
+
+    private UserManager() {
+        sessionManager = SessionManager.getInstance();
+    }
+
+    public static UserManager getInstance() {
+        if (instance == null) {
+            instance = new UserManager();
+        }
+        return instance;
     }
 
     public void createUser(final UserCreateRequest request) {
@@ -33,6 +44,15 @@ public class UserManager {
         validPassword(user.getPassword(), userLoginRequest.password());
 
         return sessionManager.makeAndSaveSessionId(userLoginRequest.userId());
+    }
+
+    public Optional<String> getNameFromSession(String sessionId) {
+        final String userId = sessionManager.getUserId(sessionId);
+        if (userId == null)
+            return Optional.empty();
+
+        final User user = Database.findUserById(userId);
+        return Optional.of(user.getName());
     }
 
     public void logoutUser(final String sessionId) {

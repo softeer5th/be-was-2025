@@ -27,7 +27,7 @@ public class UserRequestHandler implements Handler {
     private final UserManager userManager;
 
     public UserRequestHandler() {
-        userManager = new UserManager();
+        userManager = UserManager.getInstance();
     }
 
     @Override
