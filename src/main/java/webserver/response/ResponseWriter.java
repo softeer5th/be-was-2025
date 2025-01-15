@@ -1,35 +1,25 @@
 package webserver.response;
 
 import util.enums.HttpStatusCode;
-import webserver.request.Request;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 public class ResponseWriter {
-    private final String CRLF = "\r\n";
-    private final String COLON = ": ";
-    private final DataOutputStream out;
-    private final Request request;
-    private final String HTTP_VERSION = "HTTP/1.1 ";
+    private static final String HTTP_VERSION = "HTTP/1.1 ";
+    private static final String CRLF = "\r\n";
+    private static final String COLON = ": ";
 
-    public ResponseWriter(DataOutputStream dos, Request request) {
-        this.out = dos;
-        this.request = request;
-    }
-
-    public void write(HttpStatusCode statusCode) throws IOException {
+    public static void write(DataOutputStream out, Response response) throws IOException {
+        HttpStatusCode statusCode = response.getStatusCode();
         try {
             out.writeBytes(HTTP_VERSION + statusCode.getCode() + " " + statusCode.getDescription() + CRLF);
-            List<String> headers = statusCode.getHeaders();
-            if (!headers.isEmpty()) {
-                Response response = new Response(request);
-                response.makeBody();
-                for (String header : headers) {
-                    out.writeBytes(header + COLON + response.getHeader(header) + CRLF);
-                }
-                writeBody(response.getBody());
+            for (Map.Entry<String, String> header : response.getHeaders().entrySet()) {
+                out.writeBytes(header.getKey() + COLON + header.getValue() + CRLF);
+            }
+            if(response.hasBody()){
+                writeBody(out, response.getBody());
             }
         } catch (IOException e) {
             throw e;
@@ -38,13 +28,13 @@ public class ResponseWriter {
         }
     }
 
-    public void writeBody(byte[] body) throws IOException {
+    private static void writeBody(DataOutputStream out, byte[] body) throws IOException {
         out.writeBytes(CRLF);
         out.write(body, 0, body.length);
     }
 
-    public void redirect(String location) throws IOException {
-        out.writeBytes(HTTP_VERSION + HttpStatusCode.SEE_OTHER.getCode() + " " + HttpStatusCode.SEE_OTHER.getDescription() + CRLF);
+    public static void redirect(DataOutputStream out, String location) throws IOException {
+        out.writeBytes( HTTP_VERSION + HttpStatusCode.SEE_OTHER.getCode() + " " + HttpStatusCode.SEE_OTHER.getDescription() + CRLF);
         out.writeBytes("Location: " + location + CRLF + CRLF);
         out.flush();
     }

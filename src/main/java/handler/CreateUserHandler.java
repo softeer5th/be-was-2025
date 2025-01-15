@@ -11,13 +11,12 @@ import java.io.IOException;
 public class CreateUserHandler implements Handler{
     @Override
     public void handle(DataOutputStream dos, Request request) throws IOException {
-        ResponseWriter responseWriter = new ResponseWriter(dos, request);
         try {
             UserManager userManager = new UserManager();
             userManager.addUser(request.getBody());
-            responseWriter.redirect(Page.MAIN_PAGE.getPath());
+            ResponseWriter.redirect(dos, Page.MAIN_PAGE.getPath());
         } catch (IllegalArgumentException e) {
-            responseWriter.redirect(Page.REGISTRATION.getPath());
+            ResponseWriter.redirect(dos, Page.REGISTRATION.getPath());
         }
     }
 }

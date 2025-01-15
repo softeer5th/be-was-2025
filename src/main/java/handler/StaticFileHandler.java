@@ -2,6 +2,7 @@ package handler;
 
 import util.enums.HttpStatusCode;
 import webserver.request.Request;
+import webserver.response.Response;
 import webserver.response.ResponseWriter;
 
 import java.io.DataOutputStream;
@@ -11,13 +12,17 @@ public class StaticFileHandler implements Handler {
 
     @Override
     public void handle(DataOutputStream dos, Request request) throws IOException {
-        ResponseWriter responseWriter = new ResponseWriter(dos, request);
+        Response response = new Response(request);
         try{
-            responseWriter.write(HttpStatusCode.OK);
+            response.setBody();
+            response.setStatusCode(HttpStatusCode.OK);
+            ResponseWriter.write(dos, response);
         } catch(NullPointerException e){
-            responseWriter.write(HttpStatusCode.NOT_FOUND);
+            response.setStatusCode(HttpStatusCode.NOT_FOUND);
+            ResponseWriter.write(dos, response);
         } catch (IOException e){
-            responseWriter.write(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            ResponseWriter.write(dos, response);
         }
     }
 }
