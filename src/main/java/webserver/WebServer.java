@@ -3,9 +3,13 @@ package webserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import controller.HomeController;
+import controller.SignUpController;
+import controller.UserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.*;
@@ -24,9 +28,12 @@ public class WebServer {
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(200);
-        ServletManager servletManager = new ServletManager();
+        ServletManager servletManager = new ServletManager(List.of(
+                new HomeController(),
+                new SignUpController(),
+                new UserController())
+        );
 
-        enrollServlet(servletManager);
         runServer(port, executor, servletManager);
     }
 
@@ -43,12 +50,5 @@ public class WebServer {
         } catch (IOException e){
             logger.error(e.getMessage(), e);
         }
-    }
-
-    private static void enrollServlet(ServletManager servletManager) {
-        servletManager.addServlet("/", new HomeServlet());
-        servletManager.addServlet("/registration", new SingUpServlet());
-        servletManager.addServlet("/create", new CreateServlet());
-        servletManager.addServlet("/success", new SignUpSuccessServlet());
     }
 }

@@ -6,5 +6,5 @@ import webserver.httpserver.HttpResponse;
 import java.io.IOException;
 
 public interface Servlet {
-    void handle(HttpRequest request, HttpResponse response) throws IOException;
+    boolean handle(HttpRequest request, HttpResponse response) throws IOException;
 }
