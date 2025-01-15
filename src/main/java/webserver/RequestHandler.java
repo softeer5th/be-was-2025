@@ -108,6 +108,7 @@
                 logger.debug("method: {}", method);
 
                 // Todo: 단순히 path를 if-else문으로 하면 길게 나열되는 문제 발생. 이에 대해 처리하는 방법 구상하기
+                // Todo: POST 요청에서 파싱하는 과정을 메서드로 처리할 수 있을 듯 함.
                 // path 기준으로 탐색
                 // default page
                 if (path.equals("/")) {
@@ -140,6 +141,66 @@
 
                         // 404 Not Found
                         ResponseHandler.respond(dos, body, null, 404);
+                    }
+                }
+                // 로그인 완료에 대한 처리
+                else if (path.equals("/user/login") && method.equals("POST")) {
+                    try {
+                        // 지정된 Content-Type이 아닐 경우
+                        if (!headers.get("content-type").equals("application/x-www-form-urlencoded")) {
+                            throw new HTTPExceptions.Error415("415 Unsupported Media Type");
+                        }
+
+                        String[] params = requestBody.getBodyToString().split("&");
+                        Map<String, String> paramMap = new HashMap<>();
+                        for (String param : params) {
+                            String[] keyValue = param.split("=");
+                            // 키값에 등호가 있을 경우
+                            if (keyValue.length != 2) {
+                                throw new HTTPExceptions.Error400("400 Bad Request: Invalid key");
+                            }
+                            // 키값 중복
+                            if (paramMap.containsKey(keyValue[0])) {
+                                throw new HTTPExceptions.Error400("400 Bad Request: Duplicate key");
+                            }
+                            paramMap.put(keyValue[0], URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8));
+                        }
+                        // 잘못된 키값 입력
+                        if (paramMap.size() != 2) {
+                            throw new HTTPExceptions.Error400("400 Bad Request: wrong number of parameters");
+                        }
+
+                        String userId = paramMap.get("id");
+                        String userPassword = paramMap.get("password");
+
+                        if (userId == null || userId.isEmpty() || userPassword == null || userPassword.isEmpty()) {
+                            throw new HTTPExceptions.Error400("400 Bad Request: missing required parameters");
+                        }
+
+                        logger.debug("userId: {}, userPassword: {}", userId, userPassword);
+
+                        // 중복된 id를 가진 사용자가 있을 경우
+                        User user;
+                        if ((user = Database.findUserById(userId)) != null) {
+                            // Todo: 쿠키와 세션 기능 추가
+                            logger.debug("user password: {}", user.getPassword());
+                            logger.debug("input password: {}", userPassword);
+                            if (user.getPassword().equals(userPassword)) {
+                                ResponseHandler.respond302(dos, "/main/index.html");
+                            }
+                            else {
+                                logger.error("User {} password does not match", userId);
+                                ResponseHandler.respond302(dos, "/user/login_failed.html");
+                            }
+                        }
+                        else {
+                            logger.error("User {} not found", userId);
+                            ResponseHandler.respond302(dos, "/user/login_failed.html");
+                        }
+                    } catch (HTTPExceptions e) {
+                        logger.error(e.getMessage());
+                        byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
+                        ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
                     }
                 }
                 // 회원가입 완료에 대한 처리
@@ -192,7 +253,6 @@
 
                         // 메인 화면으로 리다이렉트
                         ResponseHandler.respond302(dos, "/index.html");
-
                     } catch (HTTPExceptions e) {
                         logger.error(e.getMessage());
                         byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
