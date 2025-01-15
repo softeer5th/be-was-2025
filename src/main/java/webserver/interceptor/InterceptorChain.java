@@ -18,17 +18,20 @@ import java.util.*;
  * .build();
  *
  * chain.execute(request, handler) 호출 시 실행 순서
- * 1. interceptor1.preHandle
- * 2. interceptor2.preHandle
- * 3. handler.handle
- * 4. interceptor3.postHandle
- * 5. interceptor4.postHandle
- * */
+ *      request----------------┐
+ * 1. ┌-interceptor1.preHandle-┘
+ * 2. └-interceptor2.preHandle-┐
+ * 3. ┌----handler.handle <----┘
+ * 4. └-interceptor3.postHandle-┐
+ * 5. ┌-interceptor4.postHandle-┘
+ *    └----------------response
+ *  */
 public class InterceptorChain {
     private final List<HandlerInterceptor> inboundOrder;
     private final List<HandlerInterceptor> outboundOrder;
 
     private InterceptorChain(List<HandlerInterceptor> inboundOrder, List<HandlerInterceptor> outboundOrder) {
+        // 동시성 문제를 피하기 위해 불변으로 저장
         this.inboundOrder = Collections.unmodifiableList(inboundOrder);
         this.outboundOrder = Collections.unmodifiableList(outboundOrder);
     }
@@ -39,11 +42,12 @@ public class InterceptorChain {
 
     public HttpResponse execute(HttpRequest request, HttpHandler handler) {
         // interceptor 가 handler 실행 전후로 공유하는 context
-        Map<HandlerInterceptor, HandlerInterceptor.Context> contextMap = new WeakHashMap<>();
+        Map<HandlerInterceptor, HandlerInterceptor.Context> contextMap = new HashMap<>();
 
         // inbound order 대로 preHandle 실행
         for (HandlerInterceptor inboundInterceptor : inboundOrder) {
-            HandlerInterceptor.Context context = inboundInterceptor.preHandle(request);
+            HandlerInterceptor.Context context = new HandlerInterceptor.Context();
+            request = inboundInterceptor.preHandle(request, context);
             // preHandle 실행 후 context를 contextMap에 저장
             contextMap.put(inboundInterceptor, context);
         }
@@ -62,25 +66,28 @@ public class InterceptorChain {
 
 
     public static class InboundBuilder {
-        private final List<HandlerInterceptor> inboundOrder = Collections.synchronizedList(new ArrayList<>());
+        private final List<HandlerInterceptor> inboundOrder = new ArrayList<>();
 
-        public InboundBuilder add(HandlerInterceptor interceptor) {
-            inboundOrder.add(interceptor);
-            return this;
+        InboundBuilder() {
         }
 
         public OutboundBuilder outbound() {
             return new OutboundBuilder(inboundOrder);
+        }
+
+        public InboundBuilder add(HandlerInterceptor interceptor) {
+            inboundOrder.add(interceptor);
+            return this;
         }
     }
 
 
     public static class OutboundBuilder {
         private final List<HandlerInterceptor> inboundOrder;
-        private final List<HandlerInterceptor> outboundOrder = Collections.synchronizedList(new ArrayList<>());
+        private final List<HandlerInterceptor> outboundOrder = new ArrayList<>();
 
-        public OutboundBuilder(List<HandlerInterceptor> inboundOrder) {
-            this.inboundOrder = Collections.synchronizedList(List.copyOf(inboundOrder));
+        OutboundBuilder(List<HandlerInterceptor> inboundOrder) {
+            this.inboundOrder = List.copyOf(inboundOrder);
         }
 
         public OutboundBuilder add(HandlerInterceptor interceptor) {

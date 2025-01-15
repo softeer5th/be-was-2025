@@ -5,17 +5,33 @@ import webserver.response.HttpResponse;
 
 public interface HandlerInterceptor {
 
-    // 요청이 처리되기 전 호출되고, 이후 같은 요청의 postHandle 메서드에서 공유할 수 있는 Context 객체를 반환
-    Context preHandle(HttpRequest request);
+    // HttpHandler.handle() 이 처리되기 전 호출
+    // 이전 preHandle 메서드에서 반환한 HttpRequest 객체를 인자로 받아 새로운 HttpRequest 객체를 반환
+    // 인자로 넘어온 context 객체는 해당 요청에 한하여 postHandle 메서드와 공유되는 객체
+    default HttpRequest preHandle(HttpRequest request, Context context) {
+        return request;
+    }
 
-    // 요청이 처리된 후 호출되고, 이전 preHandle 메서드에서 반환한 Context 객체를 인자로 받아 처리
-    HttpResponse postHandle(HttpRequest request, HttpResponse response, Context context);
+    // HttpHandler.handle() 이 처리된 후 호출
+    // 이전 postHandle 메서드에서 반환한 HttpResponse 객체를 인자로 받아 새로운 HttpResponse 객체를 반환
+    // 인자로 넘어온 context 객체는 해당 요청에 한하여 preHandle 메서드와 공유되는 객체
+    default HttpResponse postHandle(HttpRequest request, HttpResponse response, Context context) {
+        return response;
+    }
 
-    record Context(Object data) {
-        private static final Context EMPTY = new Context(null);
+    class Context {
+        private Object data;
 
-        public static Context empty() {
-            return EMPTY;
+        public Context() {
         }
+
+        public void set(Object value) {
+            this.data = value;
+        }
+
+        public Object get() {
+            return this.data;
+        }
+
     }
 }

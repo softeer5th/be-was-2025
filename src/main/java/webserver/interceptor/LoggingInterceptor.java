@@ -10,9 +10,9 @@ public class LoggingInterceptor implements HandlerInterceptor {
     private static final Logger log = LoggerFactory.getLogger(LoggingInterceptor.class);
 
     @Override
-    public Context preHandle(HttpRequest request) {
+    public HttpRequest preHandle(HttpRequest request, Context unused) {
         log.debug("Request: {}", request);
-        return Context.empty();
+        return request;
     }
 
     @Override
