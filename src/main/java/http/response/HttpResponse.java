@@ -64,9 +64,20 @@ public class HttpResponse {
 		this.body = body;
 		setHeader(CONTENT_LENGTH.getValue(), String.valueOf(body.length));
 	}
-
 	// sendRedirect 메서드 구현
-	public void setRedirect(String location) {
+	private void setRedirect(String location) {
 		setHeader(LOCATION.name(), location); // Location 헤더에 리디렉션 URL 설정
+	}
+
+	public void setRedirectResponse(HttpResponse response, String version, HttpStatus status, String location) {
+		response.setStatusCode(status);
+		response.setVersion(version);
+		response.setRedirect(location);
+	}
+
+	public void setErrorResponse(HttpResponse response, String version, HttpStatus status, String message) {
+		response.setStatusCode(status);
+		response.setVersion(version);
+		response.setBody(message.getBytes());
 	}
 }
