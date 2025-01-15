@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
 
+import java.io.BufferedInputStream;
+import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,7 +38,30 @@ public class ServletManager {
         servlets.put(url, servlet);
     }
 
-    public void serve(HttpRequest request, HttpResponse response) throws IOException {
+    public void serve(BufferedInputStream bis, DataOutputStream dos) throws IOException {
+        HttpRequest request = null;
+        HttpResponse response = new HttpResponse();
+        request = getHttpRequest(bis, dos, request, response);
+        if (request == null) return;
+        handleRequest(request, response);
+        response.send(dos);
+    }
+
+    private HttpRequest getHttpRequest(BufferedInputStream bis, DataOutputStream dos, HttpRequest request, HttpResponse response) throws IOException {
+        try {
+            request = new HttpRequest(bis);
+            response.setProtocol(request.getProtocol());
+
+        } catch (IOException e) {
+            response.setProtocol("HTTP/1.1");
+            servlets.get(BAD_REQUEST).handle(request, response);
+            response.send(dos);
+            return null;
+        }
+        return request;
+    }
+
+    private void handleRequest(HttpRequest request, HttpResponse response) throws IOException {
         try {
             if (!servlets.get(DISPATCHER).handle(request, response)) {
                 servlets.get(DEFAULT).handle(request, response);
