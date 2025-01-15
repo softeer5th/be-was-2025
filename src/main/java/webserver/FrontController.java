@@ -6,6 +6,7 @@ import webserver.config.ServerConfig;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpException;
 import webserver.handler.HttpHandler;
+import webserver.interceptor.InterceptorChain;
 import webserver.request.HttpRequest;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponse;
@@ -29,14 +30,16 @@ public class FrontController implements Runnable {
     private final PathRouter router;
 
     private final List<HttpVersion> supportedHttpVersions;
+    private final InterceptorChain chain;
 
 
-    public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, PathRouter router) {
+    public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, PathRouter router, InterceptorChain chain) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
         this.router = router;
         this.supportedHttpVersions = config.getSupportedHttpVersions();
+        this.chain = chain;
     }
 
     public void run() {
@@ -47,8 +50,8 @@ public class FrontController implements Runnable {
             try {
                 request = requestParser.parse(in);
 
-                logger.debug("New Client: {}:{}, Request: {}", connection.getInetAddress(),
-                        connection.getPort(), request);
+//                logger.debug("New Client: {}:{}, Request: {}", connection.getInetAddress(),
+//                        connection.getPort(), request);
 
                 // request http version이 서버에서 지원하는지 검증
                 request.validateSupportedHttpVersion(supportedHttpVersions);
@@ -57,14 +60,14 @@ public class FrontController implements Runnable {
                 PathRouter.RoutingResult routingResult = router.route(request.getRequestTarget().getPath());
 
                 HttpHandler handler = routingResult.handler();
-                // requst에 매칭된 path variable 설정
+                // requst에 매칭된 path variable 설정+
                 request.setPathVariables(routingResult.pathVariables());
 
                 // handler에게 요청 위임
-                HttpResponse response = handler.handle(request);
+                HttpResponse response = chain.execute(request, handler);
 
                 responseWriter.writeResponse(request, response, out);
-                logger.debug("Client:{}:{}, Response: {}", connection.getInetAddress(), connection.getPort(), response);
+//                logger.debug("Client:{}:{}, Response: {}", connection.getInetAddress(), connection.getPort(), response);
 
             } catch (HttpException e) {
                 logger.debug(e.getMessage());

@@ -7,6 +7,9 @@ import webserver.config.ServerConfig;
 import webserver.file.StaticResourceManager;
 import webserver.handler.RegistrationHandler;
 import webserver.handler.ServeStaticFileHandler;
+import webserver.interceptor.HandlerInterceptor;
+import webserver.interceptor.InterceptorChain;
+import webserver.interceptor.LoggingInterceptor;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponseWriter;
 import webserver.router.PathRouter;
@@ -40,13 +43,24 @@ public class WebServer {
 
         ExecutorService es = Executors.newFixedThreadPool(config.getThreadPoolSize());
         Database database = new Database();
+
         HttpRequestParser requestParser = new HttpRequestParser(config);
         HttpResponseWriter responseWriter = new HttpResponseWriter();
+
         StaticResourceManager resourceManager = new StaticResourceManager(config);
+
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
                 .setHandler("/create", new RegistrationHandler(database));
+                .setHandler("/create", new RegistrationHandler(database))
+
+        HandlerInterceptor logInterceptor = new LoggingInterceptor();
+        InterceptorChain chain = InterceptorChain
+                .inbound()
+                .add(logInterceptor)
+                .outbound()
+                .add(logInterceptor).build();
 
 
         // 서버소켓을 생성한다. 웹서버는 기본적으로 8080번 포트를 사용한다.
@@ -56,7 +70,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                Runnable requestHandler = new FrontController(config, connection, requestParser, responseWriter, router);
+                Runnable requestHandler = new FrontController(config, connection, requestParser, responseWriter, router, chain);
                 es.submit(requestHandler);
             }
         }
