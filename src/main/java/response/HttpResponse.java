@@ -86,6 +86,11 @@ public class HttpResponse {
         setContentType(contentType);
         setBody(body);
     }
+    public void setResponse(HttpStatus status, FileContentType contentType, byte[] body) {
+        setStatus(status);
+        setContentType(contentType);
+        setBody(body);
+    }
 
     public void send(DataOutputStream dos) {
         try {

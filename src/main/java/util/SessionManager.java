@@ -40,4 +40,8 @@ public class SessionManager {
     public void deleteSession(String sessionId) {
         sessionMap.remove(sessionId);
     }
+
+    public String getUserId(String sessionId) {
+        return sessionMap.get(sessionId);
+    }
 }
