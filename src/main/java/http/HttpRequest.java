@@ -2,6 +2,7 @@ package http;
 
 import http.enums.HttpMethod;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,5 +61,18 @@ public class HttpRequest {
 
     public void setBody(char[] body){
         this.body = body;
+    }
+
+    public Map<String, String> convertBodyToMap(){
+        Map<String, String> dataMap = new HashMap<>();
+        String[] bodyParts = new String(body).split("&");
+
+        for(String bodyPart: bodyParts){
+            String[] keyValue = bodyPart.trim().split("=");
+
+            dataMap.put(keyValue[0], keyValue[1]);
+        }
+
+        return dataMap;
     }
 }

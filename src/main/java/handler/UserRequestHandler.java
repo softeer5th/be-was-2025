@@ -4,12 +4,12 @@ import db.Database;
 import exception.*;
 import http.HttpRequest;
 import http.HttpResponse;
-import http.enums.HttpMethod;
 import http.enums.HttpStatus;
 import http.enums.MimeType;
 import model.User;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class UserRequestHandler implements  RequestHandler{
     @Override
@@ -18,8 +18,9 @@ public class UserRequestHandler implements  RequestHandler{
     }
     @Override
     public HttpResponse handle(HttpRequest httpRequest) {
+        Map<String, String> bodyMap = httpRequest.convertBodyToMap();
         try {
-            signUp(httpRequest.getQueryParam("userId"), httpRequest.getQueryParam("password"), httpRequest.getQueryParam("name"));
+            signUp(bodyMap.get("userId"), bodyMap.get("password"),bodyMap.get("name"));
         }catch(SignUpException e){
             byte[] errorMessageData = e.getMessage().getBytes();
 
@@ -31,7 +32,8 @@ public class UserRequestHandler implements  RequestHandler{
                     .build();
         }
         return new HttpResponse.Builder()
-                .httpStatus(HttpStatus.OK)
+                .httpStatus(HttpStatus.SEE_OTHER)
+                .location("http://localhost:8080/")
                 .build();
     }
 
