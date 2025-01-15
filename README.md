@@ -814,10 +814,6 @@ String httpVersion = firstLineTokens[2];
 
 # **1월 14일 학습일지**
 
-아래 내용은 회원가입 시 `SyntaxError: Unexpected token '<'` 오류와 302 리다이렉션 처리가 섞이면서 발생한 문제를 학습하고, 수정·구현했던 과정을 정리한 학습일지입니다.
-
----
-
 ## **1. 학습한 내용**
 
 ### 1) **HTTP 리다이렉션(302 Found)**
