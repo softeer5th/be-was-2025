@@ -2,7 +2,6 @@ package handler;
 
 import enums.FileContentType;
 import enums.HttpHeader;
-import enums.HttpStatus;
 import exception.ClientErrorException;
 import exception.ErrorCode;
 import manager.UserManager;
@@ -14,8 +13,10 @@ import util.CookieParser;
 import util.FileReader;
 
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+
+import static enums.HttpStatus.OK;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DynamicHomeHandler implements Handler {
     private static final Logger log = LoggerFactory.getLogger(DynamicHomeHandler.class);
@@ -24,6 +25,7 @@ public class DynamicHomeHandler implements Handler {
     private static final String REPLACE_TARGET = "{{user_info}}";
 
     private final UserManager userManager;
+
     public DynamicHomeHandler() {
         this.userManager = UserManager.getInstance();
     }
@@ -38,57 +40,43 @@ public class DynamicHomeHandler implements Handler {
 
         HttpResponse response = new HttpResponse();
 
-        response.setStatus(HttpStatus.OK);
-        response.setContentType(extension);
-
-        StringBuilder html = FileReader.readFileAsStringBuilder(STATIC_FILE_PATH + path)
+        String html = FileReader.readFileAsString(STATIC_FILE_PATH + path)
                 .orElseThrow(() -> new ClientErrorException(ErrorCode.FILE_NOT_FOUND));
 
         final String sessionId = CookieParser.parseCookie(request.getHeaderValue(HttpHeader.COOKIE.getName()));
 
         String dynamicHtmlContent = setDynamicHtmlContentByUserName(userManager.getNameFromSession(sessionId));
-        String body = html.toString().replace(REPLACE_TARGET, dynamicHtmlContent);
+        String body = html.replace(REPLACE_TARGET, dynamicHtmlContent);
 
-        response.setBody(body);
+        response.setResponse(OK, extension, body);
         return response;
     }
 
     private String setDynamicHtmlContentByUserName(Optional<String> username) {
+        StringBuilder dynamicHtmlContent = new StringBuilder()
+                .append("<ul class=\"header__menu\">")
+                .append("<li class=\"header__menu__item\">");
 
         if (username.isEmpty()) {
-            return """
-                    <ul class="header__menu">
-                    <li class="header__menu__item">
-                    <a class="btn btn_contained btn_size_s" href="/login/index.html">로그인</a>
-                    </li>
-                    <li class="header__menu__item">
-                    <a class="btn btn_ghost btn_size_s" href="/registration/index.html">
-                    회원 가입
-                    </a>
-                    </li>
-                    </ul>
-                    """;
+            dynamicHtmlContent
+                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/login/index.html\">로그인</a>")
+                    .append("</li>")
+                    .append("<li class=\"header__menu__item\">")
+                    .append("<a class=\"btn btn_ghost btn_size_s\" href = \"/registration/index.html\" >")
+                    .append("회원 가입")
+                    .append("</a>");
+        } else {
+            final String name;
+            name = URLDecoder.decode(username.get(), UTF_8);
+            dynamicHtmlContent
+                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/mypage/index.html\">")
+                    .append(name)
+                    .append("님</a>");
         }
 
-        final String name;
-        name = URLDecoder.decode(username.get(), StandardCharsets.UTF_8);
-
-        return """
-                        <a> 안녕하세요. 반갑습니다..   </a>
-                        <ul class="header__menu">
-                        <li class="header__menu__item">
-                        <a class="btn btn_contained btn_size_s" href="/mypage/index.html">
-                        """
-                        +
-                        name
-                        +
-                        """
-                                님</a>
-                                </li>
-                                <li class="header__menu__item">
-                                </li>
-                                </ul>
-                                """;
-
+        dynamicHtmlContent
+                .append("</li>")
+                .append("</ul>");
+        return dynamicHtmlContent.toString();
     }
 }
