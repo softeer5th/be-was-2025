@@ -17,8 +17,8 @@ import java.util.Map;
 
 import static global.util.JsonUtil.toJson;
 
-public class UserCreationHandler implements ApiHandler {
-    private static final Logger logger = LoggerFactory.getLogger(UserCreationHandler.class);
+public class SignUpHandler implements ApiHandler {
+    private static final Logger logger = LoggerFactory.getLogger(SignUpHandler.class);
 
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
@@ -77,10 +77,10 @@ public class UserCreationHandler implements ApiHandler {
         );
 
         String json = toJson(commonResponse);
-        return new LoadResult(json.getBytes(StandardCharsets.UTF_8), "/api/create", "application/json");
+        return new LoadResult(json.getBytes(StandardCharsets.UTF_8), "/api/create", "application/json",null);
     }
 
     private LoadResult createRedirectResponse() {
-        return new LoadResult(null, "/index.html", "redirect");
+        return new LoadResult(null, "/index.html", "redirect",null);
     }
 }
