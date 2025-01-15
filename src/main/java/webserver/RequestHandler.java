@@ -137,7 +137,7 @@
                         }
 
                         String[] params = requestBody.getBodyToString().split("&");
-                        Map<String, String> paramMap = new HashMap<String, String>();
+                        Map<String, String> paramMap = new HashMap<>();
                         for (String param : params) {
                             String[] keyValue = param.split("=");
                             // 키값에 등호가 있을 경우
