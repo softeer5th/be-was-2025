@@ -1,4 +1,6 @@
 package global.model;
 
-public record HttpRequest(String method, String path, String headers, String body) {
+import java.util.Map;
+
+public record HttpRequest(String method, String path, Map<String, String> headers, String body) {
 }
