@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 
 import controller.HomeController;
 import controller.SignUpController;
+import controller.UserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.*;
@@ -29,7 +30,8 @@ public class WebServer {
         ExecutorService executor = Executors.newFixedThreadPool(200);
         ServletManager servletManager = new ServletManager(List.of(
                 new HomeController(),
-                new SignUpController())
+                new SignUpController(),
+                new UserController())
         );
 
         runServer(port, executor, servletManager);
