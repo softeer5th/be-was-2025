@@ -2,12 +2,14 @@ package webserver.header;
 
 import webserver.enums.ParsingConstant;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class SetCookie {
     private final Cookie cookie;
     private String domain;
-    private LocalDateTime expires;
+    private ZonedDateTime expires;
     private boolean httpOnly;
     private Integer maxAge;
     private String path;
@@ -19,6 +21,18 @@ public class SetCookie {
         httpOnly = true;
         sameSite = SameSite.LAX;
         secure = false;
+    }
+
+    public static SetCookie expireCookie(String cookieName) {
+        SetCookie setCookie = new SetCookie(cookieName, "");
+        setCookie.setMaxAge(0);
+        setCookie.expires = ZonedDateTime.now().minusYears(1);
+        return setCookie;
+    }
+
+    public static SetCookie createSessionCookie(String cookieName, String cookieValue) {
+        SetCookie setCookie = new SetCookie(cookieName, cookieValue);
+        return setCookie;
     }
 
     public String getName() {
@@ -33,7 +47,7 @@ public class SetCookie {
         return domain;
     }
 
-    public LocalDateTime getExpires() {
+    public ZonedDateTime getExpires() {
         return expires;
     }
 
@@ -70,7 +84,7 @@ public class SetCookie {
             builder.append("; Domain=").append(domain);
         }
         if (expires != null) {
-            builder.append("; Expires=").append(expires);
+            builder.append("; Expires=").append(formatExpires());
         }
         if (httpOnly) {
             builder.append("; HttpOnly");
@@ -88,6 +102,10 @@ public class SetCookie {
             builder.append("; Secure");
         }
         return builder.toString();
+    }
+
+    private String formatExpires() {
+        return expires.withZoneSameInstant(ZoneId.of("GMT")).format(DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
     public enum SameSite {
