@@ -35,11 +35,13 @@ public class UserController {
         if (inputUserId == null || inputPassword == null) {
             response.setStatusCode(StatusCode.UNAUTHORIZED);
             response.setLocation("/user/login_failed");
+            return;
         }
         User userById = Database.findUserById(inputUserId);
         if (userById == null) {
             response.setStatusCode(StatusCode.UNAUTHORIZED);
             response.setLocation("/user/login_failed");
+            return;
         }
 
         Cookie cookie = new Cookie();
@@ -51,6 +53,16 @@ public class UserController {
         HttpSession.put(uuid, inputUserId);
         response.setCookie(cookie);
         response.setLocation("/");
+    }
+
+    @Mapping(path = "/user/login_failed", method = HttpMethod.GET)
+    public void loginFailed(HttpRequest request, HttpResponse response) throws IOException {
+        response.setStatusCode(StatusCode.UNAUTHORIZED);
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+
+        File file = new File("src/main/resources/static/login/login_failed.html");
+        byte[] readFile = getFile(file);
+        response.setBody(readFile);
     }
 
     @Mapping(path = "/logout", method = HttpMethod.POST)
