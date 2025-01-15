@@ -31,9 +31,8 @@
             HTTPRequestHeader requestHeader = null;
             HTTPRequestBody requestBody = null;
 
-            DataOutputStream dos = null;
             try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-                dos = new DataOutputStream(out);
+                DataOutputStream dos = new DataOutputStream(out);
                 // 스트림 데이터를 읽기 위한 버퍼 생성
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                 byte[] temp = new byte[1024];
