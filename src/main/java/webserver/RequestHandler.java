@@ -58,9 +58,21 @@
                     }
                 }
                 String headersString = headerBuilder.toString();
-                logger.debug(headersString.toString());
+                logger.debug(headersString);
 
-                requestHeader = new HTTPRequestHeader(headersString.toString());
+                try {
+                    requestHeader = new HTTPRequestHeader(headersString);
+                } catch (HTTPExceptions e) {
+                    logger.error(e.getMessage());
+                    byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
+                    try {
+                        ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    return;
+                }
+
 
                 String method = requestHeader.getMethod();
                 String[] uri = requestHeader.getUri().split("\\?");
@@ -77,8 +89,18 @@
 
                     byte[] body = buffer.toByteArray();
 
+                    // Content-Length와 body 길이가 다른 경우
+                    // 400 Bad Request
                     if (body.length != contentLength) {
-                        throw new HTTPExceptions.Error400("400 Bad Request: body length does not match content-length");
+                        HTTPExceptions e = new HTTPExceptions.Error400("400 Bad Request: Content-Length header mismatch");
+                        logger.error(e.getMessage());
+                        byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
+                        try {
+                            ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        return;
                     }
 
                     logger.debug("Body: {}", new String(body, StandardCharsets.UTF_8));
@@ -139,10 +161,15 @@
                     }
                     // 중복된 id를 가진 사용자가 있을 경우
                     else {
-                        logger.error("User already exists");
-
                         // 409 Conflict
-                        ResponseHandler.respond(dos, null, null, 409);
+                        HTTPExceptions e = new HTTPExceptions.Error409("409 Conflict: User already exists");
+                        logger.error(e.getMessage());
+                        byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
+                        try {
+                            ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 } else {
                     File file = new File(resourcePath + path);
@@ -154,19 +181,18 @@
                     }
                     // 유효하지 않은 path에 대한 처리
                     else {
-                        throw new HTTPExceptions.Error404("404 Not Found");
+                        HTTPExceptions e = new HTTPExceptions.Error404("404 Not Found");
+                        logger.error(e.getMessage());
+                        byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
+                        try {
+                            ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
             } catch (IOException e) {
                 logger.error(e.getMessage());
-            } catch (HTTPExceptions e) {
-                logger.error(e.getMessage());
-                byte[] body = HTTPExceptions.getErrorMessage(e.getMessage());
-                try {
-                    ResponseHandler.respond(dos, body, null, e.getStatusCode());
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
             }
         }
     }
