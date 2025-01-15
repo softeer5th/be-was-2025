@@ -11,9 +11,9 @@ import response.HttpResponse;
 import java.util.HashMap;
 
 import static enums.HttpMethod.POST;
+import static enums.HttpStatus.METHOD_NOT_ALLOWED;
 import static enums.HttpStatus.SEE_OTHER;
 import static enums.HttpVersion.HTTP1_1;
-import static exception.ErrorCode.INVALID_HTTP_METHOD;
 
 class HomeHandlerTest {
     private final HomeHandler homeHandler = new HomeHandler();
@@ -40,7 +40,7 @@ class HomeHandlerTest {
 
         Assertions.assertThatThrownBy(() -> homeHandler.handle(requestInfo))
                 .isInstanceOf(ClientErrorException.class)
-                .hasMessage(INVALID_HTTP_METHOD.getMessage());
+                .hasMessage(METHOD_NOT_ALLOWED.getMessage());
     }
 
 
