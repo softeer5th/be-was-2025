@@ -13,7 +13,7 @@ public class RequestHandlerMapping {
     private Map<HandlerKey, RequestHandler> handlerMap = new HashMap<>();
 
     public void init(){
-        handlerMap.put(new HandlerKey("/user/create", HttpMethod.GET), new UserRequestHandler());
+        handlerMap.put(new HandlerKey("/user/create", HttpMethod.POST), new UserRequestHandler());
     }
 
     public Optional<RequestHandler> getHandler(HttpRequest httpRequest){
