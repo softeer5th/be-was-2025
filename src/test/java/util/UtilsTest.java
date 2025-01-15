@@ -17,8 +17,8 @@ class UtilsTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
-        boolean resultValid = Utils.isValidHttpMethod("GET", dos);
-        boolean resultInvalid = Utils.isValidHttpMethod("INVALID_METHOD", dos);
+        boolean resultValid = Utils.isValidHttpMethod("GET");
+        boolean resultInvalid = Utils.isValidHttpMethod("INVALID_METHOD");
 
         assertThat(resultValid).isTrue();
         assertThat(resultInvalid).isFalse();
@@ -33,9 +33,9 @@ class UtilsTest {
         String[] invalidHeader1 = {"GET", "/index.html"};
         String[] invalidHeader2 = {"GET", "/index.html", "HTTP/1.1", "hi"};
 
-        boolean resultValid = Utils.isValidHeader(validHeader, dos);
-        boolean resultInvalid1 = Utils.isValidHeader(invalidHeader1, dos);
-        boolean resultInvalid2 = Utils.isValidHeader(invalidHeader2, dos);
+        boolean resultValid = Utils.isValidHeader(validHeader);
+        boolean resultInvalid1 = Utils.isValidHeader(invalidHeader1);
+        boolean resultInvalid2 = Utils.isValidHeader(invalidHeader2);
 
         assertThat(resultValid).isTrue();
         assertThat(resultInvalid1).isFalse();

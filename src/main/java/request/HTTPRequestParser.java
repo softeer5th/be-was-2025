@@ -34,8 +34,6 @@ public class HTTPRequestParser {
         StringBuilder httpRequestLogMessage = new StringBuilder("HTTP Request Header:\n");
         for (String line : httpRequestHeader) {
             httpRequestLogMessage.append(line).append("\n");
-            //TODO 삭제
-            break;
         }
         logger.debug(httpRequestLogMessage.toString());
     }
