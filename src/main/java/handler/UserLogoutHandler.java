@@ -3,6 +3,7 @@ package handler;
 import db.SessionManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
+import exception.UserErrorCode;
 import http.HttpRequestInfo;
 import http.HttpResponse;
 import http.HttpStatus;
@@ -27,6 +28,10 @@ public class UserLogoutHandler implements Handler {
         }
         HttpResponse response = new HttpResponse();
         Map<String, String> params = QueryUtil.parseQueryParams(request.getBody(), QUERY_SIZE);
+        if( SessionManager.findUserBySessionID(params.get("sessionID")) == null) {
+            logger.error("UserLogoutHandler: Invalid sessionID");
+            throw new BaseException(UserErrorCode.USER_NOT_FOUND_FOR_SESSION);
+        }
         SessionManager.removeSession(params.get("sid"));
         logger.debug("User Logged out successfully.");
 

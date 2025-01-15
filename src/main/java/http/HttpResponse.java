@@ -68,6 +68,10 @@ public class HttpResponse {
         return body;
     }
 
+    public String getHeader(String key) {
+        return headers.get(key);
+    }
+
     public void send(DataOutputStream dos) {
         try {
             dos.writeBytes("HTTP/1.1 " + status.getCode() + " " + status.getMessage() + NEW_LINE);

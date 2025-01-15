@@ -5,6 +5,7 @@ public enum HttpStatus {
     CREATED(201, "Created" ),
     FOUND(302, "Found" ),
     BAD_REQUEST(400, "Bad Request"),
+    UNAUTHORIZED(401, "Unauthorized"),
     NOT_FOUND(404, "Unsupported Media Type"),
     UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type");
 
