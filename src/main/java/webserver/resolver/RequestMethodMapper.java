@@ -1,5 +1,6 @@
 package webserver.resolver;
 
+import webserver.enumeration.HTTPStatusCode;
 import webserver.exception.HTTPException;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
@@ -18,7 +19,8 @@ public class RequestMethodMapper implements ResourceResolver{
         if (resolver == null) {
             throw new HTTPException.Builder()
                     .causedBy(RequestMethodWrapper.class)
-                    .notFound(request.getUri());
+                    .statusCode(HTTPStatusCode.METHOD_NOT_ALLOWED)
+                    .build();
         }
         resolver.resolve(request, response);
     }
