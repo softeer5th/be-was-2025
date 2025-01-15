@@ -47,37 +47,28 @@ public class RegisterServlet implements Servlet {
 
 		if (Database.findUserById(user.getUserId()).isPresent()) {
 			handleUserExists(response, request, user);
-		} else {
-			registerUser(response, request, user);
+			return;
 		}
+
+		registerUser(response, request, user);
 	}
 
 	private void handleInvalidRequest(HttpResponse response, HttpRequest request) {
-		sendErrorResponse(response, request.getVersion(), HttpStatus.BAD_REQUEST, INVALID_REQUEST_MESSAGE);
+		response.setErrorResponse(response, request.getVersion(), HttpStatus.FOUND, INVALID_REQUEST_MESSAGE);
+
 		logger.warn("Invalid user registration attempt: " + request);
 	}
 
 	private void handleUserExists(HttpResponse response, HttpRequest request, User user) {
-		sendRedirectResponse(response, request.getVersion(), HttpStatus.SEE_OTHER, REGISTRATION_SUCCESS_PAGE);
+		response.setRedirectResponse(response, request.getVersion(), HttpStatus.SEE_OTHER, REGISTRATION_SUCCESS_PAGE);
 		logger.debug("User already exists: " + user);
 	}
 
 	private void registerUser(HttpResponse response, HttpRequest request, User user) {
 		Database.addUser(user);
-		sendRedirectResponse(response, request.getVersion(), HttpStatus.FOUND, REGISTRATION_SUCCESS_PAGE);
+
+		response.setErrorResponse(response, request.getVersion(), HttpStatus.FOUND, REGISTRATION_SUCCESS_PAGE);
 		logger.debug("User: " + user + " is registered.");
-	}
-
-	private void sendErrorResponse(HttpResponse response, String version, HttpStatus status, String message) {
-		response.setStatusCode(status);
-		response.setVersion(version);
-		response.setBody(message.getBytes());
-	}
-
-	private void sendRedirectResponse(HttpResponse response, String version, HttpStatus status, String location) {
-		response.setStatusCode(status);
-		response.setVersion(version);
-		response.setRedirect(location);
 	}
 
 	private UserRequestDto createUserRequestDto(Map<String, String> body) {
