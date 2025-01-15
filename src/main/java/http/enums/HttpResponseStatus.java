@@ -5,6 +5,7 @@ public enum HttpResponseStatus {
     CREATED(201, "Created"),
     FOUND(302, "Found"),
     BAD_REQUEST(400, "Bad Request"),
+    UNAUTHORIZED(401, "Unauthorized"),
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Not Found");
 
