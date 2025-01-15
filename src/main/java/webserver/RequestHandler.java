@@ -22,6 +22,8 @@
             this.connection = connectionSocket;
         }
 
+        // Todo: 에러 발생 시 클라이언트에게 응답하는 기능 구현 필요
+        // Todo: timeout 발생 시 처리하는 기능 구현 필요
         public void run() {
             logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                     connection.getPort());
@@ -29,8 +31,9 @@
             HTTPRequestHeader requestHeader = null;
             HTTPRequestBody requestBody = null;
 
+            DataOutputStream dos = null;
             try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-                DataOutputStream dos = new DataOutputStream(out);
+                dos = new DataOutputStream(out);
                 // 스트림 데이터를 읽기 위한 버퍼 생성
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                 byte[] temp = new byte[1024];
@@ -57,13 +60,7 @@
                 String headersString = headerBuilder.toString();
                 logger.debug(headersString.toString());
 
-
-                try {
-                    requestHeader = new HTTPRequestHeader(headersString.toString());
-                } catch (HTTPExceptions.Error400 | HTTPExceptions.Error505 | HTTPExceptions.Error404 |
-                         HTTPExceptions.Error405 e) {
-                    logger.error(e.getMessage());
-                }
+                requestHeader = new HTTPRequestHeader(headersString.toString());
 
                 String method = requestHeader.getMethod();
                 String[] uri = requestHeader.getUri().split("\\?");
@@ -72,25 +69,21 @@
 
                 // body가 있을 경우 body 읽기
                 if (headers.containsKey("content-length")) {
-                    try {
-                            int contentLength = Integer.parseInt(headers.get("content-length"));
+                    int contentLength = Integer.parseInt(headers.get("content-length"));
 
-                            while (buffer.size() < contentLength && (bytesRead = in.read(temp)) != -1) {
-                                buffer.write(temp, 0, bytesRead);
-                            }
-
-                            byte[] body = buffer.toByteArray();
-
-                            if (body.length != contentLength) {
-                                throw new HTTPExceptions.Error400("400 Bad Request: body length does not match content-length");
-                            }
-
-                            logger.debug("Body: {}", new String(body, StandardCharsets.UTF_8));
-
-                            requestBody = new HTTPRequestBody(body);
-                    } catch (HTTPExceptions.Error400 e) {
-                        logger.error(e.getMessage());
+                    while (buffer.size() < contentLength && (bytesRead = in.read(temp)) != -1) {
+                        buffer.write(temp, 0, bytesRead);
                     }
+
+                    byte[] body = buffer.toByteArray();
+
+                    if (body.length != contentLength) {
+                        throw new HTTPExceptions.Error400("400 Bad Request: body length does not match content-length");
+                    }
+
+                    logger.debug("Body: {}", new String(body, StandardCharsets.UTF_8));
+
+                    requestBody = new HTTPRequestBody(body);
                 }
                 // Todo: Content-Type에 따라 적합한 형태로 body 변환하기
 
@@ -170,6 +163,14 @@
                 }
             } catch (IOException e) {
                 logger.error(e.getMessage());
+            } catch (HTTPExceptions e) {
+                logger.error(e.getMessage());
+                byte[] body = HTTPExceptions.getErrorMessage(e.getMessage());
+                try {
+                    ResponseHandler.respond(dos, body, null, e.getStatusCode());
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
     }
