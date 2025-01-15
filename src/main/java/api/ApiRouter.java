@@ -1,6 +1,8 @@
 package api;
 
-import api.user.UserCreationHandler;
+import api.user.LogoutHandler;
+import api.user.SignUpHandler;
+import api.user.LoginHandler;
 import global.model.HttpRequest;
 import global.model.LoadResult;
 
@@ -12,7 +14,9 @@ public class ApiRouter {
     private final List<ApiHandler> handlers = new ArrayList<>();
 
     public ApiRouter() {
-        handlers.add(new UserCreationHandler());
+        handlers.add(new SignUpHandler());
+        handlers.add(new LoginHandler());
+        handlers.add(new LogoutHandler());
     }
 
     public LoadResult route(HttpRequest httpRequest) throws IOException {
