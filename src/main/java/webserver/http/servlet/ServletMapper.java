@@ -1,18 +1,24 @@
 package webserver.http.servlet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ServletMapper {
     private final Map<String, ServletInfo> servletMap = new HashMap<>();
     private static final String XML_FILE_PATH = "config/servlet.xml";
+    private static final Logger logger = LoggerFactory.getLogger(ServletMapper.class);
 
     public ServletMapper() {
         try {
@@ -27,14 +33,30 @@ public class ServletMapper {
 
             for (int i = 0; i < servletNodes.getLength(); i++) {
                 Element servletElement = (Element) servletNodes.item(i);
-                String url = servletElement.getElementsByTagName("url").item(0).getTextContent();
-                String method = servletElement.getElementsByTagName("method").item(0).getTextContent();
-                String className = servletElement.getElementsByTagName("class").item(0).getTextContent();
+                String url = Optional.ofNullable(servletElement.getElementsByTagName("url").item(0))
+                        .map(Node::getTextContent)
+                        .orElseThrow(() -> new IOException("Missing <url> tag in servlet mapping"));
 
-                servletMap.put(url + ":" + method, new ServletInfo(url, method, className));
+                String method = Optional.ofNullable(servletElement.getElementsByTagName("method").item(0))
+                        .map(Node::getTextContent)
+                        .orElseThrow(() -> new IOException("Missing <method> tag in servlet mapping"));
+
+                String className = Optional.ofNullable(servletElement.getElementsByTagName("class").item(0))
+                        .map(Node::getTextContent)
+                        .orElseThrow(() -> new IOException("Missing <class> tag in servlet mapping"));
+
+                String endPoint = url + ":" + method;
+
+                if(servletMap.containsKey(endPoint)) throw new DuplicateServletMappingException(
+                        String.format("Duplicate mapping found for URL '%s' and method '%s'. " +
+                                        "Mapped classes: '%s' and '%s'.",
+                                url, method, servletMap.get(endPoint).className(), className
+                ));
+
+                servletMap.put(endPoint, new ServletInfo(url, method, className));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 
