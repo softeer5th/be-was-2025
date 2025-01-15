@@ -154,11 +154,7 @@
                     }
                     // 유효하지 않은 path에 대한 처리
                     else {
-                        logger.error("{}path not found", path);
-                        byte[] body = "<h2> HTTP 400 Bad Request</h2>".getBytes();
-
-                        // 400 Bad Request
-                        ResponseHandler.respond(dos, body, null, 400);
+                        throw new HTTPExceptions.Error404("404 Not Found");
                     }
                 }
             } catch (IOException e) {
