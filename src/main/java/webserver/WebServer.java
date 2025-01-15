@@ -5,14 +5,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
 import webserver.file.StaticResourceManager;
+import webserver.handler.LoginHandler;
 import webserver.handler.RegistrationHandler;
 import webserver.handler.ServeStaticFileHandler;
 import webserver.interceptor.HandlerInterceptor;
 import webserver.interceptor.InterceptorChain;
 import webserver.interceptor.LoggingInterceptor;
+import webserver.interceptor.SessionInterceptor;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponseWriter;
 import webserver.router.PathRouter;
+import webserver.session.MemorySessionManager;
+import webserver.session.SessionManager;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -52,14 +56,19 @@ public class WebServer {
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
-                .setHandler("/create", new RegistrationHandler(database));
                 .setHandler("/create", new RegistrationHandler(database))
+                .setHandler("/signin", new LoginHandler(database));
 
+        SessionManager sessionManager = new MemorySessionManager();
+
+        HandlerInterceptor sessionInterceptor = new SessionInterceptor(sessionManager);
         HandlerInterceptor logInterceptor = new LoggingInterceptor();
         InterceptorChain chain = InterceptorChain
                 .inbound()
+                .add(sessionInterceptor)
                 .add(logInterceptor)
                 .outbound()
+                .add(sessionInterceptor)
                 .add(logInterceptor).build();
 
 

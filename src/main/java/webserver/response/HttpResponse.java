@@ -42,10 +42,8 @@ public class HttpResponse {
         return this;
     }
 
-    public void setCookie(String name, String value, int maxAge) {
-        SetCookie setCookie = new SetCookie(name, value);
-        setCookie.setMaxAge(maxAge);
-        headers.addSetCookie(setCookie);
+    public void setCookie(String name, String value) {
+        headers.addSetCookie(new SetCookie(name, value));
     }
 
     public void deleteCookie(String name) {

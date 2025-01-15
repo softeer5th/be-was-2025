@@ -23,7 +23,7 @@
     </header>
     <div class="page">
         <h2 class="page-title">로그인</h2>
-        <form class="form">
+        <form action="/signin" class="form" enctype="application/x-www-form-urlencoded" method="post">
             <div class="textfield textfield_size_s">
                 <p class="title_textfield">아이디</p>
                 <input autocomplete="username"
@@ -47,7 +47,7 @@
                     class="btn btn_contained btn_size_m"
                     id="login-btn"
                     style="margin-top: 24px"
-                    type="button"
+                    type="submit"
             >
                 로그인
             </button>
