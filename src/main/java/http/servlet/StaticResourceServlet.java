@@ -17,6 +17,10 @@ public class StaticResourceServlet implements Servlet {
 
 	@Override
 	public void service(HttpRequest request, HttpResponse response) throws IOException {
+		handleStaticResource(request, response);
+	}
+
+	public static void handleStaticResource(HttpRequest request, HttpResponse response) throws IOException {
 		String path = Paths.get(STATIC_FILES_PATH, request.getPath()).toString();
 
 		if (!request.hasExtension()) {
