@@ -2,8 +2,7 @@ package webserver.httpserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import exception.FileNotSupportedException;
-import webserver.ContentType;
+import webserver.httpserver.header.Cookie;
 
 import java.io.*;
 import java.io.BufferedInputStream;
@@ -21,6 +20,7 @@ public class HttpRequest {
     public static final String URI_QUERYPARAM_DELIMITER = "\\?";
     public static final String CONTENT_LENGTH = "content-length";
     public static final String CONTENT_TYPE = "content-type";
+    public static final String COOKIE = "cookie";
     private HttpMethod method;
     private String uri;
     private final Map<String, String> parameters = new HashMap<>();
@@ -50,6 +50,13 @@ public class HttpRequest {
 
     public String getProtocol() {
         return protocol;
+    }
+
+    public Cookie getCookie(){
+        if(!headers.containsKey(COOKIE)){
+            return Cookie.NULL_COOKIE;
+        }
+        return new Cookie(getHeader(COOKIE));
     }
 
     public String getUri() {
