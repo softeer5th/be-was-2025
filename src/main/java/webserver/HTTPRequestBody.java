@@ -1,9 +1,7 @@
 package webserver;
 
-import java.util.Map;
-
 public class HTTPRequestBody {
-    private byte[] body;
+    private final byte[] body;
 
     public HTTPRequestBody(byte[] body) {
         this.body = body;
