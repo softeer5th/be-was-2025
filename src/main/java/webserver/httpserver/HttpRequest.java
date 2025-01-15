@@ -88,6 +88,9 @@ public class HttpRequest {
 
 
     private void parseQueryParameter(String rawQueryParams) throws IOException {
+        if (rawQueryParams.isEmpty()) {
+            return;
+        }
         String[] queryParams = rawQueryParams.split(QUERYPARAMETER_DELIMITER);
         for (String queryParam : queryParams) {
             String[] paramPair = queryParam.split(QUERYPARAMETER_KEVALUE_DELIMITER);
