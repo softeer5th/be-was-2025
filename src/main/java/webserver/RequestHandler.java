@@ -248,7 +248,7 @@
                         }
 
                         // User 데이터베이스에 사용자 정보 추가
-                        User user = new User(userId, userName, userPassword);
+                        User user = new User(userId, userPassword, userName);
                         Database.addUser(user);
 
                         // 메인 화면으로 리다이렉트
