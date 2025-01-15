@@ -1,9 +1,7 @@
-package webserver;
+package webserver.httpserver;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import webserver.httpserver.HttpMethod;
-import webserver.httpserver.HttpRequest;
 
 import java.io.*;
 
