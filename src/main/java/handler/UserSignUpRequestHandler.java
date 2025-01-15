@@ -11,7 +11,7 @@ import model.User;
 import java.util.Collection;
 import java.util.Map;
 
-public class UserRequestHandler implements  RequestHandler{
+public class UserSignUpRequestHandler implements  RequestHandler{
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
         return true;
