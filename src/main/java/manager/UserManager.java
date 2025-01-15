@@ -47,6 +47,8 @@ public class UserManager {
     }
 
     public Optional<String> getNameFromSession(String sessionId) {
+        if(sessionId == null)
+            return Optional.empty();
         final String userId = sessionManager.getUserId(sessionId);
         if (userId == null)
             return Optional.empty();
