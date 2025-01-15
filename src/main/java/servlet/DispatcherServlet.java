@@ -14,12 +14,10 @@ import java.util.List;
 
 public class DispatcherServlet implements Servlet {
     private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
-    private final List<Object> controllers;
     private final ControllerMapping controllerMapping;
     private final ControllerAdaptor controllerAdaptor = new ControllerAdaptor();
 
     public DispatcherServlet(List<Object> controllers) {
-        this.controllers = controllers;
         this.controllerMapping = new ControllerMapping(controllers);
     }
 
