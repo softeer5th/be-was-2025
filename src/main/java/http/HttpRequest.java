@@ -11,6 +11,7 @@ public class HttpRequest {
     private String protocol;
     private final Map<String, String> queryParams = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
+    private char[] body;
 
     public HttpRequest(){}
 
@@ -30,6 +31,13 @@ public class HttpRequest {
         return queryParams.get(key);
     }
 
+    public String getHeader(String headerKey){
+        return headers.get(headerKey);
+    }
+
+    public char[] getBody(){
+        return this.body;
+    }
     public void setMethod(String methodName){
         this.method =  HttpMethod.valueOf(methodName.toUpperCase());
     }
@@ -48,5 +56,9 @@ public class HttpRequest {
 
     public void addHeader(String headerKey, String headerValue){
         headers.put(headerKey, headerValue);
+    }
+
+    public void setBody(char[] body){
+        this.body = body;
     }
 }
