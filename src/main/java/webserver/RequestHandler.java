@@ -177,7 +177,7 @@
                         Database.addUser(user);
 
                         // 메인 화면으로 리다이렉트
-                        ResponseHandler.respond302(dos, "/main/index.html");
+                        ResponseHandler.respond302(dos, "/index.html");
 
                     } catch (HTTPExceptions e) {
                         logger.error(e.getMessage());
