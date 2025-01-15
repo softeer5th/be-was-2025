@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.resolver.ResourceResolver;
+import webserver.resolver.factory.ResolverFactory;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
@@ -29,7 +31,7 @@ public class WebServer {
                 TimeUnit.SECONDS,
                 workQueue
         );
-
+        ResourceResolver resolver = ResolverFactory.createResolver();
         int port = 0;
         if (args == null || args.length == 0) {
             port = DEFAULT_PORT;
@@ -44,7 +46,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                executor.execute(new RequestHandler(connection));
+                executor.execute(new RequestHandler(connection, resolver));
             }
         }
     }

@@ -24,9 +24,5 @@ public class ContentTypeParser implements HeaderParser {
             records.add(record);
         }
         headers.put("accept", records.toArray(new AcceptRecord[]{records.get(0)}), AcceptRecord[].class);
-        if (HTTPContentType.isSupported(value)) {
-            throw new IllegalArgumentException("Unsupported content type");
-        }
-        headers.put("accept", HTTPContentType.fromFullType(value), HTTPContentType.class);
     }
 }

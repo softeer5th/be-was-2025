@@ -2,6 +2,7 @@ package webserver.message;
 
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
+import webserver.enumeration.HTTPVersion;
 
 public class HTTPResponse {
     static public class Builder {
