@@ -128,6 +128,20 @@
                         ResponseHandler.respond(dos, body, null, 404);
                     }
                 }
+                // 로그인 요청에 대한 처리
+                else if (path.equals("/login")) {
+                    File file = new File(resourcePath + "login/index.html");
+                    if (file.exists()) {
+                        byte[] body = Files.readAllBytes(file.toPath());
+                        ResponseHandler.respond(dos, body, ".html", 200);
+                    } else {
+                        logger.error("{}File not found", path);
+                        byte[] body = "<h2> HTTP 404 Not Found</h2>".getBytes();
+
+                        // 404 Not Found
+                        ResponseHandler.respond(dos, body, null, 404);
+                    }
+                }
                 // 회원가입 완료에 대한 처리
                 else if (path.equals("/user/create") && method.equals("POST")) {
                     try {
