@@ -5,7 +5,6 @@ import enums.HttpHeader;
 import enums.HttpStatus;
 import exception.ClientErrorException;
 import exception.ErrorCode;
-import exception.ServerErrorException;
 import manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,19 +13,18 @@ import response.HttpResponse;
 import util.CookieParser;
 import util.FileReader;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static exception.ErrorCode.ERROR_WITH_ENCODING;
+public class DynamicHomeHandler implements Handler {
+    private static final Logger log = LoggerFactory.getLogger(DynamicHomeHandler.class);
 
-public class DynamicHtmlFileHandler implements Handler {
     private static final String STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
-    private static final Logger log = LoggerFactory.getLogger(DynamicHtmlFileHandler.class);
-    private final UserManager userManager;
+    private static final String REPLACE_TARGET = "{{user_info}}";
 
-    public DynamicHtmlFileHandler() {
+    private final UserManager userManager;
+    public DynamicHomeHandler() {
         this.userManager = UserManager.getInstance();
     }
 
@@ -49,7 +47,7 @@ public class DynamicHtmlFileHandler implements Handler {
         final String sessionId = CookieParser.parseCookie(request.getHeaderValue(HttpHeader.COOKIE.getName()));
 
         String dynamicHtmlContent = setDynamicHtmlContentByUserName(userManager.getNameFromSession(sessionId));
-        String body = html.toString().replace("{{user_info}}", dynamicHtmlContent);
+        String body = html.toString().replace(REPLACE_TARGET, dynamicHtmlContent);
 
         response.setBody(body);
         return response;
