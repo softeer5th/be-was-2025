@@ -16,18 +16,46 @@ public class HttpResponse {
 
     public void send200(byte[] body, String path) throws IOException {
         String contentType = ContentTypeMapper.getContentType(path);
-        writeHeader(HTTP_VERSION + HttpStatus.OK.getStatusLine(), contentType, body.length);
+        writeHeader(
+                HTTP_VERSION + HttpStatus.OK.getStatusLine(),
+                contentType,
+                body.length,
+                null
+        );
         writeBody(body);
     }
 
     public void send404(byte[] body) throws IOException {
-        writeHeader(HTTP_VERSION + HttpStatus.NOT_FOUND.getStatusLine(), "text/html", body.length);
+        writeHeader(
+                HTTP_VERSION + HttpStatus.NOT_FOUND.getStatusLine(),
+                "text/html",
+                body.length,
+                null
+        );
         writeBody(body);
     }
 
     public void sendJson(String json) throws IOException {
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
-        writeHeader(HTTP_VERSION + HttpStatus.OK.getStatusLine(), "application/json", body.length);
+        writeHeader(
+                HTTP_VERSION + HttpStatus.OK.getStatusLine(),
+                "application/json",
+                body.length,
+                null
+        );
+        writeBody(body);
+    }
+
+    public void sendJsonWithCookie(String json, String cookie) throws IOException {
+        byte[] body = json.getBytes(StandardCharsets.UTF_8);
+
+        writeHeader(
+                HTTP_VERSION + HttpStatus.OK.getStatusLine(),
+                "application/json;charset=utf-8",
+                body.length,
+                cookie
+        );
+
         writeBody(body);
     }
 
@@ -39,10 +67,15 @@ public class HttpResponse {
         dos.flush();
     }
 
-    private void writeHeader(String status, String contentType, int contentLength) throws IOException {
+    private void writeHeader(String status, String contentType, int contentLength, String cookie) throws IOException {
         dos.writeBytes(status + "\r\n");
-        dos.writeBytes("Content-Type: " + contentType + ";charset=utf-8\r\n");
+        dos.writeBytes("Content-Type: " + contentType + "\r\n");
         dos.writeBytes("Content-Length: " + contentLength + "\r\n");
+
+        if (cookie != null && !cookie.isBlank()) {
+            dos.writeBytes("Set-Cookie: " + cookie + "\r\n");
+        }
+
         dos.writeBytes("\r\n");
     }
 
