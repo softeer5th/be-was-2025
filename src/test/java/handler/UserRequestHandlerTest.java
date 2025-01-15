@@ -44,7 +44,7 @@ class UserRequestHandlerTest {
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, HttpVersion.HTTP1_1, new HashMap<>(), null);
         assertThatThrownBy(() -> userRequestHandler.handle(httpRequestInfo))
                 .isInstanceOf(ClientErrorException.class)
-                .hasMessage(ErrorCode.METHOD_NOT_ALLOWED.getMessage());
+                .hasMessage(ErrorCode.REQUEST_NOT_ALLOWED.getMessage());
 
     }
 

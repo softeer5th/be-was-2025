@@ -15,7 +15,7 @@ import request.UserLoginRequest;
 import response.HttpResponse;
 
 import static enums.HttpMethod.POST;
-import static exception.ErrorCode.METHOD_NOT_ALLOWED;
+import static exception.ErrorCode.REQUEST_NOT_ALLOWED;
 
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
@@ -78,7 +78,7 @@ public class UserRequestHandler implements Handler {
 
     private void checkPostMethod(final HttpMethod method) {
         if (method != POST)
-            throw new ClientErrorException(METHOD_NOT_ALLOWED);
+            throw new ClientErrorException(REQUEST_NOT_ALLOWED);
     }
 
 

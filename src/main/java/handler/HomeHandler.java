@@ -1,13 +1,13 @@
 package handler;
 
-import enums.FileContentType;
-import enums.HttpStatus;
 import exception.ClientErrorException;
-import exception.ErrorCode;
 import request.HttpRequestInfo;
 import response.HttpResponse;
 
+import static enums.FileContentType.HTML_UTF_8;
 import static enums.HttpMethod.GET;
+import static enums.HttpStatus.SEE_OTHER;
+import static exception.ErrorCode.REQUEST_NOT_ALLOWED;
 
 public class HomeHandler implements Handler {
     private static final String HOME_URL = System.getenv("HOME_URL");
@@ -15,14 +15,14 @@ public class HomeHandler implements Handler {
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         checkHttpMethod(request);
-        HttpResponse response = new HttpResponse(HttpStatus.SEE_OTHER, FileContentType.HTML_UTF_8, "");
+        HttpResponse response = new HttpResponse(SEE_OTHER, HTML_UTF_8, "");
         response.setHeaders("Location", HOME_URL);
         return response;
     }
 
     private static void checkHttpMethod(HttpRequestInfo request) {
         if (!request.getMethod().equals(GET)) {
-            throw new ClientErrorException(ErrorCode.METHOD_NOT_ALLOWED);
+            throw new ClientErrorException(REQUEST_NOT_ALLOWED);
         }
     }
 }
