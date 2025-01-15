@@ -1,12 +1,17 @@
 package http;
 
+import http.enums.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpRequestResolver {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestResolver.class);
@@ -21,13 +26,9 @@ public class HttpRequestResolver {
 
         parseHttpRequestLine(br, httpRequest);
 
-        // 요청 헤더 읽기
-        while((line = br.readLine()) != null){
-            if(line.isBlank()){
-                break;
-            }
-            parseHttpRequestHeader(line, httpRequest);
-        }
+        parseHttpRequestHeader(br, httpRequest);
+
+        parseHttpRequestBody(br, httpRequest);
 
         return httpRequest;
     }
@@ -73,5 +74,17 @@ public class HttpRequestResolver {
         }
 
         logger.debug("header: \n{}", sb.toString());
+    }
+
+    private void parseHttpRequestBody(BufferedReader br, HttpRequest httpRequest) throws IOException {
+        String contentLength = httpRequest.getHeader("CONTENT-LENGTH");
+
+        if(contentLength != null){
+            char[] buf = new char[Integer.parseInt(contentLength)];
+            br.read(buf, 0, buf.length);
+
+            logger.debug("body: \n{}", String.valueOf(buf));
+            httpRequest.setBody(buf);
+        }
     }
 }
