@@ -4,8 +4,6 @@ import static enums.HttpHeader.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
 
 import enums.HttpStatus;
 import http.request.HttpHeaders;
@@ -33,11 +31,7 @@ public class HttpResponse {
 	}
 
 	private void writeHeaders(OutputStream out) throws IOException {
-		for (Map.Entry<String, List<String>> entry : headers.getHeaders().entrySet()) {
-			String headerName = entry.getKey();
-			String headerToString = headers.getHeaderToString(headerName);
-			out.write(headerToString.getBytes()); // 헤더 출력
-		}
+		out.write(headers.toMessage().getBytes());
 		out.write(CRLF.getBytes()); // 헤더와 본문 구분을 위한 공백 라인
 	}
 
@@ -79,5 +73,9 @@ public class HttpResponse {
 		response.setStatusCode(status);
 		response.setVersion(version);
 		response.setBody(message.getBytes());
+	}
+
+	public void setCookie(String name, String value, String... options) {
+		headers.setCookie(name, value, options);
 	}
 }
