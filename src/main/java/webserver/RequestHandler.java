@@ -1,113 +1,175 @@
-package webserver;
+    package webserver;
 
-import java.io.*;
-import java.net.Socket;
-import java.net.URLDecoder;
-import java.nio.file.Files;
+    import java.io.*;
+    import java.net.Socket;
+    import java.net.URLDecoder;
+    import java.nio.charset.StandardCharsets;
+    import java.nio.file.Files;
+    import java.util.Map;
 
-import db.Database;
-import model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+    import db.Database;
+    import model.User;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
 
-public class RequestHandler implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String resourcePath = "src/main/resources/static/";
+    public class RequestHandler implements Runnable {
+        private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+        private static final String resourcePath = "src/main/resources/static/";
 
-    private Socket connection;
+        private Socket connection;
 
-    public RequestHandler(Socket connectionSocket) {
-        this.connection = connectionSocket;
-    }
+        public RequestHandler(Socket connectionSocket) {
+            this.connection = connectionSocket;
+        }
 
-    public void run() {
-        logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
-                connection.getPort());
+        public void run() {
+            logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
+                    connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            DataOutputStream dos = new DataOutputStream(out);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String line = br.readLine();
-            String[] token = line.split(" ");
+            HTTPRequestHeader requestHeader = null;
+            HTTPRequestBody requestBody = null;
 
-            // Request의 HTTP 헤더 출력
-            StringBuilder requestHeader = new StringBuilder();
-            requestHeader.append("Request Header: \n");
-            requestHeader.append(line + "\n");
-            while (!"".equals(line)) {
-                requestHeader.append((line = br.readLine()) + "\n");
-            }
-            logger.debug(requestHeader.toString());
+            try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
+                DataOutputStream dos = new DataOutputStream(out);
+                // 스트림 데이터를 읽기 위한 버퍼 생성
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] temp = new byte[1024];
+                int bytesRead;
 
-            // Request의 uri를 추출
-            String[] uri = token[1].split("\\?");
-            String path = uri[0];
-            String params = (uri.length > 1) ? uri[1] : "";
-            logger.debug("path: {}, params: {}", path, params);
+                // header 읽기
+                StringBuilder headerBuilder = new StringBuilder();
+                boolean headerEnd = false;
 
-            // path 기준으로 탐색
-            // default page에 대한 처리
-            if (path.equals("/")) {
-                byte[] body = "<h2>Hello World</h2>".getBytes();
-                ResponseHandler.respond(dos, body, null, 200);
-            }
-            // 회원가입 요청에 대한 처리
-            else if (path.equals("/registration")) {
-                File file = new File(resourcePath + "registration/index.html");
-                if (file.exists()) {
-                    byte[] body = Files.readAllBytes(file.toPath());
-                    ResponseHandler.respond(dos, body, ".html", 200);
+                while (!headerEnd && (bytesRead = in.read(temp)) != -1) {
+                    for (int i = 0; i < bytesRead; i++) {
+                        char c = (char) temp[i];
+                        headerBuilder.append(c);
+
+                        // body가 있을 경우에만 진입 - header의 끝인지 검사
+                        if (headerBuilder.length() >= 4 && headerBuilder.substring(headerBuilder.length() - 4).equals("\r\n\r\n")) {
+                            headerEnd = true;
+                            // 남은 데이터는 body로 넘김
+                            buffer.write(temp, i + 1, bytesRead - i - 1);
+                            break;
+                        }
+                    }
+                }
+                String headersString = headerBuilder.toString();
+                logger.debug(headersString.toString());
+
+
+                try {
+                    requestHeader = new HTTPRequestHeader(headersString.toString());
+                } catch (HTTPExceptions.Error400 | HTTPExceptions.Error505 | HTTPExceptions.Error404 |
+                         HTTPExceptions.Error405 e) {
+                    logger.error(e.getMessage());
+                }
+
+                String method = requestHeader.getMethod();
+                String[] uri = requestHeader.getUri().split("\\?");
+                String version = requestHeader.getVersion();
+                Map<String, String> headers = requestHeader.getHeaders();
+
+                // body가 있을 경우 body 읽기
+                if (headers.containsKey("content-length")) {
+                    try {
+                            int contentLength = Integer.parseInt(headers.get("content-length"));
+
+                            while (buffer.size() < contentLength && (bytesRead = in.read(temp)) != -1) {
+                                buffer.write(temp, 0, bytesRead);
+                            }
+
+                            byte[] body = buffer.toByteArray();
+
+                            if (body.length != contentLength) {
+                                throw new HTTPExceptions.Error400("400 Bad Request: body length does not match content-length");
+                            }
+
+                            logger.debug("Body: {}", new String(body, StandardCharsets.UTF_8));
+
+                            requestBody = new HTTPRequestBody(body);
+                    } catch (HTTPExceptions.Error400 e) {
+                        logger.error(e.getMessage());
+                    }
+                }
+                // Todo: Content-Type에 따라 적합한 형태로 body 변환하기
+
+                // Request의 uri를 추출
+                String path = uri[0];
+                String params = (uri.length > 1) ? uri[1] : "";
+                logger.debug("path: {}, params: {}", path, params);
+                logger.debug("method: {}", method);
+
+                // path 기준으로 탐색
+                // default page에 대한 처리
+                // Todo: 단순히 path를 if-else문으로 하면 길게 나열되는 문제 발생. 이에 대해 처리하는 방법 구상하기
+                if (path.equals("/")) {
+                    byte[] body = "<h2>Hello World</h2>".getBytes();
+                    ResponseHandler.respond(dos, body, null, 200);
+                }
+                // 회원가입 요청에 대한 처리
+                else if (path.equals("/registration")) {
+                    File file = new File(resourcePath + "registration/index.html");
+                    if (file.exists()) {
+                        byte[] body = Files.readAllBytes(file.toPath());
+                        ResponseHandler.respond(dos, body, ".html", 200);
+                    } else {
+                        logger.error("{}File not found", path);
+                        byte[] body = "<h2> HTTP 404 Not Found</h2>".getBytes();
+
+                        // 404 Not Found
+                        ResponseHandler.respond(dos, body, null, 404);
+                    }
+                }
+                // 회원가입 완료에 대한 처리
+                // Todo: param을 key-value 쌍으로 만들어서 저장할 수 있도록 코드 수정
+                // Todo: url 변조 공격을 방지하기 위해 서버 측에서 유효한 회원정보를 입력받았는지 검사하는 코드 추가 (클라이언트 측과 동일한 검사 수행)
+                // Todo: 수정된 방식을 적용하면 id라는 key 대신에 "id=123", value에 456이 들어가게 되면 key: "id", value: "123=456" 이렇게 되는 문제 발생. 이 버그 수정 필요
+                else if (path.equals("/user/create") && method.equals("POST")) {
+                    String[] param = requestBody.getBodyToString().split("&");
+                    String userId = URLDecoder.decode(param[0].substring(param[0].indexOf("=") + 1), "UTF-8");
+                    String userName = URLDecoder.decode(param[1].substring(param[1].indexOf("=") + 1), "UTF-8");
+                    String userPassword = URLDecoder.decode(param[2].substring(param[2].indexOf("=") + 1), "UTF-8");
+                    logger.debug("Creating User");
+                    logger.debug("Body: {}", requestBody.getBodyToString());
+
+                    logger.debug("userId: {}, userName: {}, userPassword: {}", userId, userName, userPassword);
+
+                    // 중복된 id를 가진 사용자가 없을 경우
+                    if (Database.findUserById(userId) == null) {
+                        // User 데이터베이스에 사용자 정보 추가
+                        User user = new User(userId, userName, userPassword);
+                        Database.addUser(user);
+
+                        // 메인 화면으로 리다이렉트
+                        ResponseHandler.respond302(dos, "/main/index.html");
+                    }
+                    // 중복된 id를 가진 사용자가 있을 경우
+                    else {
+                        logger.error("User already exists");
+
+                        // 409 Conflict
+                        ResponseHandler.respond(dos, null, null, 409);
+                    }
                 } else {
-                    logger.error("{}File not found", path);
-                    byte[] body = "<h2> HTTP 404 Not Found</h2>".getBytes();
+                    File file = new File(resourcePath + path);
+                    // file 요청에 대한 처리
+                    if (file.exists()) {
+                        byte[] body = Files.readAllBytes(file.toPath());
 
-                    // 404 Not Found
-                    ResponseHandler.respond(dos, body, null, 404);
+                        ResponseHandler.respond(dos, body, path, 200);
+                    }
+                    // 유효하지 않은 path에 대한 처리
+                    else {
+                        logger.error("{}path not found", path);
+                        byte[] body = "<h2> HTTP 400 Bad Request</h2>".getBytes();
+
+                        // 400 Bad Request
+                        ResponseHandler.respond(dos, body, null, 400);
+                    }
                 }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
             }
-            // 회원가입 완료에 대한 처리
-            else if (path.startsWith("/user/create")) {
-                String[] param = params.split("&");
-                String userId = URLDecoder.decode(param[0].substring(param[0].indexOf("=") + 1), "UTF-8");
-                String userName = URLDecoder.decode(param[1].substring(param[1].indexOf("=") + 1), "UTF-8");
-                String userPassword = URLDecoder.decode(param[2].substring(param[2].indexOf("=") + 1), "UTF-8");
-                logger.debug("userId: {}, userName: {}, userPassword: {}", userId, userName, userPassword);
-
-                // 중복된 id를 가진 사용자가 없을 경우
-                if (Database.findUserById(userId) == null) {
-                    // User 데이터베이스에 사용자 정보 추가
-                    User user = new User(userId, userName, userPassword);
-                    Database.addUser(user);
-
-                    // 메인 화면으로 리다이렉트
-                    ResponseHandler.respond302(dos, "/main/index.html");
-                }
-                // 중복된 id를 가진 사용자가 있을 경우
-                else {
-                    logger.error("User already exists");
-
-                    // 409 Conflict
-                    ResponseHandler.respond(dos, null, null, 409);
-                }
-            } else {
-                File file = new File(resourcePath + path);
-                // file 요청에 대한 처리
-                if (file.exists()) {
-                    byte[] body = Files.readAllBytes(file.toPath());
-
-                    ResponseHandler.respond(dos, body, path, 200);
-                }
-                // 유효하지 않은 path에 대한 처리
-                else {
-                    logger.error("{}path not found", path);
-                    byte[] body = "<h2> HTTP 400 Bad Request</h2>".getBytes();
-
-                    // 400 Bad Request
-                    ResponseHandler.respond(dos, body, null, 400);
-                }
-            }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
         }
     }
-}
