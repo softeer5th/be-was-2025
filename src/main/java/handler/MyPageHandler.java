@@ -21,7 +21,7 @@ public class MyPageHandler implements Handler {
     private static final Logger log = LoggerFactory.getLogger(MyPageHandler.class);
 
     private static final String STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
-    private static final String HOME_PATH = "/";
+    private static final String REDIRECT_PATH = "/login/index.html";
 
     private final UserManager userManager;
 
@@ -50,7 +50,7 @@ public class MyPageHandler implements Handler {
     private void redirectToHomePage(HttpResponse response) {
         // 로그인하지 않은 경우, HOME_PATH로 리다이렉트
         response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "");
-        response.setHeaders(HttpHeader.LOCATION.getName(), HOME_PATH);
+        response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_PATH);
     }
 
     private void serveRequestedFile(HttpRequestInfo request, HttpResponse response) {
