@@ -23,6 +23,7 @@ public class FrontControllerServlet implements Servlet {
 
 		controllerMap.put("/", new HomeServlet());
 		controllerMap.put("/registration", new StaticResourceServlet());
+		controllerMap.put("/login", new LoginServlet());
 		controllerMap.put("/user/create", new RegisterServlet());
 	}
 
