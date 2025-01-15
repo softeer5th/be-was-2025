@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.http.servlet.ServletMapper;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
@@ -26,8 +27,9 @@ public class WebServer {
         try (ServerSocket listenSocket = new ServerSocket(port)) {
             logger.info("Web Application Server started {} port.", port);
             Socket connection;
+            ServletMapper servletMapper = new ServletMapper();
             while ((connection = listenSocket.accept()) != null) {
-                THREAD_POOL.execute(new RequestHandler(connection));
+                THREAD_POOL.execute(new RequestHandler(connection, servletMapper));
             }
         } finally {
             THREAD_POOL.shutdown();

@@ -19,12 +19,12 @@ import webserver.support.ResourceResolver;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private Socket connection;
-
-    private final ServletMapper servletManager = new ServletMapper();
-
-    public RequestHandler(Socket connectionSocket) {
+    private final Socket connection;
+    private final ServletMapper servletManager;
+    
+    public RequestHandler(Socket connectionSocket , ServletMapper servletManager) {
         this.connection = connectionSocket;
+        this.servletManager = servletManager;
     }
 
     public void run() {
