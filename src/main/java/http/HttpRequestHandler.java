@@ -19,7 +19,7 @@ public class HttpRequestHandler {
     public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
         try {
             String path = httpRequest.getPath().toLowerCase();
-            String method = httpRequest.getMethod().toLowerCase();
+            HttpMethod method = httpRequest.getMethod();
 
             if (PathPool.getInstance().isAvailable(method, path)) {
                 Method classMethod = PathPool.getInstance().getMethod(method, path);

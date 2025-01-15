@@ -13,7 +13,7 @@ import java.util.Map;
 public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    private final String method;
+    private final HttpMethod method;
     private final String path;
     private final String version;
     private final Map<String,String> queries;
@@ -24,7 +24,7 @@ public class HttpRequest {
 
 
     public HttpRequest(String method, String path, String version, List<String> request) throws UnsupportedEncodingException {
-        this.method = method;
+        this.method = HttpMethod.valueOf(method.toUpperCase());
         this.version = version;
 
         this.uri = URI.create(path);
@@ -73,7 +73,7 @@ public class HttpRequest {
         return query.split("&");
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 

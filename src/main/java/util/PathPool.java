@@ -1,5 +1,6 @@
 package util;
 
+import http.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.UserHandler;
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PathPool {
     private static final Logger logger = LoggerFactory.getLogger(PathPool.class);
-    private final ConcurrentHashMap<String, ConcurrentHashMap<String, Method>> methodMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ConcurrentHashMap<HttpMethod, Method>> methodMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Object> classMap = new ConcurrentHashMap<>();
     private static final PathPool instance;
 
@@ -34,19 +35,19 @@ public class PathPool {
 
     private PathPool() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
 
-        ConcurrentHashMap<String, Method> methods = new ConcurrentHashMap<>();
         Constructor<UserHandler> c = UserHandler.class.getDeclaredConstructor();
-        UserHandler rp = c.newInstance();
+        UserHandler userHandler = c.newInstance();
 
-        Method method = rp.getClass().getDeclaredMethod("createUser", HttpRequest.class, HttpResponse.class);
+        Method createUser = userHandler.getClass().getDeclaredMethod("createUser", HttpRequest.class, HttpResponse.class);
 
-        methods.put("post", method);
-        methodMap.put("/user/create", methods);
-        classMap.put("/user/create", rp);
+        ConcurrentHashMap<HttpMethod, Method> createUserMethods = new ConcurrentHashMap<>();
+        createUserMethods.put(HttpMethod.POST, createUser);
 
+        methodMap.put("/user/create", createUserMethods);
+        classMap.put("/user/create", userHandler);
     }
 
-    public boolean isAvailable(String method, String path) {
+    public boolean isAvailable(HttpMethod method, String path) {
         if (!classMap.containsKey(path)) {
             return false;
         }
@@ -60,7 +61,7 @@ public class PathPool {
         return instance;
     }
 
-    public Method getMethod(String method, String path) {
+    public Method getMethod(HttpMethod method, String path) {
         return methodMap.get(path).get(method);
     }
 
