@@ -15,6 +15,7 @@ public class ResponseHandler {
             302, "HTTP/1.1 302 Found",
             400, "HTTP/1.1 400 Bad Request",
             404, "HTTP/1.1 404 Not Found",
+            405, "HTTP/1.1 405 Method Not Allowed",
             409, "HTTP/1.1 409 Conflict"
     );
 
