@@ -26,12 +26,14 @@ public class ResponseBuilder {
             default -> getPages;
         };
 
+        Response response;
         if (pages.containsKey(request.url)) {
             Handler handler = pages.get(request.url);
-            handler.handle(dos, request);
+            response = handler.handle(request);
         }
         else{
-            pages.get("default").handle(dos, request);
+            response = pages.get("default").handle(request);
         }
+        ResponseWriter.write(dos, response);
     }
 }

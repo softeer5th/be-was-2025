@@ -10,8 +10,7 @@ import java.io.IOException;
 
 public class Page404Handler implements Handler {
     @Override
-    public void handle(DataOutputStream dos, Request request) throws IOException {
-        Response response = new Response(request, HttpStatusCode.NOT_FOUND);
-        ResponseWriter.write(dos, response);
+    public Response handle(Request request) {
+        return new Response(request, HttpStatusCode.NOT_FOUND);
     }
 }

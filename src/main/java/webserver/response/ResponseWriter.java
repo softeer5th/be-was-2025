@@ -32,10 +32,4 @@ public class ResponseWriter {
         out.writeBytes(CRLF);
         out.write(body, 0, body.length);
     }
-
-    public static void redirect(DataOutputStream out, String location) throws IOException {
-        out.writeBytes( HTTP_VERSION + HttpStatusCode.SEE_OTHER.getCode() + " " + HttpStatusCode.SEE_OTHER.getDescription() + CRLF);
-        out.writeBytes("Location: " + location + CRLF + CRLF);
-        out.flush();
-    }
 }

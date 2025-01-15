@@ -2,11 +2,13 @@ package handler;
 
 
 import webserver.request.Request;
+import webserver.response.Response;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 public interface Handler {
-    default void handle(DataOutputStream dos, Request request) throws IOException {
+    default Response handle(Request request) {
+        return null;
     }
 }
