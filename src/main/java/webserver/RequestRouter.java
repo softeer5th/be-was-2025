@@ -15,7 +15,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -30,7 +29,7 @@ public class RequestRouter {
         init();
     }
 
-    public void route(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
+    public void route(HttpRequest httpRequest, DataOutputStream dos) throws IOException{
         HttpMethod method = httpRequest.getHttpMethod();
         String path = httpRequest.getRequestPath();
 
@@ -40,18 +39,19 @@ public class RequestRouter {
                 handler.accept(httpRequest, dos);
                 return;
             }
-        } else if (method == HttpMethod.POST) {
+        }
+        if (method == HttpMethod.POST) {
             BiConsumer<HttpRequest, DataOutputStream> handler = postHandlers.get(path);
             if (handler != null) {
                 handler.accept(httpRequest, dos);
                 return;
             }
         }
-
         HttpResponse.respond404(dos);
     }
 
     private void init() {
+        // GET request -> 정적 파일 반환
         this.addGetHandler((request, dos) -> {
             try {
                 String fileExtension = request.getRequestPath().split("\\.")[1];
@@ -66,17 +66,17 @@ public class RequestRouter {
                 httpResponse.addHeader("Content-Length", String.valueOf(body.length));
                 httpResponse.respond();
             } catch (IOException e) {
-                logger.error(Arrays.toString(e.getStackTrace()));
-                throw new ExceptionInInitializerError("Router Registration Error");
+                logger.error("Get Request Error, " + e.getMessage());
             }
         });
 
-        // 정규표현식으로 변경할것.
+        // /user/creat 경로로 POST 요청시 -> 회원가입 이후 index/html 리다이랙션
         this.addPostHandler("/user/create", (request, dos) -> {
+            creatUser(request.getBody());
             try {
-                creatUser(request.getBody(), dos);
-            } catch (Exception e) {
-                throw new ExceptionInInitializerError("/user/create handler registration error" + e);
+                HttpResponse.respond302("http://localhost:8080/index.html", dos);
+            } catch (IOException e) {
+                logger.error("Redirection Error, " + e.getMessage());
             }
         });
     }
@@ -89,7 +89,7 @@ public class RequestRouter {
         postHandlers.put(path, handler);
     }
 
-    private void creatUser(String requestBody, DataOutputStream dos) throws IOException{
+    private void creatUser(String requestBody) {
         QueryParameters queryParameters = new QueryParameters(requestBody);
         User.validateUserParameters(queryParameters);
         User user = new User(queryParameters.get("userId"),
@@ -98,7 +98,6 @@ public class RequestRouter {
                 queryParameters.get("email"));
         logger.debug("user = {}", user);
         Database.addUser(user);
-        HttpResponse.respond302("http://localhost:8080/index.html", dos);
     }
 
     private byte[] readFile(File file) throws IOException {

@@ -21,7 +21,6 @@ public class RequestHandler implements Runnable {
         this.requestRouter = requestRouter;
     }
 
-
     public void run() {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
@@ -34,16 +33,20 @@ public class RequestHandler implements Runnable {
         }
     }
 
-    private void handleRequest(BufferedReader br, DataOutputStream dos) throws Exception {
-        List<String> headerLines = ParsingUtil.parseRequestHeader(br);
-        HttpRequest httpRequest = new HttpRequest(headerLines);
-        if (httpRequest.getHttpMethod() == HttpMethod.POST) {
-            int contentLength = httpRequest.getContentLength();
-            char[] requestBody = new char[contentLength];
-            br.read(requestBody, 0, contentLength);
-            httpRequest.setBody(new String(requestBody));
+    private void handleRequest(BufferedReader br, DataOutputStream dos) {
+        try {
+            List<String> headerLines = ParsingUtil.parseRequestHeader(br);
+            HttpRequest httpRequest = new HttpRequest(headerLines);
+            if (httpRequest.getHttpMethod() == HttpMethod.POST) {
+                int contentLength = httpRequest.getContentLength();
+                char[] requestBody = new char[contentLength];
+                br.read(requestBody, 0, contentLength);
+                httpRequest.setBody(new String(requestBody));
+            }
+            httpRequest.log(logger);
+            requestRouter.route(httpRequest, dos);
+        } catch (Exception e) {
+            logger.debug(e.getMessage());
         }
-        httpRequest.log(logger);
-        requestRouter.route(httpRequest, dos);
     }
 }
