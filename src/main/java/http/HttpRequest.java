@@ -40,7 +40,7 @@ public class HttpRequest {
         for (String header: request) {
             if (header.isBlank()) break;
             String[] tokens = header.split(":", 2);
-            headers.put(tokens[0].trim().toLowerCase(), tokens[1].trim());
+            headers.merge(tokens[0].trim().toLowerCase(), tokens[1].trim(), String::concat);
         }
 
         return headers;
