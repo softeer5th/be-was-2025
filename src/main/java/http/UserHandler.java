@@ -21,14 +21,23 @@ public class UserHandler {
         String userId = data.get("userId");
         String username = data.get("username");
         String password = data.get("password");
-        if (userId == null || username == null || password == null || Database.findUserById(userId) != null) {
+
+        if (userId == null || username == null || password == null) {
             response.redirect("/registration");
             return;
         }
-        User user = new User(userId, username, password, null);
-        Database.addUser(user);
 
-        response.redirect("/");
+        Database.findUserById(userId) .ifPresentOrElse(
+            user -> {
+                response.redirect("/registration");
+            }, () -> {
+                User user = new User(userId, username, password, null);
+                Database.addUser(user);
+
+                response.redirect("/");
+            }
+        );
+
     }
 
     public void loginUser(HttpRequest request, HttpResponse response) {
@@ -39,18 +48,24 @@ public class UserHandler {
             response.redirect("/login");
             return;
         }
-        User user = Database.findUserById(userId);
-        if (user == null ||! user.getPassword().equals(password)) {
-            response.redirect("/login");
-            return;
-        }
 
-        String sid = UUID.randomUUID().toString().substring(0, 6);
-        logger.debug("sid: {}", sid);
-        SessionStore.addSession(sid, user);
-        String cookieString = String.format("%s=%s; path=/", "sid", sid);
-        response.writeHeader("Set-Cookie", cookieString);
-        response.redirect("/");
+        Database.findUserById(userId).ifPresentOrElse(
+                user -> {
+                if (!user.getPassword().equals(password)) {
+                    response.redirect("/login");
+                    return;
+                }
+
+                String sid = UUID.randomUUID().toString().substring(0, 6);
+                logger.debug("sid: {}", sid);
+                SessionStore.addSession(sid, user);
+                String cookieString = String.format("%s=%s; path=/", "sid", sid);
+                response.writeHeader("Set-Cookie", cookieString);
+                response.redirect("/");
+            }, () -> {
+                response.redirect("/login");
+            }
+        );
     }
 
     private Map<String, String> parseBody(HttpRequest request) {
