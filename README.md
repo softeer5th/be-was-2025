@@ -179,10 +179,6 @@ classDiagram
         - Servlets: Map<String, Servlet>
     }
     
-    class Servlet {
-        
-    }
-    
     class User{
         - userId: String
         - password: String
@@ -228,3 +224,36 @@ classDiagram
 - [ ] Ambiguous Mapping 검증
 -  /test/{id} 와 /test/hello 는 충돌해야 함
 - plain 도 렌더링이 되는 이유?
+
+
+
+# Level 5
+- [x] 예외 처리의 혼재
+  - 동적 리소스 서빙 예외 처리 -> 디스패처 서블릿에서 처리
+  - HTTP 메시지 파싱 + 정적 리소스 서빙 예외 처리 -> 서블릿 매니저에서 처리
+- [x] 쿠키와 세션을 이용한 로그인/로그아웃 구현
+- [x] 폼에 아무것도 입력하지 않은 칸이 있을 시 처리 방식
+  - 단순히 400 Bad Request 처리
+- [x] 헤더의 처리 방식
+    - 쿠키와 MimeType 등 특이 헤더에 대한 처리
+    - 현재 쿠키에 대해서만 처리
+
+
+## 도메인 모델 - level 5
+- Level 4와 달라진 것 없음
+
+
+## 추가적으로 배운 것
+- StringBuilder vs Collectors.joining
+    - Collectors.joining 은 내부적으로 CharSequence 를 사용한다.
+      - 가변 문자 배열을 이용하여 크기를 직접 늘려가며 join 한다.
+    - StringBuilder 도 내부적으로 CharSequence 를 사용한다.
+      - 가변 문자 배열을 이용하여 크기를 직접 늘려가며 append한다.
+    - 따라서 둘의 성능에 큰 차이는 없다.
+
+## 남은 문제점
+- [ ] 에러 페이지를 파일로 만들어서 그냥 파일로 찾아서 서빙하는게 좋을듯
+- [ ] 리소스 생성 시 반복해서 등장하는 파일 입력 받은 후 Response에 기록하는 코드를 제거할 방법
+- [ ] 스프링과 아키텍처가 지나치게 유사한 문제 해결
+- [ ] Ambiguous Mapping 검증
+  -  /test/{id} 와 /test/hello 는 충돌해야 함
