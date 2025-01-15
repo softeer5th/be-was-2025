@@ -1,5 +1,7 @@
 package http;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +14,18 @@ public class HttpRequest {
     private String body;
     private String requestPath;
 
-    public HttpRequest(List<String> headerLines) {
+    public HttpRequest(List<String> headerLines, BufferedReader br) throws IOException {
         headers = new HashMap<>();
         setHeader(headerLines);
+        setBody(br);
+    }
+
+    private void setBody(BufferedReader br) throws IOException {
+        if (this.httpMethod != HttpMethod.POST) return;
+        int contentLength = this.getContentLength();
+        char[] requestBody = new char[contentLength];
+        br.read(requestBody, 0, contentLength);
+        this.body = new String(requestBody);
     }
 
     public String getRequestPath() {
@@ -43,10 +54,6 @@ public class HttpRequest {
             String[] tokens = headerLines.get(i).split(":", 2);
             headers.put(tokens[0], tokens[1]);
         }
-    }
-
-    public void setBody(String body) {
-        this.body = body;
     }
 
     public String getBody() {

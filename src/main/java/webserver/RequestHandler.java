@@ -5,7 +5,6 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
 
-import http.HttpMethod;
 import http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,17 +35,11 @@ public class RequestHandler implements Runnable {
     private void handleRequest(BufferedReader br, DataOutputStream dos) {
         try {
             List<String> headerLines = ParsingUtil.parseRequestHeader(br);
-            HttpRequest httpRequest = new HttpRequest(headerLines);
-            if (httpRequest.getHttpMethod() == HttpMethod.POST) {
-                int contentLength = httpRequest.getContentLength();
-                char[] requestBody = new char[contentLength];
-                br.read(requestBody, 0, contentLength);
-                httpRequest.setBody(new String(requestBody));
-            }
+            HttpRequest httpRequest = new HttpRequest(headerLines, br);
             httpRequest.log(logger);
             requestRouter.route(httpRequest, dos);
         } catch (Exception e) {
-            logger.debug(e.getMessage());
+            logger.error("handleRequest, " + e.getMessage());
         }
     }
 }
