@@ -3,8 +3,10 @@ package http.servlet;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import db.Database;
+import enums.CookieType;
 import enums.HttpMethod;
 import enums.HttpStatus;
 import http.request.HttpRequest;
@@ -37,10 +39,9 @@ public class LoginServlet implements Servlet {
 		User foundUser = Database.findUserByIdOrThrow(body.get().get("userId"));
 		foundUser.validatePassword(body.get().get("password"));
 
-		// HTTP 헤더의 쿠키 값을 SID=세션 ID 로 응답한다.
-		// 세션 ID는 적당한 크기의 무작위 숫자 또는 문자열을 사용한다.
 		// 서버는 세션 아이디에 해당하는 User 정보에 접근할 수 있어야 한다.
 
-		response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, LOGIN_SUCCESS_PAGE);
+		response.setCookie("SID", UUID.randomUUID().toString().substring(0, 15), CookieType.PATH.name(), "/");
+		response.setRedirectResponse(response, request.getVersion(), HttpStatus.FOUND, LOGIN_SUCCESS_PAGE);
 	}
 }
