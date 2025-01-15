@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -23,7 +25,7 @@ public class HTTPMessageParser {
             super(message);
         }
     }
-    private static final Pattern PARAMETER_PATTERN = Pattern.compile("(?<key>([^=&]+))=(?<value>([^&]+))");
+    private static final Pattern PARAMETER_PATTERN = Pattern.compile("(?<key>([^=&]*))=(?<value>([^&]*))");
     private static final HTTPMessageParser instance = new HTTPMessageParser();
     private final static Logger logger = LoggerFactory.getLogger(HTTPMessageParser.class);
 
@@ -76,9 +78,10 @@ public class HTTPMessageParser {
             for (String param : params) {
                 Matcher matcher = PARAMETER_PATTERN.matcher(param);
                 if (matcher.find()) {
-                    String key = matcher.group("key");
-                    String value = matcher.group("value");
+                    String key = URLDecoder.decode(matcher.group("key"), StandardCharsets.UTF_8);
+                    String value = URLDecoder.decode(matcher.group("value"), StandardCharsets.UTF_8);
                     parameters.put(key, value);
+                    System.out.printf("%s = %s\n", key, value);
                 }
             }
             requestBuilder.setParameters(parameters);
