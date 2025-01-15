@@ -2,7 +2,7 @@ package http.enums;
 
 public enum HttpStatus {
     OK(200, "OK"),
-    MOVED_PERMANENTLY(301, "Moved Permanently"),
+    SEE_OTHER(303, "See Other"),
     NOT_FOUND(404, "Not Found"),
     INTERNAL_SERVER_ERROR(500, "INTERNAL SERVER ERROR");
 
