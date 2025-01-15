@@ -83,8 +83,11 @@ public class HttpRequestResolver {
             char[] buf = new char[Integer.parseInt(contentLength)];
             br.read(buf, 0, buf.length);
 
-            logger.debug("body: \n{}", String.valueOf(buf));
-            httpRequest.setBody(buf);
+            // URL 디코딩 처리
+            String decodedBody = URLDecoder.decode(new String(buf), StandardCharsets.UTF_8);
+
+            logger.debug("body: \n{}", decodedBody);
+            httpRequest.setBody(decodedBody.toCharArray());
         }
     }
 }
