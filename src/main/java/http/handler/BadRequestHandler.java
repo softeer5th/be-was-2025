@@ -1,5 +1,6 @@
 package http.handler;
 
+import http.enums.ErrorMessage;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.enums.HttpResponseStatus;
@@ -17,7 +18,7 @@ public class BadRequestHandler implements Handler {
 
     @Override
     public void handle(HttpRequest request, HttpResponse response) throws IOException {
-        response.sendErrorResponse(HttpResponseStatus.BAD_REQUEST);
+        response.sendErrorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.BAD_REQUEST);
     }
 }
 

@@ -1,6 +1,7 @@
 package http.response;
 
 import http.enums.ContentType;
+import http.enums.ErrorMessage;
 import http.enums.HttpResponseStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,12 +26,12 @@ public class HttpResponseTest {
     @Test
     @DisplayName("에러 응답 전송 테스트")
     public void testSendErrorResponse() throws IOException {
-        httpResponse.sendErrorResponse(HttpResponseStatus.NOT_FOUND);
+        httpResponse.sendErrorResponse(HttpResponseStatus.NOT_FOUND, ErrorMessage.NOT_FOUND_PATH_AND_FILE);
         String response = outputStream.toString("UTF-8");
 
         assertTrue(response.startsWith("HTTP/1.1 404 Not Found"));
         assertTrue(response.contains("Content-Type: text/html;charset=utf-8"));
-        assertTrue(response.contains("<h1>404 Not Found</h1>"));
+        assertTrue(response.contains("<h1>404 Not Found - 존재하지 않는 경로 및 파일입니다.</h1>"));
     }
 
     @Test

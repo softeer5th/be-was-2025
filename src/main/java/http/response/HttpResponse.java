@@ -1,6 +1,7 @@
 package http.response;
 
 import http.enums.ContentType;
+import http.enums.ErrorMessage;
 import http.enums.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +25,8 @@ public class HttpResponse {
         return out;
     }
 
-    public void sendErrorResponse(HttpResponseStatus status) throws IOException {
-        String body = String.format("<h1>%s</h1>", status);
+    public void sendErrorResponse(HttpResponseStatus status, ErrorMessage message) throws IOException {
+        String body = String.format("<h1>%s - %s</h1>", status, message);
         writeResponseHeader(status, ContentType.HTML.getMimeType(), body);
         writeResponseBody(body);
     }

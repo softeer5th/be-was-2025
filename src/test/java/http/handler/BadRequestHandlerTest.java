@@ -1,5 +1,6 @@
 package http.handler;
 
+import http.enums.ErrorMessage;
 import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
@@ -29,7 +30,7 @@ public class BadRequestHandlerTest {
     public void testHandle() throws IOException {
         handler.handle(mockRequest, mockResponse);
 
-        verify(mockResponse).sendErrorResponse(HttpResponseStatus.BAD_REQUEST);
+        verify(mockResponse).sendErrorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.BAD_REQUEST);
         verifyNoMoreInteractions(mockResponse);
     }
 }

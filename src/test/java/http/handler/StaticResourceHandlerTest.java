@@ -1,5 +1,6 @@
 package http.handler;
 
+import http.enums.ErrorMessage;
 import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
 import http.request.TargetInfo;
@@ -78,7 +79,7 @@ public class StaticResourceHandlerTest {
 
         handler.handle(mockRequest, mockResponse);
 
-        verify(mockResponse).sendErrorResponse(eq(HttpResponseStatus.NOT_FOUND));
+        verify(mockResponse).sendErrorResponse(eq(HttpResponseStatus.NOT_FOUND), eq(ErrorMessage.NOT_FOUND_PATH_AND_FILE));
     }
 
     @Test

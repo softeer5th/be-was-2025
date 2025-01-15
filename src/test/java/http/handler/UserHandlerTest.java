@@ -1,5 +1,6 @@
 package http.handler;
 
+import http.enums.ErrorMessage;
 import http.enums.HttpMethod;
 import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
@@ -61,7 +62,7 @@ public class UserHandlerTest {
 
         handler.handle(mockRequest, mockResponse);
 
-        verify(mockResponse).sendErrorResponse(HttpResponseStatus.BAD_REQUEST);
+        verify(mockResponse).sendErrorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.INVALID_PARAMETER);
     }
 
     @Test
@@ -72,6 +73,6 @@ public class UserHandlerTest {
 
         handler.handle(mockRequest, mockResponse);
 
-        verify(mockResponse).sendErrorResponse(HttpResponseStatus.NOT_FOUND);
+        verify(mockResponse).sendErrorResponse(HttpResponseStatus.NOT_FOUND, ErrorMessage.BAD_REQUEST);
     }
 }

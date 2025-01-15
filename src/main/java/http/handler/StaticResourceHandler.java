@@ -1,5 +1,6 @@
 package http.handler;
 
+import http.enums.ErrorMessage;
 import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
 import http.request.TargetInfo;
@@ -44,7 +45,7 @@ public class StaticResourceHandler implements Handler {
                 body = new String(file);
                 response.sendSuccessResponse(HttpResponseStatus.OK, type, body);
             } else {
-                response.sendErrorResponse(HttpResponseStatus.NOT_FOUND);
+                response.sendErrorResponse(HttpResponseStatus.NOT_FOUND, ErrorMessage.NOT_FOUND_PATH_AND_FILE);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
