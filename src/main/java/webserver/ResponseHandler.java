@@ -16,7 +16,8 @@ public class ResponseHandler {
             400, "HTTP/1.1 400 Bad Request",
             404, "HTTP/1.1 404 Not Found",
             405, "HTTP/1.1 405 Method Not Allowed",
-            409, "HTTP/1.1 409 Conflict"
+            409, "HTTP/1.1 409 Conflict",
+            415, "HTTP/1.1 415 Unsupported Media Type"
     );
 
     // 일반적인 상태 코드에 대한 응답

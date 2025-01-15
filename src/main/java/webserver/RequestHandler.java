@@ -5,6 +5,7 @@
     import java.net.URLDecoder;
     import java.nio.charset.StandardCharsets;
     import java.nio.file.Files;
+    import java.util.HashMap;
     import java.util.Map;
 
     import db.Database;
@@ -28,7 +29,7 @@
             logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                     connection.getPort());
 
-            HTTPRequestHeader requestHeader = null;
+            HTTPRequestHeader requestHeader;
             HTTPRequestBody requestBody = null;
 
             try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
@@ -64,11 +65,7 @@
                 } catch (HTTPExceptions e) {
                     logger.error(e.getMessage());
                     byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
-                    try {
-                        ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
                     return;
                 }
 
@@ -94,11 +91,7 @@
                         HTTPExceptions e = new HTTPExceptions.Error400("400 Bad Request: Content-Length header mismatch");
                         logger.error(e.getMessage());
                         byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
-                        try {
-                            ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
+                        ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
                         return;
                     }
 
@@ -110,8 +103,8 @@
 
                 // Request의 uri를 추출
                 String path = uri[0];
-                String params = (uri.length > 1) ? uri[1] : "";
-                logger.debug("path: {}, params: {}", path, params);
+                String queryParams = (uri.length > 1) ? uri[1] : "";
+                logger.debug("path: {}, params: {}", path, queryParams);
                 logger.debug("method: {}", method);
 
                 // path 기준으로 탐색
@@ -136,40 +129,62 @@
                     }
                 }
                 // 회원가입 완료에 대한 처리
-                // Todo: param을 key-value 쌍으로 만들어서 저장할 수 있도록 코드 수정
-                // Todo: url 변조 공격을 방지하기 위해 서버 측에서 유효한 회원정보를 입력받았는지 검사하는 코드 추가 (클라이언트 측과 동일한 검사 수행)
-                // Todo: 수정된 방식을 적용하면 id라는 key 대신에 "id=123", value에 456이 들어가게 되면 key: "id", value: "123=456" 이렇게 되는 문제 발생. 이 버그 수정 필요
                 else if (path.equals("/user/create") && method.equals("POST")) {
-                    String[] param = requestBody.getBodyToString().split("&");
-                    String userId = URLDecoder.decode(param[0].substring(param[0].indexOf("=") + 1), "UTF-8");
-                    String userName = URLDecoder.decode(param[1].substring(param[1].indexOf("=") + 1), "UTF-8");
-                    String userPassword = URLDecoder.decode(param[2].substring(param[2].indexOf("=") + 1), "UTF-8");
-                    logger.debug("Creating User");
-                    logger.debug("Body: {}", requestBody.getBodyToString());
+                    try {
+                        // 지정된 Content-Type이 아닐 경우
+                        if (!headers.get("content-type").equals("application/x-www-form-urlencoded")) {
+                            throw new HTTPExceptions.Error415("415 Unsupported Media Type");
+                        }
 
-                    logger.debug("userId: {}, userName: {}, userPassword: {}", userId, userName, userPassword);
+                        String[] params = requestBody.getBodyToString().split("&");
+                        Map<String, String> paramMap = new HashMap<String, String>();
+                        for (String param : params) {
+                            String[] keyValue = param.split("=");
+                            // 키값에 등호가 있을 경우
+                            if (keyValue.length != 2) {
+                                throw new HTTPExceptions.Error400("400 Bad Request: Invalid key");
+                            }
+                            // 키값 중복
+                            if (paramMap.containsKey(keyValue[0])) {
+                                throw new HTTPExceptions.Error400("400 Bad Request: Duplicate key");
+                            }
+                            paramMap.put(keyValue[0], URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8));
+                        }
+                        // 잘못된 키값 입력
+                        if (paramMap.size() != 3) {
+                            throw new HTTPExceptions.Error400("400 Bad Request: wrong number of parameters");
+                        }
 
-                    // 중복된 id를 가진 사용자가 없을 경우
-                    if (Database.findUserById(userId) == null) {
+                        String userId = paramMap.get("id");
+                        String userName = paramMap.get("name");
+                        String userPassword = paramMap.get("password");
+
+                        logger.debug("Creating User");
+
+                        logger.debug("userId: {}, userName: {}, userPassword: {}", userId, userName, userPassword);
+
+                        // 중복된 id를 가진 사용자가 있을 경우
+                        if (Database.findUserById(userId) != null) {
+                            // 409 Conflict
+                            HTTPExceptions e = new HTTPExceptions.Error409("409 Conflict: User already exists");
+                            logger.error(e.getMessage());
+                            byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
+                            ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
+                        }
+
                         // User 데이터베이스에 사용자 정보 추가
                         User user = new User(userId, userName, userPassword);
                         Database.addUser(user);
 
                         // 메인 화면으로 리다이렉트
                         ResponseHandler.respond302(dos, "/main/index.html");
-                    }
-                    // 중복된 id를 가진 사용자가 있을 경우
-                    else {
-                        // 409 Conflict
-                        HTTPExceptions e = new HTTPExceptions.Error409("409 Conflict: User already exists");
+
+                    } catch (HTTPExceptions e) {
                         logger.error(e.getMessage());
                         byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
-                        try {
-                            ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
+                        ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
                     }
+
                 } else {
                     File file = new File(resourcePath + path);
                     // file 요청에 대한 처리
@@ -183,11 +198,7 @@
                         HTTPExceptions e = new HTTPExceptions.Error404("404 Not Found");
                         logger.error(e.getMessage());
                         byte[] responseBody = HTTPExceptions.getErrorMessage(e.getMessage());
-                        try {
-                            ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
+                        ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
                     }
                 }
             } catch (IOException e) {

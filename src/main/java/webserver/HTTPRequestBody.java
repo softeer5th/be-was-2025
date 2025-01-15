@@ -8,6 +8,9 @@ public class HTTPRequestBody {
     }
 
     public String getBodyToString() {
+        if (body == null || body.length == 0) {
+            throw new HTTPExceptions.Error400("400 Bad Request: Body is null");
+        }
         return new String(body);
     }
 }

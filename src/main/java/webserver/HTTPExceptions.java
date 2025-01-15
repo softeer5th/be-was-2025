@@ -36,6 +36,12 @@ public class HTTPExceptions extends RuntimeException {
         }
     }
 
+    public static class Error415 extends HTTPExceptions {
+        public Error415(String message) {
+            super(message, 415);
+        }
+    }
+
     public static class Error505 extends HTTPExceptions {
         public Error505(String message) {
             super(message, 505);
