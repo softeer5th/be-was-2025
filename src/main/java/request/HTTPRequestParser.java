@@ -51,6 +51,7 @@ public class HTTPRequestParser {
     private void parseRequestLine(String[] readLine, HTTPRequest request) {
         setRequestLine(readLine[0].split("\\s+"), request);
         setHeaders(readLine, request);
+        setBodyParameters(readLine, request);
     }
 
     private void setHeaders(String[] readLine, HTTPRequest request) {
@@ -80,13 +81,13 @@ public class HTTPRequestParser {
                         bodyParameters.put(keyValue[0], keyValue[1]);
                     }
                 }
-                break;  // 바디는 첫 줄만 처리하고 종료
+                break;
             }
-            if (line.isEmpty()) {  // 빈 줄 이후부터 바디 시작
+            if (line.isEmpty()) {
                 isBodyStart = true;
             }
         }
-        request.setBodyParameters(bodyParameters);  // 파라미터 설정
+        request.setBodyParameters(bodyParameters);
     }
 
 
