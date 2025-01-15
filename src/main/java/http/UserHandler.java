@@ -45,14 +45,14 @@ public class UserHandler {
         String userId = data.get("userId");
         String password = data.get("password");
         if (userId == null | password == null) {
-            response.redirect("/login");
+            response.redirect("/login/failed.html");
             return;
         }
 
         Database.findUserById(userId).ifPresentOrElse(
                 user -> {
                 if (!user.getPassword().equals(password)) {
-                    response.redirect("/login");
+                    response.redirect("/login/failed.html");
                     return;
                 }
 
@@ -62,9 +62,9 @@ public class UserHandler {
                 SessionStore.addSession(cookie.getValue(), user);
 
                 response.writeHeader(HttpHeader.SET_COOKIE, cookie.createCookieString());
-                response.redirect("/main");
+                response.redirect("/");
             }, () -> {
-                response.redirect("/login");
+                response.redirect("/login/failed.html");
             }
         );
     }
