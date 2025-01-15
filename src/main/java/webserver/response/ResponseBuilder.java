@@ -1,35 +1,30 @@
 package webserver.response;
 
 
-import handler.CreateUserHandler;
-import handler.Handler;
-import handler.Page404Handler;
-import handler.StaticFileHandler;
+import handler.*;
 import webserver.request.Request;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 
 public class ResponseBuilder {
-    private final static Map<String, Handler> getPages = new HashMap<>();
-    private final static Map<String, Handler> postPages = new HashMap<>();
-    private static Map<String, Handler> pages;
-
-    public ResponseBuilder() {
-        postPages.put("/user/create", new CreateUserHandler());
-        postPages.put("default", new Page404Handler());
-        getPages.put("default", new StaticFileHandler());
-    }
+    private final static Map<String, Handler> getPages = Map.of(
+            "default", new StaticFileHandler()
+    );
+    private final static Map<String, Handler> postPages = Map.of(
+            "/user/create", new CreateUserHandler(),
+            "/user/login.html", new TryLoginHandler(),
+            "default", new Page404Handler()
+    );
 
     public void buildResponse(DataOutputStream dos, Request request) throws IOException {
-        switch (request.method){
-            case "GET": pages = getPages; break;
-            case "POST": pages = postPages; break;
-            default: pages = getPages;
-        }
+        Map<String, Handler> pages = switch (request.method) {
+            case "GET" -> getPages;
+            case "POST" -> postPages;
+            default -> getPages;
+        };
 
         if (pages.containsKey(request.url)) {
             Handler handler = pages.get(request.url);

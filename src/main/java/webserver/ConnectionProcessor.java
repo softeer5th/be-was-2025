@@ -12,7 +12,7 @@ import webserver.request.RequestParser;
 
 public class ConnectionProcessor implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionProcessor.class);
-    private final ResponseBuilder responseBuilder = new ResponseBuilder();
+    private static final ResponseBuilder responseBuilder = new ResponseBuilder();
 
     private Socket connection;
 
