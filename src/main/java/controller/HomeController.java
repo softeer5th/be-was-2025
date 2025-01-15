@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static utils.FileUtils.getFile;
+import static wasframework.HttpSession.SESSION_ID;
 
 public class HomeController {
 
@@ -21,7 +22,7 @@ public class HomeController {
         response.setHeader("Content-Type", "text/html; charset=utf-8");
 
         Cookie cookie = request.getCookie();
-        String sessionId = cookie.getCookie("SessionId");
+        String sessionId = cookie.getCookie(SESSION_ID);
         byte[] readFile;
         if (sessionId != null && HttpSession.get(sessionId) != null) {
             File file = new File("src/main/resources/static/main/index.html");

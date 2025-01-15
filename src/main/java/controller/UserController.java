@@ -18,6 +18,7 @@ import static utils.FileUtils.getFile;
 
 public class UserController {
 
+
     @Mapping(path = "/login", method = HttpMethod.GET)
     public void loginPage(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
@@ -30,8 +31,8 @@ public class UserController {
 
     @Mapping(path = "/login", method = HttpMethod.POST)
     public void login(HttpRequest request, HttpResponse response) throws IOException {
-        String inputUserId = request.getParameter("userId");
-        String inputPassword = request.getParameter("password");
+        String inputUserId = request.getParameter(User.USER_ID);
+        String inputPassword = request.getParameter(User.PASSWORD);
         if (inputUserId == null || inputPassword == null) {
             response.setStatusCode(StatusCode.UNAUTHORIZED);
             response.setLocation("/user/login_failed");
@@ -69,7 +70,7 @@ public class UserController {
     public void logout(HttpRequest request, HttpResponse response) throws IOException {
 
         Cookie cookie = request.getCookie();
-        String sessionId = cookie.getCookie("SessionId");
+        String sessionId = cookie.getCookie(HttpSession.SESSION_ID);
         if (sessionId != null){
             String userId = HttpSession.get(sessionId);
             if(userId != null){

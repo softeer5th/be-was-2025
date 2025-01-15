@@ -33,9 +33,9 @@ public class SignUpController {
 
     @Mapping(path = "/user/create", method = HttpMethod.POST)
     public void createUser(HttpRequest request, HttpResponse response) throws IOException {
-        String userId = request.getParameter("userId");
-        String password = request.getParameter("password");
-        String name = request.getParameter("name");
+        String userId = request.getParameter(User.USER_ID);
+        String password = request.getParameter(User.PASSWORD);
+        String name = request.getParameter(User.USERNAME);
         String email = null;
         User user = new User(userId, password, name, email);
         addUser(user);
