@@ -19,8 +19,7 @@ public class HttpRequestResolver {
     public HttpRequest parseHttpRequest(BufferedReader br) throws IOException {
         HttpRequest httpRequest = new HttpRequest();
 
-        String line = br.readLine();
-        parseHttpRequestLine(line, httpRequest);
+        parseHttpRequestLine(br, httpRequest);
 
         // 요청 헤더 읽기
         while((line = br.readLine()) != null){
@@ -33,7 +32,12 @@ public class HttpRequestResolver {
         return httpRequest;
     }
 
-    private void parseHttpRequestLine(String requestLine, HttpRequest httpRequest){
+    private void parseHttpRequestLine(BufferedReader br, HttpRequest httpRequest) throws IOException {
+        String requestLine = br.readLine();
+
+        if(requestLine == null || requestLine.isEmpty()){
+            throw new IOException("request line is Empty");
+        }
         logger.debug("request line: {}", requestLine);
 
         String[] requestLineParts = requestLine.split("\\s+");
