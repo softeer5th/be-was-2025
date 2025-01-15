@@ -20,10 +20,10 @@ public class Cookie {
     }
 
     public Cookie(String values) {
-        System.out.println(values);
         String[] cookieParts = values.split(";");
         for (String cookiePart : cookieParts) {
             String[] keyValue = cookiePart.split("=");
+            keyValue[0] = keyValue[0].toLowerCase();
             if ("domain".equals(keyValue[0])){
                 domain = keyValue[1].trim();
             }
