@@ -6,16 +6,17 @@ import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
 import webserver.file.StaticResourceManager;
 import webserver.handler.LoginHandler;
+import webserver.handler.LogoutHandler;
 import webserver.handler.RegistrationHandler;
 import webserver.handler.ServeStaticFileHandler;
 import webserver.interceptor.HandlerInterceptor;
 import webserver.interceptor.InterceptorChain;
 import webserver.interceptor.LoggingInterceptor;
-import webserver.interceptor.SessionInterceptor;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponseWriter;
 import webserver.router.PathRouter;
 import webserver.session.MemorySessionManager;
+import webserver.session.SessionInterceptor;
 import webserver.session.SessionManager;
 
 import java.io.IOException;
@@ -57,7 +58,8 @@ public class WebServer {
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
                 .setHandler("/create", new RegistrationHandler(database))
-                .setHandler("/signin", new LoginHandler(database));
+                .setHandler("/signin", new LoginHandler(database))
+                .setHandler("/logout", new LogoutHandler());
 
         SessionManager sessionManager = new MemorySessionManager();
 

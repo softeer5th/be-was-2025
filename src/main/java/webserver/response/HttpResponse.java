@@ -42,16 +42,10 @@ public class HttpResponse {
         return this;
     }
 
-    public void setCookie(String name, String value) {
-        headers.addSetCookie(new SetCookie(name, value));
-    }
-
-    public void deleteCookie(String name) {
-        SetCookie setCookie = new SetCookie(name, "");
-        setCookie.setMaxAge(0);
+    // Set-Cookie 헤더를 추가하는 메서드
+    public void setCookie(SetCookie setCookie) {
         headers.addSetCookie(setCookie);
     }
-
 
     @Override
     public String toString() {

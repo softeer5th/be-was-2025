@@ -10,5 +10,5 @@ public interface SessionManager {
 
     void removeSession(String sessionId);
 
-    String createSessionId();
+    HttpSession createAndSaveSession();
 }

@@ -15,7 +15,7 @@ public class MemorySessionManager implements SessionManager {
 
     @Override
     public Optional<HttpSession> getSession(String sessionId) {
-        return Optional.ofNullable(sessionMap.get(sessionId));
+        return Optional.ofNullable(sessionId).map(sessionMap::get);
     }
 
     @Override
@@ -24,7 +24,13 @@ public class MemorySessionManager implements SessionManager {
     }
 
     @Override
-    public String createSessionId() {
+    public HttpSession createAndSaveSession() {
+        HttpSession session = new HttpSession(generateSessionId());
+        saveSession(session.getSessionId(), session);
+        return session;
+    }
+
+    private String generateSessionId() {
         return UUID.randomUUID().toString();
     }
 }
