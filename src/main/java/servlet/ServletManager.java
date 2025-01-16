@@ -1,12 +1,12 @@
 package servlet;
 
-import controller.HomeController;
-import controller.SignUpController;
 import exception.FileNotSupportedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.HttpRequest;
+import webserver.httpserver.HttpRequestFactory;
 import webserver.httpserver.HttpResponse;
+import webserver.httpserver.header.CookieFactory;
 
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
@@ -16,22 +16,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 테스트 케이스 만들어야 하는것들
+ * 정상 http
+ * request 생성중 IOE
+ * 정적 리소스 서빙중 FileNotSupported
+ * 정적 리소스 서빙중 FileNotFound
+ * 정적 리소스 서빙중 IOE
+ * 정적 리소스 서빙중 IllegalArgumentException
+ */
 public class ServletManager {
-    private static final String NOT_FOUND = "NOT_FOUND";
-    private static final String FILE_NOT_SUPPORTED = "FILE_NOT_SUPPORTED";
-    private static final String BAD_REQUEST = "BAD_REQUEST";
-    private static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
-    private static final String DISPATCHER = "dispatcher";
-    private static final String DEFAULT = "default";
+    public static final String NOT_FOUND = "NOT_FOUND";
+    public static final String FILE_NOT_SUPPORTED = "FILE_NOT_SUPPORTED";
+    public static final String BAD_REQUEST = "BAD_REQUEST";
+    public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+    public static final String DISPATCHER = "dispatcher";
+    public static final String DEFAULT = "default";
     private static final Logger log = LoggerFactory.getLogger(ServletManager.class);
+    private final HttpRequestFactory requestFactory;
     private final Map<String, Servlet> servlets = new HashMap<>();
-    public ServletManager(List<Object> controllers) {
+
+    public ServletManager(List<Object> controllers, HttpRequestFactory factory) {
         servlets.put(DEFAULT, new StaticResourceServlet());
         servlets.put(DISPATCHER, new DispatcherServlet(controllers));
         servlets.put(FILE_NOT_SUPPORTED, new FileNotSupportedErrorPageServlet());
         servlets.put(NOT_FOUND, new FileNotFoundPageServlet());
         servlets.put(BAD_REQUEST, new BadRequestServlet());
         servlets.put(INTERNAL_SERVER_ERROR, new InternalServerErrorServlet());
+        requestFactory = factory;
     }
 
     public void addServlet(String url, Servlet servlet) {
@@ -51,26 +63,26 @@ public class ServletManager {
      * 현재 HTTP 메시지를 생성하고 전달하는 책임 + 예외를 처리하는 책임 = 2가지 책임을 지니고 있음.
      *      - 분리하면 ExceptionHandler -> 스프링
      * @param bis BufferedInputStream
-     * @param dos DataOutputStream
      * @throws IOException 반드시 서빙해야 하는 파일(예외 페이지) 이 존재하지 않을 경우
      */
-    public void serve(BufferedInputStream bis, DataOutputStream dos) throws IOException {
-        HttpRequest request = null;
+    public HttpResponse serve(BufferedInputStream bis) throws IOException {
         HttpResponse response = new HttpResponse();
-        request = getHttpRequest(bis, dos, request, response);
-        if (request == null) return;
+
+        HttpRequest request = getHttpRequest(bis, response);
+        if (request == null) return response;
+
         handleRequest(request, response);
-        response.send(dos);
+        return response;
     }
 
-    private HttpRequest getHttpRequest(BufferedInputStream bis, DataOutputStream dos, HttpRequest request, HttpResponse response) throws IOException {
+    private HttpRequest getHttpRequest(BufferedInputStream bis, HttpResponse response) throws IOException {
+        HttpRequest request = null;
         try {
-            request = new HttpRequest(bis);
+            request = requestFactory.getHttpRequest(bis);
             response.setProtocol(request.getProtocol());
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             response.setProtocol("HTTP/1.1");
             servlets.get(BAD_REQUEST).handle(request, response);
-            response.send(dos);
             return null;
         }
         return request;

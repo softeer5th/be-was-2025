@@ -24,9 +24,11 @@ public class RequestHandler implements Runnable {
 
         try (BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
              DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
-            servletManager.serve(bis, dos);
+            HttpResponse response = servletManager.serve(bis);
+            response.send(dos);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
+
 }
