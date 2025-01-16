@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpSessionStorage {
 
+	public static final String SESSION_ID = "SID";
 	private static ConcurrentHashMap<String, HttpSession> sessions = new ConcurrentHashMap<>();
 
 	public static void createSession(HttpSession session) {

@@ -1,5 +1,7 @@
 package http.servlet;
 
+import static http.HttpSessionStorage.*;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -42,9 +44,9 @@ public class LoginServlet implements Servlet {
 		foundUser.validatePassword(body.get().get("password"));
 
 		String sessionId = UUID.randomUUID().toString().substring(0, 15);
-		HttpSessionStorage.createSession(new HttpSession(sessionId, "SID", foundUser));
+		HttpSessionStorage.createSession(new HttpSession(sessionId, SESSION_ID, foundUser));
 
-		response.setCookie("SID", sessionId, CookieType.PATH.name(), "/");
+		response.setCookie(SESSION_ID, sessionId, CookieType.PATH.name(), "/");
 		response.setRedirectResponse(response, request.getVersion(), HttpStatus.FOUND, LOGIN_SUCCESS_PAGE);
 	}
 }
