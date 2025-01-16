@@ -36,7 +36,7 @@ public class UserLoginRequestHandler implements RequestHandler{
 
             return new HttpResponse.Builder()
                     .httpStatus(HttpStatus.SEE_OTHER)
-                    .location("http://localhost:8080/")
+                    .location("http://localhost:8080/login-home.html")
                     .setCookie(cookie)
                     .build();
 
