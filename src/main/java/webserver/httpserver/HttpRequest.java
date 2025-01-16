@@ -30,6 +30,15 @@ public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
+    /**
+     * HTTP 요청 메시지를 파싱하여 저장한다.
+     *
+     * @param bis BufferedInputStream
+     * @throws IOException 세가지 경우 중 한 경우를 만족하면 발생
+     *                     요청 라인이 비어있는 경우
+     *                     Request Line 의 내부에 3개 이상의 공백이 있는 경우
+     *                     쿼리 파라미터가 key-value 쌍이 아닌 3개 이상의 튜플 형태를 가질 경우
+     */
     public HttpRequest(BufferedInputStream bis) throws IOException {
         parseRequestLine(bis);
         parseHeader(bis);
@@ -52,8 +61,8 @@ public class HttpRequest {
         return protocol;
     }
 
-    public Cookie getCookie(){
-        if(!headers.containsKey(COOKIE)){
+    public Cookie getCookie() {
+        if (!headers.containsKey(COOKIE)) {
             return Cookie.NULL_COOKIE;
         }
         return new Cookie(getHeader(COOKIE));
@@ -84,7 +93,6 @@ public class HttpRequest {
         }
         this.protocol = requestLineParts[2];
     }
-
 
 
     private void parseQueryParameter(String rawQueryParams) throws IOException {

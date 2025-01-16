@@ -18,9 +18,13 @@ import static utils.FileUtils.getFile;
 
 public class UserController {
 
-
+    /**
+     * 로그인 페이지를 제공하는 핸들러.
+     * @param response 정상적으로 생성된 response 객체만 들어옴.
+     * @throws IOException
+     */
     @Mapping(path = "/login", method = HttpMethod.GET)
-    public void loginPage(HttpRequest request, HttpResponse response) throws IOException {
+    public void loginPage(HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
         response.setHeader("Content-Type", "text/html; charset=utf-8");
 
@@ -29,6 +33,14 @@ public class UserController {
         response.setBody(readFile);
     }
 
+    /**
+     * 로그인 처리 핸들러.
+     * 로그인 처리한 뒤, 홈으로 리다이렉션한다.
+     * 로그인 처리에 실패하면, /user/login_failed 창으로 리다이렉션한다.
+     * @param request 정상적으로 파싱된 request 객체
+     * @param response 정상적으로 생성된 response 객체
+     * @throws IOException
+     */
     @Mapping(path = "/login", method = HttpMethod.POST)
     public void login(HttpRequest request, HttpResponse response) throws IOException {
         String inputUserId = request.getParameter(User.USER_ID);
@@ -56,8 +68,13 @@ public class UserController {
         response.setLocation("/");
     }
 
+    /**
+     * 로그인 실패 창 서빙 핸들러
+     * @param response 정상적으로 생성된 response 객체
+     * @throws IOException
+     */
     @Mapping(path = "/user/login_failed", method = HttpMethod.GET)
-    public void loginFailed(HttpRequest request, HttpResponse response) throws IOException {
+    public void loginFailed(HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.UNAUTHORIZED);
         response.setHeader("Content-Type", "text/html; charset=utf-8");
 
@@ -66,9 +83,14 @@ public class UserController {
         response.setBody(readFile);
     }
 
+    /**
+     * 로그아웃 요청 처리 핸들러.
+     * 로그인 된 회원의 경우, 세션 저장소에서 해당 회원의 세션을 지우고, 해당 회원의 쿠키를 만료시킴.
+     * @param request 정상적으로 파싱된 request 객체
+     * @param response 정상적으로 생성된 response 객체
+     */
     @Mapping(path = "/logout", method = HttpMethod.POST)
-    public void logout(HttpRequest request, HttpResponse response) throws IOException {
-
+    public void logout(HttpRequest request, HttpResponse response) {
         Cookie cookie = request.getCookie();
         String sessionId = cookie.getCookie(HttpSession.SESSION_ID);
         if (sessionId != null){

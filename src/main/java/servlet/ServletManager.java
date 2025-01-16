@@ -38,6 +38,22 @@ public class ServletManager {
         servlets.put(url, servlet);
     }
 
+    /**
+     * 서블릿 매니저가 HTTP 요청을 서빙하는 메소드.
+     * 먼저 Dispatcher 서블릿에게 동적 리소스 핸들링을 맡겨보고, 만약 제대로 처리가 안됐다면 (false 반환) 정적 리소스를 탐색한다.
+     * HTTP 메시지 파싱 중 예외가 발생하면 Bad Request 를 응답으로 기록하고 서빙을 종료한다.
+     * 정적 리소스 서빙 중 예외가 발생하면 발생한 예외에 따라 적절한 페이지를 응답한다.
+     * FileNotSupportedException: 해당 확장자가 지원되지 않을 경우, 406 응답 반환
+     * FileNotFoundException: 파일이 존재하지 않을 경우, 404 응답 반환
+     * IllegalArgumentException: URI 가 비어있을 경우, 400 응답 반환
+     * IOException (Except FileNotFound): 스트림이 도중에 닫히거나, 권한이 없을 경우 등. 400 응답 반환
+     * Exception: 그 외 서버에서 예상하지 못한 RuntimeException 처리
+     * 현재 HTTP 메시지를 생성하고 전달하는 책임 + 예외를 처리하는 책임 = 2가지 책임을 지니고 있음.
+     *      - 분리하면 ExceptionHandler -> 스프링
+     * @param bis BufferedInputStream
+     * @param dos DataOutputStream
+     * @throws IOException 반드시 서빙해야 하는 파일(예외 페이지) 이 존재하지 않을 경우
+     */
     public void serve(BufferedInputStream bis, DataOutputStream dos) throws IOException {
         HttpRequest request = null;
         HttpResponse response = new HttpResponse();
@@ -51,7 +67,6 @@ public class ServletManager {
         try {
             request = new HttpRequest(bis);
             response.setProtocol(request.getProtocol());
-
         } catch (IOException e) {
             response.setProtocol("HTTP/1.1");
             servlets.get(BAD_REQUEST).handle(request, response);
