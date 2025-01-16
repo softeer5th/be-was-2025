@@ -10,6 +10,7 @@ import java.security.Key;
 import java.util.Date;
 
 public class JwtUtil {
+    private static final int EXPIRATION_TIME = 3600000; // 60 * 60 * 1000
     private static final String secretKey = Configuration.getSecretKey();
 
     private JwtUtil() {}
@@ -21,7 +22,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .subject(userId)
-                .expiration(new Date(System.currentTimeMillis() + 3600000))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .signWith(key)
                 .compact();
