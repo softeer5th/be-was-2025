@@ -19,7 +19,7 @@ public class UserLogoutRequestHandler implements RequestHandler{
     public HttpResponse handle(HttpRequest httpRequest) {
         Cookie cookie = httpRequest.getCookie("sessionId");
 
-        SessionManager.removeSession(cookie.getValue());
+        sessionManager.removeSession(cookie.getValue());
 
         cookie.setMaxAge(0);
 
