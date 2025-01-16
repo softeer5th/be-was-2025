@@ -7,12 +7,8 @@ import util.HeterogeneousContainer;
 import webserver.message.HTTPRequest;
 import webserver.message.header.HeaderParseManager;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -69,7 +65,7 @@ public class HTTPMessageParser {
         requestBuilder.version(splited[2]);
     }
 
-    private void parseUrl(HTTPRequest.Builder requestBuilder, String url) {
+    private void parseUrl(HTTPRequest.Builder requestBuilder, String url) throws UnsupportedEncodingException {
         String [] splited = url.split("\\?");
         requestBuilder.uri(splited[0]);
         if (splited.length > 1) {
@@ -78,8 +74,8 @@ public class HTTPMessageParser {
             for (String param : params) {
                 Matcher matcher = PARAMETER_PATTERN.matcher(param);
                 if (matcher.find()) {
-                    String key = URLDecoder.decode(matcher.group("key"), StandardCharsets.UTF_8);
-                    String value = URLDecoder.decode(matcher.group("value"), StandardCharsets.UTF_8);
+                    String key = URLDecoder.decode(matcher.group("key"), "UTF-8");
+                    String value = URLDecoder.decode(matcher.group("value"), "UTF-8");
                     parameters.put(key, value);
                     System.out.printf("%s = %s\n", key, value);
                 }
