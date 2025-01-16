@@ -1,12 +1,14 @@
 package http.request;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import enums.ContentType;
 import enums.HttpMethod;
+import util.StreamUtil;
 
 public class HttpRequestLine {
 	private static final String REQUEST_LINE_SPACE = " ";
@@ -20,8 +22,8 @@ public class HttpRequestLine {
 	private String version;
 	private Map<String, String> queries;
 
-	public HttpRequestLine(BufferedReader reader) throws IOException {
-		String requestLine = reader.readLine();
+	public HttpRequestLine(InputStream in) throws IOException {
+		String requestLine = StreamUtil.readUntilCRLFAsString(in);
 
 		if (requestLine == null || requestLine.isEmpty()) {
 			throw new IllegalArgumentException("Empty request line");
@@ -34,36 +36,37 @@ public class HttpRequestLine {
 		}
 
 		this.method = HttpMethod.valueOf(parts[0]);
-
-		// TODO: Reconstructing the Target URI 작업 필요
-		this.path = parts[1];
+		this.path = extractPath(parts[1]);
 		this.version = parts[2];
-		queries = getQueries(this.path);
+		this.queries = extractQueries(parts[1]);
+	}
 
-		if(queries.size() > 0){
-			this.path = this.path.substring(0, this.path.indexOf(QUERY_SEPARATOR));
-		}
+	private static String extractPath(String fullPath) {
+		int queryIndex = fullPath.indexOf(QUERY_SEPARATOR);
+		return queryIndex == -1 ? fullPath : fullPath.substring(0, queryIndex);
 	}
 
 	// TODO: 동일한 키가 여러번 들어올 경우 처리 필요
-	private static Map<String, String> getQueries(String path) {
-		Map<String, String> requestQueries = new HashMap<>();
-
-		if (path.contains(QUERY_SEPARATOR)) {
-			int queryStartIndex = path.indexOf(QUERY_SEPARATOR) + 1;
-			String requestQueryString = path.substring(queryStartIndex);
-			String[] queries = requestQueryString.split(PARAM_SEPARATOR);
-
-			for (String query : queries) {
-				String[] q = query.split(KEY_VALUE_SEPARATOR);
-				String key = q[0];
-				String value = q[1];
-				requestQueries.put(key, value);
-			}
+	private static Map<String, String> extractQueries(String fullPath) {
+		int queryIndex = fullPath.indexOf(QUERY_SEPARATOR);
+		if (queryIndex == -1) {
+			return Collections.emptyMap();
 		}
-		return requestQueries;
-	}
 
+		String queryString = fullPath.substring(queryIndex + 1);
+		String[] queryPairs = queryString.split(PARAM_SEPARATOR);
+		Map<String, String> queryMap = new HashMap<>();
+
+		for (String query : queryPairs) {
+			String[] keyValue = query.split(KEY_VALUE_SEPARATOR, 2);
+			if (keyValue.length < 2) {
+				throw new IllegalArgumentException("Malformed query: " + query);
+			}
+			queryMap.put(keyValue[0], keyValue[1]);
+
+		}
+		return queryMap;
+	}
 
 	public HttpMethod getMethod() {
 		return method;

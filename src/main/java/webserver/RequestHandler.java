@@ -1,10 +1,8 @@
 package webserver;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
@@ -27,29 +25,20 @@ public class RequestHandler implements Runnable {
 		logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
 			connection.getPort());
 
-		try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-			handleRequest(in, out);
-		} catch (IOException e) {
-			logger.error("Error handling client connection: {}", e.getMessage());
-		}
-	}
+		try (InputStream in = new BufferedInputStream(connection.getInputStream());
+			 OutputStream out = connection.getOutputStream()
+		) {
 
-	private void handleRequest(final InputStream in, final OutputStream out) throws IOException {
-
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			DataOutputStream dos = new DataOutputStream(out)) {
-			HttpRequest request = new HttpRequest(reader);
+			HttpRequest request = new HttpRequest(in);
 			HttpResponse response = new HttpResponse();
 
 			FrontControllerServlet frontControllerServlet = FrontControllerServlet.getInstance();
 			frontControllerServlet.service(request, response);
 
-			response.sendResponse(dos);
+			response.sendResponse(out);
 
 		} catch (IOException e) {
-			// TODO: 예외 처리 필요.
-
-			logger.error("Failed to parse the request: {}", e.getMessage());
+			logger.error("Error handling client connection: {}", e);
 		}
 	}
 }

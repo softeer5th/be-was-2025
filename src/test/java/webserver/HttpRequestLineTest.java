@@ -6,8 +6,8 @@ import http.request.HttpRequestLine;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,8 +17,8 @@ class HttpRequestLineTest {
 	@Test
 	void validRequestLine_successCase() throws Exception {
 		String requestLine = "GET /index.html?key=value&name=user HTTP/1.1";
-		BufferedReader reader = new BufferedReader(new StringReader(requestLine));
-		HttpRequestLine httpRequestLine = new HttpRequestLine(reader);
+		InputStream inputStream = new ByteArrayInputStream(requestLine.getBytes());
+		HttpRequestLine httpRequestLine = new HttpRequestLine(inputStream);
 
 		assertThat(httpRequestLine.getMethod()).isEqualTo(HttpMethod.GET);
 		assertThat(httpRequestLine.getPath()).isEqualTo("/index.html");
@@ -31,9 +31,9 @@ class HttpRequestLineTest {
 	@Test
 	void emptyRequestLine_throwsException() {
 		String requestLine = "";
-		BufferedReader reader = new BufferedReader(new StringReader(requestLine));
+		InputStream inputStream = new ByteArrayInputStream(requestLine.getBytes());
 
-		assertThatThrownBy(() -> new HttpRequestLine(reader))
+		assertThatThrownBy(() -> new HttpRequestLine(inputStream))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessageContaining("Empty request line");
 	}
@@ -41,9 +41,9 @@ class HttpRequestLineTest {
 	@Test
 	void malformedRequestLine_throwsException() {
 		String requestLine = "GET /index.html"; // HTTP version missing
-		BufferedReader reader = new BufferedReader(new StringReader(requestLine));
+		InputStream inputStream = new ByteArrayInputStream(requestLine.getBytes());
 
-		assertThatThrownBy(() -> new HttpRequestLine(reader))
+		assertThatThrownBy(() -> new HttpRequestLine(inputStream))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessageContaining("Malformed request line");
 	}
@@ -51,19 +51,19 @@ class HttpRequestLineTest {
 	@Test
 	void duplicateQueryKeys_overridesPreviousValue() throws Exception {
 		String requestLine = "GET /index.html?key=value1&key=value2 HTTP/1.1";
-		BufferedReader reader = new BufferedReader(new StringReader(requestLine));
-		HttpRequestLine httpRequestLine = new HttpRequestLine(reader);
+		InputStream inputStream = new ByteArrayInputStream(requestLine.getBytes());
+		HttpRequestLine httpRequestLine = new HttpRequestLine(inputStream);
 
 		assertThat(httpRequestLine.getParameter("key")).isEqualTo("value2");
 	}
 
 	@Test
 	void invalidQueryFormat_throwsException() {
-		String requestLine = "GET /index.html?keyvalue HTTP/1.1"; // Missing '='
-		BufferedReader reader = new BufferedReader(new StringReader(requestLine));
+		String requestLine = "GET /index.html?keyvalue HTTP/1.1\r\n"; // Missing '='
+		InputStream inputStream = new ByteArrayInputStream(requestLine.getBytes());
 
-		assertThatThrownBy(() -> new HttpRequestLine(reader))
-			.isInstanceOf(ArrayIndexOutOfBoundsException.class);
+		assertThatThrownBy(() -> new HttpRequestLine(inputStream))
+			.isInstanceOf(IllegalArgumentException.class);
 	}
 }
 

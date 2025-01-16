@@ -31,3 +31,21 @@
   * 서블릿 구현 고민 
   * 테스트코드 작성
 
+# 4차 과제
+## 기능요구사항
+* [x] 로그인을 GET에서 POST로 수정 후 정상 동작하도록 구현한다.
+* [x] GET으로 회원가입을 시도할 경우 실패해야 한다.
+* [x] 가입을 완료하면 /index.html 페이지로 이동한다.
+
+## 프로그래밍 요구사항
+* [x] POST로 수정
+* [x] 회원가입 html 파일의 form 태그 내 method를 get에서 post로 수정한다.
+* [x] 나머지 회원가입 기능이 정상적으로 동작하도록 구현한다.
+* [x] 가입 후 페이지 이동을 위해 HTTP redirection 기능을 구현한다.
+
+## 개인 할일
+- [x] [HTTP Method 스펙 공부](https://gamxong.tistory.com/157)
+- [ ] HTTP HEAD 메서드 구현
+- [x] HTTP POST 스펙 공부
+- [ ] Redirection 스펙 공부
+- [x] HTTP body 스펙 공부

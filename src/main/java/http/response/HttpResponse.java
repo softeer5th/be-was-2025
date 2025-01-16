@@ -2,8 +2,8 @@ package http.response;
 
 import static enums.HttpHeader.*;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -15,33 +15,33 @@ public class HttpResponse {
 	private static final String STATUS_LINE_SPACE = " ";
 
 	private String version;
-	private HttpStatus statusCode;
+	private HttpStatus statusCode = HttpStatus.OK;
 	private HttpHeaders headers = new HttpHeaders();
 	private byte[] body;
 
-	public void sendResponse(DataOutputStream out) throws IOException {
+	public void sendResponse(OutputStream out) throws IOException {
 		writeStatusLine(out);
 		writeHeaders(out);
 		writeBody(out);
 	}
 
-	private void writeStatusLine(DataOutputStream out) throws IOException {
-		out.writeBytes(
-			version + STATUS_LINE_SPACE +
-				statusCode.getValue() + STATUS_LINE_SPACE +
-				statusCode.getReasonPhrase() + CRLF);
+	private void writeStatusLine(OutputStream out) throws IOException {
+		String s = version + STATUS_LINE_SPACE +
+			statusCode.getValue() + STATUS_LINE_SPACE +
+			statusCode.getReasonPhrase() + CRLF;
+		out.write(s.getBytes());
 	}
 
-	private void writeHeaders(DataOutputStream out) throws IOException {
+	private void writeHeaders(OutputStream out) throws IOException {
 		for (Map.Entry<String, List<String>> entry : headers.getHeaders().entrySet()) {
 			String headerName = entry.getKey();
 			String headerToString = headers.getHeaderToString(headerName);
-			out.writeBytes(headerToString); // 헤더 출력
+			out.write(headerToString.getBytes()); // 헤더 출력
 		}
-		out.writeBytes(CRLF); // 헤더와 본문 구분을 위한 공백 라인
+		out.write(CRLF.getBytes()); // 헤더와 본문 구분을 위한 공백 라인
 	}
 
-	private void writeBody(DataOutputStream out) throws IOException {
+	private void writeBody(OutputStream out) throws IOException {
 		if (body != null && body.length > 0) {
 			out.write(body);
 		}
@@ -67,6 +67,6 @@ public class HttpResponse {
 
 	// sendRedirect 메서드 구현
 	public void setRedirect(String location) {
-		setHeader("Location", location); // Location 헤더에 리디렉션 URL 설정
+		setHeader(LOCATION.name(), location); // Location 헤더에 리디렉션 URL 설정
 	}
 }
