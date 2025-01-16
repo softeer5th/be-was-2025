@@ -28,4 +28,8 @@ public class SessionManager {
 
         return session;
     }
+
+    public static void removeSession(String sessionId){
+        sessionStore.remove(sessionId);
+    }
 }
