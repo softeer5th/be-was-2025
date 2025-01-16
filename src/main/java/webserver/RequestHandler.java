@@ -208,6 +208,8 @@
                                 Session session = new Session(userId, MAX_LOGIN_SESSION_TIME);
                                 Cookie cookie = new Cookie("SESSIONID", session.getSessionId(), session.getMaxInactiveInterval());
 
+                                Database.addSession(session);
+
                                 responseHeader.setStatusCode(302);
                                 responseHeader.addHeader("Location", "/main/index.html");
                                 responseHeader.addHeader("Set-Cookie", cookie.toString());
