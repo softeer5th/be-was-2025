@@ -45,4 +45,14 @@ public class Database {
 
         return time;
     }
+
+    public static int findSessionMaxInactiveInterval(String sessionId) {
+        Session session = findSessionById(sessionId);
+
+        if (session == null) {
+            throw new HTTPExceptions.Error403("403 Forbidden: session not found");
+        }
+
+        return session.getMaxInactiveInterval();
+    }
 }

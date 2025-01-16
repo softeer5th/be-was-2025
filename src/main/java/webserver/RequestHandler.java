@@ -15,6 +15,7 @@
 
     public class RequestHandler implements Runnable {
         private static final int MAX_LOGIN_SESSION_TIME = 3600;
+        private static final String DEFAULT_HTTP_VERSION = "HTTP/1.1";
 
         private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
         private static final String resourcePath = "src/main/resources/static/";
@@ -34,7 +35,7 @@
             HTTPRequestHeader requestHeader;
             HTTPRequestBody requestBody = null;
 
-            HTTPResponseHeader responseHeader;
+            HTTPResponseHeader responseHeader = new HTTPResponseHeader(DEFAULT_HTTP_VERSION);
             HTTPResponseBody responseBody;
 
             try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
@@ -67,32 +68,30 @@
 
                 try {
                     requestHeader = new HTTPRequestHeader(headersString);
-                } catch (HTTPExceptions e) {
-                    logger.error(e.getMessage());
-                    //byte[] responseBody = HTTPExceptions.getErrorMessageToBytes(e.getMessage());
-                    //ResponseHandler.respond(dos, responseBody, null, e.getStatusCode());
-                    return;
-                }
 
+                    String method = requestHeader.getMethod();
+                    String[] uri = requestHeader.getUri().split("\\?");
+                    String version = requestHeader.getVersion();
+                    Map<String, String> headers = requestHeader.getHeaders();
 
-                String method = requestHeader.getMethod();
-                String[] uri = requestHeader.getUri().split("\\?");
-                String version = requestHeader.getVersion();
-                Map<String, String> headers = requestHeader.getHeaders();
+                    responseHeader.setVersion(version);
+                    responseBody = null;
 
-                responseHeader = new HTTPResponseHeader(version);
-                responseBody = null;
-
-                // Todo: 이 부분에 쿠키 관련 헤더가 있는지 탐색
-                if (headers.containsKey("Cookie")) {
-                    try {
+                    // Todo: 이 부분에 쿠키 관련 헤더가 있는지 탐색
+                    if (headers.containsKey("cookie")) {
                         // Todo: 쿠키 값 파싱 후 SESSIONID 탐색 후 lastAccessTime 업데이트
+                        Map<String, String> cookies = Cookie.parseCookies(headers.get("cookie"));
+                        if (cookies.containsKey("SESSIONID")) {
+                            String sessionId = cookies.get("SESSIONID");
+
+                            Database.updateSessionLastAccessTime(sessionId);
+                            Cookie cookie = new Cookie("SESSIONID", sessionId, Database.findSessionMaxInactiveInterval(sessionId));
+
+                            responseHeader.addHeader("Set-Cookie", cookie.toString());
+                        }
                         // Todo: 쿠키가 여러 개 있을 수 있음. 이 점 고려홰서 설계 => 이 부분에서 responseHeader에 쿠키를 추가하는 것으로 해결 가능할 듯
                         // LocalTime time = Database.updateSessionLastAccessTime()
-                    } catch (HTTPExceptions e) {}
-                }
-                // Todo: HTTP Exception 예외 처리에 대한 try-catch문을 좀 더 깔끔하게 쓸 수 있는 방법 생각해 보기. 좀 더 try문을 크게 잡아서 HTTP 에러 한 번에 처리하면 좋을 것 같다.
-                try {
+                    }
                     // body가 있을 경우 body 읽기
                     if (headers.containsKey("content-length")) {
                         int contentLength = Integer.parseInt(headers.get("content-length"));
@@ -203,7 +202,6 @@
 
                         User user;
                         if ((user = Database.findUserById(userId)) != null) {
-                            // Todo: 쿠키와 세션 기능 추가
                             if (user.getPassword().equals(userPassword)) {
                                 Session session = new Session(userId, MAX_LOGIN_SESSION_TIME);
                                 Cookie cookie = new Cookie("SESSIONID", session.getSessionId(), session.getMaxInactiveInterval());
@@ -216,7 +214,6 @@
 
                                 ResponseHandler.respond(dos, responseHeader, responseBody);
                             }
-                            // Todo
                             else {
                                 logger.error("User {} password does not match", userId);
                                 responseHeader.setStatusCode(302);
@@ -225,7 +222,6 @@
                                 ResponseHandler.respond(dos, responseHeader, responseBody);
                             }
                         }
-                        // Todo
                         else {
                             logger.error("User {} not found", userId);
                             responseHeader.setStatusCode(302);
@@ -233,6 +229,14 @@
 
                             ResponseHandler.respond(dos, responseHeader, responseBody);
                         }
+                    }
+                    // 로그아웃 요청에 대한 처리
+                    else if (path.equals("/user/logout") && method.equals("POST")) {
+                        // Todo: 해당 유저와 관련된 세션 삭제
+                        responseHeader.setStatusCode(302);
+                        responseHeader.addHeader("Location", "/index.html");
+
+                        ResponseHandler.respond(dos, responseHeader, responseBody);
                     }
                     // 회원가입 완료에 대한 처리
                     else if (path.equals("/user/create") && method.equals("POST")) {
