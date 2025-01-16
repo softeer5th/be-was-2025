@@ -4,7 +4,6 @@ import exception.BaseException;
 import exception.FileErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.RequestHandler;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -13,7 +12,7 @@ import java.io.IOException;
 
 public class FileUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     public static byte[] readHtmlFileAsBytes(String filepath) {
         try {

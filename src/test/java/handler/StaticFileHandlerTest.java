@@ -22,7 +22,7 @@ public class StaticFileHandlerTest {
     @DisplayName("정적파일 로드 성공")
     void testHandleWithExistingFile() {
         StaticFileHandler handler = new StaticFileHandler();
-        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, VALID_FILE_PATH);
+        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, VALID_FILE_PATH, null);
 
         HttpResponse response = handler.handle(request);
 
@@ -34,7 +34,7 @@ public class StaticFileHandlerTest {
     @DisplayName("정적파일 로드 실패")
     void testHandleWithFileNotFound() {
         StaticFileHandler handler = new StaticFileHandler();
-        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, INVALID_FILE_PATH);
+        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, INVALID_FILE_PATH, null);
 
         BaseException baseException = assertThrows(BaseException.class,
             () -> handler.handle(request));
