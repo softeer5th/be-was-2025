@@ -1,7 +1,6 @@
 package manager;
 
 import Response.HTTPResponse;
-import Response.HTTPResponseHandler;
 import constant.HTTPCode;
 import db.Database;
 import model.User;
@@ -15,7 +14,6 @@ import java.util.Base64;
 public class UserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
-    private static final HTTPResponseHandler httpResponseHandler = new HTTPResponseHandler();
     private static final String redirectAfterSignUp = "/index.html";
     private static final String redirectAfterLogIn = "/index.html";
     private static final int SESSION_ID_LENGTH = 32;

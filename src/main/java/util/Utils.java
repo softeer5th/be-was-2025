@@ -1,18 +1,14 @@
 package util;
 
 import Response.HTTPResponse;
-import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.RequestHandler;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static webserver.RequestHandler.httpResponseHandler;
 
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
@@ -25,15 +21,15 @@ public class Utils {
         int contentLength = 0;
         boolean isBody = false;
 
-        // 헤더 읽기
+
         while (true) {
             String line = reader.readLine();
             if (line == null) {
-                break; // 스트림 종료
+                break;
             }
             if (line.isEmpty()) {
-                isBody = true; // 빈 줄 이후는 바디
-                lines.add(""); // 헤더 끝 표시
+                isBody = true;
+                lines.add("");
                 break;
             }
             lines.add(line);
@@ -42,7 +38,6 @@ public class Utils {
             }
         }
 
-        // 바디 읽기
         if (isBody && contentLength > 0) {
             char[] buffer = new char[contentLength];
             int read = reader.read(buffer, 0, contentLength);
