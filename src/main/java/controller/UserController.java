@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static utils.FileUtils.getFile;
+import static wasframework.HttpSession.SESSION_ID;
 
 public class UserController {
 
@@ -40,10 +41,9 @@ public class UserController {
      * 로그인 처리에 실패하면, /user/login_failed 창으로 리다이렉션한다.
      * @param request 정상적으로 파싱된 request 객체
      * @param response 정상적으로 생성된 response 객체
-     * @throws IOException
      */
     @Mapping(path = "/login", method = HttpMethod.POST)
-    public void login(HttpRequest request, HttpResponse response) throws IOException {
+    public void login(HttpRequest request, HttpResponse response) {
         String inputUserId = request.getParameter(User.USER_ID);
         String inputPassword = request.getParameter(User.PASSWORD);
         if (inputUserId == null || inputPassword == null) {
@@ -63,7 +63,7 @@ public class UserController {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         String uuid = UUID.randomUUID().toString();
-        cookie.setValue("SessionId", uuid);
+        cookie.setValue(SESSION_ID, uuid);
         HttpSession.put(uuid, inputUserId);
         response.setCookie(cookie);
         response.setLocation("/");
@@ -93,7 +93,7 @@ public class UserController {
     @Mapping(path = "/logout", method = HttpMethod.POST)
     public void logout(HttpRequest request, HttpResponse response) {
         Cookie cookie = request.getCookie();
-        String sessionId = cookie.getCookie(HttpSession.SESSION_ID);
+        String sessionId = cookie.getCookie(SESSION_ID);
         if (sessionId != null){
             String userId = HttpSession.get(sessionId);
             if(userId != null){

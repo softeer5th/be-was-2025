@@ -12,7 +12,7 @@ public class Cookie {
     }
 
     public String getCookie(String key) {
-        return cookies.getOrDefault(key, "false");
+        return cookies.getOrDefault(key.toLowerCase(), "false");
     }
 
     private static class NullCookie extends Cookie {

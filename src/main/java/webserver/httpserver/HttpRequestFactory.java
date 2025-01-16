@@ -90,6 +90,9 @@ public class HttpRequestFactory {
             String value = parts[1].trim();
             logger.debug("{}: {}", key, value);
             builder.addHeader(key, value);
+            if (COOKIE.equals(key)){
+                builder.cookie(cookieFactory.create(value));
+            }
             if(CONTENT_TYPE.equals(key)){
                 contentType = value;
             }
