@@ -71,9 +71,9 @@ public class HttpRequest {
         String[] queryArray = resolveQuery(queryString);
         for (String s : queryArray) {
             String[] items = s.split("=");
-            String key = items[0];
-            String value = items.length > 1 ? items[1] : null;
-            query.put(key.toLowerCase(), value);
+            String key = items[0].trim();
+            String value = items.length > 1 ? items[1].trim() : null;
+            query.put(key, value);
         }
         return query;
     }
