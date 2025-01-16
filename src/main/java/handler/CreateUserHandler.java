@@ -1,28 +1,23 @@
 package handler;
 
-import util.RequestParser;
+import util.enums.Page;
+import webserver.request.Request;
 import util.UserManager;
+import webserver.response.ResponseWriter;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class CreateUserHandler implements Handler{
-    private static final String login = "/login";
-    private static final String registration = "/registration";
     @Override
-    public void handle(DataOutputStream dos, RequestParser requestParser) throws IOException {
+    public void handle(DataOutputStream dos, Request request) throws IOException {
+        ResponseWriter responseWriter = new ResponseWriter(dos, request);
         try {
             UserManager userManager = new UserManager();
-            userManager.addUser(requestParser.parameter);
-            dos.writeBytes("HTTP/1.1 303 See Other \r\n");
-            dos.writeBytes("Location: " + login + " \r\n");
-            dos.writeBytes("\r\n");
-            dos.flush();
+            userManager.addUser(request.getBody());
+            responseWriter.redirect(Page.MAIN_PAGE.getPath());
         } catch (IllegalArgumentException e) {
-            dos.writeBytes("HTTP/1.1 303 See Other \r\n");
-            dos.writeBytes("Location: " + registration + " \r\n");
-            dos.writeBytes("\r\n");
-            dos.flush();
+            responseWriter.redirect(Page.REGISTRATION.getPath());
         }
     }
 }

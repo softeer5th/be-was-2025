@@ -3,10 +3,10 @@ package util;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ParameterParser {
-    private static final Map<String, String> parameterMap = new HashMap<>();
+public class Parameter {
+    private final Map<String, String> parameterMap = new HashMap<>();
 
-    public ParameterParser(String parameter) throws IllegalArgumentException{
+    public Parameter(String parameter) throws IllegalArgumentException{
         try {
             String[] params = parameter.split("&");
             for (String param : params) {
@@ -28,5 +28,9 @@ public class ParameterParser {
 
     public String getPassword(){
         return parameterMap.get("password");
+    }
+
+    public String getEmail(){
+        return parameterMap.get("email");
     }
 }
