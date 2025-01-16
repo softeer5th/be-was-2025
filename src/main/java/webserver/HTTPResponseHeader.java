@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HTTPResponseHeader {
-    private final String version;
+    private String version;
     private int statusCode;
     Map<String, String> headers;
 
@@ -34,6 +34,10 @@ public class HTTPResponseHeader {
         }
 
         throw new HTTPExceptions.Error500("500 Internal Server Error");
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public void setStatusCode(int statusCode) {

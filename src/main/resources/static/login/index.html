@@ -83,8 +83,7 @@
             .then(response => {
                 if (response.redirected) {
                     window.location.href = response.url;
-                }
-                else {
+                } else {
                     throw new Error("로그인 요청 실패");
                 }
             })
