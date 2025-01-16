@@ -2,6 +2,7 @@ package http;
 
 import db.Database;
 import db.SessionStore;
+import model.Session;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import util.Cookie;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserHandler.class);
@@ -27,8 +29,7 @@ public class UserHandler {
             return;
         }
 
-        Database.findUserById(userId) .ifPresentOrElse(
-            user -> {
+        Database.findUserById(userId) .ifPresentOrElse(user -> {
                 response.redirect("/registration");
             }, () -> {
                 User user = new User(userId, username, password, null);
@@ -49,17 +50,18 @@ public class UserHandler {
             return;
         }
 
-        Database.findUserById(userId).ifPresentOrElse(
-                user -> {
+        Database.findUserById(userId).ifPresentOrElse(user -> {
                 if (!user.getPassword().equals(password)) {
                     response.redirect("/login/failed.html");
                     return;
                 }
 
-                Cookie cookie = new Cookie("sid");
+                Cookie cookie = new Cookie();
                 cookie.setPath("/");
                 cookie.setMaxAge(180);
-                SessionStore.addSession(cookie.getValue(), user);
+                Session session = new Session(user.getUserId());
+
+                SessionStore.addSession(cookie.getValue(), session);
 
                 response.writeHeader(HttpHeader.SET_COOKIE, cookie.createCookieString());
                 response.redirect("/");
@@ -67,6 +69,29 @@ public class UserHandler {
                 response.redirect("/login/failed.html");
             }
         );
+    }
+
+    public void printUserInfo(HttpRequest request, HttpResponse response) {
+        if (request.getSessionIds().containsKey(Cookie.SESSION_COOKIE_NAME)) {
+            String sessionId = request.getSessionIds().get(Cookie.SESSION_COOKIE_NAME);
+            Optional<Session> sessionOpt = SessionStore.findBySessionId(sessionId);
+
+            if (sessionOpt.isEmpty()) {
+                response.redirect("/login");
+                return;
+            }
+            Session session = sessionOpt.get();
+            String userId = session.userId();
+            Database.findUserById(userId).ifPresentOrElse(user -> {
+                logger.debug("user: {}", user.getName());
+                logger.debug("User Here !!!");
+                response.redirect("/");
+            }, () -> {
+                response.redirect("/login");
+            });
+            return;
+        }
+        response.redirect("/login");
     }
 
     private Map<String, String> parseBody(HttpRequest request) {

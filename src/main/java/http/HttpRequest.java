@@ -2,6 +2,7 @@ package http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.Cookie;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -22,6 +23,8 @@ public class HttpRequest {
 
     private final URI uri;
 
+    private final Map<String, String> sessionIds;
+
 
     public HttpRequest(String method, String path, String version, List<String> request) throws UnsupportedEncodingException {
         this.method = HttpMethod.valueOf(method.toUpperCase());
@@ -33,6 +36,17 @@ public class HttpRequest {
         this.headers = parseHeaders(request);
         this.queries = parseQuery(uri.getQuery());
         this.body = extractBody(request);
+
+        this.sessionIds = extractSessionIds();
+    }
+
+    private Map<String, String> extractSessionIds() {
+        Map<String, String> ids = new HashMap<>();
+        if (!headers.containsKey(HttpHeader.COOKIE.value().toLowerCase())) {
+            return ids;
+        }
+
+        return Cookie.parse(headers.get(HttpHeader.COOKIE.value().toLowerCase()));
     }
 
     private Map<String, String> parseHeaders(List<String> request) {
@@ -99,5 +113,9 @@ public class HttpRequest {
 
     public String getBody() {
         return body;
+    }
+
+    public Map<String, String> getSessionIds() {
+        return sessionIds;
     }
 }

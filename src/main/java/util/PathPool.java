@@ -40,17 +40,21 @@ public class PathPool {
 
         Method createUser = userHandler.getClass().getDeclaredMethod("createUser", HttpRequest.class, HttpResponse.class);
         Method loginUser = userHandler.getClass().getDeclaredMethod("loginUser", HttpRequest.class, HttpResponse.class);
-
+        Method printUser = userHandler.getClass().getDeclaredMethod("printUserInfo", HttpRequest.class, HttpResponse.class);
 
         ConcurrentHashMap<HttpMethod, Method> createUserMethods = new ConcurrentHashMap<>();
         ConcurrentHashMap<HttpMethod, Method> loginUserMethods = new ConcurrentHashMap<>();
+        ConcurrentHashMap<HttpMethod, Method> printUserMethods = new ConcurrentHashMap<>();
         createUserMethods.put(HttpMethod.POST, createUser);
         loginUserMethods.put(HttpMethod.POST, loginUser);
+        printUserMethods.put(HttpMethod.GET, printUser);
 
         methodMap.put("/user/create", createUserMethods);
         methodMap.put("/user/login", loginUserMethods);
+        methodMap.put("/user/print", printUserMethods);
         classMap.put("/user/create", userHandler);
         classMap.put("/user/login", userHandler);
+        classMap.put("/user/print", userHandler);
     }
 
     public boolean isAvailable(HttpMethod method, String path) {

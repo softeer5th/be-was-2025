@@ -14,6 +14,11 @@ public class Cookie {
     private String domain;
     private boolean secure;
 
+    public static String SESSION_COOKIE_NAME = "sid";
+
+    public Cookie() {
+        this(SESSION_COOKIE_NAME);
+    }
 
     public Cookie(String name) {
         this.name = name;
@@ -45,6 +50,19 @@ public class Cookie {
             sb.append(String.format(" ;%s", "HttpOnly"));
 
         return sb.toString();
+    }
+
+    public static Map<String, String> parse(String cookieString) {
+        Map<String, String> ids = new HashMap<>();
+        String[] pairs = cookieString.split("; ");
+        for(String pair : pairs)  {
+            String[] tokens = pair.split("=", 2);
+            String name = tokens[0].trim().toLowerCase();
+            String value = tokens[1] != null ? tokens[1].trim() : null;
+            ids.put(name, value);
+        }
+
+        return ids;
     }
 
     public String getName() {
