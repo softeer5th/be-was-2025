@@ -2,6 +2,8 @@ package webserver.message.header;
 
 import util.HeterogeneousContainer;
 import webserver.message.header.parser.AcceptParser;
+import webserver.message.header.parser.ContentLengthParser;
+import webserver.message.header.parser.ContentTypeParser;
 import webserver.message.header.parser.HeaderParser;
 
 import java.util.LinkedHashMap;
@@ -13,7 +15,11 @@ public class HeaderParseManager {
     Map<String, HeaderParser> parsers;
 
     private HeaderParseManager() {
-        this.parsers = Map.of("accept", new AcceptParser());
+        this.parsers = Map.of(
+                "accept", new AcceptParser(),
+                "content-type", new ContentTypeParser(),
+                "content-length", new ContentLengthParser()
+        );
     }
     private static final HeaderParseManager INSTANCE = new HeaderParseManager();
 

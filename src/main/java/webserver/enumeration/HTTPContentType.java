@@ -18,6 +18,7 @@ public enum HTTPContentType {
     IMAGE_APNG("image", "apng"),
     IMAGE_AVIF("image", "avif"),
     APPLICATION_JSON("application", "json"),
+    APPLICATION_URLENCODED("application", "x-www-form-urlencoded"),
     APPLICATION_OCTET_STREAM("application", "octet-stream");
 
     public final String primary;
