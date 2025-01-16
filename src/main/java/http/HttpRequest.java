@@ -3,7 +3,9 @@ package http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,36 +13,60 @@ import java.util.Map;
 public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    private String method;
-    private String path;
-    private String version;
-    private final Map<String,String> queries = new HashMap<>();
-    private Map<String, String> headers = new HashMap<>();
+    private final String method;
+    private final String path;
+    private final String version;
+    private final Map<String,String> queries;
+    private final Map<String, String> headers;
+    private final String body;
 
     private final URI uri;
 
 
-    public HttpRequest(String method, String path, String version, List<String> headers) {
+    public HttpRequest(String method, String path, String version, List<String> request) throws UnsupportedEncodingException {
         this.method = method;
         this.version = version;
 
-        for (String header: headers) {
-            String[] tokens = header.split(": ");
-            this.headers.put(tokens[0], tokens[1]);
-        }
-
         this.uri = URI.create(path);
-        this.path = uri.getPath();
+        this.path = URLDecoder.decode(uri.getPath(), "UTF-8");
 
-        if (uri.getQuery() != null) {
-            String[] queryArray = resolveQuery(uri.getQuery());
-            for (String s : queryArray) {
-                String[] items = s.split("=");
-                String key = items[0];
-                String value = items.length > 1 ? items[1] : null;
-                queries.put(key, value);
-            }
+        this.headers = parseHeaders(request);
+        this.queries = parseQuery(uri.getQuery());
+        this.body = extractBody(request);
+    }
+
+    private Map<String, String> parseHeaders(List<String> request) {
+        Map<String, String> headers = new HashMap<>();
+        for (String header: request) {
+            if (header.isBlank()) break;
+            String[] tokens = header.split(":", 2);
+            headers.put(tokens[0].trim().toLowerCase(), tokens[1].trim());
         }
+
+        return headers;
+    }
+
+    private Map<String, String> parseQuery(String queryString) {
+        if (queryString == null) {
+            return null;
+        }
+        Map<String, String> query = new HashMap<>();
+
+        String[] queryArray = resolveQuery(queryString);
+        for (String s : queryArray) {
+            String[] items = s.split("=");
+            String key = items[0];
+            String value = items.length > 1 ? items[1] : null;
+            query.put(key.toLowerCase(), value);
+        }
+        return query;
+    }
+
+    private String extractBody(List<String> request) {
+        return headers.computeIfPresent(HttpHeader.CONTENT_LENGTH.value().toLowerCase(), (k, v) -> {
+            int len = request.size();
+            return request.get(len - 1);
+        });
     }
 
     private String[] resolveQuery(String query) {
@@ -69,5 +95,9 @@ public class HttpRequest {
 
     public URI getUri() {
         return uri;
+    }
+
+    public String getBody() {
+        return body;
     }
 }

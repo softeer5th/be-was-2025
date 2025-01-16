@@ -3,9 +3,9 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 
-import http.HttpRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.RequestParser;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -23,8 +23,8 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             DataOutputStream dos = new DataOutputStream(out);
 
-            HttpRequestHandler requestHandler = new HttpRequestHandler(dos);
-            requestHandler.handleRequest(in);
+            RequestParser requestParser = new RequestParser();
+            requestParser.parse(in, dos);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

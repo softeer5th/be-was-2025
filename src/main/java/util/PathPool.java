@@ -1,11 +1,12 @@
 package util;
 
 import http.HttpRequest;
+import http.HttpResponse;
 import http.UserHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.exception.NotAllowedMethodException;
 
-import java.io.DataOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,12 +38,22 @@ public class PathPool {
         Constructor<UserHandler> c = UserHandler.class.getDeclaredConstructor();
         UserHandler rp = c.newInstance();
 
-        Method method = rp.getClass().getDeclaredMethod("createUser", HttpRequest.class, DataOutputStream.class);
+        Method method = rp.getClass().getDeclaredMethod("createUser", HttpRequest.class, HttpResponse.class);
 
-        methods.put("get", method);
+        methods.put("post", method);
         methodMap.put("/user/create", methods);
         classMap.put("/user/create", rp);
 
+    }
+
+    public boolean isAvailable(String method, String path) {
+        if (!classMap.containsKey(path)) {
+            return false;
+        }
+        if (!methodMap.get(path).containsKey(method)) {
+            throw new NotAllowedMethodException();
+        }
+        return true;
     }
 
     public static PathPool getInstance() {
