@@ -1,6 +1,6 @@
 package webserver;
 
-import global.model.RequestData;
+import global.model.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,16 +9,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
 
-    public RequestData parse(InputStream in) throws IOException {
+    public HttpRequest parse(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
         String requestLine = parseRequestLine(br);
 
-        String headers = parseHeaders(br);
+        Map<String, String> headers = parseHeaders(br);
 
         String body = parseBody(br);
 
@@ -34,14 +36,24 @@ public class HttpRequestParser {
         return requestLine;
     }
 
-    private String parseHeaders(BufferedReader br) throws IOException {
-        StringBuilder headers = new StringBuilder();
+    private Map<String, String> parseHeaders(BufferedReader br) throws IOException {
+        Map<String, String> headers = new ConcurrentHashMap<>();
+
         String line;
         while ((line = br.readLine()) != null && !line.isEmpty()) {
-            headers.append(line).append("\n");
+            // 일반적으로 "Header-Name: Header-Value" 형태
+            int index = line.indexOf(":");
+            if (index == -1) {
+                // 잘못된 형식일 수 있음. 필요하면 예외처리하거나 무시 가능
+                continue;
+            }
+            String key = line.substring(0, index).trim();
+            String value = line.substring(index + 1).trim();
+            headers.put(key, value);
         }
-        logger.debug("HTTP Request Header:\n{}", headers);
-        return headers.toString();
+
+        logger.debug("HTTP Request Headers: {}", headers);
+        return headers;
     }
 
     private String parseBody(BufferedReader br) throws IOException {
@@ -55,7 +67,7 @@ public class HttpRequestParser {
         return body.toString();
     }
 
-    private RequestData createRequestData(String requestLine, String headers, String body) throws IOException {
+    private HttpRequest createRequestData(String requestLine, Map<String, String> headers, String body) throws IOException {
         String[] firstLineTokens = requestLine.split("\\s+");
         if (firstLineTokens.length < 3) {
             throw new IOException("Invalid HTTP request: Malformed request line");
@@ -63,6 +75,6 @@ public class HttpRequestParser {
 
         String method = firstLineTokens[0];
         String path = firstLineTokens[1];
-        return new RequestData(method, path, headers, body);
+        return new HttpRequest(method, path, headers, body);
     }
 }

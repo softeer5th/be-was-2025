@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-    <link href="../main.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/main"><img src="../img/signiture.svg" /></a>
-        <ul class="header__menu">
-          <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <button id="logout-btn" class="btn btn_ghost btn_size_s">
-              로그아웃
-            </button>
-          </li>
-        </ul>
-      </header>
-      <div class="wrapper">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="../reset.css" rel="stylesheet" />
+  <link href="../global.css" rel="stylesheet" />
+  <link href="../main.css" rel="stylesheet" />
+  <title>메인 페이지</title>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <a href="/main"><img src="../img/signiture.svg" /></a>
+    <ul class="header__menu">
+      <li class="header__menu__item">
+        <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+      </li>
+      <li class="header__menu__item">
+        <button id="logout-btn" class="btn btn_ghost btn_size_s">
+          로그아웃
+        </button>
+      </li>
+    </ul>
+  </header>
+
+  <div class="wrapper">
         <div class="post">
           <div class="post__account">
             <img class="post__account__img" />
-            <p class="post__account__nickname">account</p>
+            <p class="post__account__nickname" id="nickname"></p>
           </div>
           <img class="post__img" />
           <div class="post__menu">
@@ -145,5 +147,41 @@
         </nav>
       </div>
     </div>
+
+    <script>
+      async function loadUserInfo() {
+        try {
+          const response = await fetch("/api/user/me");
+          const result = await response.json();
+
+          if (result.isSuccess) {
+            const { name } = result.data;
+            document.getElementById("nickname").textContent = name;
+          } else {
+            console.log("로그인되지 않음 or 에러:", result);
+            window.location.href = "/index.html";
+          }
+        } catch (err) {
+          console.error("사용자 정보 조회 중 오류:", err);
+          window.location.href = "/index.html";
+        }
+      }
+
+      loadUserInfo();
+
+      document.getElementById("logout-btn").addEventListener("click", async () => {
+        try {
+          const response = await fetch("/api/logout", {
+            method: "POST"
+          });
+          const result = await response.json();
+          console.log("로그아웃 응답:", result);
+        } catch (error) {
+          console.error("로그아웃 요청 중 오류:", error);
+        }
+        alert("로그아웃이 완료 되었어요!")
+        window.location.href = "/index.html";
+      });
+    </script>
   </body>
 </html>

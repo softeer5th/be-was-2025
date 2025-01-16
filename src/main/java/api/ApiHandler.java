@@ -1,12 +1,12 @@
 package api;
 
-import global.model.RequestData;
+import global.model.HttpRequest;
 import global.model.LoadResult;
 
 import java.io.IOException;
 
 public interface ApiHandler {
-    boolean canHandle(RequestData requestData);
+    boolean canHandle(HttpRequest httpRequest);
 
-    LoadResult handle(RequestData requestData) throws IOException;
+    LoadResult handle(HttpRequest httpRequest) throws IOException;
 }

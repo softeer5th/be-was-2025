@@ -1,7 +1,10 @@
 package api;
 
-import api.user.UserCreationHandler;
-import global.model.RequestData;
+import api.user.InfoHandler;
+import api.user.LogoutHandler;
+import api.user.SignUpHandler;
+import api.user.LoginHandler;
+import global.model.HttpRequest;
 import global.model.LoadResult;
 
 import java.io.IOException;
@@ -12,13 +15,16 @@ public class ApiRouter {
     private final List<ApiHandler> handlers = new ArrayList<>();
 
     public ApiRouter() {
-        handlers.add(new UserCreationHandler());
+        handlers.add(new SignUpHandler());
+        handlers.add(new LoginHandler());
+        handlers.add(new LogoutHandler());
+        handlers.add(new InfoHandler());
     }
 
-    public LoadResult route(RequestData requestData) throws IOException {
+    public LoadResult route(HttpRequest httpRequest) throws IOException {
         for (ApiHandler handler : handlers) {
-            if (handler.canHandle(requestData)) {
-                return handler.handle(requestData);
+            if (handler.canHandle(httpRequest)) {
+                return handler.handle(httpRequest);
             }
         }
         return null;
