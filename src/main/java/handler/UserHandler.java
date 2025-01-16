@@ -81,20 +81,7 @@ public class UserHandler {
 
         response.redirect("/");
     }
-
-    public void printUserInfo(HttpRequest request, HttpResponse response) {
-        Session session = SessionUtils.findSession(request);
-
-        String userId = session.userId();
-        Database.findUserById(userId).ifPresentOrElse(user -> {
-            logger.debug("user: {}", user.getName());
-            logger.debug("User Here !!!");
-            response.redirect("/");
-        }, () -> {
-            response.redirect("/login");
-        });
-    }
-
+    
     private Map<String, String> parseBody(HttpRequest request) {
         Map<String, String> map = new HashMap<>();
         String body = request.getBody();
