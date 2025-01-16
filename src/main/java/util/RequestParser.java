@@ -28,7 +28,7 @@ public class RequestParser {
             requestHandler.handleRequest(httpRequest, httpResponse);
         } catch (InvalidRequestLineSyntaxException e) {
             errorResponse(dos, HttpStatus.BAD_REQUEST, e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
             errorResponse(dos, HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
     }

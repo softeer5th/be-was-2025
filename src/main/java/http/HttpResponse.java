@@ -83,4 +83,14 @@ public class HttpResponse {
         writeHeader(HttpHeader.LOCATION.value(), path);
         send();
     }
+
+    public void sendError(HttpStatus httpStatus, String message) {
+        byte[] body = httpStatus.getReasonPhrase().getBytes();
+        if (message != null && !message.isBlank()) {
+            body = message.getBytes();
+        }
+        writeStatusLine(httpStatus);
+        writeBody(body, MimeType.TXT.getMimeType());
+        send();
+    }
 }
