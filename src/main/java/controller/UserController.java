@@ -9,6 +9,7 @@ import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
 import webserver.httpserver.StatusCode;
 import webserver.httpserver.header.Cookie;
+import webserver.httpserver.header.SetCookie;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class UserController {
             return;
         }
 
-        Cookie cookie = new Cookie();
+        SetCookie cookie = new SetCookie();
         cookie.setDomain("localhost");
         cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -97,7 +98,7 @@ public class UserController {
             String userId = HttpSession.get(sessionId);
             if(userId != null){
                 HttpSession.remove(sessionId);
-                Cookie newCookie = new Cookie();
+                SetCookie newCookie = new SetCookie();
                 newCookie.setMaxAge(0);
                 response.setCookie(newCookie);
             }

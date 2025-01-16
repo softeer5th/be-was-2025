@@ -3,6 +3,7 @@ package webserver.httpserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.header.Cookie;
+import webserver.httpserver.header.SetCookie;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class HttpResponse {
     private String protocol;
     private StatusCode statusCode;
     private final Map<String, String> headers = new HashMap<>();
-    private final List<Cookie> cookies = new ArrayList<>();
+    private final List<SetCookie> cookies = new ArrayList<>();
     private byte[] body;
 
     public String getProtocol() {
@@ -44,7 +45,7 @@ public class HttpResponse {
         headers.put(key, value);
     }
 
-    public void setCookie(Cookie cookie) {
+    public void setCookie(SetCookie cookie) {
         cookies.add(cookie);
     }
 
@@ -79,7 +80,7 @@ public class HttpResponse {
             for (Map.Entry<String, String> header : headers.entrySet()) {
                 dos.writeBytes(header.getKey() + HEADER_DELIMITER + header.getValue() + "\n");
             }
-            for (Cookie cookie : cookies) {
+            for (SetCookie cookie : cookies) {
                 dos.writeBytes("Set-Cookie" + HEADER_DELIMITER + cookie.toString() + "\n");
             }
             dos.writeBytes("\n");

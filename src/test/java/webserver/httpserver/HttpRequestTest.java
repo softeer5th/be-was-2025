@@ -14,6 +14,7 @@ class HttpRequestTest {
     public static final String ACCEPT = "accept";
     public static final String PARAM_1 = "param1";
     public static final String PARAM_2 = "param2";
+    public HttpRequestFactory requestFactory = new HttpRequestFactory();
 
     @Test
     @DisplayName("HTTP 메시지 파싱 검증 테스트")
@@ -27,7 +28,7 @@ class HttpRequestTest {
                 \r
                 """).getBytes()));
         //when
-        HttpRequest request = new HttpRequest(bis);
+        HttpRequest request = requestFactory.getHttpRequest(bis);
 
         //then
         assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
@@ -49,7 +50,7 @@ class HttpRequestTest {
                 \r
                 """).getBytes()));
         //when
-        HttpRequest request = new HttpRequest(bis);
+        HttpRequest request = requestFactory.getHttpRequest(bis);
 
         //then
         assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
@@ -73,7 +74,7 @@ class HttpRequestTest {
                 \r
                 """).getBytes()));
         //when
-        HttpRequest request = new HttpRequest(bis);
+        HttpRequest request = requestFactory.getHttpRequest(bis);
 
         //then
         assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
@@ -96,7 +97,7 @@ class HttpRequestTest {
                 
                 """).getBytes()));
         //when
-        HttpRequest request = new HttpRequest(bis);
+        HttpRequest request = requestFactory.getHttpRequest(bis);
 
         //then
         assertThat(request).isNotNull();
@@ -115,7 +116,7 @@ class HttpRequestTest {
                 
                 """).getBytes()));
         //when
-        HttpRequest request = new HttpRequest(bis);
+        HttpRequest request = requestFactory.getHttpRequest(bis);
 
         //then
         assertThat(request).isNotNull();
