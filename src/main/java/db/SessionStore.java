@@ -16,4 +16,8 @@ public class SessionStore {
     public static Optional<Session> findBySessionId(String sessionId) {
         return Optional.ofNullable(session.get(sessionId));
     }
+
+    public static void deleteBySessionId(String sessionId) {
+        session.remove(sessionId);
+    }
 }

@@ -71,6 +71,22 @@ public class UserHandler {
         );
     }
 
+    public void logoutUser(HttpRequest request, HttpResponse response) {
+        if (request.getSessionIds().containsKey(Cookie.SESSION_COOKIE_NAME)) {
+            String sessionId = request.getSessionIds().get(Cookie.SESSION_COOKIE_NAME);
+            Optional<Session> sessionOpt = SessionStore.findBySessionId(sessionId);
+
+            if (sessionOpt.isEmpty()) {
+                response.redirect("/login");
+                return;
+            }
+            SessionStore.deleteBySessionId(sessionId);
+            response.redirect("/");
+            return;
+        }
+        response.redirect("/login");
+    }
+
     public void printUserInfo(HttpRequest request, HttpResponse response) {
         if (request.getSessionIds().containsKey(Cookie.SESSION_COOKIE_NAME)) {
             String sessionId = request.getSessionIds().get(Cookie.SESSION_COOKIE_NAME);
