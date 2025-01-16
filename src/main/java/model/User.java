@@ -24,6 +24,10 @@ public class User {
         return password;
     }
 
+    public String getNickname() {
+        return nickname;
+    }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", nickname=" + nickname + ", email="

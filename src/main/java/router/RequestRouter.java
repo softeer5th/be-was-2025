@@ -23,9 +23,9 @@ public class RequestRouter implements Router {
         routeMap.put(Pattern.compile("^/users/login$"), new UserLoginHandler());
         routeMap.put(Pattern.compile("^/users/logout$"), new UserLogoutHandler());
         routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg|ico|jpg|png)$"),
-                new StaticFileHandler());
-        routeMap.put(Pattern.compile("^/[^/]+$"), new StaticFileHandler());
-        routeMap.put(Pattern.compile("^/$"), new StaticFileHandler());
+                new FileRequestHandler());
+        routeMap.put(Pattern.compile("^/[^/]+$"), new FileRequestHandler());
+        routeMap.put(Pattern.compile("^/$"), new FileRequestHandler());
     }
 
     public Handler route(String path) {
