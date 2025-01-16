@@ -1,6 +1,7 @@
 package api.user;
 
 import api.ApiHandler;
+import com.fasterxml.jackson.core.type.TypeReference;
 import global.exception.ErrorCode;
 import global.exception.UserCreationException;
 import db.Database;
@@ -41,7 +42,7 @@ public class SignUpHandler implements ApiHandler {
     }
 
     private User createUserFromBody(String body) {
-        Map<String, String> requestData = JsonUtil.fromJson(body);
+        Map<String, String> requestData = JsonUtil.fromJson(body, new TypeReference<>() {});
 
         String userId = requestData.get("userId");
         String password = requestData.get("password");
