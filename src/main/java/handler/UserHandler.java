@@ -1,7 +1,10 @@
-package http;
+package handler;
 
 import db.Database;
 import db.SessionStore;
+import http.constant.HttpHeader;
+import http.HttpRequest;
+import http.HttpResponse;
 import model.Session;
 import model.User;
 import org.slf4j.Logger;

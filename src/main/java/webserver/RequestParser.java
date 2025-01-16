@@ -1,8 +1,11 @@
-package util;
+package webserver;
 
 import http.*;
+import http.constant.HttpHeader;
+import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.MimeType;
 import util.exception.InvalidRequestLineSyntaxException;
 
 import java.io.*;

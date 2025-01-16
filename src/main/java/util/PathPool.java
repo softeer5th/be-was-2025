@@ -1,9 +1,9 @@
 package util;
 
-import http.HttpMethod;
+import http.constant.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponse;
-import http.UserHandler;
+import handler.UserHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.exception.NotAllowedMethodException;

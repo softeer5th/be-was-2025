@@ -1,5 +1,7 @@
 package http;
 
+import http.constant.HttpHeader;
+import http.constant.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Cookie;

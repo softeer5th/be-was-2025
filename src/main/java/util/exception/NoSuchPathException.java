@@ -1,6 +1,6 @@
 package util.exception;
 
-import http.HttpStatus;
+import http.constant.HttpStatus;
 
 public class NoSuchPathException extends RuntimeException{
     public final HttpStatus httpStatus = HttpStatus.NOT_FOUND;

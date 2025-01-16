@@ -1,4 +1,4 @@
-package http;
+package http.constant;
 
 public enum HttpHeader {
     PROTOCOL("HTTP/1.1"),
