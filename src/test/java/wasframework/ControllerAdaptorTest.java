@@ -4,6 +4,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import webserver.httpserver.HttpMethod;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
@@ -17,15 +20,16 @@ import static org.mockito.Mockito.*;
  * Mockito 사용하기
  */
 
-
+@ExtendWith(MockitoExtension.class)
 public class ControllerAdaptorTest {
+
     MockController controller;
+    @Mock
     HttpRequest request;
 
     @BeforeEach
     void setUp() {
         controller = new MockController();
-        request = mock(HttpRequest.class);
     }
 
     @Test
