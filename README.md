@@ -1029,7 +1029,7 @@ String httpVersion = firstLineTokens[2];
 
 ---
 
-### **1월 16일 학습일지**
+# **1월 16일 학습일지**
 
 ## **1. 학습한 내용**
 
@@ -1060,13 +1060,13 @@ String httpVersion = firstLineTokens[2];
 - **페이지 로드 시** → `/api/user/validate` 요청하여 **닉네임** 조회, 폼에 세팅.
 - **“변경사항 저장”** 클릭
     1. **입력 검증** (닉네임 필수, 비밀번호는 양쪽 동일해야 함)
-    2. **`POST /api/user/update`** 요청
+    2. **`PUT /api/user`** 요청
     3. 서버 응답(`isSuccess: true`) 시 새로고침/알림 표시
 - **로그아웃** 버튼 클릭
     - **`/api/logout`** 호출 후 메인 페이지(`/index.html`)로 이동
 
 ### 2) **UpdateUserHandler** 작성
-- **엔드포인트**: `POST /api/user/update`
+- **엔드포인트**: `PUT /api/user`
 - **로직**
     - 쿠키(SID)로 유저 조회
     - 닉네임 중복 검사 → 기존 이름과 다를 때만 검사
