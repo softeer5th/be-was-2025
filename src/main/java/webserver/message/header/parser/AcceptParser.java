@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ContentTypeParser implements HeaderParser {
+public class AcceptParser implements HeaderParser {
     private static final String ACCEPT_REGEX = "(?<ContentType>[^\\s,;]+/[^\\s,;]+)(?:;\\s*q=(?<qValue>[0-1].[0-9]+?))?";
     private static final Pattern ACCEPT_PATTERN = Pattern.compile(ACCEPT_REGEX);
     @Override
