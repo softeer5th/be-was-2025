@@ -201,3 +201,8 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,intellij,java,macos
+
+.idea/codeStyles/*
+.idea/misc.xml
+.idea/Project.xml
+
