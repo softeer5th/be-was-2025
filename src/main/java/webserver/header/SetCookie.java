@@ -22,6 +22,7 @@ public class SetCookie {
         httpOnly = true;
         sameSite = SameSite.LAX;
         secure = false;
+        path = "/";
     }
 
     // 쿠키를 만료시키는 Set-Cookie 헤더를 만들어주는 정적 팩토리 메서드
