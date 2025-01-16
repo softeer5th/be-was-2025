@@ -64,7 +64,7 @@ public class UserHandler {
                 SessionStore.addSession(cookie.getValue(), session);
 
                 response.writeHeader(HttpHeader.SET_COOKIE, cookie.createCookieString());
-                response.redirect("/");
+                response.redirect("/main");
             }, () -> {
                 response.redirect("/login/failed.html");
             }
