@@ -9,6 +9,8 @@ import db.Database;
 import enums.CookieType;
 import enums.HttpMethod;
 import enums.HttpStatus;
+import http.HttpSession;
+import http.HttpSessionStorage;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import model.User;
@@ -39,9 +41,10 @@ public class LoginServlet implements Servlet {
 		User foundUser = Database.findUserByIdOrThrow(body.get().get("userId"));
 		foundUser.validatePassword(body.get().get("password"));
 
-		// 서버는 세션 아이디에 해당하는 User 정보에 접근할 수 있어야 한다.
+		String sessionId = UUID.randomUUID().toString().substring(0, 15);
+		HttpSessionStorage.createSession(new HttpSession(sessionId, "SID", foundUser));
 
-		response.setCookie("SID", UUID.randomUUID().toString().substring(0, 15), CookieType.PATH.name(), "/");
+		response.setCookie("SID", sessionId, CookieType.PATH.name(), "/");
 		response.setRedirectResponse(response, request.getVersion(), HttpStatus.FOUND, LOGIN_SUCCESS_PAGE);
 	}
 }
