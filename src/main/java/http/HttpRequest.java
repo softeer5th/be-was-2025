@@ -79,10 +79,11 @@ public class HttpRequest {
     }
 
     private String extractBody(List<String> request) {
-        return headers.computeIfPresent(HttpHeader.CONTENT_LENGTH.value().toLowerCase(), (k, v) -> {
-            int len = request.size();
-            return request.get(len - 1);
-        });
+        if (!headers.containsKey(HttpHeader.CONTENT_LENGTH.value().toLowerCase())) {
+            return null;
+        }
+        int len = request.size();
+        return request.get(len - 1);
     }
 
     private String[] resolveQuery(String query) {
