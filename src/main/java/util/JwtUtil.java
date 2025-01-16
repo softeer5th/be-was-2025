@@ -12,6 +12,8 @@ import java.util.Date;
 public class JwtUtil {
     private static final String secretKey = Configuration.getSecretKey();
 
+    private JwtUtil() {}
+
     public static String generateToken(User user) {
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         String userId = user.getUserId();

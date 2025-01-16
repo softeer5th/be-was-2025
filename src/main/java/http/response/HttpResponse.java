@@ -40,7 +40,6 @@ public class HttpResponse {
         if (body != null && !body.isEmpty()) {
             dos.write(body.getBytes("UTF-8"));
         }
-
         dos.flush();
     }
 
@@ -76,13 +75,16 @@ public class HttpResponse {
             return this;
         }
 
-        public Builder setCookie(Map<String, String> params) {
+        public Builder setCookie(Map<String, String> valueParams, Map<String, String> optionParams) {
             StringBuilder cookieBuilder = new StringBuilder();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                cookieBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append(";");
+            for (Map.Entry<String, String> entry : valueParams.entrySet()) {
+                cookieBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("; ");
             }
-            cookieBuilder.deleteCharAt(cookieBuilder.length() - 1);
-            headers.put("Set-Cookie", cookieBuilder.toString());
+            for (Map.Entry<String, String> entry : optionParams.entrySet()) {
+                cookieBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("; ");
+            }
+            cookieBuilder.append("Path=/");
+            headers.put("Set-Cookie", cookieBuilder.toString().trim());
             return this;
         }
 
@@ -94,27 +96,24 @@ public class HttpResponse {
 
         public Builder errorResponse(HttpResponseStatus status, ErrorMessage message) throws UnsupportedEncodingException {
             String body = String.format("<h1>%s - %s</h1>", status, message);
-            this.body = body;
-            status(status);
-            contentType(ContentType.HTML.getMimeType());
-            contentLength(body.getBytes("UTF-8").length);
-            return this;
+            return status(status)
+                    .contentType(ContentType.HTML.getMimeType())
+                    .contentLength(body.getBytes("UTF-8").length)
+                    .body(body);
         }
 
         public Builder successResponse(HttpResponseStatus status, String type, String body) throws UnsupportedEncodingException {
-            status(status);
-            contentType(type);
-            contentLength(body.getBytes("UTF-8").length);
-            body(body);
-            return this;
+            return status(status)
+                    .contentType(type)
+                    .contentLength(body.getBytes("UTF-8").length)
+                    .body(body);
         }
 
         public Builder redirectResponse(HttpResponseStatus status, String location) {
-            status(status);
-            contentType(ContentType.HTML.getMimeType());
-            contentLength(0);
-            location(location);
-            return this;
+            return status(status)
+                    .contentType(ContentType.HTML.getMimeType())
+                    .contentLength(0)
+                    .location(location);
         }
 
         public HttpResponse build() {

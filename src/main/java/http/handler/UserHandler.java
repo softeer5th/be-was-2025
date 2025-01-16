@@ -41,6 +41,8 @@ public class UserHandler implements Handler {
             return handleUserCreate(request, builder);
         } else if (request.getMethod() == HttpMethod.POST && path.equals("/user/login")) {
             return handleUserLogin(request, builder);
+        } else if (request.getMethod() == HttpMethod.POST && path.equals("/user/logout")) {
+            return handlerUserLogout(request, builder);
         } else {
             builder.errorResponse(HttpResponseStatus.NOT_FOUND, ErrorMessage.NOT_FOUND_PATH_AND_FILE);
         }
@@ -92,14 +94,27 @@ public class UserHandler implements Handler {
 
         logger.debug("User Login: {}, {}", userId.get(), password.get());
 
-        Map<String, String> cookie = new HashMap<>();
+        Map<String, String> valueParams = new HashMap<>();
+        Map<String, String> optionParams = new HashMap<>();
         String sid = JwtUtil.generateToken(user);
-        cookie.put("sid", sid);
-        cookie.put("Path", "/");
+        valueParams.put("sid", sid);
+        optionParams.put("Max-Age", "3600");
 
         return builder
                 .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
-                .setCookie(cookie)
+                .setCookie(valueParams, optionParams)
+                .build();
+    }
+
+    private HttpResponse handlerUserLogout(HttpRequest request, HttpResponse.Builder builder) throws IOException {
+        Map<String, String> valueParams = new HashMap<>();
+        Map<String, String> optionParams = new HashMap<>();
+        valueParams.put("sid", "");
+        optionParams.put("Max-Age", "0");
+
+        return builder
+                .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
+                .setCookie(valueParams, optionParams)
                 .build();
     }
 

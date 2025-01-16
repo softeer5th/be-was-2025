@@ -42,6 +42,7 @@ public class Router {
         routes.put("/user", userHandler);
         routes.put("/user/create", userHandler);
         routes.put("/user/login", userHandler);
+        routes.put("/user/logout", userHandler);
     }
 
     public void addRoute(String path, Handler handler) {
