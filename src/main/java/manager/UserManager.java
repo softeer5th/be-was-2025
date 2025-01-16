@@ -14,11 +14,13 @@ import static exception.ErrorCode.*;
 
 public class UserManager {
     private final SessionManager sessionManager;
+    private final Database database;
     private static UserManager instance;
 
 
     private UserManager() {
         sessionManager = SessionManager.getInstance();
+        database = Database.getInstance();
     }
 
     public static UserManager getInstance() {
@@ -29,14 +31,14 @@ public class UserManager {
     }
 
     public void createUser(final UserCreateRequest request) {
-        if (Database.findUserById(request.userId()) != null)
+        if (database.findUserById(request.userId()) != null)
             throw new ClientErrorException(ALREAD_EXIST_USERID);
 
         User user = new User(request.userId(),
                 request.password(),
                 request.nickname(),
                 request.email());
-        Database.addUser(user);
+        database.addUser(user);
     }
 
     public String loginUser(final UserLoginRequest userLoginRequest) {
@@ -47,13 +49,13 @@ public class UserManager {
     }
 
     public Optional<String> getNameFromSession(String sessionId) {
-        if(sessionId == null)
+        if (sessionId == null)
             return Optional.empty();
         final String userId = sessionManager.getUserId(sessionId);
         if (userId == null)
             return Optional.empty();
 
-        final User user = Database.findUserById(userId);
+        final User user = database.findUserById(userId);
         return Optional.of(user.getName());
     }
 
@@ -67,8 +69,8 @@ public class UserManager {
     }
 
     private User GetOrElseThrow(final String userId) {
-        if (Database.findUserById(userId) == null)
+        if (database.findUserById(userId) == null)
             throw new LoginException(NO_SUCH_USER_ID);
-        return Database.findUserById(userId);
+        return database.findUserById(userId);
     }
 }

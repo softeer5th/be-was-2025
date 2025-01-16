@@ -23,7 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MyPageHandlerTest {
 
-    private MyPageHandler myPageHandler = new MyPageHandler();
+    private final MyPageHandler myPageHandler = new MyPageHandler();
+    private final Database database = Database.getInstance();
 
     @Test
     @DisplayName("로그인하지 않은 사용자가 마이페이지를 요청하면 로그인화면으로 리다이렉트 된다.")
@@ -44,7 +45,7 @@ class MyPageHandlerTest {
     @DisplayName("로그인한 사용자가 마이페이지를 요청하면 마이페이지 정적 파일을 응답한다.")
     void handle_loginUser() throws IOException {
         SessionManager sessionManager = SessionManager.getInstance();
-        Database.addUser(new User("test", "test", "test", "test"));
+        database.addUser(new User("test", "test", "test", "test"));
         final String sessionId = sessionManager.makeAndSaveSessionId("test");
         final HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/mypage/index.html", HttpVersion.HTTP1_1, Map.of(HttpHeader.COOKIE.getName(), String.format("SID=%s; Path=/", sessionId)), "");
         byte[] expected = Files.readAllBytes(new File(STATIC_MYPAGE_HTML).toPath());

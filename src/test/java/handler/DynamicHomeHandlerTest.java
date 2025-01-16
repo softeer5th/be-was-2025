@@ -19,12 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DynamicHomeHandlerTest {
     DynamicHomeHandler dynamicHomeHandler = new DynamicHomeHandler();
+    private final Database database = Database.getInstance();
 
     @Test
     @DisplayName("로그인한 사용자가 홈화면을 접속할 경우 사용자의 이름이 나타난다.")
     void handle_loginUser() {
         SessionManager sessionManager = SessionManager.getInstance();
-        Database.addUser(new User("test", "test", "test", "test"));
+        database.addUser(new User("test", "test", "test", "test"));
         final String sessionId = sessionManager.makeAndSaveSessionId("test");
         final HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/index.html", HttpVersion.HTTP1_1, Map.of(HttpHeader.COOKIE.getName(), String.format("SID=%s; Path=/", sessionId)), "");
 

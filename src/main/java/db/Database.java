@@ -10,18 +10,31 @@ import java.util.Map;
 
 public class Database {
     private static final Logger logger = LoggerFactory.getLogger(Database.class);
-    private static Map<String, User> users = new HashMap<>();
+    private final Map<String, User> users;
 
-    public static void addUser(User user) {
+    private static Database instance;
+
+    private Database() {
+        users = new HashMap<>();
+    }
+
+    public static Database getInstance() {
+        if (instance == null) {
+            instance = new Database();
+        }
+        return instance;
+    }
+
+    public void addUser(User user) {
         logger.debug("Add user" + user);
         users.put(user.getUserId(), user);
     }
 
-    public static User findUserById(String userId) {
+    public User findUserById(String userId) {
         return users.get(userId);
     }
 
-    public static Collection<User> findAll() {
+    public Collection<User> findAll() {
         return users.values();
     }
 }
