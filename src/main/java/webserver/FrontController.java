@@ -63,7 +63,7 @@ public class FrontController implements Runnable {
                 // requst에 매칭된 path variable 설정+
                 request.setPathVariables(routingResult.pathVariables());
 
-                // handler에게 요청 위임
+                // interceptor chain에게 요청 처리 위임
                 HttpResponse response = chain.execute(request, handler);
 
                 responseWriter.writeResponse(request, response, out);

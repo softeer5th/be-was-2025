@@ -3,7 +3,7 @@ package webserver.header;
 import java.util.HashMap;
 import java.util.Map;
 
-// HTTP Header 정보를 담는 객체
+// HTTP Request Header 정보를 담는 객체
 public class RequestHeader extends AbstractHttpHeader {
     private final Map<String, String> cookies;
 

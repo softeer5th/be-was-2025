@@ -1,5 +1,6 @@
 package webserver.header;
 
+// Cookie 헤더와 관련된 정보
 public class Cookie {
     private final String name;
     private final String value;

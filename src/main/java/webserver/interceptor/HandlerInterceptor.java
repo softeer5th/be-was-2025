@@ -3,6 +3,7 @@ package webserver.interceptor;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
+// HTTP Handler 실행 전후에 request, response 객체에 간섭하여 추가적인 기능을 제공하는 클래스
 public interface HandlerInterceptor {
 
     // HttpHandler.handle() 이 처리되기 전 호출
@@ -19,6 +20,7 @@ public interface HandlerInterceptor {
         return response;
     }
 
+    // 하나의 HTTP 요청-응답 사이클에서 HandlerInterceptor가 서로 공유하게 되는 데이터
     class Context {
         private Object data;
 

@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+// Set-Cooki 헤더와 관련된 정보
 public class SetCookie {
     private final Cookie cookie;
     private String domain;
@@ -23,6 +24,7 @@ public class SetCookie {
         secure = false;
     }
 
+    // 쿠키를 만료시키는 Set-Cookie 헤더를 만들어주는 정적 팩토리 메서드
     public static SetCookie expireCookie(String cookieName) {
         SetCookie setCookie = new SetCookie(cookieName, "");
         setCookie.setMaxAge(0);
@@ -30,6 +32,7 @@ public class SetCookie {
         return setCookie;
     }
 
+    // 브라우저를 끌 때 까지 유지되는 session scope 쿠키를 위한 Set-Cookie 헤더를 만들어주는 정적 팩토리 메서드
     public static SetCookie createSessionCookie(String cookieName, String cookieValue) {
         SetCookie setCookie = new SetCookie(cookieName, cookieValue);
         return setCookie;
@@ -75,6 +78,8 @@ public class SetCookie {
         return secure;
     }
 
+    // Http Header 형식에 맞게 문자열로 변환
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(cookie.getName());
@@ -104,6 +109,7 @@ public class SetCookie {
         return builder.toString();
     }
 
+    // Expires 필드를 RFC_1123 날짜 형식에 맞게 변환
     private String formatExpires() {
         return expires.withZoneSameInstant(ZoneId.of("GMT")).format(DateTimeFormatter.RFC_1123_DATE_TIME);
     }
