@@ -3,14 +3,19 @@ package handler;
 import db.Database;
 import exception.ErrorCode;
 import exception.LoginException;
+import http.cookie.Cookie;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.enums.HttpStatus;
+import http.session.Session;
+import http.session.SessionManager;
 import model.User;
 
 import java.util.Map;
 
 public class UserLoginRequestHandler implements RequestHandler{
+    private final SessionManager sessionManager = SessionManager.getInstance();
+
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
         return true;
@@ -23,7 +28,18 @@ public class UserLoginRequestHandler implements RequestHandler{
         try{
             login(loginData.get("userId"), loginData.get("password"));
 
-            return null;
+            Session session = sessionManager.createSession();
+            session.saveAttribute("userId", loginData.get("userId"));
+
+            Cookie cookie = new Cookie("sessionId", session.getSessionId());
+            cookie.setPath("/");
+
+            return new HttpResponse.Builder()
+                    .httpStatus(HttpStatus.SEE_OTHER)
+                    .location("http://localhost:8080/")
+                    .setCookie(cookie)
+                    .build();
+
         }catch(LoginException e){
             return new HttpResponse.Builder()
                     .httpStatus(HttpStatus.SEE_OTHER)
@@ -43,6 +59,5 @@ public class UserLoginRequestHandler implements RequestHandler{
         if(!user.getPassword().equals(password)){
             throw new LoginException(ErrorCode.MISMATCH_PASSWORD);
         }
-        
     }
 }
