@@ -36,7 +36,7 @@ public class UserLoginHandler implements Handler {
         User user = Database.findUserById(userId);
         if (user == null || !user.getPassword().equals(password)) {
             logger.debug("User with id {} and password {} not found", userId, password);
-            response.setStatus(HttpStatus.FOUND);
+            response.setStatus(HttpStatus.SEE_OTHER);
             response.setHeaders("Location", "/login/failed.html");
             return response;
         }

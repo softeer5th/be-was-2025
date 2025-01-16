@@ -2,11 +2,13 @@ package http;
 
 public enum HttpStatus {
     OK(200, "OK"),
-    CREATED(201, "Created" ),
-    FOUND(302, "Found" ),
+    CREATED(201, "Created"),
+    FOUND(302, "Found"),
+    SEE_OTHER(303, "See Other"),
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
     NOT_FOUND(404, "Unsupported Media Type"),
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type");
 
     private final int code;
