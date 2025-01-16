@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import util.FileUtil;
 import http.HttpResponse;
 
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 public class FileRequestHandler implements Handler {
@@ -64,8 +65,11 @@ public class FileRequestHandler implements Handler {
         replaceLoginUI(content, user.getNickname());
     }
 
-    private void replaceLoginUI(StringBuilder content, String username) {
+    private void replaceLoginUI(StringBuilder content, String nickname) {
         logger.debug("replaceLoginUtil 실행");
+
+        String decodedNickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
+
         int startIndex = content.indexOf("<li class=\"header__menu__item\">");
         logger.debug("StartIndex: {} ", startIndex);
         if (startIndex != -1) {
@@ -73,7 +77,7 @@ public class FileRequestHandler implements Handler {
             if (endIndex != -1) {
                 StringBuilder newUI = new StringBuilder();
                 newUI.append("<li class=\"header__menu__item\">")
-                        .append("<span class=\"user-name\">").append(username).append("</span>")
+                        .append("<a class=\"user-name\" href=\"/mypage\">").append(decodedNickname).append("</a>")
                         .append("</li>")
                         .append("<li class=\"header__menu__item\">")
                         .append("<form action=\"/users/logout\" method=\"POST\">")
