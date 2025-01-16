@@ -8,7 +8,9 @@ public class ParsingUtil {
     public static List<String> parseRequestHeader(BufferedReader br) throws Exception {
         List<String> lines = new ArrayList<>();
         String line;
-        while (!(line = br.readLine()).isEmpty()) {
+        while (true) {
+            line = br.readLine();
+            if (line == null || line.isEmpty()) break;
             lines.add(line);
         }
         return lines;
