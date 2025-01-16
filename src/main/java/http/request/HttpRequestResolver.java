@@ -1,5 +1,6 @@
 package http.request;
 
+import http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,10 +66,24 @@ public class HttpRequestResolver {
         while((line = br.readLine()) != null && !line.isEmpty()){
             sb.append(line).append("\n");
             String[] lineParts = line.split(":\\s*");
-            httpRequest.addHeader(lineParts[0].toUpperCase(), lineParts[1].toUpperCase());
+
+            if(lineParts[0].equalsIgnoreCase("cookie")){
+                parseHttpRequestCookies(lineParts[1], httpRequest);
+            }else{
+                httpRequest.addHeader(lineParts[0].toUpperCase(), lineParts[1].toUpperCase());
+            }
         }
 
         logger.debug("header: \n{}", sb.toString());
+    }
+
+    private void parseHttpRequestCookies(String cookieValueLine, HttpRequest httpRequest){
+        String[] cookieValues = cookieValueLine.split(";");
+
+        for(String cookieValue: cookieValues){
+            Cookie cookie = Cookie.parseCookie(cookieValue);
+            httpRequest.addCookie(cookie);
+        }
     }
 
     private void parseHttpRequestBody(BufferedReader br, HttpRequest httpRequest) throws IOException {
