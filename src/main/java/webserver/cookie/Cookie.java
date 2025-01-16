@@ -1,11 +1,14 @@
 package webserver.cookie;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.enums.CookieName;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Cookie {
+    private static final Logger logger = LoggerFactory.getLogger(Cookie.class);
     private final Map<String, String> cookies = new HashMap<>();
 
     public Cookie(String cookieString){
@@ -16,7 +19,7 @@ public class Cookie {
                 String[] tokens = pair.trim().split("=", 2);
                 String name = CookieName.validate(tokens[0]);
 
-                if(tokens.length == 1 && pair.endsWith("=")) {throw new RuntimeException("empty cookie");}
+                if(tokens.length == 1 && pair.endsWith("=")) {logger.error("empty cookie");}
 
                 String value = tokens[1];
 
@@ -26,9 +29,9 @@ public class Cookie {
 
                 cookies.put(name, value);
             } catch (ArrayIndexOutOfBoundsException e) {
-                throw new RuntimeException("Invalid String");
+                logger.error("Invalid String");
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException(e);
+                logger.error(e.getMessage());
             }
         }
     }

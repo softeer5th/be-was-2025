@@ -69,14 +69,10 @@ public class RequestParser {
     }
 
     private static void setCookie(Request request){
-        try {
-            String cookieString = request.getHeader("COOKIE");
-            if (cookieString != null) {
-                Cookie cookie = new Cookie(cookieString);
-                request.setCookie(cookie);
-            }
-        } catch (RuntimeException e){
-            logger.error(e.getMessage());
+        String cookieString = request.getHeader("COOKIE");
+        if (cookieString != null) {
+            Cookie cookie = new Cookie(cookieString);
+            request.setCookie(cookie);
         }
     }
 }
