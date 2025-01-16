@@ -3,16 +3,9 @@ package webserver.httpserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.header.Cookie;
-import webserver.httpserver.header.CookieFactory;
 
-import java.io.*;
-import java.io.BufferedInputStream;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static webserver.httpserver.ContentType.X_WWW_FORM_URLENCODED;
 
 public class HttpRequest {
     private HttpMethod method;
