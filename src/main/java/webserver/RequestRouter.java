@@ -2,6 +2,7 @@ package webserver;
 
 import Entity.QueryParameters;
 import db.Database;
+import exception.MissingUserInfoException;
 import http.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponse;
@@ -11,12 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ContentTypeUtil;
 
+import javax.security.sasl.AuthenticationException;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public class RequestRouter {
@@ -24,12 +28,24 @@ public class RequestRouter {
     private final Map<String, BiConsumer<HttpRequest, DataOutputStream>> postHandlers = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final String RESOURCES_PATH = "./src/main/resources/static";
+    public static final String LOGIN_FAILED_PAGE = "http://localhost:8080/login/login_failed.html";
+    public static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
+    public static final String LOGINED_MAIN_PAGE = "http://localhost:8080/main/index.html";
+    public static final String MAIN_PAGE = "http://localhost:8080/index.html";
+    public static final String SIGNIN_PATH = "/user/signIn";
+    public static final String SIGNUP_PAGE = "/user/create";
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_LENGTH = "Content-Length";
+    public static final String SET_COOKIE = "Set-Cookie";
+    public static final String LOCATION = "location";
+    private final Map<String, User> userSessions;
 
     public RequestRouter() {
         init();
+        userSessions = new HashMap<>();
     }
 
-    public void route(HttpRequest httpRequest, DataOutputStream dos) throws IOException{
+    public void route(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
         HttpMethod method = httpRequest.getHttpMethod();
         String path = httpRequest.getRequestPath();
 
@@ -62,8 +78,8 @@ public class RequestRouter {
                 }
                 byte[] body = readFile(file);
                 HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
-                httpResponse.addHeader("Content-Type", ContentTypeUtil.getContentType(fileExtension));
-                httpResponse.addHeader("Content-Length", String.valueOf(body.length));
+                httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
+                httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
                 httpResponse.respond();
             } catch (IOException e) {
                 logger.error("Get Request Error, " + e.getMessage());
@@ -71,12 +87,17 @@ public class RequestRouter {
         });
 
         // /user/creat 경로로 POST 요청시 -> 회원가입 이후 index/html 리다이랙션
-        this.addPostHandler("/user/create", (request, dos) -> {
-            creatUser(request.getBody());
+        this.addPostHandler(SIGNUP_PAGE, (request, dos) -> {
             try {
-                HttpResponse.respond302("http://localhost:8080/index.html", dos);
-            } catch (IOException e) {
-                logger.error("Redirection Error, " + e.getMessage());
+                creatUser(request.getBody());
+                HttpResponse.respond302(MAIN_PAGE, dos);
+            } catch (Exception e) {
+                logger.debug("Signup failed, " + e.getMessage());
+                try {
+                    HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
+                } catch (IOException ex) {
+                    logger.error("Redirection Error, " + ex.getMessage());
+                }
             }
         });
 
