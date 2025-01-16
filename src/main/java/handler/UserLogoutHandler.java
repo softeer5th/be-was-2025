@@ -9,15 +9,11 @@ import http.HttpResponse;
 import http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.QueryUtil;
-
-import java.util.Map;
 
 import static http.HttpMethod.POST;
 
 public class UserLogoutHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserLogoutHandler.class);
-    private static final int QUERY_SIZE = 1;
 
 
     @Override
@@ -27,12 +23,12 @@ public class UserLogoutHandler implements Handler {
             throw new BaseException(HttpErrorCode.INVALID_HTTP_METHOD);
         }
         HttpResponse response = new HttpResponse();
-        Map<String, String> params = QueryUtil.parseQueryParams(request.getBody(), QUERY_SIZE);
-        if( SessionManager.findUserBySessionID(params.get("sessionID")) == null) {
+        String sid = request.getSid();
+        if (SessionManager.findUserBySessionID(sid) == null) {
             logger.error("UserLogoutHandler: Invalid sessionID");
             throw new BaseException(UserErrorCode.USER_NOT_FOUND_FOR_SESSION);
         }
-        SessionManager.removeSession(params.get("sid"));
+        SessionManager.removeSession(sid);
         logger.debug("User Logged out successfully.");
 
         response.setStatus(HttpStatus.FOUND);
