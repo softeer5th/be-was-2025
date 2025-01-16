@@ -15,7 +15,7 @@ public class ResponseBuilder {
     );
     private final static Map<String, Handler> postPages = Map.of(
             "/user/create", new CreateUserHandler(),
-            "/user/index.html", new LoginHandler(),
+            "/user/login.html", new LoginHandler(),
             "default", new Page404Handler()
     );
 
