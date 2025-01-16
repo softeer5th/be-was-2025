@@ -1,7 +1,6 @@
 package api.user;
 
 import api.ApiHandler;
-import db.Database;
 import global.model.CommonResponse;
 import global.model.HttpRequest;
 import global.model.LoadResult;
@@ -15,13 +14,13 @@ import java.util.Map;
 
 import static global.util.JsonUtil.toJson;
 
-public class InfoHandler implements ApiHandler {
-    private static final Logger logger = LoggerFactory.getLogger(InfoHandler.class);
+public class ValidateHandler implements ApiHandler {
+    private static final Logger logger = LoggerFactory.getLogger(ValidateHandler.class);
 
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
         return "GET".equalsIgnoreCase(httpRequest.method())
-                && "/api/user/me".equalsIgnoreCase(httpRequest.path());
+                && "/api/user/validate".equalsIgnoreCase(httpRequest.path());
     }
 
     @Override
