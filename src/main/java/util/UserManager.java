@@ -4,7 +4,7 @@ import db.Database;
 import model.User;
 
 public class UserManager {
-    public void addUser(String parameterString) throws IllegalArgumentException {
+    public static void addUser(String parameterString) {
         Parameter parameter = new Parameter(parameterString);
         String userId = parameter.getId();
         String userName = parameter.getName();
