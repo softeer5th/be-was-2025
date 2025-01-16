@@ -1,8 +1,6 @@
 package http.handler;
 
-import http.enums.ErrorMessage;
 import http.enums.HttpMethod;
-import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
 import http.request.TargetInfo;
 import http.response.HttpResponse;
@@ -10,11 +8,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class UserHandlerTest {
@@ -22,12 +21,13 @@ public class UserHandlerTest {
     private UserHandler handler;
     private HttpRequest mockRequest;
     private HttpResponse mockResponse;
+    private OutputStream out;
 
     @BeforeEach
     public void setUp() {
         handler = UserHandler.getInstance();
         mockRequest = mock(HttpRequest.class);
-        mockResponse = mock(HttpResponse.class);
+        out = new ByteArrayOutputStream();
     }
 
     @Test
@@ -36,16 +36,13 @@ public class UserHandlerTest {
         when(mockRequest.getMethod()).thenReturn(HttpMethod.POST);
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/create"));
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("userId", "testUser");
-        requestBody.put("name", "Test User");
-        requestBody.put("password", "password123");
-        requestBody.put("email", "test@example.com");
         when(mockRequest.getBody()).thenReturn("userId=testUser&name=Test User&password=password123&email=test@example.com");
 
-        handler.handle(mockRequest, mockResponse);
+        mockResponse = handler.handle(mockRequest);
 
-        verify(mockResponse).sendRedirectResponse(HttpResponseStatus.FOUND, "/index.html");
+        mockResponse.send(out);
+        String responseStatusLine = out.toString().split("\r\n")[0];
+        assertEquals("HTTP/1.1 302 Found", responseStatusLine);
     }
 
     @Test
@@ -54,15 +51,13 @@ public class UserHandlerTest {
         when(mockRequest.getMethod()).thenReturn(HttpMethod.POST);
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/create"));
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("userId", "testUser");
-        requestBody.put("name", "Test User");
-        requestBody.put("password", "password123");
         when(mockRequest.getBody()).thenReturn("userId=testUser&name=Test User&password=password123");
 
-        handler.handle(mockRequest, mockResponse);
+        mockResponse = handler.handle(mockRequest);
 
-        verify(mockResponse).sendErrorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.INVALID_PARAMETER);
+        mockResponse.send(out);
+        String responseStatusLine = out.toString().split("\r\n")[0];
+        assertEquals("HTTP/1.1 400 Bad Request", responseStatusLine);
     }
 
     @Test
@@ -71,8 +66,10 @@ public class UserHandlerTest {
         when(mockRequest.getMethod()).thenReturn(HttpMethod.GET);
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/unknown"));
 
-        handler.handle(mockRequest, mockResponse);
+        mockResponse = handler.handle(mockRequest);
 
-        verify(mockResponse).sendErrorResponse(HttpResponseStatus.NOT_FOUND, ErrorMessage.BAD_REQUEST);
+        mockResponse.send(out);
+        String responseStatusLine = out.toString().split("\r\n")[0];
+        assertEquals("HTTP/1.1 404 Not Found", responseStatusLine);
     }
 }
