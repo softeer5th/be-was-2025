@@ -37,7 +37,7 @@ public class Database {
         return sessions.get(sessionId);
     }
 
-    public static LocalTime updateSessionLastAccessTime(String sessionId) {
+    public static void updateSessionLastAccessTime(String sessionId) {
         Session session = findSessionById(sessionId);
 
         if (session == null) {
@@ -47,7 +47,6 @@ public class Database {
         LocalTime time = LocalTime.now();
         session.setLastAccessTime(time);
 
-        return time;
     }
 
     public static int findSessionMaxInactiveInterval(String sessionId) {
