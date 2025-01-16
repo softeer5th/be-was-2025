@@ -155,15 +155,17 @@
           const result = await response.json();
 
           if (result.isSuccess) {
-            const { name } = result.data;
+            console.log("유저 데이터 받기 성공");
+            const name = result.data;
+            console.log(`유저 이름: ${name}`);
             document.getElementById("nickname").textContent = name;
           } else {
             console.log("로그인되지 않음 or 에러:", result);
-            window.location.href = "/index.html";
+            // window.location.href = "/index.html";
           }
         } catch (err) {
           console.error("사용자 정보 조회 중 오류:", err);
-          window.location.href = "/index.html";
+          // window.location.href = "/index.html";
         }
       }
 

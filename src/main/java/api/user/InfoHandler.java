@@ -46,9 +46,10 @@ public class InfoHandler implements ApiHandler {
                     true,
                     null,
                     null,
-                    Map.of("name", user.getName(), "email", user.getEmail())
+                    user.getName()
             );
             String json = toJson(response);
+            logger.debug("내 정보 반환 JSON: {}",json);
 
             return new LoadResult(
                     json.getBytes(StandardCharsets.UTF_8),
