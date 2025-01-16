@@ -16,6 +16,7 @@ public class UserManager {
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
     private static final String redirectAfterSignUp = "/index.html";
     private static final String redirectAfterLogIn = "/index.html";
+    private static final String redirectAfterLogInFail = "/user/login_failed.html";
     private static final int SESSION_ID_LENGTH = 32;
 
 
@@ -36,12 +37,12 @@ public class UserManager {
 
     public HTTPResponse logIn(HTTPRequest httpRequest){
         if(!Database.userExists(httpRequest.getBodyParameterByKey("userId"))){
-            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(),HTTPCode.UNAUTHORIZED);
+            return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
 
         User user = Database.findUserById(httpRequest.getBodyParameterByKey("userId"));
         if(!user.getPassword().equals(httpRequest.getBodyParameterByKey("password"))){
-            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(),HTTPCode.UNAUTHORIZED);
+            return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
 
         String sessionId = generateSessionID();

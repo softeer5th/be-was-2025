@@ -6,7 +6,7 @@ public enum HTTPCode {
     OK(200, "OK", "Request success"),
     FOUND(302, "Found", "Redirected to another resource"),
     BAD_REQUEST(400, "Bad Request", "Bad request"),
-    UNAUTHORIZED(401, "Unauthorized", "Unauthorized"),
+    SEE_OTHER(303, "See Other", "See Other"),
     FORBIDDEN(403, "Forbidden", "Forbidden"),
     NOT_FOUND(404, "Not Found", "Not Found"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed", "Method not allowed"),
