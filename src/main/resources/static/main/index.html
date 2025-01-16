@@ -3,27 +3,12 @@
 <head>
     <meta charset="UTF-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <link href="../reset.css" rel="stylesheet"/>
-    <link href="../global.css" rel="stylesheet"/>
+    <my-include template="/common/css.html"></my-include>
     <link href="../main.css" rel="stylesheet"/>
 </head>
 <body>
 <div class="container">
-    <header class="header">
-        <a href="/main"><img src="../img/signiture.svg"/></a>
-        <ul class="header__menu">
-            <li class="header__menu__item">
-                <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-            </li>
-            <li class="header__menu__item">
-                <form action="/logout" method="post">
-                    <button class="btn btn_ghost btn_size_s" id="logout-btn" type="submit">
-                        로그아웃
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </header>
+    <my-include template="/common/header.html"></my-include>
     <div class="wrapper">
         <div class="post">
             <div class="post__account">
