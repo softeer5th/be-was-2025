@@ -2,13 +2,11 @@ package webserver.view;
 
 import java.util.Map;
 
-// <html>
-// <my-if condition="session.user">
-//    <div>로그인 되어 있습니다.</div>
-//</my-if>
-//</html>
+// 특정 태그의 처리를 담당하는 클래스
 public abstract class TagHandler {
+    // 태그의 이름. my-로 시작해야 함
     protected final String tagName;
+    // 태그 랜더링 시 children template을 재귀적으로 처리하기 위해 필요한 TemplateEngine
     protected TemplateEngine engine;
 
     protected TagHandler(String tagName) {
@@ -19,7 +17,8 @@ public abstract class TagHandler {
         this.engine = engine;
     }
 
-    public abstract String handle(Map<String, Object> model, Map<String, String> attributes, String children);
+    // 태그를 렌더링하여 반환
+    public abstract String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate);
 
     public String getTagName() {
         return tagName;

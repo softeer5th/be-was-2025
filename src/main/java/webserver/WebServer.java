@@ -18,6 +18,13 @@ import webserver.router.PathRouter;
 import webserver.session.MemorySessionManager;
 import webserver.session.SessionInterceptor;
 import webserver.session.SessionManager;
+import webserver.view.MyTemplateEngine;
+import webserver.view.TemplateEngine;
+import webserver.view.TemplateEngineInterceptor;
+import webserver.view.tag.ForeachTagHandler;
+import webserver.view.tag.IfTagHandler;
+import webserver.view.tag.IncludeTagHandler;
+import webserver.view.tag.TextTagHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -53,6 +60,11 @@ public class WebServer {
         HttpResponseWriter responseWriter = new HttpResponseWriter();
 
         StaticResourceManager resourceManager = new StaticResourceManager(config);
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new ForeachTagHandler())
+                .registerTagHandler(new IfTagHandler())
+                .registerTagHandler(new TextTagHandler())
+                .registerTagHandler(new IncludeTagHandler(resourceManager));
 
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
@@ -65,12 +77,14 @@ public class WebServer {
 
         HandlerInterceptor sessionInterceptor = new SessionInterceptor(sessionManager);
         HandlerInterceptor logInterceptor = new LoggingInterceptor();
+        HandlerInterceptor templateInterceptor = new TemplateEngineInterceptor(templateEngine, resourceManager);
         InterceptorChain chain = InterceptorChain
                 .inbound()
                 .add(sessionInterceptor)
                 .add(logInterceptor)
                 .outbound()
                 .add(sessionInterceptor)
+                .add(templateInterceptor)
                 .add(logInterceptor).build();
 
 

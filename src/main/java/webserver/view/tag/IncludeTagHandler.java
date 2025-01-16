@@ -6,7 +6,7 @@ import webserver.view.TemplateFileReader;
 import java.util.Map;
 
 public class IncludeTagHandler extends TagHandler {
-    public static final String DEFAULT_TAG_NAME = "include";
+    public static final String DEFAULT_TAG_NAME = "my-include";
     public static final String TEMPLATE_ATTRIBUTE_NAME = "template";
     private final TemplateFileReader fileReader;
 
@@ -20,8 +20,8 @@ public class IncludeTagHandler extends TagHandler {
     }
 
     @Override
-    public String handle(Map<String, Object> model, Map<String, String> attributes, String children) {
-        String templateName = attributes.get(TEMPLATE_ATTRIBUTE_NAME);
+    public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
+        String templateName = tagAttributes.get(TEMPLATE_ATTRIBUTE_NAME);
         if (templateName == null || templateName.isBlank()) {
             return "";
         }

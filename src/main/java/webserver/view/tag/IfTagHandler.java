@@ -29,10 +29,10 @@ public class IfTagHandler extends TagHandler {
 
     // <my-if condition="true">children</my-if>
     @Override
-    public String handle(Map<String, Object> model, Map<String, String> attributes, String children) {
-        String condition = attributes.get(CONDITION_ATTRIBUTE_NAME);
+    public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
+        String condition = tagAttributes.get(CONDITION_ATTRIBUTE_NAME);
         if (isConditionTrue(model, condition)) {
-            return engine.render(children, model);
+            return engine.render(childrenTemplate, model);
         }
         return "";
     }

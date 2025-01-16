@@ -23,9 +23,9 @@ class MyTemplateEngineTest {
     @DisplayName("my-foreach 태그 렌더링")
     void test1() {
         // given
-        TemplateEngine templateEngine = new MyTemplateEngine();
-        templateEngine.registerTagHandler(new ForeachTagHandler("my-foreach"));
-        templateEngine.registerTagHandler(new TextTagHandler("my-text"));
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new ForeachTagHandler("my-foreach"))
+                .registerTagHandler(new TextTagHandler("my-text"));
         String template = """
                 <my-foreach items="users" item="user">
                     <div><my-text>${user.name}</my-text></div>
@@ -62,8 +62,8 @@ class MyTemplateEngineTest {
     @DisplayName("my-if 태그 렌더링 - boolean 값")
     void test2(String condition, boolean contains) {
         // given
-        TemplateEngine templateEngine = new MyTemplateEngine();
-        templateEngine.registerTagHandler(new IfTagHandler("my-if"));
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new IfTagHandler("my-if"));
         String template = """
                 <my-if condition="%s">
                     hello
@@ -84,8 +84,8 @@ class MyTemplateEngineTest {
     @DisplayName("my-if 태그 렌더링 - not")
     void test3() {
         // given
-        TemplateEngine templateEngine = new MyTemplateEngine();
-        templateEngine.registerTagHandler(new IfTagHandler("my-if"));
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new IfTagHandler("my-if"));
         String template = """
                 <my-if condition="!true">
                     hello
@@ -102,8 +102,8 @@ class MyTemplateEngineTest {
     @DisplayName("my-if 태그 렌더링 - nested object field")
     void test4() {
         // given
-        TemplateEngine templateEngine = new MyTemplateEngine();
-        templateEngine.registerTagHandler(new IfTagHandler("my-if"));
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new IfTagHandler("my-if"));
         String template = """
                 <my-if condition="session.user.name">
                     hello
@@ -121,9 +121,9 @@ class MyTemplateEngineTest {
     @DisplayName("my-if 안에서 my-text 사용")
     void test5() {
         // given
-        TemplateEngine templateEngine = new MyTemplateEngine();
-        templateEngine.registerTagHandler(new IfTagHandler("my-if"));
-        templateEngine.registerTagHandler(new TextTagHandler("my-text"));
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new IfTagHandler("my-if"))
+                .registerTagHandler(new TextTagHandler("my-text"));
         String template = """
                 <my-if condition="session.user">
                    <li class="header__menu__item">
@@ -158,9 +158,9 @@ class MyTemplateEngineTest {
         when(fileReader.read("header")).thenReturn("<header><my-text>${session.user.name}</my-text></header>");
         when(fileReader.read("body")).thenReturn("<body><my-text>${session.user.userId}</my-text></body>");
 
-        TemplateEngine templateEngine = new MyTemplateEngine();
-        templateEngine.registerTagHandler(new IncludeTagHandler("my-include", fileReader));
-        templateEngine.registerTagHandler(new TextTagHandler("my-text"));
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new IncludeTagHandler("my-include", fileReader))
+                .registerTagHandler(new TextTagHandler("my-text"));
 
         String template = """
                 <html>

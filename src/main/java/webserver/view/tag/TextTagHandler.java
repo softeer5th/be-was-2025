@@ -31,10 +31,10 @@ public class TextTagHandler extends TagHandler {
 
     // <my-text>${user.name}</my-text>
     @Override
-    public String handle(Map<String, Object> model, Map<String, String> attributes, String children) {
+    public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
         StringBuilder sb = new StringBuilder();
 
-        Matcher matcher = PATH_PATTERN.matcher(children);
+        Matcher matcher = PATH_PATTERN.matcher(childrenTemplate);
         while (matcher.find()) {
             String path = matcher.group(1);
             String value = traversePath(path, model);

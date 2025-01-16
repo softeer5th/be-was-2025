@@ -28,9 +28,9 @@ public class ForeachTagHandler extends TagHandler {
     }
 
     @Override
-    public String handle(Map<String, Object> model, Map<String, String> attributes, String children) {
-        String itemsAttribute = attributes.get(ITEMS_ATTRIBUTE_NAME);
-        String itemAttribute = attributes.get(ITEM_ATTRIBUTE_NAME);
+    public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
+        String itemsAttribute = tagAttributes.get(ITEMS_ATTRIBUTE_NAME);
+        String itemAttribute = tagAttributes.get(ITEM_ATTRIBUTE_NAME);
         if (model.containsKey(itemAttribute))
             throw new InternalServerError(ITEM_ATTRIBUTE_NAME + " attribute가 이미 모델에 있습니다.");
 
@@ -47,7 +47,7 @@ public class ForeachTagHandler extends TagHandler {
 
         for (Object item : (Iterable<?>) model.get(itemsAttribute)) {
             model.put(itemAttribute, item);
-            result.append(engine.render(children, model));
+            result.append(engine.render(childrenTemplate, model));
             model.remove(itemAttribute);
         }
         return result.toString();
