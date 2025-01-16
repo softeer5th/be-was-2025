@@ -29,6 +29,10 @@ public class Database {
         sessions.put(session.getSessionId(), session);
     }
 
+    public static void deleteSession(String sessionId) {
+        sessions.remove(sessionId);
+    }
+
     public static Session findSessionById(String sessionId) {
         return sessions.get(sessionId);
     }

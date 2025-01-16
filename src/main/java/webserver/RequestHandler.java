@@ -26,7 +26,6 @@
             this.connection = connectionSocket;
         }
 
-        // Todo: 에러 발생 시 클라이언트에게 응답하는 기능 구현 필요
         // Todo: timeout 발생 시 처리하는 기능 구현 필요
         public void run() {
             logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
@@ -36,7 +35,8 @@
             HTTPRequestBody requestBody = null;
 
             HTTPResponseHeader responseHeader = new HTTPResponseHeader(DEFAULT_HTTP_VERSION);
-            HTTPResponseBody responseBody;
+            HTTPResponseBody responseBody = null;
+            List<Cookie> cookieList = new ArrayList<>();
 
             try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
                 DataOutputStream dos = new DataOutputStream(out);
@@ -75,22 +75,16 @@
                     Map<String, String> headers = requestHeader.getHeaders();
 
                     responseHeader.setVersion(version);
-                    responseBody = null;
 
-                    // Todo: 이 부분에 쿠키 관련 헤더가 있는지 탐색
                     if (headers.containsKey("cookie")) {
-                        // Todo: 쿠키 값 파싱 후 SESSIONID 탐색 후 lastAccessTime 업데이트
+                        // 새로운 쿠키 값을 처리해야 할 경우 이 부분에 추가하면 된다.
                         Map<String, String> cookies = Cookie.parseCookies(headers.get("cookie"));
                         if (cookies.containsKey("SESSIONID")) {
                             String sessionId = cookies.get("SESSIONID");
 
                             Database.updateSessionLastAccessTime(sessionId);
-                            Cookie cookie = new Cookie("SESSIONID", sessionId, Database.findSessionMaxInactiveInterval(sessionId));
-
-                            responseHeader.addHeader("Set-Cookie", cookie.toString());
+                            cookieList.add(new Cookie("SESSIONID", sessionId, Database.findSessionMaxInactiveInterval(sessionId)));
                         }
-                        // Todo: 쿠키가 여러 개 있을 수 있음. 이 점 고려홰서 설계 => 이 부분에서 responseHeader에 쿠키를 추가하는 것으로 해결 가능할 듯
-                        // LocalTime time = Database.updateSessionLastAccessTime()
                     }
                     // body가 있을 경우 body 읽기
                     if (headers.containsKey("content-length")) {
@@ -103,7 +97,6 @@
                         byte[] body = buffer.toByteArray();
 
                         // Content-Length와 body 길이가 다른 경우
-                        // 400 Bad Request
                         if (body.length != contentLength) {
                             throw new HTTPExceptions.Error400("400 Bad Request: Content-Length header mismatch");
                         }
@@ -126,11 +119,8 @@
                     // path 기준으로 탐색
                     // default page
                     if (path.equals("/")) {
-                        // 메인 화면으로 리다이렉트
                         responseHeader.setStatusCode(302);
                         responseHeader.addHeader("Location", "/index.html");
-
-                        ResponseHandler.respond(dos, responseHeader, responseBody);
                     }
                     // 회원가입 요청에 대한 처리
                     else if (path.equals("/registration")) {
@@ -142,8 +132,6 @@
                             responseHeader.setStatusCode(200);
                             responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(path));
                             responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
-
-                            ResponseHandler.respond(dos, responseHeader, responseBody);
                         } else {
                             logger.error("{}File not found", path);
                             throw new HTTPExceptions.Error404("404 File not found");
@@ -158,8 +146,6 @@
                             responseHeader.setStatusCode(200);
                             responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".html"));
                             responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
-
-                            ResponseHandler.respond(dos, responseHeader, responseBody);
                         } else {
                             logger.error("{}File not found", path);
                             throw new HTTPExceptions.Error404("404 File not found");
@@ -204,39 +190,36 @@
                         if ((user = Database.findUserById(userId)) != null) {
                             if (user.getPassword().equals(userPassword)) {
                                 Session session = new Session(userId, MAX_LOGIN_SESSION_TIME);
-                                Cookie cookie = new Cookie("SESSIONID", session.getSessionId(), session.getMaxInactiveInterval());
+                                cookieList.add(new Cookie("SESSIONID", session.getSessionId(), session.getMaxInactiveInterval()));
 
                                 Database.addSession(session);
 
                                 responseHeader.setStatusCode(302);
                                 responseHeader.addHeader("Location", "/main/index.html");
-                                responseHeader.addHeader("Set-Cookie", cookie.toString());
-
-                                ResponseHandler.respond(dos, responseHeader, responseBody);
                             }
                             else {
                                 logger.error("User {} password does not match", userId);
                                 responseHeader.setStatusCode(302);
                                 responseHeader.addHeader("Location", "/user/login_failed.html");
-
-                                ResponseHandler.respond(dos, responseHeader, responseBody);
                             }
                         }
                         else {
                             logger.error("User {} not found", userId);
                             responseHeader.setStatusCode(302);
                             responseHeader.addHeader("Location", "/user/login_failed.html");
-
-                            ResponseHandler.respond(dos, responseHeader, responseBody);
                         }
                     }
                     // 로그아웃 요청에 대한 처리
                     else if (path.equals("/user/logout") && method.equals("POST")) {
-                        // Todo: 해당 유저와 관련된 세션 삭제
+                        for (Cookie cookie : cookieList) {
+                            if (cookie.getName().equals("SESSIONID")) {
+                                Database.deleteSession(cookie.getValue());
+                            }
+                            cookie.expireCookie();
+                        }
+
                         responseHeader.setStatusCode(302);
                         responseHeader.addHeader("Location", "/index.html");
-
-                        ResponseHandler.respond(dos, responseHeader, responseBody);
                     }
                     // 회원가입 완료에 대한 처리
                     else if (path.equals("/user/create") && method.equals("POST")) {
@@ -284,8 +267,6 @@
 
                         responseHeader.setStatusCode(302);
                         responseHeader.addHeader("Location", "/index.html");
-
-                        ResponseHandler.respond(dos, responseHeader, responseBody);
                     } else {
                         File file = new File(resourcePath + path);
                         if (file.exists()) {
@@ -294,8 +275,6 @@
                             responseHeader.setStatusCode(200);
                             responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(path));
                             responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
-
-                            ResponseHandler.respond(dos, responseHeader, responseBody);
                         }
                         // 유효하지 않은 path에 대한 처리
                         else {
@@ -306,6 +285,10 @@
                     logger.error(e.getMessage());
                     responseHeader.setStatusCode(e.getStatusCode());
                     responseBody = new HTTPResponseBody(HTTPExceptions.getErrorMessageToBytes(e.getMessage()));
+                } finally {
+                    for (Cookie cookie: cookieList) {
+                        responseHeader.addHeader("Set-Cookie", cookie.toString());
+                    }
                     ResponseHandler.respond(dos, responseHeader, responseBody);
                 }
 

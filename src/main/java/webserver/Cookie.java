@@ -7,7 +7,7 @@ import java.util.Map;
 public class Cookie {
     private final String name;
     private final String value;
-    private final int maxAge;
+    private int maxAge;
     private final String path;
 
     public Cookie(String name, String value, int maxAge) {
@@ -17,6 +17,7 @@ public class Cookie {
         this.path = "/";
     }
 
+    // path가 지정된 쿠키를 만들 경우 사용하는 생성자 (현재 미사용)
     public Cookie(String name, String value, int maxAge, String path) {
         this.name = name;
         this.value = value;
@@ -38,6 +39,10 @@ public class Cookie {
 
     public String toString() {
         return this.name + "=" + this.value + "; Max-Age=" + this.maxAge + "; Path=/;";
+    }
+
+    public void expireCookie() {
+        this.maxAge = 0;
     }
 
     public static Map<String, String> parseCookies(String cookieString) {
