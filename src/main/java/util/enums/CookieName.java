@@ -21,7 +21,7 @@ public enum CookieName {
         return name;
     }
 
-    public static String isValid(String name) {
+    public static String validate(String name) {
         if (!BY_NAME.containsKey(name)) {
             throw new IllegalArgumentException("등록되지 않은 쿠키입니다: " + name);
         }
