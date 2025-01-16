@@ -45,13 +45,9 @@ public class HttpRequestFactory {
 
     private void parseRequestLine(BufferedInputStream bis, HttpRequest.Builder builder) throws IOException {
         String requestLine = readLine(bis);
-        if (requestLine.isEmpty()) {
-            throw new IllegalArgumentException("Method not supported");
-        }
+        checkEmpty(requestLine);
         String[] requestLineParts = requestLine.trim().split(" ");
-        if (requestLineParts.length != 3) {
-            throw new IllegalArgumentException("Method not supported");
-        }
+        validateRequestLine(requestLineParts);
         builder.method(HttpMethod.valueOf(requestLineParts[0]));
         String[] uriParts = requestLineParts[1].split(URI_QUERYPARAM_DELIMITER);
         builder.uri(uriParts[0].trim());
@@ -61,6 +57,17 @@ public class HttpRequestFactory {
         builder.protocol(requestLineParts[2]);
     }
 
+    private static void checkEmpty(String requestLine) {
+        if (requestLine.isEmpty()) {
+            throw new IllegalArgumentException("Method not supported");
+        }
+    }
+
+    private static void validateRequestLine(String[] requestLineParts) {
+        if (requestLineParts.length != 3) {
+            throw new IllegalArgumentException("Method not supported");
+        }
+    }
 
     private void parseQueryParameter(String rawQueryParams, HttpRequest.Builder builder) {
         if (rawQueryParams.isEmpty()) {
@@ -69,14 +76,18 @@ public class HttpRequestFactory {
         String[] queryParams = rawQueryParams.split(QUERYPARAMETER_DELIMITER);
         for (String queryParam : queryParams) {
             String[] paramPair = queryParam.split(QUERYPARAMETER_KEVALUE_DELIMITER);
-            if (paramPair.length > 2) {
-                throw new IllegalArgumentException("Invalid query parameter: " + queryParam);
-            }
+            validateQueryParameter(queryParam, paramPair);
             String[] keyValue = new String[]{"", ""};
             System.arraycopy(paramPair, 0, keyValue, 0, paramPair.length);
             String key = URLDecoder.decode(keyValue[0].trim(), UTF_8);
             String value = URLDecoder.decode(keyValue[1].trim(), UTF_8);
             builder.addParameter(key, value);
+        }
+    }
+
+    private static void validateQueryParameter(String queryParam, String[] paramPair) {
+        if (paramPair.length > 2) {
+            throw new IllegalArgumentException("Invalid query parameter: " + queryParam);
         }
     }
 
