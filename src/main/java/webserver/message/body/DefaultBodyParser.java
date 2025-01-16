@@ -3,7 +3,6 @@ package webserver.message.body;
 import util.HeterogeneousContainer;
 import webserver.enumeration.HTTPStatusCode;
 import webserver.exception.HTTPException;
-import webserver.message.HTTPRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,12 +12,11 @@ import java.util.HashMap;
 public class DefaultBodyParser implements BodyParser {
 
     @Override
-    public HeterogeneousContainer parse(HTTPRequest request, InputStream inputStream) {
+    public HeterogeneousContainer parse(HeterogeneousContainer headers, InputStream inputStream) {
         HeterogeneousContainer body = new HeterogeneousContainer(new HashMap<>());
-        int contentLength = request.getHeader("content-length", Integer.class)
+        int contentLength = headers.get("content-length", Integer.class)
                 .orElseThrow(() -> new HTTPException.Builder()
                         .causedBy(DefaultBodyParser.class)
-                        .message(request.getUri())
                         .statusCode(HTTPStatusCode.LENGTH_REQUIRED)
                         .build()
                 );

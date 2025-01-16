@@ -6,7 +6,6 @@ import webserver.decoders.ByteDecoder;
 import webserver.decoders.PercentDecoder;
 import webserver.enumeration.HTTPStatusCode;
 import webserver.exception.HTTPException;
-import webserver.message.HTTPRequest;
 import webserver.reader.ByteStreamReader;
 
 import java.io.ByteArrayOutputStream;
@@ -20,13 +19,12 @@ public class URLEncodedParser implements BodyParser {
         this.decoder = new PercentDecoder();
     }
     @Override
-    public HeterogeneousContainer parse(HTTPRequest request, InputStream inputStream) {
+    public HeterogeneousContainer parse(HeterogeneousContainer headers, InputStream inputStream) {
         try {
             HeterogeneousContainer body = new HeterogeneousContainer(new LinkedHashMap<>());
-            int bodyLength = request.getHeader("content-length", Integer.class)
+            int bodyLength = headers.get("content-length", Integer.class)
                     .orElseThrow(() -> new HTTPException.Builder()
                             .causedBy(URLEncodedParser.class)
-                            .message(request.getUri())
                             .statusCode(HTTPStatusCode.LENGTH_REQUIRED)
                             .build());
             ByteStreamReader reader = new ByteStreamReader(inputStream, bodyLength);
