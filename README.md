@@ -20,7 +20,11 @@
 
 
 - [X] 회원가입 시 userId 중복체크
+  <br/>
+  <br/>
 
+- [X] 로그인 시 sid 쿠키 발급
+- [X] 로그아웃 시 세션 정보 삭제, 쿠키 sid=null 으로 재발급
 
 
 ## 학습 정리
@@ -32,6 +36,7 @@
 [DAY 6](https://github.com/softeer5th/backend-page/wiki/6%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 [DAY 7](https://github.com/softeer5th/backend-page/wiki/7%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 [DAY 8](https://github.com/softeer5th/backend-page/wiki/8%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
+[DAY 9](https://github.com/softeer5th/backend-page/wiki/9%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 
 
 
