@@ -29,8 +29,12 @@ public class User {
         return email;
     }
 
-    public static User of(String userId, String password, String name) {
-        return new User(userId, password, name, null);
+    public void setName(String newName) {
+        this.name = newName;
+    }
+
+    public void setPassword(String newPassword) {
+        this.password = newPassword;
     }
 
     @Override
