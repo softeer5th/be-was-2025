@@ -11,9 +11,9 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.QueryUtil;
-import util.SessionUtil;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static http.HttpMethod.POST;
 
@@ -41,7 +41,7 @@ public class UserLoginHandler implements Handler {
             return response;
         }
 
-        String sid = SessionUtil.generateSessionID();
+        String sid = UUID.randomUUID().toString();
         SessionManager.saveSession(sid, userId);
 
         response.setCookies("sid=" + sid);
