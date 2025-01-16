@@ -16,8 +16,6 @@ public class Cookie {
     private final long whenCreated;
     private static final long MAX_AGE_UNSPECIFIED = -1;
 
-    private static final String SET_COOKIE = "set-cookie:";
-
     public enum SameSite{
         STRICT, LAX, NONE
     };
@@ -91,6 +89,18 @@ public class Cookie {
     public boolean isHttpOnly() { return httpOnly; }
 
     public void setHttpOnly(boolean httpOnly) { this.httpOnly = httpOnly; }
+
+
+    public static Cookie parseCookie(String cookieValue){
+        String[] cookieValueParts = cookieValue.trim().split("=");
+
+        if(cookieValueParts.length != 2){
+            throw new IllegalArgumentException("Invalid cookie format");
+        }
+
+        return new Cookie(cookieValueParts[0], cookieValueParts[1]);
+    }
+
 
     @Override
     public String toString() {
