@@ -76,7 +76,7 @@ public class FileRequestHandler implements Handler {
             if (endIndex != -1) {
                 StringBuilder newUI = new StringBuilder();
                 newUI.append("<li class=\"header__menu__item\">")
-                        .append("<a class=\"user-name\" href=\"/mypage\">").append(nickname).append("</a>")
+                        .append("<a class=\"user-name\" href=\"/mypage\">사용자 : ").append(nickname).append("</a>")
                         .append("</li>")
                         .append("<li class=\"header__menu__item\">")
                         .append("<form action=\"/users/logout\" method=\"POST\">")
