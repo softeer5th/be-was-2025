@@ -3,8 +3,8 @@ package handler;
 import db.Database;
 import exception.ErrorCode;
 import exception.LoginException;
-import http.HttpRequest;
-import http.HttpResponse;
+import http.request.HttpRequest;
+import http.response.HttpResponse;
 import http.enums.HttpStatus;
 import model.User;
 

@@ -2,8 +2,8 @@ package handler;
 
 import db.Database;
 import exception.*;
-import http.HttpRequest;
-import http.HttpResponse;
+import http.request.HttpRequest;
+import http.response.HttpResponse;
 import http.enums.HttpStatus;
 import http.enums.MimeType;
 import model.User;

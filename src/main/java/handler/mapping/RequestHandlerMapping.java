@@ -3,7 +3,7 @@ package handler.mapping;
 import handler.RequestHandler;
 import handler.UserLoginRequestHandler;
 import handler.UserSignUpRequestHandler;
-import http.HttpRequest;
+import http.request.HttpRequest;
 import http.enums.HttpMethod;
 
 import java.util.HashMap;

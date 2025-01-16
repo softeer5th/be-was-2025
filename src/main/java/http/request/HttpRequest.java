@@ -1,8 +1,7 @@
-package http;
+package http.request;
 
 import http.enums.HttpMethod;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,8 +1,8 @@
 package user;
 
 import handler.UserSignUpRequestHandler;
-import http.HttpRequest;
-import http.HttpResponse;
+import http.request.HttpRequest;
+import http.response.HttpResponse;
 import http.enums.HttpMethod;
 import http.enums.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
