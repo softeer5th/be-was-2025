@@ -14,8 +14,9 @@ public class HttpRequest {
     private String body;
     private String requestPath;
 
-    public HttpRequest(List<String> headerLines, BufferedReader br) throws IOException {
+    public HttpRequest(List<String> headerLines, BufferedReader br, Logger logger) throws IOException {
         headers = new HashMap<>();
+        log(logger);
         setHeader(headerLines);
         setBody(br);
     }
@@ -70,6 +71,7 @@ public class HttpRequest {
     public void log(Logger logger) {
         StringBuilder logMessageBuilder = new StringBuilder();
         logMessageBuilder.append("\nHeader : {\n");
+        logMessageBuilder.append("method : " + httpMethod).append(' ').append("path : " + requestPath).append('\n');
         for (String key : headers.keySet()) {
             logMessageBuilder.append(key).append(": ").append(headers.get(key)).append('\n');
         }
