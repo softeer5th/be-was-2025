@@ -8,6 +8,7 @@ import webserver.exception.HttpVersionNotSupported;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 // HTTP 요청과 관련된 정보를 담는 객체
 public class HttpRequest {
@@ -15,16 +16,16 @@ public class HttpRequest {
     private final RequestTarget requestTarget;
     private final HttpVersion version;
     private final HttpHeaders headers;
-    // body를 읽어들이기 위한 Reader
-    private final byte[] body;
+
+    private final RequestBody bodyParser;
     private Map<String, String> pathVariables;
 
-    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, byte[] body) {
+    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, RequestBody bodyParser) {
         this.httpMethod = httpMethod;
         this.requestTarget = requestTarget;
         this.version = version;
         this.headers = headers;
-        this.body = body;
+        this.bodyParser = bodyParser;
         this.pathVariables = Map.of();
     }
 
@@ -52,10 +53,14 @@ public class HttpRequest {
         return headers;
     }
 
-    // request body를 읽어들여 문자열로 반환
-    public String readBodyAsString() {
-        return new String(body);
+    public Optional<String> getBodyAsString() {
+        return bodyParser.getBodyAsString();
     }
+
+    public Optional<Map<String, String>> getBodyAsMap() {
+        return bodyParser.getBodyAsMap();
+    }
+
 
     public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {
         if (!supportedVersions.contains(version)) {
@@ -63,14 +68,15 @@ public class HttpRequest {
         }
     }
 
+
     @Override
     public String toString() {
         return "HttpRequest{" +
-                "method=" + httpMethod +
+                "httpMethod=" + httpMethod +
                 ", requestTarget=" + requestTarget +
                 ", version=" + version +
                 ", headers=" + headers +
+                ", pathVariables=" + pathVariables +
                 '}';
     }
-
 }

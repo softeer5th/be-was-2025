@@ -13,7 +13,8 @@ public enum ContentType {
     APPLICATION_JAVASCRIPT("application/javascript", "js"),
     APPLICATION_JSON("application/json", "json"),
     APPLICATION_XML("application/xml", "xml"),
-    APPLICATION_OCTET_STREAM("application/octet-stream", "bin");
+    APPLICATION_OCTET_STREAM("application/octet-stream", "bin"),
+    APPLICATION_X_WWW_FORM_URLENCODED("application/x-www-form-urlencoded", null);
 
     // MIME-TYPE
     public final String mimeType;
@@ -28,11 +29,16 @@ public enum ContentType {
     // 파일 확장자를 이용해 세부 Content Type을 결정해 반환
     public static ContentType of(String extension) {
         for (ContentType contentType : values()) {
-            if (contentType.fileExtension.equals(extension)) {
+            if (contentType.fileExtension != null &&
+                    contentType.fileExtension.equals(extension)) {
                 return contentType;
             }
         }
         // 기본적으로 binary 파일로 처리
         return APPLICATION_OCTET_STREAM;
+    }
+
+    public boolean equals(String type) {
+        return this.mimeType.equals(type);
     }
 }

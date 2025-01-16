@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.util.Optional;
 
 // String 타입의 Body를 나타내는 클래스
-class StringBody extends Body {
+class StringBody extends ResponseBody {
     private final String body;
 
     public StringBody(String body) {

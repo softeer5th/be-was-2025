@@ -2,6 +2,10 @@ package webserver.handler;
 
 import db.Database;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.enums.PageMappingPath;
+import webserver.exception.BadRequest;
 import webserver.exception.Conflict;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
@@ -11,11 +15,13 @@ import java.util.Map;
 // 회원가입 요청 처리
 public class RegistrationHandler implements HttpHandler {
 
-    @Override
-    public HttpResponse handleGet(HttpRequest request) {
-        Map<String, String> query = request.getRequestTarget().getQuery();
+    private static final Logger log = LoggerFactory.getLogger(RegistrationHandler.class);
 
-        User user = mapToUser(query);
+    @Override
+    public HttpResponse handlePost(HttpRequest request) {
+        Map<String, String> body = request.getBodyAsMap().orElseThrow(() -> new BadRequest("Invalid Request Body"));
+        log.debug("body: {}", body);
+        User user = mapToUser(body);
         // 중복 사용자 검사
         if (Database.findUserById(user.getUserId()) != null) {
             throw new Conflict("User Id Already Exists");
@@ -23,7 +29,7 @@ public class RegistrationHandler implements HttpHandler {
 
         // 데이터베이스에 사용자 추가
         Database.addUser(user);
-        return HttpResponse.redirect("/login");
+        return HttpResponse.redirect(PageMappingPath.INDEX.path);
     }
 
     // Map을 User 객체로 변환

@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.util.Optional;
 
 // File 타입의 Body를 나타내는 클래스
-class FileBody extends Body {
+class FileBody extends ResponseBody {
     private final File file;
 
     public FileBody(File file) {

@@ -27,11 +27,13 @@ public class ServeStaticFileHandler implements HttpHandler {
         if (resourceManager.isDirectory(requestPath))
             requestPath = FileUtil.joinPath(requestPath, defaultPageFileName);
 
-        Optional<File> file = resourceManager.getFile(requestPath);
-        return file
-                .map(f ->
-                        new HttpResponse(HttpStatusCode.OK)
-                                .setBody(f))
+        Optional<File> fileOptional = resourceManager.getFile(requestPath);
+        return fileOptional
+                .map(file -> {
+                    HttpResponse response = new HttpResponse(HttpStatusCode.OK);
+                    response.setBody(file);
+                    return response;
+                })
                 .orElseGet(() ->
                         new HttpResponse(HttpStatusCode.NOT_FOUND));
     }
