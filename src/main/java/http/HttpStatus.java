@@ -7,6 +7,7 @@ public enum HttpStatus {
     SEE_OTHER(303, "See Other"),
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
+    FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Unsupported Media Type"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type"),
