@@ -57,8 +57,8 @@ public class Cookie {
         String[] pairs = cookieString.split("; ");
         for(String pair : pairs)  {
             String[] tokens = pair.split("=", 2);
-            String name = tokens[0].trim().toLowerCase();
-            String value = tokens[1] != null ? tokens[1].trim() : null;
+            String name = tokens[0].trim();
+            String value = tokens.length > 1 ? tokens[1].trim() : null;
             ids.put(name, value);
         }
 
