@@ -35,7 +35,7 @@ public class RequestHandler implements Runnable {
     private void handleRequest(BufferedReader br, DataOutputStream dos) {
         try {
             List<String> headerLines = ParsingUtil.parseRequestHeader(br);
-            HttpRequest httpRequest = new HttpRequest(headerLines, br);
+            HttpRequest httpRequest = new HttpRequest(headerLines, br, logger);
             httpRequest.log(logger);
             requestRouter.route(httpRequest, dos);
         } catch (Exception e) {

@@ -79,6 +79,49 @@ public class RequestRouter {
                 logger.error("Redirection Error, " + e.getMessage());
             }
         });
+
+        /*
+         * /user/signIn 경로로 POST 요청시 -> 로그인 로직 수행
+         * 유저 일치 확인 : userId, password
+         * 로그인 실패 -> loginFailed 페이지 반환
+         * 로그인 성공 -> index.html 리다이랙트, 쿠키 발급
+         */
+        this.addPostHandler(SIGNIN_PATH, (request, dos) -> {
+            QueryParameters queryParameters = new QueryParameters(request.getBody());
+            try {
+                User.validateSignInUserParameters(queryParameters);
+                User user = signIn(queryParameters.get("userId"), queryParameters.get("password"));
+                // 쿠키 발급
+                String sessionId = UUID.randomUUID().toString();
+                HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
+                httpResponse.addHeader(SET_COOKIE, "sid=" + sessionId + "; Path=/");
+                httpResponse.addHeader(LOCATION, LOGINED_MAIN_PAGE);
+                httpResponse.respond();
+                userSessions.put(sessionId, user);
+            } catch (MissingUserInfoException | AuthenticationException e) {
+                // 로그인 실패
+                logger.debug(e.getMessage());
+                try {
+                    HttpResponse.respond302(LOGIN_FAILED_PAGE, dos);
+                } catch (IOException ex) {
+                    logger.error("SignIn Redirection Error" + ex.getMessage());
+                }
+            } catch (IOException e) {
+                logger.error("SignIn Error" + e.getMessage());
+            }
+        });
+    }
+
+    private User signIn(String userId, String password) throws AuthenticationException {
+        Optional<User> userOptional = Database.findUserById(userId);
+        if (userOptional.isEmpty()) {
+            throw new AuthenticationException("User id is incorrect");
+        }
+        User user = userOptional.get();
+        if (!user.getPassword().equals(password)) {
+            throw new AuthenticationException("password is incorrect");
+        }
+        return user;
     }
 
     private void addGetHandler(BiConsumer<HttpRequest, DataOutputStream> handler) {

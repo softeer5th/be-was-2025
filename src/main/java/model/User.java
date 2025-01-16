@@ -1,6 +1,9 @@
 package model;
 
 import Entity.QueryParameters;
+import db.Database;
+import exception.DuplicateUserIdException;
+import exception.MissingUserInfoException;
 
 import java.util.Set;
 
