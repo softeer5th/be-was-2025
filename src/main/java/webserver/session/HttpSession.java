@@ -6,7 +6,7 @@ import java.util.Map;
 // 세션 객체
 public class HttpSession {
     private final String sessionId;
-    private final Map<String, String> sessionMap = new HashMap<>();
+    private final Map<String, Object> sessionMap = new HashMap<>();
 
     // 세션의 상태. 이를 통해 세션이 저장되어야 하는지, 만료되어야 하는지 SessionInterceptor가 판단 가능
     private State state;
@@ -17,12 +17,12 @@ public class HttpSession {
     }
 
 
-    public void setAttribute(String key, String value) {
+    public void set(String key, Object value) {
         checkInvalidated();
         sessionMap.put(key, value);
     }
 
-    public String getAttribute(String key) {
+    public Object get(String key) {
         checkInvalidated();
         return sessionMap.get(key);
     }
