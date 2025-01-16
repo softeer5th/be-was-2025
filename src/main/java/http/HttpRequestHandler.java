@@ -7,8 +7,10 @@ import util.MimeType;
 import util.PathPool;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
+import util.exception.SessionNotFoundException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class HttpRequestHandler {
@@ -48,8 +50,18 @@ public class HttpRequestHandler {
             httpResponse.writeStatusLine(e.httpStatus);
             httpResponse.writeBody(body, MimeType.TXT.getMimeType());
             httpResponse.send();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            byte[] body = e.getMessage().getBytes();
+            httpResponse.writeStatusLine(HttpStatus.INTERNAL_SERVER_ERROR);
+            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
+            httpResponse.send();
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof SessionNotFoundException ex) {
+                byte[] body = ex.getMessage().getBytes();
+                httpResponse.writeStatusLine(ex.httpStatus);
+                httpResponse.writeBody(body, MimeType.TXT.getMimeType());
+                httpResponse.send();
+            }
         }
     }
 }
