@@ -94,11 +94,13 @@ public class HttpRequest {
         String[] queryParams = rawQueryParams.split(QUERYPARAMETER_DELIMITER);
         for (String queryParam : queryParams) {
             String[] paramPair = queryParam.split(QUERYPARAMETER_KEVALUE_DELIMITER);
-            if (paramPair.length != 2) {
+            if (paramPair.length > 2) {
                 throw new IOException("Invalid query parameter: " + queryParam);
             }
-            String key = URLDecoder.decode(paramPair[0].trim(), UTF_8);
-            String value = URLDecoder.decode(paramPair[1].trim(), UTF_8);
+            String[] keyValue = new String[]{"", ""};
+            System.arraycopy(paramPair, 0, keyValue, 0, paramPair.length);
+            String key = URLDecoder.decode(keyValue[0].trim(), UTF_8);
+            String value = URLDecoder.decode(keyValue[1].trim(), UTF_8);
             this.parameters.put(key, value);
         }
     }
@@ -106,14 +108,14 @@ public class HttpRequest {
     private void parseHeader(BufferedInputStream bis) throws IOException {
         String line;
         while (!(line = readLine(bis)).isEmpty()) {
-            String[] parts = line.split(HEADER_KEY_VALUE_DELIMITER,2);
+            String[] parts = line.split(HEADER_KEY_VALUE_DELIMITER, 2);
             String key = parts[0].trim().toLowerCase();
             String value = parts[1].trim();
             logger.debug("{}: {}", key, value);
             headers.put(key, value);
         }
     }
-    
+
     private void parseBody(BufferedInputStream bis) throws IOException {
         if (X_WWW_FORM_URLENCODED.getMimeType().equals(headers.get(CONTENT_TYPE))) {
             StringBuilder builder = new StringBuilder();
@@ -127,11 +129,11 @@ public class HttpRequest {
     private static String readLine(BufferedInputStream bis) throws IOException {
         StringBuilder sb = new StringBuilder();
         int inputData = 0;
-        while((inputData = bis.read())!=-1){
-            if(inputData=='\n'){
+        while ((inputData = bis.read()) != -1) {
+            if (inputData == '\n') {
                 break;
             }
-            sb.append((char)inputData);
+            sb.append((char) inputData);
         }
         return sb.toString().trim();
     }
