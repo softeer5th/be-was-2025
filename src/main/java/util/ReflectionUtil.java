@@ -18,11 +18,15 @@ public class ReflectionUtil {
         순서대로 필드를 가져온다.
      */
     public static Optional<Object> getter(Object object, String fieldName) {
+        if (object == null)
+            return Optional.empty();
         if (fieldName.isBlank())
             throw new IllegalArgumentException("필드 이름이 비었습니다.");
 
         if (object instanceof Map) {
             return Optional.ofNullable(((Map<?, ?>) object).get(fieldName));
+        } else if (object instanceof String) {
+            return Optional.empty();
         }
 
         Class<?> clazz = object.getClass();
@@ -44,7 +48,7 @@ public class ReflectionUtil {
             return Optional.empty();
         }
     }
-    
+
     private static String toCamelCase(String prefix, String fieldName) {
         return prefix.toLowerCase() + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
     }
