@@ -96,7 +96,7 @@ public class UserController {
         if (sessionId != null){
             String userId = HttpSession.get(sessionId);
             if(userId != null){
-                HttpSession.put(sessionId, null);
+                HttpSession.remove(sessionId);
                 Cookie newCookie = new Cookie();
                 newCookie.setMaxAge(0);
                 response.setCookie(newCookie);

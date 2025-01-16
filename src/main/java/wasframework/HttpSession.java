@@ -15,4 +15,8 @@ public class HttpSession {
     public static String get(String key) {
         return session.get(key);
     }
+
+    public static void remove(String key){
+        session.remove(key);
+    }
 }
