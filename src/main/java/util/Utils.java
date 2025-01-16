@@ -21,10 +21,35 @@ public class Utils {
     public static String[] readInputToArray(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         List<String> lines = new ArrayList<>();
-        String line;
+        StringBuilder body = new StringBuilder();
+        int contentLength = 0;
+        boolean isBody = false;
 
-        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+        // 헤더 읽기
+        while (true) {
+            String line = reader.readLine();
+            if (line == null) {
+                break; // 스트림 종료
+            }
+            if (line.isEmpty()) {
+                isBody = true; // 빈 줄 이후는 바디
+                lines.add(""); // 헤더 끝 표시
+                break;
+            }
             lines.add(line);
+            if (line.toLowerCase().startsWith("content-length")) {
+                contentLength = Integer.parseInt(line.split(":")[1].trim());
+            }
+        }
+
+        // 바디 읽기
+        if (isBody && contentLength > 0) {
+            char[] buffer = new char[contentLength];
+            int read = reader.read(buffer, 0, contentLength);
+            if (read > 0) {
+                body.append(buffer, 0, read);
+            }
+            lines.add(body.toString());
         }
 
         return lines.toArray(new String[0]);

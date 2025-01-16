@@ -53,6 +53,15 @@ public class HTTPResponse {
         return httpResponse;
     }
 
+    public static HTTPResponse createLoginRedirectResponse(String httpVersion, HTTPCode httpCode, String location, String sessionId){
+        HTTPResponse httpResponse = new HTTPResponse();
+        httpResponse.httpVersion = httpVersion;
+        httpResponse.httpCode = httpCode;
+        setLoginRedirectHeaders(httpResponse, location, sessionId);
+        return httpResponse;
+    }
+
+
     public static HTTPResponse createFailResponse(String httpVersion, HTTPCode httpCode){
         HTTPResponse httpResponse = new HTTPResponse();
         httpResponse.httpVersion = httpVersion;
@@ -75,6 +84,11 @@ public class HTTPResponse {
 
     private static void setRedirectHeaders(HTTPResponse httpResponse, String location) {
         httpResponse.headers.put("Location", location);
+    }
+
+    private static void setLoginRedirectHeaders(HTTPResponse httpResponse, String location, String sessionId) {
+        httpResponse.headers.put("Location", location);
+        httpResponse.headers.put("Set-Cookie", sessionId + "; Path=/");
     }
 
     private static void setSuccessHeaders(HTTPResponse httpResponse, HTTPCode httpCode, String body){

@@ -73,20 +73,24 @@ public class HTTPRequestParser {
         boolean isBodyStart = false;
 
         for (String line : readLine) {
-            if (isBodyStart && !line.isEmpty()) {
-                String[] keyValuePairs = line.split("&");
-                for (String pair : keyValuePairs) {
-                    String[] keyValue = pair.split("=");
-                    if (keyValue.length == 2) {
-                        bodyParameters.put(keyValue[0], keyValue[1]);
+            if (isBodyStart) {
+                if (!line.isEmpty()) {
+                    String[] keyValuePairs = line.split("&");
+                    for (String pair : keyValuePairs) {
+                        String[] keyValue = pair.split("=");
+                        if (keyValue.length == 2) {
+                            bodyParameters.put(keyValue[0], keyValue[1]);
+                        }
                     }
                 }
                 break;
             }
+
             if (line.isEmpty()) {
                 isBodyStart = true;
             }
         }
+
         request.setBodyParameters(bodyParameters);
     }
 

@@ -25,6 +25,7 @@ public class DynamicURIHandler implements URIHandler {
     private void initMap() {
         try{
             uriMethodMap.put("POST:/user/create", UserManager.class.getMethod("signUp", HTTPRequest.class));
+            uriMethodMap.put("POST:/user/login", UserManager.class.getMethod("logIn", HTTPRequest.class));
         }
         catch(Exception e){
             logger.error(e.getMessage());
