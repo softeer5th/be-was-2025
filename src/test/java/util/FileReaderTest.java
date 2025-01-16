@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FileReaderTest {
-    private static final String STATIC_FILE_PATH = "./src/test/resources";
+    private static final String STATIC_FILE_PATH = "./src/test/resources/static";
 
     @Test
     @DisplayName("파일을 읽는다.")
@@ -18,7 +18,7 @@ class FileReaderTest {
         byte[] test = "test".getBytes();
         // when
 
-        Optional<byte[]> file = FileReader.readFile(STATIC_FILE_PATH + "/static/test.txt");
+        Optional<byte[]> file = FileReader.readFile(STATIC_FILE_PATH + "/test.txt");
 
         // then
         assertTrue(file.isPresent());

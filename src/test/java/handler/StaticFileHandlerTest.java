@@ -20,11 +20,13 @@ import static exception.ErrorCode.FILE_NOT_FOUND;
 class StaticFileHandlerTest {
     private final StaticFileHandler staticFileHandler = new StaticFileHandler();
 
+    private static final String VALID_FILE_PATH = "src/test/resources/static/test.html";
+
     @Test
     @DisplayName("서버가 제공하는 유효한 정적 파일이면 200 상태코드와 함께 body에 파일의 내용을 전송한다..")
     void handle() throws IOException {
-        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/static/test.html", HttpVersion.HTTP1_1, new HashMap<>(), null);
-        byte[] expected = Files.readAllBytes(new File("src/test/resources/static/test.html").toPath());
+        HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/test.html", HttpVersion.HTTP1_1, new HashMap<>(), null);
+        byte[] expected = Files.readAllBytes(new File(VALID_FILE_PATH).toPath());
 
         HttpResponse response = staticFileHandler.handle(request);
 
