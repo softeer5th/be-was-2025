@@ -85,7 +85,9 @@ fabric.properties
 
 # *.iml
 # modules.xml
-# .idea/misc.xml
+ .idea/misc.xml
+ .idea/modules.xml
+ .idea/modules/be-was-neon.test.iml
 # *.ipr
 
 # Sonarlint plugin
