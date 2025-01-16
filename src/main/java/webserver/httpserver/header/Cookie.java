@@ -1,13 +1,17 @@
 package webserver.httpserver.header;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Cookie {
     public static final Cookie NULL_COOKIE = new NullCookie();
     private final Map<String, String> pairCookies = new HashMap<>();
+    private String name;
+    private String value;
     private String domain;
     private String path;
     private Integer maxAge;
@@ -16,39 +20,32 @@ public class Cookie {
     private boolean httpOnly;
     private String sameSite;
 
+    /**
+     * 새로운 쿠키를 생성하는 생성자.
+     * Set-Cookie로 새로운 쿠키를 클라이언트에게 지정할 경우, 적당한 쿠키를 지정하기 위한 생성자.
+     */
     public Cookie() {
     }
 
+    /**
+     * 주어진 쿠키를 파싱하여 저장하는 생성자.
+     * 서버가 Request로 Cookie 헤더를 전달받았을 시, 파싱 후 Cookie 객체 형태로 저장.
+     * @param values
+     */
     public Cookie(String values) {
         String[] cookieParts = values.split(";");
         for (String cookiePart : cookieParts) {
             String[] keyValue = cookiePart.split("=");
             keyValue[0] = keyValue[0].toLowerCase();
-            if ("domain".equals(keyValue[0])){
-                domain = keyValue[1].trim();
-            }
-            else if ("path".equals(keyValue[0])){
-                path = keyValue[1].trim();
-            }
-            else if ("max-age".equals(keyValue[0])){
-                maxAge = Integer.parseInt(keyValue[1].trim());
-            }
-            else if ("secure".equals(keyValue[0])){
-                secure = true;
-            }
-            else if ("httpOnly".equals(keyValue[0])){
-                httpOnly = true;
-            }
-            else if ("sameSite".equals(keyValue[0])){
-                sameSite = keyValue[1].trim();
-            } else if (keyValue.length == 2) {
+            if (keyValue.length == 2) {
                 pairCookies.put(keyValue[0].trim(), keyValue[1].trim());
             }
         }
     }
 
     public void setValue(String key, String value) {
-        pairCookies.put(key, value);
+        this.name = key;
+        this.value = value;
     }
 
     public void setDomain(String domain) {
@@ -87,17 +84,12 @@ public class Cookie {
 
     /**
      * 쿠키를 문자열로 바꾸는 함수
-     * pairCookie 가 비어있을 경우, 정상적으로 join되는지 확인 필요 -> 안됨
-     * 스트림으로 이어서 직접 만들기
-     * @return 쿠키의 밸류값
+     * @return 쿠키가 Set-Cookie 의 value 로 들어갈 때 사용되는 문자열
      */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        String keyValuePair = pairCookies.entrySet().stream()
-                .map(e -> e.getKey() + "=" + e.getValue())
-                .collect(Collectors.joining("; "));
-        builder.append(keyValuePair);
+        builder.append(name).append("=").append(value);
         if (domain != null) {
             builder.append("; Domain=").append(domain);
         }
@@ -108,7 +100,10 @@ public class Cookie {
             builder.append("; Max-Age=").append(maxAge);
         }
         if (expires != null) {
-            builder.append("; Expires=").append(expires);
+            ZoneId zoneId = ZoneId.of("Asia/Seoul");
+            ZonedDateTime zonedDateTime = expires.atZone(zoneId);
+            ZonedDateTime gmtDateTime = zonedDateTime.withZoneSameInstant(ZoneId.of("GMT"));
+            builder.append("; Expires=").append(DateTimeFormatter.RFC_1123_DATE_TIME.format(gmtDateTime));
         }
         if (secure) {
             builder.append("; Secure");
