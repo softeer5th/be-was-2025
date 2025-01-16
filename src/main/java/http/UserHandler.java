@@ -45,7 +45,7 @@ public class UserHandler {
         Map<String, String> data = parseBody(request);
         String userId = data.get("userId");
         String password = data.get("password");
-        if (userId == null | password == null) {
+        if (userId == null || password == null) {
             response.redirect("/login/failed.html");
             return;
         }
