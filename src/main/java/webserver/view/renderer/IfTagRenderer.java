@@ -1,23 +1,23 @@
-package webserver.view.tag;
+package webserver.view.renderer;
 
 import util.ReflectionUtil;
-import webserver.view.TagHandler;
+import webserver.view.TagRenderer;
 import webserver.view.TemplateEngine;
 
 import java.util.Map;
 import java.util.Optional;
 
-public class IfTagHandler extends TagHandler {
+public class IfTagRenderer extends TagRenderer {
     public static final String IF_TAG_NAME = "my-if";
     public static final String CONDITION_ATTRIBUTE_NAME = "condition";
     private static final String OPERATOR_PATTERN = "(&&)|(\\|\\|)";
     private TemplateEngine engine;
 
-    public IfTagHandler() {
+    public IfTagRenderer() {
         this(IF_TAG_NAME);
     }
 
-    public IfTagHandler(String tagName) {
+    public IfTagRenderer(String tagName) {
         super(tagName);
     }
 

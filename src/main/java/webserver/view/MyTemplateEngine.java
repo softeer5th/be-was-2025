@@ -8,15 +8,15 @@ import java.util.regex.Pattern;
 
 public class MyTemplateEngine implements TemplateEngine {
     private static final String TAG_PREFIX = "my-";
-    private final Map<String, TagHandler> tagHandlers = new ConcurrentHashMap<>();
+    private final Map<String, TagRenderer> tagHandlers = new ConcurrentHashMap<>();
     // my- 로 시작하는 여는 태그 및 닫는 태그를 찾기 위한 정규식
     private final Pattern tagPattern = Pattern.compile("<(/?my-[a-z]+)(( *([a-z]+)=\"([a-z0-9.&|!/]+)\")*)>");
 
-    public MyTemplateEngine registerTagHandler(TagHandler tagHandler) {
+    public MyTemplateEngine registerTagHandler(TagRenderer tagRenderer) {
         // 태그 이름이 my-로 시작하는지 확인
-        assert tagHandler.getTagName().startsWith(TAG_PREFIX);
-        tagHandlers.put(tagHandler.getTagName(), tagHandler);
-        tagHandler.setEngine(this);
+        assert tagRenderer.getTagName().startsWith(TAG_PREFIX);
+        tagHandlers.put(tagRenderer.getTagName(), tagRenderer);
+        tagRenderer.setEngine(this);
         return this;
     }
 
@@ -31,7 +31,7 @@ public class MyTemplateEngine implements TemplateEngine {
         }
         for (int i = 0; i < matchingResults.size(); i++) {
             TagMatchingResult result = matchingResults.get(i);
-            TagHandler tagHandler = tagHandlers.get(result.outerTagName);
+            TagRenderer tagRenderer = tagHandlers.get(result.outerTagName);
             String childrenTemplate = extractChildrenTemplate(template, result);
             // plain html 부분을 렌더링 결과에 추가
             if (i == 0)
@@ -39,7 +39,7 @@ public class MyTemplateEngine implements TemplateEngine {
             else
                 rendered.append(template, matchingResults.get(i - 1).lastTagEnd, result.firstTagStart);
             // 태그를 렌더링하여 렌더링 결과에 추가
-            rendered.append(tagHandler.handle(model, result.outerTagAttributes, childrenTemplate));
+            rendered.append(tagRenderer.handle(model, result.outerTagAttributes, childrenTemplate));
 
             // plain html 부분을 렌더링 결과에 추가
             if (i == matchingResults.size() - 1)

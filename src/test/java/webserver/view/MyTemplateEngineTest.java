@@ -4,10 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import webserver.view.tag.ForeachTagHandler;
-import webserver.view.tag.IfTagHandler;
-import webserver.view.tag.IncludeTagHandler;
-import webserver.view.tag.TextTagHandler;
+import webserver.view.renderer.ForeachTagRenderer;
+import webserver.view.renderer.IfTagRenderer;
+import webserver.view.renderer.IncludeTagRenderer;
+import webserver.view.renderer.TextTagRenderer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +24,8 @@ class MyTemplateEngineTest {
     void test1() {
         // given
         TemplateEngine templateEngine = new MyTemplateEngine()
-                .registerTagHandler(new ForeachTagHandler("my-foreach"))
-                .registerTagHandler(new TextTagHandler("my-text"));
+                .registerTagHandler(new ForeachTagRenderer("my-foreach"))
+                .registerTagHandler(new TextTagRenderer("my-text"));
         String template = """
                 <my-foreach items="users" item="user">
                     <div><my-text>${user.name}</my-text></div>
@@ -63,7 +63,7 @@ class MyTemplateEngineTest {
     void test2(String condition, boolean contains) {
         // given
         TemplateEngine templateEngine = new MyTemplateEngine()
-                .registerTagHandler(new IfTagHandler("my-if"));
+                .registerTagHandler(new IfTagRenderer("my-if"));
         String template = """
                 <my-if condition="%s">
                     hello
@@ -85,7 +85,7 @@ class MyTemplateEngineTest {
     void test3() {
         // given
         TemplateEngine templateEngine = new MyTemplateEngine()
-                .registerTagHandler(new IfTagHandler("my-if"));
+                .registerTagHandler(new IfTagRenderer("my-if"));
         String template = """
                 <my-if condition="!true">
                     hello
@@ -103,7 +103,7 @@ class MyTemplateEngineTest {
     void test4() {
         // given
         TemplateEngine templateEngine = new MyTemplateEngine()
-                .registerTagHandler(new IfTagHandler("my-if"));
+                .registerTagHandler(new IfTagRenderer("my-if"));
         String template = """
                 <my-if condition="session.user.name">
                     hello
@@ -122,8 +122,8 @@ class MyTemplateEngineTest {
     void test5() {
         // given
         TemplateEngine templateEngine = new MyTemplateEngine()
-                .registerTagHandler(new IfTagHandler("my-if"))
-                .registerTagHandler(new TextTagHandler("my-text"));
+                .registerTagHandler(new IfTagRenderer("my-if"))
+                .registerTagHandler(new TextTagRenderer("my-text"));
         String template = """
                 <my-if condition="session.user">
                    <li class="header__menu__item">
@@ -159,8 +159,8 @@ class MyTemplateEngineTest {
         when(fileReader.read("body")).thenReturn("<body><my-text>${session.user.userId}</my-text></body>");
 
         TemplateEngine templateEngine = new MyTemplateEngine()
-                .registerTagHandler(new IncludeTagHandler("my-include", fileReader))
-                .registerTagHandler(new TextTagHandler("my-text"));
+                .registerTagHandler(new IncludeTagRenderer("my-include", fileReader))
+                .registerTagHandler(new TextTagRenderer("my-text"));
 
         String template = """
                 <html>

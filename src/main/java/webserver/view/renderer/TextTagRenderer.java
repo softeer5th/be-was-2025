@@ -1,7 +1,7 @@
-package webserver.view.tag;
+package webserver.view.renderer;
 
 import util.ReflectionUtil;
-import webserver.view.TagHandler;
+import webserver.view.TagRenderer;
 
 import java.util.Map;
 import java.util.Optional;
@@ -16,16 +16,16 @@ asdasd
 * </my-text>
 *
 */
-public class TextTagHandler extends TagHandler {
+public class TextTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-text";
 
     private static final Pattern PATH_PATTERN = Pattern.compile("\\$\\{([a-zA-Z0-9.]+)\\}");
 
-    public TextTagHandler() {
+    public TextTagRenderer() {
         this(DEFAULT_TAG_NAME);
     }
 
-    public TextTagHandler(String tagName) {
+    public TextTagRenderer(String tagName) {
         super(tagName);
     }
 

@@ -1,20 +1,20 @@
-package webserver.view.tag;
+package webserver.view.renderer;
 
-import webserver.view.TagHandler;
+import webserver.view.TagRenderer;
 import webserver.view.TemplateFileReader;
 
 import java.util.Map;
 
-public class IncludeTagHandler extends TagHandler {
+public class IncludeTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-include";
     public static final String TEMPLATE_ATTRIBUTE_NAME = "template";
     private final TemplateFileReader fileReader;
 
-    public IncludeTagHandler(TemplateFileReader fileReader) {
+    public IncludeTagRenderer(TemplateFileReader fileReader) {
         this(DEFAULT_TAG_NAME, fileReader);
     }
 
-    public IncludeTagHandler(String tagName, TemplateFileReader fileReader) {
+    public IncludeTagRenderer(String tagName, TemplateFileReader fileReader) {
         super(tagName);
         this.fileReader = fileReader;
     }

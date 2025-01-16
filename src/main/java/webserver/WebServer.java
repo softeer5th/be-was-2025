@@ -21,10 +21,10 @@ import webserver.session.SessionManager;
 import webserver.view.MyTemplateEngine;
 import webserver.view.TemplateEngine;
 import webserver.view.TemplateEngineInterceptor;
-import webserver.view.tag.ForeachTagHandler;
-import webserver.view.tag.IfTagHandler;
-import webserver.view.tag.IncludeTagHandler;
-import webserver.view.tag.TextTagHandler;
+import webserver.view.renderer.ForeachTagRenderer;
+import webserver.view.renderer.IfTagRenderer;
+import webserver.view.renderer.IncludeTagRenderer;
+import webserver.view.renderer.TextTagRenderer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -61,10 +61,10 @@ public class WebServer {
 
         StaticResourceManager resourceManager = new StaticResourceManager(config);
         TemplateEngine templateEngine = new MyTemplateEngine()
-                .registerTagHandler(new ForeachTagHandler())
-                .registerTagHandler(new IfTagHandler())
-                .registerTagHandler(new TextTagHandler())
-                .registerTagHandler(new IncludeTagHandler(resourceManager));
+                .registerTagHandler(new ForeachTagRenderer())
+                .registerTagHandler(new IfTagRenderer())
+                .registerTagHandler(new TextTagRenderer())
+                .registerTagHandler(new IncludeTagRenderer(resourceManager));
 
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()

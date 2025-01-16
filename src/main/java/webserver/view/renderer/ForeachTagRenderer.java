@@ -1,25 +1,25 @@
-package webserver.view.tag;
+package webserver.view.renderer;
 
 import webserver.exception.InternalServerError;
-import webserver.view.TagHandler;
+import webserver.view.TagRenderer;
 import webserver.view.TemplateEngine;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-public class ForeachTagHandler extends TagHandler {
+public class ForeachTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-foreach";
     public static final String ITEMS_ATTRIBUTE_NAME = "items";
     public static final String ITEM_ATTRIBUTE_NAME = "item";
 
     private TemplateEngine engine;
 
-    public ForeachTagHandler() {
+    public ForeachTagRenderer() {
         this(DEFAULT_TAG_NAME);
     }
 
-    public ForeachTagHandler(String tagName) {
+    public ForeachTagRenderer(String tagName) {
         super(tagName);
     }
 
