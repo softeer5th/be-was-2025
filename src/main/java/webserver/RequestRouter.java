@@ -131,6 +131,25 @@ public class RequestRouter {
                 logger.error("SignIn Error" + e.getMessage());
             }
         });
+
+        /*
+         * 로그아웃
+         * sid=null 의 새로운 쿠키 발급, session
+         */
+        this.addPostHandler("/user/logout", (request, dos) -> {
+            String sid = request.getCookieSid();
+            if (sid != null) {
+                userSessions.remove(sid);
+            }
+            try {
+                HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
+                httpResponse.addHeader(SET_COOKIE, "sid=" + null + "; Path=/");
+                httpResponse.addHeader("location", MAIN_PAGE);
+                httpResponse.respond();
+            } catch (IOException e) {
+                logger.error("Logout Redirection Error" + e.getMessage());
+            }
+        });
     }
 
     private User signIn(String userId, String password) throws AuthenticationException {
