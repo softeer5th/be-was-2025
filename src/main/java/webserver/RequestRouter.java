@@ -89,14 +89,15 @@ public class RequestRouter {
         postHandlers.put(path, handler);
     }
 
-    private void creatUser(String requestBody) {
+    private void creatUser(String requestBody) throws Exception {
         QueryParameters queryParameters = new QueryParameters(requestBody);
-        User.validateUserParameters(queryParameters);
+        User.validateSignUpUserParameters(queryParameters);
         User user = new User(queryParameters.get("userId"),
                 queryParameters.get("password"),
                 queryParameters.get("name"),
                 queryParameters.get("email"));
         logger.debug("user = {}", user);
+        User.validateSignUpUserIdDuplication(user);
         Database.addUser(user);
     }
 
