@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static enums.HttpStatus.OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
+
 /*
  * 로그인 여부에 따라 동적 html 파일을 반환하는 핸들러 클래스
  */
@@ -59,22 +60,22 @@ public class DynamicHomeHandler implements Handler {
                 .append("<ul class=\"header__menu\">")
                 .append("<li class=\"header__menu__item\">");
 
-        if (username.isEmpty()) {
-            dynamicHtmlContent
-                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/login/index.html\">로그인</a>")
-                    .append("</li>")
-                    .append("<li class=\"header__menu__item\">")
-                    .append("<a class=\"btn btn_ghost btn_size_s\" href = \"/registration/index.html\" >")
-                    .append("회원 가입")
-                    .append("</a>");
-        } else {
-            final String name;
-            name = URLDecoder.decode(username.get(), UTF_8);
-            dynamicHtmlContent
-                    .append("<a class=\"btn btn_contained btn_size_s\" href=\"/mypage/index.html\">")
-                    .append(name)
-                    .append("님</a>");
-        }
+        username.ifPresentOrElse(
+                name -> {
+                    name = URLDecoder.decode(name, UTF_8);
+                    dynamicHtmlContent
+                            .append("<a class=\"btn btn_contained btn_size_s\" href=\"/mypage/index.html\">")
+                            .append(name)
+                            .append("님</a>");
+                },
+                () -> dynamicHtmlContent
+                        .append("<a class=\"btn btn_contained btn_size_s\" href=\"/login/index.html\">로그인</a>")
+                        .append("</li>")
+                        .append("<li class=\"header__menu__item\">")
+                        .append("<a class=\"btn btn_ghost btn_size_s\" href = \"/registration/index.html\" >")
+                        .append("회원 가입")
+                        .append("</a>")
+        );
 
         dynamicHtmlContent
                 .append("</li>")
