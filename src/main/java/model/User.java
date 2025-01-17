@@ -1,9 +1,10 @@
 package model;
 
 public class User {
-    public static String USER_ID = "userId";
+    public static String USER_ID = "userid";
     public static String USERNAME = "name";
     public static String PASSWORD = "password";
+    public static String EMAIL = "email";
     private String userId;
     private String password;
     private String name;

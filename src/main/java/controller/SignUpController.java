@@ -48,7 +48,11 @@ public class SignUpController {
         String userId = request.getParameter(User.USER_ID);
         String password = request.getParameter(User.PASSWORD);
         String name = request.getParameter(User.USERNAME);
-        String email = null;
+        String email = request.getParameter(User.EMAIL);
+        if(userId == null || password == null || name == null || email == null){
+            response.setLocation("/registration");
+            return;
+        }
         User user = new User(userId, password, name, email);
         addUser(user);
 
