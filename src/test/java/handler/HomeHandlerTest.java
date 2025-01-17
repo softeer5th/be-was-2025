@@ -1,5 +1,6 @@
 package handler;
 
+import enums.HttpHeader;
 import enums.HttpMethod;
 import exception.ClientErrorException;
 import org.assertj.core.api.Assertions;
@@ -29,7 +30,7 @@ class HomeHandlerTest {
 
         Assertions.assertThat(response.getStatus())
                 .isEqualTo(SEE_OTHER);
-        Assertions.assertThat(response.getHeaderValue("Location"))
+        Assertions.assertThat(response.getHeaderValue(HttpHeader.LOCATION.getName()))
                 .isEqualTo(HOME_URL);
     }
 

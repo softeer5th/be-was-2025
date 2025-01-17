@@ -35,7 +35,7 @@ class UserRequestHandlerTest {
 
         assertThat(response.getStatus())
                 .isEqualTo(HttpStatus.FOUND);
-        assertThat(response.getHeaderValue("Location"))
+        assertThat(response.getHeaderValue(HttpHeader.LOCATION.getName()))
                 .isEqualTo(REDIRECT_URL);
     }
 
