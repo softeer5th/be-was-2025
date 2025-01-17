@@ -116,7 +116,7 @@ public class RequestRouter {
                 String sessionId = UUID.randomUUID().toString();
                 HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
                 httpResponse.addHeader(SET_COOKIE, "sid=" + sessionId + "; Path=/");
-                httpResponse.addHeader(LOCATION, LOGINED_MAIN_PAGE);
+                httpResponse.addHeader(LOCATION, MAIN_PAGE);
                 httpResponse.respond();
                 userSessions.put(sessionId, user);
             } catch (MissingUserInfoException | AuthenticationException e) {
@@ -149,6 +149,30 @@ public class RequestRouter {
             } catch (IOException e) {
                 logger.error("Logout Redirection Error" + e.getMessage());
             }
+        });
+
+        /*
+         * 쿠키의 sid로 로그인 여부를 판단 후 userName 반환
+         */
+        this.addPostHandler("/user/info", (request, dos) -> {
+            // 세션 정보 존재 -> userName={userName}
+            // 세션 정보 부재 -> userName=null
+            String sid = request.getCookieSid();
+            byte[] body;
+            if (sid != null && userSessions.containsKey(sid)) {
+                body = ("userName=" + userSessions.get(sid).getName()).getBytes();
+            } else {
+                body = ("userName=null").getBytes();
+            }
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, "text/html");
+            httpResponse.addHeader(CONTENT_TYPE, "text/html");
+            httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
+            try {
+                httpResponse.respond();
+            } catch (IOException e) {
+                logger.error("/user/info response error, {}", e.getMessage());
+            }
+
         });
     }
 
