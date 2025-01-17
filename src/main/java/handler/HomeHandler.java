@@ -1,5 +1,6 @@
 package handler;
 
+import enums.HttpHeader;
 import exception.ClientErrorException;
 import request.HttpRequestInfo;
 import response.HttpResponse;
@@ -19,7 +20,7 @@ public class HomeHandler implements Handler {
     public HttpResponse handle(HttpRequestInfo request) {
         checkHttpMethod(request);
         HttpResponse response = new HttpResponse(SEE_OTHER, HTML_UTF_8, "");
-        response.setHeaders("Location", HOME_URL);
+        response.setHeaders(HttpHeader.LOCATION.getName(), HOME_URL);
         return response;
     }
 
