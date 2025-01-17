@@ -152,6 +152,28 @@ public class UserHandlerTest {
     }
 
     @Test
+    @DisplayName("POST /user/logout - 유효하지 않은 SID로 로그아웃, 400 Bad Request")
+    void testHandleUserLogoutWithInvalidSid() throws IOException, URISyntaxException {
+        when(mockRequest.getMethod()).thenReturn(HttpMethod.POST);
+        when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/logout"));
+
+        User user = Database.findUserById("testUser");
+        String sid = JwtUtil.generateToken(user);
+        SessionDB.saveSession(sid, user);
+        when(mockRequest.getHeaders()).thenReturn(Map.of(
+                "Cookie", "sid=asdfasdfasdfasdfasdfasdfasf"
+        ));
+
+        HttpResponse response = handler.handle(mockRequest);
+        response.send(out);
+
+        String result = out.toString();
+        String[] lines = result.split("\r\n");
+        String statusLine = lines[0];
+        assertEquals("HTTP/1.1 400 Bad Request", statusLine);
+    }
+
+    @Test
     @DisplayName("존재하지 않는 경로인 경우 404 Not Found")
     void testHandleUnknownPath() throws IOException, URISyntaxException {
         when(mockRequest.getMethod()).thenReturn(HttpMethod.GET);

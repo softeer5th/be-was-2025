@@ -119,9 +119,13 @@ public class UserHandler implements Handler {
 
         try {
             String sid = HttpRequestUtil.getCookieValueByKey(request, "sid");
+            String id = JwtUtil.getIdFromToken(sid);
+            User user = SessionDB.getUser(sid);
+
+            if (!user.getUserId().equals(id)) throw new Exception("유효하지 않은 토큰입니다.");
             logger.debug("User Logout: {}", sid);
 
-            logger.debug(SessionDB.getUser(sid).toString());
+            logger.debug(id);
             SessionDB.removeSession(sid);
 
             return builder

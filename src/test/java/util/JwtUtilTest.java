@@ -71,4 +71,13 @@ public class JwtUtilTest {
         Date exp = jwt.getPayload().getExpiration();
         assertTrue(exp.after(new Date()), "토큰 만료시간은 현재시간 이후여야 함");
     }
+
+    @Test
+    @DisplayName("getIdFromToken - 유효하지 않은 토큰 처리")
+    void testGetIdFromTokenInvalidToken() {
+        String invalidToken = "invalid.header.payload";
+        assertThrows(Exception.class, () -> {
+            JwtUtil.getIdFromToken(invalidToken);
+        }, "잘못된 토큰을 파싱하면 예외가 발생해야 함");
+    }
 }
