@@ -14,7 +14,7 @@ class HttpResponseTest {
 
         Assertions.assertThatThrownBy(()->httpResponse.setHeader("key1","value1","key2"))
                 .isInstanceOf(ServerErrorException.class)
-                .hasMessage(ErrorCode.KEY_VALUE_SHOULD_BE_EVEN.getMessage());
+                .hasMessage(ErrorCode.KEY_VALUE_SHOULD_BE_PAIR.getMessage());
     }
 
 }

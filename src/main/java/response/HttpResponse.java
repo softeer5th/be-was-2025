@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static exception.ErrorCode.KEY_VALUE_SHOULD_BE_EVEN;
+import static exception.ErrorCode.KEY_VALUE_SHOULD_BE_PAIR;
 
 public class HttpResponse {
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
@@ -53,7 +53,7 @@ public class HttpResponse {
 
     public void setHeader(String... keyValues) {
         if (keyValues.length % 2 != 0) {
-            throw new ServerErrorException(KEY_VALUE_SHOULD_BE_EVEN);
+            throw new ServerErrorException(KEY_VALUE_SHOULD_BE_PAIR);
         }
         for (int i = 0; i < keyValues.length; i += 2) {
             String key = keyValues[i];

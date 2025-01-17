@@ -6,7 +6,7 @@ import static enums.HttpStatus.*;
 
 public enum ErrorCode {
     // <------------------- 5XX Error Code ------------------->
-    KEY_VALUE_SHOULD_BE_EVEN(INTERNAL_SERVER_ERROR,"header는 key-value 쌍으로 이루어져야 합니다."),
+    KEY_VALUE_SHOULD_BE_PAIR(INTERNAL_SERVER_ERROR,"header는 key-value 쌍으로 이루어져야 합니다."),
     ERROR_WITH_ENCODING(INTERNAL_SERVER_ERROR,"인코딩에 실패하였습니다."),
 
     // <------------------- 4XX Error Code ------------------->
