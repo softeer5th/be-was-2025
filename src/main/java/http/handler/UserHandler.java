@@ -136,6 +136,7 @@ public class UserHandler implements Handler {
             logger.error(e.getMessage());
             return builder
                     .errorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.BAD_REQUEST)
+                    .setCookie(valueParams, optionParams)
                     .build();
         }
     }
