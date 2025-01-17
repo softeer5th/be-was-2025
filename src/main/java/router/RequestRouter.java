@@ -21,6 +21,8 @@ public class RequestRouter implements Router {
         routeMap.put(Pattern.compile("^/(?!mypage/.*index\\.html$|index\\.html$).*\\.(html|css|js|svg)$"), new StaticFileHandler());
         routeMap.put(Pattern.compile("^/$"), new HomeHandler());
         routeMap.put(Pattern.compile("^/index.html$"), new DynamicHomeHandler());
+        // 마이페이지, registration, login
+        routeMap.put(Pattern.compile("^/(mypage|login|registration)$"),new RedirectHandler());
         routeMap.put(Pattern.compile("^/mypage/index.html$"), new MyPageHandler());
     }
 
