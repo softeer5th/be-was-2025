@@ -16,15 +16,7 @@ public class HttpSession {
 		return id;
 	}
 
-	public void setAttribute(String name, Object value) {
-		values.put(name, value);
-	}
-
-	public void getAttribute(String name) {
-		values.get(name);
-	}
-
-	public void removeAttribute(String name) {
-		values.remove(name);
+	public Object getAttribute(String name) {
+		return values.get(name);
 	}
 }

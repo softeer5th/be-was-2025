@@ -63,5 +63,8 @@ public class HttpRequest {
 	public String getParameter(String parameterName) {
 		return requestLine.getParameter(parameterName);
 	}
+	public String getSessionId() {
+		return headers.getSessionId();
+	}
 }
 

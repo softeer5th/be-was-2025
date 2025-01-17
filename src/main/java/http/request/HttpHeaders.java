@@ -1,6 +1,7 @@
 package http.request;
 
 import static enums.HttpHeader.*;
+import static http.HttpSessionStorage.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,5 +113,9 @@ public class HttpHeaders {
 		}
 
 		return sb.toString();
+	}
+
+	public String getSessionId() {
+		return cookies.getCookie(SESSION_ID);
 	}
 }
