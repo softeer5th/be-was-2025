@@ -1,5 +1,7 @@
 package webserver.cookie;
 
+import util.enums.CookieName;
+
 public class CookieManager {
 
     public static class SetCookie {
@@ -37,5 +39,9 @@ public class CookieManager {
         public String build() {
             return cookieBuilder.toString();
         }
+    }
+
+    public static String deleteCookie(CookieName cookieName) {
+        return new SetCookie(cookieName.getName(), "").path("/").maxAge(0).build();
     }
 }
