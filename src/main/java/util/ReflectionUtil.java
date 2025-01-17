@@ -19,7 +19,7 @@ public class ReflectionUtil {
        5. email 필드에 직접 접근
         순서대로 필드를 가져온다.
      */
-    public static Optional<Object> getter(Object object, String fieldName) {
+    public static Optional<Object> callGetter(Object object, String fieldName) {
         if (object == null)
             return Optional.empty();
         if (fieldName.isBlank())
@@ -53,6 +53,22 @@ public class ReflectionUtil {
             field.setAccessible(true);
             return field.get(object);
         });
+    }
+
+    // 객체와, 그 객체를 탐색할 수 있는 경로(예: session.user.name)를 받아서 재귀적으로 객체를 탐색하는 메서드
+    public static Optional<Object> recursiveCallGetter(Object object, String objectTraversalPath) {
+        if (object == null || objectTraversalPath == null || objectTraversalPath.isBlank())
+            return Optional.empty();
+
+        String[] fields = objectTraversalPath.split("\\.");
+        Object currentObject = object;
+        for (String field : fields) {
+            Optional<Object> value = callGetter(currentObject, field);
+            if (value.isEmpty())
+                return Optional.empty();
+            currentObject = value.get();
+        }
+        return Optional.of(currentObject);
     }
 
     // 예외가 발생하면 Optional.empty()를 반환하는 메서드
