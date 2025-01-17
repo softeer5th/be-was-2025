@@ -19,7 +19,10 @@ public class Cookie {
                 String[] tokens = pair.trim().split("=", 2);
                 String name = CookieName.validate(tokens[0]);
 
-                if(tokens.length == 1 && pair.endsWith("=")) {logger.error("empty cookie");}
+                if(pair.endsWith("=")) {
+                    logger.error("empty cookie");
+                    continue;
+                }
 
                 String value = tokens[1];
 
