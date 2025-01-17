@@ -13,6 +13,7 @@ import java.io.File;
 public class FileRequestHandler implements RequestHandler{
     private final DynamicHtmlHandlerMapping dynamicHtmlHandlerMapping = DynamicHtmlHandlerMapping.getInstance();
 
+
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
         if(httpRequest.getMethod() == HttpMethod.GET && FileUtil.isFileExist(httpRequest.getPath())){
@@ -28,14 +29,12 @@ public class FileRequestHandler implements RequestHandler{
         String extension = FileUtil.extractFileExtension(file.getPath());
         byte[] fileData = FileUtil.readFileToByteArray(file);
 
-        byte[] resultData = dynamicHtmlHandlerMapping.getHandler(httpRequest.getPath())
-                .map(handler -> handler.handle(fileData, httpRequest))
-                .orElse(fileData);
-
-        return new HttpResponse.Builder()
-                .httpStatus(HttpStatus.OK)
-                .contentType(MimeType.getMimeType(extension))
-                .body(resultData)
-                .build();
+        return dynamicHtmlHandlerMapping.getHandler(httpRequest.getPath())
+                .map(handler -> handler.handle(fileData, extension, httpRequest))
+                .orElse(new HttpResponse.Builder()
+                        .httpStatus(HttpStatus.OK)
+                        .contentType(MimeType.getMimeType(extension))
+                        .body(fileData)
+                        .build());
     }
 }
