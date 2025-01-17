@@ -41,7 +41,7 @@ public class RequestMethodWrapper implements ResourceResolver {
         Object[] args = new Object[parameters.length];
         int argIndex = 0;
         for (ParameterMetaInfo meta : parameters) {
-            Optional<String> parameter = request.getParameter(meta.name(), String.class);
+            Optional<String> parameter = meta.finder().apply(request, meta.name());
             if (meta.required() && parameter.isEmpty()) {
                 throw new HTTPException.Builder()
                         .causedBy(method.getName())

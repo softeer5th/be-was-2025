@@ -1,5 +1,6 @@
 package webserver.resolver.factory;
 
+import webserver.annotation.Body;
 import webserver.resolver.RequestMethodMapper;
 import webserver.resolver.RequestMethodWrapper;
 import webserver.resolver.ResourceResolver;
@@ -34,6 +35,7 @@ public class MethodResolverFactory {
                 for (int i = 0 ; i < parameters.length; i++) {
                     Parameter parameter = parameters[i];
                     handleRequestParam(parameter, parameterMetaInfos, i);
+                    handleBody(parameter, parameterMetaInfos, i);
                 }
                 requestMap.put(annotation.path(), new RequestMethodWrapper(handlerGroup, method, parameterMetaInfos));
             }
@@ -47,7 +49,17 @@ public class MethodResolverFactory {
             return;
         }
         TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
-        ParameterMetaInfo metaInfo = new ParameterMetaInfo(param.key(), param.required(), typeParser);
+        ParameterMetaInfo metaInfo = ParameterMetaInfo.forParam(param.key(), param.required(), typeParser);
+        infos[index] = metaInfo;
+    }
+
+    private static void handleBody(Parameter parameter, ParameterMetaInfo[] infos, int index) {
+        Body body = parameter.getAnnotation(Body.class);
+        if (body == null) {
+            return;
+        }
+        TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
+        ParameterMetaInfo metaInfo = ParameterMetaInfo.forBody(body.key(), true, typeParser);
         infos[index] = metaInfo;
     }
 }
