@@ -32,7 +32,7 @@ public class HttpRequest {
     public String getCookieSid() {
         try {
             String s = headers.get("Cookie");
-            String[] cookies = s.split(";");
+            String[] cookies = s.split("; ");
             for (String cookie : cookies) {
                 if (cookie.startsWith("sid=")) {
                     String sid = cookie.split("=")[1];
