@@ -18,6 +18,12 @@ public class HTTPExceptions extends RuntimeException {
         }
     }
 
+    public static class Error403 extends HTTPExceptions {
+        public Error403(String message) {
+            super(message, 403);
+        }
+    }
+
     public static class Error404 extends HTTPExceptions {
         public Error404(String message) {
             super(message, 404);
@@ -42,13 +48,19 @@ public class HTTPExceptions extends RuntimeException {
         }
     }
 
+    public static class Error500 extends HTTPExceptions {
+        public Error500(String message) {
+            super(message, 500);
+        }
+    }
+
     public static class Error505 extends HTTPExceptions {
         public Error505(String message) {
             super(message, 505);
         }
     }
 
-    public static byte[] getErrorMessage(String message) {
+    public static byte[] getErrorMessageToBytes(String message) {
         return message.getBytes();
     }
 }

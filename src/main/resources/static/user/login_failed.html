@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../reset.css" rel="stylesheet" />
+    <link href="../global.css" rel="stylesheet" />
+    <style>
+        .btn-retry {
+            display: inline-block;
+            width: 120px; /* 버튼의 가로 길이 설정 */
+            text-align: center; /* 버튼 내부 텍스트 가운데 정렬 */
+            padding: 10px 0; /* 상하 패딩만 추가 */
+            background-color: #4285f4;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 20px auto; /* 상단과 하단 여백 추가 및 가운데 정렬 */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <a href="/"><img src="../img/signiture.svg" /></a>
+        <ul class="header__menu">
+            <li class="header__menu__item">
+                <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
+            </li>
+            <li class="header__menu__item">
+                <a class="btn btn_ghost btn_size_s" href="/registration">
+                    회원 가입
+                </a>
+            </li>
+        </ul>
+    </header>
+    <div class="page">
+        <h2 class="page-title">로그인에 실패했습니다.</h2>
+        <a href="/login" class="btn-retry">다시 시도</a>
+    </div>
+</div>
+</body>
+</html>

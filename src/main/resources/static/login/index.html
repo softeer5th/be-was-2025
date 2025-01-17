@@ -1,56 +1,96 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="../reset.css" rel="stylesheet"/>
+    <link href="../global.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <a href="/"><img src="../img/signiture.svg"/></a>
         <ul class="header__menu">
-          <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
-          </li>
-          <li class="header__menu__item">
-            <a class="btn btn_ghost btn_size_s" href="/registration">
-              회원 가입
-            </a>
-          </li>
+            <li class="header__menu__item">
+                <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
+            </li>
+            <li class="header__menu__item">
+                <a class="btn btn_ghost btn_size_s" href="/registration">
+                    회원 가입
+                </a>
+            </li>
         </ul>
-      </header>
-      <div class="page">
+    </header>
+    <div class="page">
         <h2 class="page-title">로그인</h2>
         <form class="form">
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">아이디</p>
-            <input
-              class="input_textfield"
-              placeholder="아이디를 입력해주세요"
-              autocomplete="username"
-            />
-          </div>
-          <div class="textfield textfield_size_s">
-            <p class="title_textfield">비밀번호</p>
-            <input
-              class="input_textfield"
-              type="password"
-              placeholder="비밀번호를 입력해주세요"
-              autocomplete="current-password"
-            />
-          </div>
-          <button
-            id="login-btn"
-            class="btn btn_contained btn_size_m"
-            style="margin-top: 24px"
-            type="button"
-          >
-            로그인
-          </button>
+            <div class="textfield textfield_size_s">
+                <p class="title_textfield">아이디</p>
+                <input
+                        id="user_id"
+                        class="input_textfield"
+                        placeholder="아이디를 입력해주세요"
+                        autocomplete="username"
+                />
+            </div>
+            <div class="textfield textfield_size_s">
+                <p class="title_textfield">비밀번호</p>
+                <input
+                        id="user_password"
+                        class="input_textfield"
+                        type="password"
+                        placeholder="비밀번호를 입력해주세요"
+                        autocomplete="current-password"
+                />
+            </div>
+            <button
+                    id="login-btn"
+                    class="btn btn_contained btn_size_m"
+                    style="margin-top: 24px"
+                    type="button"
+            >
+                로그인
+            </button>
         </form>
-      </div>
     </div>
-  </body>
+</div>
+<script>
+    document.getElementById("login-btn").addEventListener("click", function () {
+        const user_id = document.getElementById("user_id").value;
+        const user_password = document.getElementById("user_password").value;
+
+        if (!user_id) {
+            alert("아이디를 입력하세요.");
+            return;
+        } else if (!user_password) {
+            alert("비밀번호를 입력하세요.");
+            return;
+        }
+
+        const url = "/user/login";
+
+        const body = `id=${encodeURIComponent(user_id)}&password=${encodeURIComponent(user_password)}`;
+
+        // 서버에 요청 전송
+        fetch(url, {
+            method: "POST",
+            body: body,
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": body.length.toString(),
+            },
+        })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    throw new Error("로그인 요청 실패");
+                }
+            })
+            .catch(error => {
+                alert("오류 발생: " + error.message);
+            })
+    })
+</script>
+</body>
 </html>

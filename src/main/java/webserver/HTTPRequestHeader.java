@@ -9,7 +9,6 @@ public class HTTPRequestHeader {
 
     Map<String, String> headers;
 
-    // Todo: body 관련 구현 옮기기
     public HTTPRequestHeader(String header) {
         String[] headersString = header.split("\n");
         this.headers = new HashMap<>();
@@ -49,10 +48,10 @@ public class HTTPRequestHeader {
                 throw new HTTPExceptions.Error400("400 Bad Request: Invalid colon in header");
             }
 
-            // 헤더의 key, value값 모두 대소문자를 구분하지 않는다.
-            // 소문자로 변환
+            // 헤더의 key는 대소문자를 구분하지 않는다.
+            // 헤더의 key를 소문자로 변환
             String key = headerString.substring(0, colonIndex).trim().toLowerCase();
-            String value = headerString.substring(colonIndex + 1).trim().toLowerCase();
+            String value = headerString.substring(colonIndex + 1).trim();
 
             // 중복된 키값일 경우 가장 마지막에 들어온 키값을 기준으로 한다.
             this.headers.put(key, value);
