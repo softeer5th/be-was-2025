@@ -1,9 +1,8 @@
 package webserver;
 
-import exception.NotExistApiRequestException;
+import exception.NotFoundRequestHandlerException;
 import handler.FileRequestHandler;
-import handler.RequestHandler;
-import handler.UserRequestHandler;
+import handler.mapping.RequestHandlerMapping;
 import http.HttpRequestResolver;
 import http.HttpResponse;
 import http.HttpResponseResolver;
@@ -15,13 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 public class WebServlet {
     private static final Logger logger = LoggerFactory.getLogger(WebServlet.class);
     private static final WebServlet INSTANCE = new WebServlet();
-    private final Map<String, RequestHandler> apiRequestHandlerMap;
+    private final RequestHandlerMapping apiRequestHandlerMapping;
     private final FileRequestHandler fileRequestHandler;
     private final HttpRequestResolver httpRequestResolver = HttpRequestResolver.getInstance();
     private final HttpResponseResolver httpResponseResolver = HttpResponseResolver.getInstance();
@@ -31,8 +28,8 @@ public class WebServlet {
     }
 
     public WebServlet(){
-        apiRequestHandlerMap = new HashMap<>();
-        apiRequestHandlerMap.put("/create", new UserRequestHandler());
+        apiRequestHandlerMapping = new RequestHandlerMapping();
+        apiRequestHandlerMapping.init();
         fileRequestHandler = new FileRequestHandler();
     }
 
@@ -43,21 +40,19 @@ public class WebServlet {
         HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(br);
 
         try {
-            if (fileRequestHandler.canHandle(httpRequest)) {
-                HttpResponse httpResponse = fileRequestHandler.handle(httpRequest);
-                httpResponseResolver.sendResponse(dos, httpResponse);
-                return;
-            }
+            HttpResponse httpResponse = apiRequestHandlerMapping.getHandler(httpRequest)
+                    // api request handler가 먼저 존재하는지 확인한다
+                    .map(apiRequestHandler -> apiRequestHandler.handle(httpRequest))
+                    // 파일 request handler 로 처리
+                    .orElseGet(() -> {
+                        if (fileRequestHandler.canHandle(httpRequest)) {
+                            return fileRequestHandler.handle(httpRequest);
+                        }
+                        throw new NotFoundRequestHandlerException("적절한 요청 핸들러가 없습니다.");
+                    });
 
-            if (apiRequestHandlerMap.containsKey(httpRequest.getPath())) {
-                RequestHandler requestHandler = apiRequestHandlerMap.get(httpRequest.getPath());
-
-                if (requestHandler.canHandle(httpRequest)) {
-                    HttpResponse httpResponse = requestHandler.handle(httpRequest);
-                    httpResponseResolver.sendResponse(dos, httpResponse);
-                }
-            }
-        }catch(NotExistApiRequestException e){
+            httpResponseResolver.sendResponse(dos, httpResponse);
+        }catch(NotFoundRequestHandlerException e){
             logger.error(e.getMessage());
             byte[] errorData = "Request Not Found".getBytes();
             httpResponseResolver.sendResponse(dos,

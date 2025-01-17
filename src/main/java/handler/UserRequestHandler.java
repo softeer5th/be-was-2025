@@ -4,28 +4,23 @@ import db.Database;
 import exception.*;
 import http.HttpRequest;
 import http.HttpResponse;
-import http.enums.HttpMethod;
 import http.enums.HttpStatus;
 import http.enums.MimeType;
 import model.User;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class UserRequestHandler implements  RequestHandler{
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
-        if(httpRequest.getMethod() == HttpMethod.GET){
-            return true;
-        }
-        return false;
+        return true;
     }
     @Override
     public HttpResponse handle(HttpRequest httpRequest) {
-        if(httpRequest.getMethod() != HttpMethod.GET){
-            throw new NotExistApiRequestException("존재하지 않는 api 요청입니다.");
-        }
+        Map<String, String> bodyMap = httpRequest.convertBodyToMap();
         try {
-            signUp(httpRequest.getQueryParam("userId"), httpRequest.getQueryParam("password"), httpRequest.getQueryParam("name"));
+            signUp(bodyMap.get("userId"), bodyMap.get("password"),bodyMap.get("name"));
         }catch(SignUpException e){
             byte[] errorMessageData = e.getMessage().getBytes();
 
@@ -37,7 +32,8 @@ public class UserRequestHandler implements  RequestHandler{
                     .build();
         }
         return new HttpResponse.Builder()
-                .httpStatus(HttpStatus.OK)
+                .httpStatus(HttpStatus.SEE_OTHER)
+                .location("http://localhost:8080/")
                 .build();
     }
 

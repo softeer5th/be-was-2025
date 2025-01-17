@@ -63,9 +63,9 @@ public class SignUpTest {
         HttpRequest httpRequest = new HttpRequest();
         httpRequest.setMethod(HttpMethod.GET.name());
         httpRequest.setPath("/create");
-        httpRequest.putQueryParam("userId", userId);
-        httpRequest.putQueryParam("name", name);
-        httpRequest.putQueryParam("password", password);
+        httpRequest.addQueryParam("userId", userId);
+        httpRequest.addQueryParam("name", name);
+        httpRequest.addQueryParam("password", password);
         return httpRequest;
     }
 }
