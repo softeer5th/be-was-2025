@@ -5,43 +5,21 @@ import http.enums.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URISyntaxException;
-
 public class HttpRequest {
     private HttpMethod method;
     private TargetInfo target;
     private HttpVersion version;
-
-    public static final String INVALID_REQUEST = "INVALID REQUEST";
+    private String headers;
+    private String body;
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(InputStream in) throws IOException, URISyntaxException {
-        parseRequest(in);
-    }
-
-    private void parseRequest(InputStream in) throws IOException, URISyntaxException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8")); // InputStream => InputStreamReader => BufferedReader
-        String startLine = HttpRequestParser.parseRequest(br);
-        parseStartLine(startLine);
-    }
-
-    private void parseStartLine(String startLine) throws UnsupportedEncodingException, URISyntaxException {
-        startLine = startLine.trim();
-        String[] token = startLine.split(" +");
-
-        if (token.length != 3) {
-            this.method = HttpMethod.INVALID;
-            this.target = null;
-            this.version = HttpVersion.INVALID;
-        } else {
-            this.method = HttpMethod.getMethodFromString(token[0]);
-            this.target = new TargetInfo(token[1]);
-            this.version = HttpVersion.getVersionFromString(token[2]);
-        }
-
-        logger.debug("Start Line: " + method + " " + target + " " + version);
+    public HttpRequest(HttpMethod method, TargetInfo target, HttpVersion version, String headers, String body) {
+        this.method = method;
+        this.target = target;
+        this.version = version;
+        this.headers = headers;
+        this.body = body;
     }
 
     public HttpMethod getMethod() {
@@ -54,6 +32,14 @@ public class HttpRequest {
 
     public HttpVersion getVersion() {
         return version;
+    }
+
+    public String getHeaders() {
+        return headers;
+    }
+
+    public String getBody() {
+        return body;
     }
 
     public boolean isInvalid() {

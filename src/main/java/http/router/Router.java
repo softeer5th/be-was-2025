@@ -1,22 +1,25 @@
 package http.router;
 
-import http.request.HttpRequest;
-import http.request.TargetInfo;
+import http.enums.ContentType;
 import http.enums.HttpMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import http.response.ContentType;
+import http.handler.BadRequestHandler;
 import http.handler.Handler;
-import http.handler.NotFoundHandler;
 import http.handler.StaticResourceHandler;
 import http.handler.UserHandler;
+import http.request.HttpRequest;
+import http.request.TargetInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Router {
+    private static final String STATIC_RESOURCE_PATH = "./src/main/resources/static";
     private Map<String, Handler> routes = new HashMap<>();
-    private Handler notFoundHandler = NotFoundHandler.getInstance();
+    private final Handler staticResourceHandler = StaticResourceHandler.getInstance(STATIC_RESOURCE_PATH);
+    private final Handler userHandler = UserHandler.getInstance();
+    private final Handler badRequestHandler = BadRequestHandler.getInstance();
     private static final String compareExtensionRegex;
 
     private static final Logger logger = LoggerFactory.getLogger(Router.class);
@@ -36,17 +39,8 @@ public class Router {
     }
 
     private void initializeRoutes() {
-        routes.put("/",                 StaticResourceHandler.getInstance());
-        routes.put("/article",          StaticResourceHandler.getInstance());
-        routes.put("/comment",          StaticResourceHandler.getInstance());
-        routes.put("/img",              StaticResourceHandler.getInstance());
-        routes.put("/login",            StaticResourceHandler.getInstance());
-        routes.put("/main",             StaticResourceHandler.getInstance());
-        routes.put("/mypage",           StaticResourceHandler.getInstance());
-        routes.put("/registration",     StaticResourceHandler.getInstance());
-        routes.put("/user",             UserHandler.getInstance());
-        routes.put("/user/create",      UserHandler.getInstance());
-        routes.put("INVALID REQUEST",   NotFoundHandler.getInstance());
+        routes.put("/user", userHandler);
+        routes.put("/user/create", userHandler);
     }
 
     public void addRoute(String path, Handler handler) {
@@ -54,19 +48,22 @@ public class Router {
     }
 
     public Handler route(HttpRequest request) {
+        if (request.isInvalid()) return badRequestHandler;
+
         HttpMethod httpMethod = request.getMethod();
         TargetInfo targetInfo = request.getTarget();
         String path = targetInfo != null ? targetInfo.getPath() : null;
-        if (path != null && httpMethod.equals(HttpMethod.GET)) {
-            if (path.matches(compareExtensionRegex)) {
-                return StaticResourceHandler.getInstance(); // 파일 요청 처리
-            }
-            for (String target : routes.keySet()) {
-                if (path.startsWith(target)) {
-                    return routes.get(target);
+
+        if (path != null) {
+            if (!path.matches(compareExtensionRegex)) { // 확장자를 가지지 않은 파일 및 경로에 대한 요청인 경우 동적 요청에 대해 우선 순위로 처리
+                for (String target : routes.keySet()) {
+                    if (path.startsWith(target)) {
+                        return routes.get(target);
+                    }
                 }
             }
+            return StaticResourceHandler.getInstance(STATIC_RESOURCE_PATH); // 정적 파일 요청 처리
         }
-        return notFoundHandler;
+        return badRequestHandler;
     }
 }

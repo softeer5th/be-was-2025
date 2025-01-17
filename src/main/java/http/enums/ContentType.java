@@ -1,4 +1,4 @@
-package http.response;
+package http.enums;
 
 import java.util.HashMap;
 import java.util.Map;
