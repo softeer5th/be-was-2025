@@ -44,7 +44,7 @@ public class FileRequestHandler implements Handler {
 
         // 로그인 상태라면 UI 수정
         if (user != null) {
-            replaceLoginUI(contentBuilder, URLDecoder.decode(user.getNickname(), StandardCharsets.UTF_8));
+            replaceLoginUI(contentBuilder, user.getNickname());
         }
 
         byte[] responseBody = contentBuilder.toString().getBytes(StandardCharsets.UTF_8);
