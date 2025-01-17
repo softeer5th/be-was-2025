@@ -11,13 +11,16 @@ import request.HTTPRequest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+import static util.Utils.generateSessionID;
+import static util.Utils.getSessionIdInCookie;
+
 public class UserManager {
 
     private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
     private static final String redirectAfterSignUp = "/index.html";
     private static final String redirectAfterLogIn = "/index.html";
     private static final String redirectAfterLogInFail = "/user/login_failed.html";
-    private static final int SESSION_ID_LENGTH = 32;
+    private static final String COOKIE = "cookie";
 
 
     public HTTPResponse signUp(HTTPRequest httpRequest){
@@ -27,7 +30,7 @@ public class UserManager {
 
         User user = new User(httpRequest.getBodyParameterByKey("userId")
                 ,httpRequest.getBodyParameterByKey("password")
-                ,httpRequest.getBodyParameterByKey("nickname")
+                ,httpRequest.getBodyParameterByKey("name")
                 ,httpRequest.getBodyParameterByKey("email"));
         Database.addUser(user);
         logger.debug("signUp : " + user.getUserId());
@@ -51,10 +54,15 @@ public class UserManager {
         return HTTPResponse.createLoginRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterLogIn, sessionId);
     }
 
-    public static String generateSessionID() {
-        SecureRandom secureRandom = new SecureRandom(); // 암호학적으로 안전한 랜덤 생성기
-        byte[] randomBytes = new byte[SESSION_ID_LENGTH];
-        secureRandom.nextBytes(randomBytes); // 랜덤 바이트 생성
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes); // URL-safe Base64로 인코딩
+    public HTTPResponse checkLoginStatus(HTTPRequest httpRequest){
+        String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
+        if(!Database.sessionExists(sessionId)){
+            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+        }
+        String userId = Database.getSession(sessionId);
+        User user = Database.findUserById(userId);
+
+        return HTTPResponse.createSuccessResponse(httpRequest.getHttpVersion(), HTTPCode.OK, user.getName());
     }
+
 }

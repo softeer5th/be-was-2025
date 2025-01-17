@@ -61,7 +61,7 @@ public class HTTPRequestParser {
         while (i < readLine.length && !readLine[i].isEmpty()) {
             String[] headerParts = readLine[i].split(":\\s+", 2);
             if (headerParts.length == 2) {
-                headers.put(headerParts[0], headerParts[1]);
+                headers.put(headerParts[0].toLowerCase(), headerParts[1]);
             }
             i++;
         }

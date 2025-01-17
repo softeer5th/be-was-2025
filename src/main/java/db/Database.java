@@ -26,5 +26,7 @@ public class Database {
 
     public static void addSession(String sessionId, String userId) {sessions.put(sessionId, userId);}
 
-    public static String getSession(String sessionId) { return sessions.get(sessionId); }
+    public static String getSession(String sessionId) {return sessions.get(sessionId);}
+
+    public static boolean sessionExists(String sessionId) { return sessions.containsKey(sessionId); }
 }

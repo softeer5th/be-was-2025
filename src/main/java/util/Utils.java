@@ -5,13 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.security.SecureRandom;
+import java.util.*;
+
 
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static final int SESSION_ID_LENGTH = 32;
+    private static final String SID = "sid=";
     private static final Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH");
 
     public static String[] readInputToArray(InputStream in) throws IOException {
@@ -109,5 +110,33 @@ public class Utils {
         }
 
         dos.flush();
+    }
+
+    public static String generateSessionID() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] randomBytes = new byte[SESSION_ID_LENGTH];
+        secureRandom.nextBytes(randomBytes); // 랜덤 바이트 생성
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    }
+
+    public static String getSessionIdInCookie(String cookie) {
+        if (cookie == null || cookie.isEmpty()) {
+            return null;
+        }
+
+        String searchKey = SID;
+        int startIndex = cookie.indexOf(searchKey);
+        if (startIndex == -1) {
+            return null;
+        }
+
+        startIndex += searchKey.length();
+        int endIndex = startIndex;
+
+        while (endIndex < cookie.length() && cookie.charAt(endIndex) != ';' && cookie.charAt(endIndex) != ',') {
+            endIndex++;
+        }
+
+        return cookie.substring(startIndex, endIndex);
     }
 }
