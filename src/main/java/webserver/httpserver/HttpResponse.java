@@ -21,6 +21,10 @@ public class HttpResponse {
     private final List<SetCookie> cookies = new ArrayList<>();
     private byte[] body;
 
+    public HttpResponse() {
+        setStatusCode(StatusCode.OK);
+    }
+
     public String getProtocol() {
         return protocol;
     }
