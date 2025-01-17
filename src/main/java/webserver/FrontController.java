@@ -67,14 +67,15 @@ public class FrontController implements Runnable {
                 // interceptor chain에게 요청 처리 위임
                 HttpResponse response = interceptorChain.execute(request, handler);
 
-                responseWriter.writeResponse(request, response, out);
+                responseWriter.writeResponse(request.getVersion(), response, out);
 //                logger.debug("Client:{}:{}, Response: {}", connection.getInetAddress(), connection.getPort(), response);
 
             } catch (Exception e) {
                 logger.debug(e.getMessage());
                 // 에러 응답
                 HttpResponse response = exceptionFilterChain.catchException(e, request);
-                responseWriter.writeResponse(request, response, out);
+                HttpVersion version = request != null ? request.getVersion() : supportedHttpVersions.get(0);
+                responseWriter.writeResponse(version, response, out);
             }
 
         } catch (Exception e) {

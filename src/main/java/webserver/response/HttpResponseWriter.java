@@ -3,7 +3,6 @@ package webserver.response;
 import webserver.enums.HttpVersion;
 import webserver.header.ResponseHeader;
 import webserver.header.SetCookie;
-import webserver.request.HttpRequest;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,12 +13,7 @@ import static webserver.enums.ParsingConstant.CRLF;
 // HttpResponse 객체를 이용해 클라이언트에게 실제로 응답을 전송
 public class HttpResponseWriter {
 
-    // 일반적인 응답을 전송
-    public void writeResponse(HttpRequest request, HttpResponse response, OutputStream out) {
-        write(request.getVersion(), response, out);
-    }
-
-    private void write(HttpVersion version, HttpResponse response, OutputStream out) {
+    public void writeResponse(HttpVersion version, HttpResponse response, OutputStream out) {
         try {
             byte[] newLine = CRLF.value.getBytes();
 
