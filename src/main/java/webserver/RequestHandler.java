@@ -1,12 +1,10 @@
 package webserver;
 
-import db.Database;
 import http.handler.Handler;
 import http.request.HttpRequest;
 import http.request.HttpRequestParser;
 import http.response.HttpResponse;
 import http.router.Router;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
