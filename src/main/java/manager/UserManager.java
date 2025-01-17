@@ -32,7 +32,7 @@ public class UserManager {
 
     public void createUser(final UserCreateRequest request) {
         if (database.findUserById(request.userId()) != null)
-            throw new ClientErrorException(ALREAD_EXIST_USERID);
+            throw new ClientErrorException(ALREADY_EXIST_USERID);
 
         User user = new User(request.userId(),
                 request.password(),
