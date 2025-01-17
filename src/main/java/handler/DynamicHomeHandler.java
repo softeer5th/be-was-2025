@@ -48,38 +48,43 @@ public class DynamicHomeHandler implements Handler {
 
         final String sessionId = CookieParser.parseCookie(request.getHeaderValue(HttpHeader.COOKIE.getName()));
 
-        String dynamicHtmlContent = setDynamicHtmlContentByUserName(userManager.getNameFromSession(sessionId));
-        String body = html.replace(REPLACE_TARGET, dynamicHtmlContent);
+        final Optional<String> userName = userManager.getNameFromSession(sessionId);
 
-        response.setResponse(OK, extension, body);
-        return response;
-    }
-
-    private String setDynamicHtmlContentByUserName(Optional<String> username) {
         StringBuilder dynamicHtmlContent = new StringBuilder()
                 .append("<ul class=\"header__menu\">")
                 .append("<li class=\"header__menu__item\">");
 
-        username.ifPresentOrElse(
-                name -> {
-                    name = URLDecoder.decode(name, UTF_8);
-                    dynamicHtmlContent
-                            .append("<a class=\"btn btn_contained btn_size_s\" href=\"/mypage/index.html\">")
-                            .append(name)
-                            .append("님</a>");
-                },
-                () -> dynamicHtmlContent
-                        .append("<a class=\"btn btn_contained btn_size_s\" href=\"/login/index.html\">로그인</a>")
-                        .append("</li>")
-                        .append("<li class=\"header__menu__item\">")
-                        .append("<a class=\"btn btn_ghost btn_size_s\" href = \"/registration/index.html\" >")
-                        .append("회원 가입")
-                        .append("</a>")
+        userName.ifPresentOrElse(
+                name -> addUserNameToHtml(name, dynamicHtmlContent),
+                () -> addAuthLinksToHtml(dynamicHtmlContent)
         );
 
         dynamicHtmlContent
                 .append("</li>")
                 .append("</ul>");
-        return dynamicHtmlContent.toString();
+
+
+        String body = html.replace(REPLACE_TARGET, dynamicHtmlContent.toString());
+
+        response.setResponse(OK, extension, body);
+        return response;
+    }
+
+    private void addAuthLinksToHtml(StringBuilder dynamicHtmlContent) {
+        dynamicHtmlContent
+                .append("<a class=\"btn btn_contained btn_size_s\" href=\"/login/index.html\">로그인</a>")
+                .append("</li>")
+                .append("<li class=\"header__menu__item\">")
+                .append("<a class=\"btn btn_ghost btn_size_s\" href = \"/registration/index.html\" >")
+                .append("회원 가입")
+                .append("</a>");
+    }
+
+    private void addUserNameToHtml(String name, StringBuilder dynamicHtmlContent) {
+        name = URLDecoder.decode(name, UTF_8);
+        dynamicHtmlContent
+                .append("<a class=\"btn btn_contained btn_size_s\" href=\"/mypage/index.html\">")
+                .append(name)
+                .append("님</a>");
     }
 }
