@@ -2,42 +2,30 @@ package webserver.reader;
 
 import util.ByteConst;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class ByteStreamReader {
-    private InputStream inputStream;
-    private int lengthBudget;
-    private int readLength;
-
-    public ByteStreamReader(InputStream inputStream, int length) {
+    private BufferedInputStream inputStream;
+    public ByteStreamReader(BufferedInputStream inputStream) {
         this.inputStream = inputStream;
-        this.lengthBudget = length;
-        readLength = 0;
     }
 
-    public ByteArrayOutputStream readUntil(byte target) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int b;
-        while ( (b = readWithCount()) != -1) {
-            if (b == target) {
-                break;
-            }
-            out.write((byte)b);
-        }
-        return out;
+    public String readLine() throws IOException {
+        ByteArrayOutputStream out = readByteLine();
+        return out.toString();
     }
 
-    public ByteArrayOutputStream readLine() throws IOException {
+    public ByteArrayOutputStream readByteLine() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int b;
-        while ( (b = readWithCount()) != -1) {
+        while ( (b = inputStream.read()) != -1) {
             if (b != ByteConst.CR) {
                 out.write(b);
                 continue;
             }
-            int next = readWithCount();
+            int next = inputStream.read();
             if (next == -1) {
                 out.write(ByteConst.CR);
                 break;
@@ -49,18 +37,5 @@ public class ByteStreamReader {
             out.write(next);
         }
         return out;
-    }
-
-    public boolean hasNext() {
-        return readLength < lengthBudget;
-    }
-
-    private int readWithCount() throws IOException {
-        int b = inputStream.read();
-        if (b == -1 || lengthBudget <= readLength) {
-            return -1;
-        }
-        readLength++;
-        return b;
     }
 }

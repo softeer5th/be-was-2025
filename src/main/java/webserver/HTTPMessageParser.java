@@ -33,7 +33,8 @@ public class HTTPMessageParser {
     }
 
     public HTTPRequest parse(InputStream inputStream) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        ByteStreamReader reader = new ByteStreamReader(bufferedInputStream);
         StringBuilder sb = new StringBuilder();
         HTTPRequest.Builder builder = new HTTPRequest.Builder();
         Map<String, String> headers = new LinkedHashMap<>();
@@ -46,13 +47,14 @@ public class HTTPMessageParser {
     }
 
     private String readLineWithLog(BufferedReader reader, StringBuilder sb) throws IOException {
+    private String readLineWithLog(ByteStreamReader reader, StringBuilder sb) throws IOException {
         String str = reader.readLine();
         sb.append(str);
         sb.append("\n");
         return str;
     }
 
-    private void parseFirstLine(BufferedReader reader, StringBuilder logBuilder, HTTPRequest.Builder requestBuilder)
+    private void parseFirstLine(ByteStreamReader reader, StringBuilder logBuilder, HTTPRequest.Builder requestBuilder)
             throws IOException {
         String str = readLineWithLog(reader, logBuilder);
         if (str == null || str.isBlank()) {
@@ -86,7 +88,7 @@ public class HTTPMessageParser {
         }
     }
 
-    private void readHeader(BufferedReader reader, StringBuilder logBuilder, Map<String, String> headers)
+    private void readHeader(ByteStreamReader reader, StringBuilder logBuilder, Map<String, String> headers)
             throws IOException {
         String line = readLineWithLog(reader, logBuilder);
         while (line != null && !line.isBlank()) {
