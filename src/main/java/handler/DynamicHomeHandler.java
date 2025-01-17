@@ -50,24 +50,33 @@ public class DynamicHomeHandler implements Handler {
 
         final Optional<String> userName = userManager.getNameFromSession(sessionId);
 
-        StringBuilder dynamicHtmlContent = new StringBuilder()
-                .append("<ul class=\"header__menu\">")
-                .append("<li class=\"header__menu__item\">");
+        StringBuilder dynamicHtmlContent = new StringBuilder();
 
+        startHeaderMenu(dynamicHtmlContent);
         userName.ifPresentOrElse(
                 name -> addUserNameToHtml(name, dynamicHtmlContent),
                 () -> addAuthLinksToHtml(dynamicHtmlContent)
         );
-
-        dynamicHtmlContent
-                .append("</li>")
-                .append("</ul>");
+        endHeaderMenu(dynamicHtmlContent);
 
 
         String body = html.replace(REPLACE_TARGET, dynamicHtmlContent.toString());
 
         response.setResponse(OK, extension, body);
         return response;
+    }
+
+    private void startHeaderMenu(StringBuilder dynamicHtmlContent) {
+        dynamicHtmlContent
+                .append("<ul class=\"header__menu\">")
+                .append("<li class=\"header__menu__item\">");
+
+    }
+
+    private void endHeaderMenu(StringBuilder dynamicHtmlContent) {
+        dynamicHtmlContent
+                .append("</li>")
+                .append("</ul>");
     }
 
     private void addAuthLinksToHtml(StringBuilder dynamicHtmlContent) {
