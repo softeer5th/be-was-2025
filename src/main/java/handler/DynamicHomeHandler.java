@@ -47,7 +47,6 @@ public class DynamicHomeHandler implements Handler {
                 .orElseThrow(() -> new ClientErrorException(ErrorCode.FILE_NOT_FOUND));
 
         final String sessionId = CookieParser.parseCookie(request.getHeaderValue(HttpHeader.COOKIE.getName()));
-
         final Optional<String> userName = userManager.getNameFromSession(sessionId);
 
         StringBuilder dynamicHtmlContent = new StringBuilder();

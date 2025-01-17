@@ -42,7 +42,7 @@ public class UserManager {
     }
 
     public String loginUser(final UserLoginRequest userLoginRequest) {
-        final User user = GetOrElseThrow(userLoginRequest.userId());
+        final User user = getOrElseThrow(userLoginRequest.userId());
         validPassword(user.getPassword(), userLoginRequest.password());
 
         return sessionManager.makeAndSaveSessionId(userLoginRequest.userId());
@@ -68,7 +68,7 @@ public class UserManager {
             throw new LoginException(INCORRECT_PASSWORD);
     }
 
-    private User GetOrElseThrow(final String userId) {
+    private User getOrElseThrow(final String userId) {
         if (database.findUserById(userId) == null)
             throw new LoginException(NO_SUCH_USER_ID);
         return database.findUserById(userId);
