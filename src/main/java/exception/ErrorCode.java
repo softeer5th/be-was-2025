@@ -11,9 +11,11 @@ public enum ErrorCode {
     UNSUPPORTED_HTTP_VERSION(BAD_REQUEST, "지원하지 않는 http 요청입니다."),
     INVALID_HTTP_METHOD(BAD_REQUEST,"잘못된 HTTP 메소드입니다."),
     INVALID_HTTP_REQUEST(BAD_REQUEST, "잘못된 HTTP 요청입니다."),
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED,"허용하지 않는 HTTP 요청입니다."),
     UNSUPPORTED_FILE_EXTENSION(UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 파일 확장자 형식입니다"),
     FILE_NOT_FOUND(BAD_REQUEST, "존재하지 않는 파일입니다."),
-    NOT_ALLOWED_PATH(BAD_REQUEST, "잘못된 요청입니다.");
+    NOT_ALLOWED_PATH(BAD_REQUEST, "잘못된 요청입니다."),
+    ALREAD_EXIST_USERID(BAD_REQUEST,"이미 존재하는 userId입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

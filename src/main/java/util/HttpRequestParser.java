@@ -9,12 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HttpRequestInfo;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
@@ -24,24 +20,17 @@ public abstract class HttpRequestParser {
     private static final String QUERY_PARAMS = "&";
     private static final List<HttpVersion> supportedVersions = ServerConfig.getSupportedHttpVersions();
 
-    public static HttpRequestInfo parse(InputStream inputStream) throws IOException {
-        BufferedReader br = new BufferedReader(new java.io.InputStreamReader(inputStream));
 
-        String requests = br.readLine();
+    public static HttpRequestInfo parse(InputStream inputStream) throws IOException {
+        DataInputStream dis = new DataInputStream(inputStream);
+        String requestLine = readLine(dis);
 
         // 1. 요청이 빈 줄인 경우, 이를 무시하고 다시 읽어들임
-        while (requests != null && requests.trim().isEmpty()) {
-            requests = br.readLine();
+        while (requestLine.trim().isEmpty()) {
+            requestLine = readLine(dis);
         }
 
-        // 2. 요청이 null이거나 잘못된 형식일 경우 예외 처리
-        if (requests == null || requests.trim().isEmpty()) {
-            throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
-        }
-
-        // 3. HTTP 메서드와 URL을 파싱
-
-        String[] requestInfo = requests.split(REQUEST_LINE_SEPARATOR);
+        String[] requestInfo = requestLine.split(REQUEST_LINE_SEPARATOR);
 
         if (requestInfo.length != 3) {
             throw new ClientErrorException(ErrorCode.INVALID_HTTP_REQUEST);
@@ -50,15 +39,65 @@ public abstract class HttpRequestParser {
         HttpMethod method = HttpMethod.matchOrElseThrow(requestInfo[0]);
         String url = requestInfo[1];
         HttpVersion version = HttpVersion.matchOrElseThrow(requestInfo[2], supportedVersions);
-        logger.debug("Request mehtod = {}, url = {}, version = {}", method, url, version);
+        logger.debug("Request method = {}, url = {}, version = {}", method, url, version);
 
         // request의 내용을 로깅한다.
-        while (!(requests = br.readLine()).isEmpty()) {
-            String[] nameAndValue = requests.split(HEADER_SEPARATOR, 2);
-            logger.debug("{} = {}", nameAndValue[0], nameAndValue[1]);
+        // 4. 헤더 파싱
+        Map<String, String> headers = new HashMap<>();
+        String headerLine;
+        while (!(headerLine = readLine(dis)).isBlank()) {
+            String[] nameAndValue = headerLine.split(HEADER_SEPARATOR, 2);
+            if (nameAndValue.length == 2) {
+                headers.put(nameAndValue[0].toLowerCase(), nameAndValue[1].trim());
+                logger.debug("{} = {}", nameAndValue[0], nameAndValue[1]);
+            }
         }
 
-        return new HttpRequestInfo(method, url, version);
+        // 5. body parsing
+        Object body;
+        body = parseBody(dis, headers);
+
+        if (body != null) {
+            logger.debug("Request body = {}", body);
+        }
+        return new HttpRequestInfo(method, url, version, headers, body);
+    }
+
+    // DataInputStream을 사용하여 한 줄을 읽음
+    private static String readLine(DataInputStream dis) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        boolean crFound = false; // \r이 발견되었는지 추적하는 변수
+
+        while ((ch = dis.read()) != -1) {
+            if (ch == '\r') { // \r이 발견되면
+                crFound = true; // \r을 발견
+            } else if (ch == '\n' && crFound) { // \n이 오고, 이전에 \r이 있었다면
+                break; // \r\n을 찾았다면 줄 끝
+            } else {
+                // \r만 있는 경우는 그냥 \r을 추가하고, 그 외 문자는 그대로 추가
+                sb.append((char) ch);
+                crFound = false; // \r이 없으면 초기화
+            }
+        }
+
+        return !sb.isEmpty() ? sb.toString() : ""; // 줄의 내용이 있으면 반환
+    }
+
+
+    // 본문 파싱
+    private static String parseBody(DataInputStream dis, Map<String, String> headers) throws IOException {
+        String body = null;
+
+        // 5.1 Content-Length가 있는 경우 본문을 해당 길이만큼 읽어온다
+        if (headers.containsKey("content-length")) {
+            int contentLength = Integer.parseInt(headers.get("content-length"));
+            byte[] bodyBytes = new byte[contentLength];
+            dis.readFully(bodyBytes);
+            body = new String(bodyBytes);
+        }
+
+        return body;
     }
 
     public static Map<String, String> parseParamString(String paramString) {
@@ -75,3 +114,4 @@ public abstract class HttpRequestParser {
         return paramMap;
     }
 }
+
