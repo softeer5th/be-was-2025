@@ -5,12 +5,12 @@ import webserver.view.TagRenderer;
 import webserver.view.TemplateEngine;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class IfTagRenderer extends TagRenderer {
     public static final String IF_TAG_NAME = "my-if";
     public static final String CONDITION_ATTRIBUTE_NAME = "condition";
-    private static final String OPERATOR_PATTERN = "(&&)|(\\|\\|)";
+    private static final String BINARY_OPERATOR_PATTERN = "(&&)|(\\|\\|)";
+    private static final String NOT_OPERATOR = "!";
     private TemplateEngine engine;
 
     public IfTagRenderer() {
@@ -27,7 +27,7 @@ public class IfTagRenderer extends TagRenderer {
     }
 
 
-    // <my-if condition="true">children</my-if>
+    // <my-if condition="session.user">children</my-if>
     @Override
     public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
         String condition = tagAttributes.get(CONDITION_ATTRIBUTE_NAME);
@@ -36,37 +36,30 @@ public class IfTagRenderer extends TagRenderer {
         }
         return "";
     }
-
-    // user.name && !user.isAdmin
+    
     // && 와 || 의 우선순위는 앞에 있는 것이 높다.
     public boolean isConditionTrue(Map<String, Object> model, String condition) {
         condition = condition.strip();
-        String[] tokens = condition.split(OPERATOR_PATTERN, 2);
+        // condition을 맨 앞에 오는 이항 연산자 기준으로 나누기
+        String[] tokens = condition.split(BINARY_OPERATOR_PATTERN, 2);
         if (tokens.length == 1) {
             // tokens[0] == condition 인 상황
-            if (condition.startsWith("!")) {
+
+            // condition에 not 연산자가 포함된 경우
+            if (condition.startsWith(NOT_OPERATOR)) {
                 return !isConditionTrue(model, condition.substring(1));
             }
 
+            // condition 이 boolean literal인 경우
             if ("true".equalsIgnoreCase(condition))
                 return true;
             else if ("false".equalsIgnoreCase(condition))
                 return false;
 
-            tokens = condition.split("\\.");
-            Object cursor = model.get(tokens[0]);
-            // condition이 .(dot) 로 구분된 경로가 아니라 단일 값일 때는 해당하는 값이 null인지 판단
-            if (tokens.length == 1)
-                return cursor != null;
-            //  condition이 .(dot) 로 구분된 경로가면 객체 탐색
-            for (int i = 1; i < tokens.length; i++) {
-                String fieldName = tokens[i];
-                Optional<Object> getter = ReflectionUtil.getter(cursor, fieldName);
-                if (getter.isEmpty())
-                    return false;
-                cursor = getter.get();
-            }
-            return cursor != null;
+            // condition 이 객체 탐색 경로인 경우 ex) session.user.isAdmin
+            String objectTraversalPath = condition;
+
+            return ReflectionUtil.recursiveCallGetter(model, objectTraversalPath).isPresent();
 
         } else {
             // condition에 && 또는 || 가 포함된 상황

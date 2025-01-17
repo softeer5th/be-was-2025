@@ -37,7 +37,7 @@ public class TextTagRenderer extends TagRenderer {
         Matcher matcher = PATH_PATTERN.matcher(childrenTemplate);
         while (matcher.find()) {
             String path = matcher.group(1);
-            String value = traversePath(path, model);
+            String value = ReflectionUtil.recursiveCallGetter(model, path).orElse("").toString();
             matcher.appendReplacement(sb, value);
         }
         matcher.appendTail(sb);
@@ -49,7 +49,7 @@ public class TextTagRenderer extends TagRenderer {
         Object cursor = model.get(tokens[0]);
         for (int i = 1; i < tokens.length; i++) {
             String fieldName = tokens[i];
-            Optional<Object> getter = ReflectionUtil.getter(cursor, fieldName);
+            Optional<Object> getter = ReflectionUtil.callGetter(cursor, fieldName);
             if (getter.isEmpty()) {
                 return "";
             }
