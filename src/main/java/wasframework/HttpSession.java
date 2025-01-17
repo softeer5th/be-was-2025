@@ -19,4 +19,8 @@ public class HttpSession {
     public static void remove(String key){
         session.remove(key);
     }
+
+    public static void clear(){
+        session.clear();
+    }
 }
