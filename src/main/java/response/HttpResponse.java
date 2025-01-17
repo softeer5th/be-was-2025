@@ -83,7 +83,6 @@ public class HttpResponse {
     public void setResponse(HttpStatus status, FileContentType contentType) {
         setStatus(status);
         setContentType(contentType);
-        setBody("");
     }
 
     public void setResponse(HttpStatus status, FileContentType contentType, String body) {
@@ -107,7 +106,7 @@ public class HttpResponse {
             }
             dos.writeBytes("\r\n");
 
-            if (body.length > 0)
+            if (body!= null && body.length > 0)
                 dos.write(body, 0, body.length);
             dos.writeBytes("\r\n");
             dos.flush();
