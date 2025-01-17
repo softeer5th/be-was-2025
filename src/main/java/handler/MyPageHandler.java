@@ -15,7 +15,9 @@ import util.FileReader;
 import java.util.Optional;
 
 import static exception.ErrorCode.FILE_NOT_FOUND;
-
+/*
+ * 로그인 여부에 따라 마이페이지 서빙을 관리하는 핸들러
+ */
 public class MyPageHandler implements Handler {
 
     private static final Logger log = LoggerFactory.getLogger(MyPageHandler.class);
@@ -48,7 +50,6 @@ public class MyPageHandler implements Handler {
     }
 
     private void redirectToHomePage(HttpResponse response) {
-        // 로그인하지 않은 경우, HOME_PATH로 리다이렉트
         response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "");
         response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_PATH);
     }

@@ -16,7 +16,9 @@ import response.HttpResponse;
 
 import static enums.HttpMethod.POST;
 import static exception.ErrorCode.REQUEST_NOT_ALLOWED;
-
+/*
+ * 사용자와 관련된 기능(회원가입, 로그인, 로그아웃)을 담당하는 핸들러
+ */
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
     private static final String USER_REQUEST_PREFIX = "/user/";

@@ -17,7 +17,9 @@ import java.util.Optional;
 
 import static enums.HttpStatus.OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
-
+/*
+ * 로그인 여부에 따라 동적 html 파일을 반환하는 핸들러 클래스
+ */
 public class DynamicHomeHandler implements Handler {
     private static final Logger log = LoggerFactory.getLogger(DynamicHomeHandler.class);
 

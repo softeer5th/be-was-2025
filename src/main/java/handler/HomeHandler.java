@@ -9,6 +9,9 @@ import static enums.HttpMethod.GET;
 import static enums.HttpStatus.SEE_OTHER;
 import static exception.ErrorCode.REQUEST_NOT_ALLOWED;
 
+/*
+ * / get 요청 시 홈화면으로 리다이렉트 하는 핸들러
+ */
 public class HomeHandler implements Handler {
     private static final String HOME_URL = System.getenv("HOME_URL");
 
