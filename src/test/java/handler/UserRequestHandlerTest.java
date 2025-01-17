@@ -40,6 +40,15 @@ class UserRequestHandlerTest {
     }
 
     @Test
+    @DisplayName("회원가입 항목 필드에 누락이 있을 경우 에러가 발생한다.")
+    void handle_createUser_missing_field() {
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, "/user/create", HttpVersion.HTTP1_1, new HashMap<>(), "userId=jueun2&nickname=jueun&password=jueun");
+        assertThatThrownBy(() -> userRequestHandler.handle(httpRequestInfo))
+                .isInstanceOf(ClientErrorException.class)
+                .hasMessage(ErrorCode.MISSING_FIELD.getMessage());
+    }
+
+    @Test
     @DisplayName("GET으로 회원가입 요청 시 에러가 발생한다.")
     void handle_createUser_GET() {
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, HttpVersion.HTTP1_1, new HashMap<>(), null);
