@@ -6,8 +6,10 @@ import webserver.decoders.ByteDecoder;
 import webserver.decoders.PercentDecoder;
 import webserver.enumeration.HTTPStatusCode;
 import webserver.exception.HTTPException;
+import webserver.reader.ByteBufferedReader;
 import webserver.reader.ByteStreamReader;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,20 +21,21 @@ public class URLEncodedParser implements BodyParser {
         this.decoder = new PercentDecoder();
     }
     @Override
-    public HeterogeneousContainer parse(HeterogeneousContainer headers, InputStream inputStream) {
+    public HeterogeneousContainer parse(HeterogeneousContainer headers, BufferedInputStream inputStream) {
         try {
             HeterogeneousContainer body = new HeterogeneousContainer(new LinkedHashMap<>());
-            int bodyLength = headers.get("content-length", Integer.class)
+            final int bodyLength = headers.get("content-length", Integer.class)
                     .orElseThrow(() -> new HTTPException.Builder()
                             .causedBy(URLEncodedParser.class)
                             .statusCode(HTTPStatusCode.LENGTH_REQUIRED)
                             .build());
-            ByteStreamReader reader = new ByteStreamReader(inputStream, bodyLength);
+            ByteBufferedReader reader = new ByteBufferedReader(inputStream, bodyLength);
             while (reader.hasNext()) {
-                ByteArrayOutputStream name = reader.readUntil(ByteConst.EQUAL);
-                String nameString = this.decoder.decode(name.toByteArray()).toString("UTF-8");
-                ByteArrayOutputStream value = reader.readUntil(ByteConst.AMPERSAND);
-                String valueString = this.decoder.decode(value.toByteArray()).toString("UTF-8");
+                byte [] name = reader.readUntil(ByteConst.EQUAL).toByteArray();
+                byte [] value = reader.readUntil(ByteConst.AMPERSAND).toByteArray() ;
+                String nameString = this.decoder.decode(name).toString("UTF-8");
+                String valueString = this.decoder.decode(value).toString("UTF-8");
+                System.out.println(nameString + ": " + valueString);
                 body.put(nameString, valueString);
             }
             return body;

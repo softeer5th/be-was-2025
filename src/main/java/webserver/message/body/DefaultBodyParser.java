@@ -4,15 +4,15 @@ import util.HeterogeneousContainer;
 import webserver.enumeration.HTTPStatusCode;
 import webserver.exception.HTTPException;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 
 public class DefaultBodyParser implements BodyParser {
 
     @Override
-    public HeterogeneousContainer parse(HeterogeneousContainer headers, InputStream inputStream) {
+    public HeterogeneousContainer parse(HeterogeneousContainer headers, BufferedInputStream inputStream) {
         HeterogeneousContainer body = new HeterogeneousContainer(new HashMap<>());
         int contentLength = headers.get("content-length", Integer.class)
                 .orElseThrow(() -> new HTTPException.Builder()
