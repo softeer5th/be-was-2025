@@ -27,7 +27,6 @@ public class UserController {
      */
     @Mapping(path = "/login", method = HttpMethod.GET)
     public void loginPage(HttpResponse response) throws IOException {
-        response.setStatusCode(StatusCode.OK);
         response.setHeader("Content-Type", "text/html; charset=utf-8");
 
         File file = new File("src/main/resources/static/login/index.html");
@@ -47,13 +46,11 @@ public class UserController {
         String inputUserId = request.getParameter(User.USER_ID);
         String inputPassword = request.getParameter(User.PASSWORD);
         if (inputUserId == null || inputPassword == null) {
-            response.setStatusCode(StatusCode.UNAUTHORIZED);
             response.setLocation("/user/login_failed");
             return;
         }
         User userById = Database.findUserById(inputUserId);
         if (userById == null) {
-            response.setStatusCode(StatusCode.UNAUTHORIZED);
             response.setLocation("/user/login_failed");
             return;
         }
@@ -76,7 +73,6 @@ public class UserController {
      */
     @Mapping(path = "/user/login_failed", method = HttpMethod.GET)
     public void loginFailed(HttpResponse response) throws IOException {
-        response.setStatusCode(StatusCode.UNAUTHORIZED);
         response.setHeader("Content-Type", "text/html; charset=utf-8");
 
         File file = new File("src/main/resources/static/login/login_failed.html");
