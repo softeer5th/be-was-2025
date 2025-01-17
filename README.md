@@ -47,5 +47,18 @@
 - [x] [HTTP Method 스펙 공부](https://gamxong.tistory.com/157)
 - [ ] HTTP HEAD 메서드 구현
 - [x] HTTP POST 스펙 공부
-- [ ] Redirection 스펙 공부
+- [x] Redirection 스펙 공부
 - [x] HTTP body 스펙 공부
+
+# 5차 과제
+## 기능요구사항
+- [x] 가입한 회원 정보로 로그인을 할 수 있다.
+- [x] [로그인] 메뉴를 클릭하면 http://localhost:8080/user/login.html 으로 이동해 로그인할 수 있다.
+- [x] 로그인이 성공하면 index.html로 이동한다.
+- [x] 로그인이 실패하면 /user/login_failed.html로 이동한다.
+- [ ] 로그아웃도 정상 동작하도록 구현해 본다.
+
+## 프로그래밍 요구사항
+- [x] 로그인이 성공할 경우 HTTP 헤더의 쿠키 값을 SID=세션 ID 로 응답한다.
+- [x] 세션 ID는 적당한 크기의 무작위 숫자 또는 문자열을 사용한다.
+- [x] 서버는 세션 아이디에 해당하는 User 정보에 접근할 수 있어야 한다.

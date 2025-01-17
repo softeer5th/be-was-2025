@@ -13,6 +13,12 @@ public class User {
         this.email = email;
     }
 
+    public void validatePassword(String password) {
+        if (!this.password.equals(password)) {
+            throw new IllegalArgumentException("Password is invalid");
+        }
+    }
+
     public String getUserId() {
         return userId;
     }

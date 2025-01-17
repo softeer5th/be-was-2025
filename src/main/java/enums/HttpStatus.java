@@ -6,6 +6,7 @@ public enum HttpStatus {
 	CREATED(201, "Created"),
 	FOUND(302, "Found"),
 	SEE_OTHER(303, "See Other"),
+	TEMPORARY_REDIRECT(307, "Temporary Redirect"),
 	BAD_REQUEST(400, "Bad Request"),
 	NOT_FOUND(404, "Not Found"),
 	METHOD_NOT_ALLOWED(405, "Method Not Allowed");

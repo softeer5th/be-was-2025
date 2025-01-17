@@ -19,6 +19,10 @@ public class Database {
         return Optional.ofNullable(orDefault);
     }
 
+    public static User findUserByIdOrThrow(String userId) {
+        return findUserById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
     public static Collection<User> findAll() {
         return users.values();
     }
