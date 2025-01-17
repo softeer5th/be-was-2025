@@ -21,16 +21,18 @@ class RequestDispatcherTest {
         Socket connection = Mockito.mock(Socket.class);
         RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new TestRouter());
 
-        String httpRequest = "POST /test HTTP/1.1\r\n" +
-                "Accept: application/json\r\n" +
-                "Accept-Encoding: gzip, deflate\r\n" +
-                "Connection: keep-alive\r\n" +
-                "Content-Length: 4\r\n" +
-                "Content-Type: application/json\r\n" +
-                "Host: google.com\r\n" +
-                "User-Agent: HTTPie/0.9.3\r\n" +
-                "\r\n" +
-                "gigi\r\n";
+        String httpRequest = """
+                POST /test HTTP/1.1\r
+                Accept: application/json\r
+                Accept-Encoding: gzip, deflate\r
+                Connection: keep-alive\r
+                Content-Length: 4\r
+                Content-Type: application/json\r
+                Host: google.com\r
+                User-Agent: HTTPie/0.9.3\r
+                \r
+                gigi\r
+                """;
 
         byte[] httpRequestBytes = httpRequest.getBytes();
 
@@ -66,16 +68,18 @@ class RequestDispatcherTest {
         RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new ExceptionRouter());
 
 
-        String httpRequest = "POST /test HTTP/1.1\r\n" +
-                "Accept: application/json\r\n" +
-                "Accept-Encoding: gzip, deflate\r\n" +
-                "Connection: keep-alive\r\n" +
-                "Content-Length: 4\r\n" +
-                "Content-Type: application/json\r\n" +
-                "Host: google.com\r\n" +
-                "User-Agent: HTTPie/0.9.3\r\n" +
-                "\r\n" +
-                "gigi\r\n";
+        String httpRequest = """
+                POST /test HTTP/1.1\r
+                Accept: application/json\r
+                Accept-Encoding: gzip, deflate\r
+                Connection: keep-alive\r
+                Content-Length: 4\r
+                Content-Type: application/json\r
+                Host: google.com\r
+                User-Agent: HTTPie/0.9.3\r
+                \r
+                gigi\r
+                """;
 
         byte[] httpRequestBytes = httpRequest.getBytes();
 
