@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 
 class UserCreateRequestTest {
     @Test
-    @DisplayName("잘못된 form으로 회원가입 요청이 올 경우 에러가 발생한다.")
-    void userCreateRequest_invalidForm() {
+    @DisplayName("회원가입 요청 form에 누락된 필드가 있을 경우 에러가 발생한다.")
+    void userCreateRequest_missingField() {
         final String invalidForm = "user=jueun&myname=jueun&email=hi";
 
         Assertions.assertThatThrownBy(() -> UserCreateRequest.of(invalidForm))
                 .isInstanceOf(ClientErrorException.class)
-                .hasMessage(ErrorCode.INVALID_FORM.getMessage());
+                .hasMessage(ErrorCode.MISSING_FIELD.getMessage());
     }
 
     @Test
