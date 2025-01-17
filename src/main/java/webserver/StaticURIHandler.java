@@ -2,6 +2,7 @@ package webserver;
 
 import Response.HTTPResponse;
 import constant.HTTPCode;
+import db.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HTTPRequest;
@@ -9,6 +10,9 @@ import request.HTTPRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import static manager.UserManager.COOKIE;
+import static util.Utils.getSessionIdInCookie;
 
 
 public class StaticURIHandler implements URIHandler {
@@ -27,6 +31,13 @@ public class StaticURIHandler implements URIHandler {
 
     @Override
     public HTTPResponse handle(HTTPRequest httpRequest) {
+        if(httpRequest.getUri().equals("/mypage")){
+            String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
+            if(!Database.sessionExists(sessionId)){
+                return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND, INDEX_HTML);
+            }
+        }
+
         File file = new File(STATIC_FILE_DIRECTORY_PATH, httpRequest.getUri());
         if (file.isDirectory()){
             file = new File(STATIC_FILE_DIRECTORY_PATH, httpRequest.getUri() + INDEX_HTML);

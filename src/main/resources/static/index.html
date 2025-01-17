@@ -16,6 +16,10 @@
     #login-buttons .header__menu__item {
       margin: 0;
     }
+    #user-info a {
+      text-decoration: none;
+      color: inherit;
+    }
   </style>
   <script>
     window.onload = async function () {
@@ -25,7 +29,7 @@
 
         if (userId) {
           document.getElementById('user-info').innerHTML = `
-              <span>안녕하세요, ${userId}님</span>
+              <a href="/mypage">안녕하세요, ${userId}님</a>
             `;
           document.getElementById('login-buttons').style.display = 'none';
         } else {

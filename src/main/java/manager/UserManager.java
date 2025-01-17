@@ -20,7 +20,7 @@ public class UserManager {
     private static final String redirectAfterSignUp = "/index.html";
     private static final String redirectAfterLogIn = "/index.html";
     private static final String redirectAfterLogInFail = "/user/login_failed.html";
-    private static final String COOKIE = "cookie";
+    public static final String COOKIE = "cookie";
 
 
     public HTTPResponse signUp(HTTPRequest httpRequest){
