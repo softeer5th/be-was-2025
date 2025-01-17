@@ -38,7 +38,7 @@ public class UserRequestHandler implements Handler {
         String path = request.getPath().substring(USER_REQUEST_PREFIX.length());
         HttpResponse response = new HttpResponse();
 
-        if (path.startsWith("create")) {
+        if (path.startsWith(PATH.CREATE.endPoint)) {
             checkPostMethod(request.getMethod());
 
             UserCreateRequest userCreateRequest = UserCreateRequest.of((String) request.getBody());
@@ -47,7 +47,7 @@ public class UserRequestHandler implements Handler {
 
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "successssssss");
             response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_URL);
-        } else if (path.startsWith("login")) {
+        } else if (path.startsWith(PATH.LOGIN.endPoint)) {
             checkPostMethod(request.getMethod());
             UserLoginRequest userLoginRequest = UserLoginRequest.of((String) request.getBody());
 
@@ -63,7 +63,7 @@ public class UserRequestHandler implements Handler {
                 response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, e.getMessage());
                 response.setHeaders(HttpHeader.LOCATION.getName(), LOGIN_FAIL_URL);
             }
-        } else if (path.equals("logout")) {
+        } else if (path.startsWith(PATH.LOGOUT.endPoint)) {
             userManager.logoutUser(request.getHeaderValue(HttpHeader.SET_COOKIE.getName()));
 
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "logoutSuccess");
@@ -79,6 +79,18 @@ public class UserRequestHandler implements Handler {
     private void checkPostMethod(final HttpMethod method) {
         if (method != POST)
             throw new ClientErrorException(REQUEST_NOT_ALLOWED);
+    }
+
+    private enum PATH {
+        CREATE("create"),
+        LOGIN("login"),
+        LOGOUT("logout");
+
+        PATH(String endPoint) {
+            this.endPoint = endPoint;
+        }
+
+        private final String endPoint;
     }
 
 
