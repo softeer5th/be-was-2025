@@ -1,7 +1,8 @@
 package handler.dynamic_handler;
 
 import http.request.HttpRequest;
+import http.response.HttpResponse;
 
 public interface DynamicHtmlHandler {
-    byte[] handle(byte[] fileData, HttpRequest httpRequest);
+    HttpResponse handle(byte[] fileData, String extension, HttpRequest httpRequest);
 }
