@@ -9,9 +9,10 @@ import java.util.Map;
 public class Database {
     private static Map<String, User> users = new HashMap<>();
 
-    public static void addUser(User user) {
+    public static void saveUser(User user) {
         users.put(user.getUserId(), user);
     }
+
 
     public static User findUserById(String userId) {
         return users.get(userId);
