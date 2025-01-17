@@ -33,17 +33,21 @@ public class MethodResolverFactory {
                 ParameterMetaInfo[] parameterMetaInfos = new ParameterMetaInfo[parameters.length];
                 for (int i = 0 ; i < parameters.length; i++) {
                     Parameter parameter = parameters[i];
-                    RequestParam param = parameter.getAnnotation(RequestParam.class);
-                    if (param == null) {
-                        continue;
-                    }
-                    TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
-                    ParameterMetaInfo metaInfo = new ParameterMetaInfo(param.key(), param.required(), typeParser);
-                    parameterMetaInfos[i] = metaInfo;
+                    handleRequestParam(parameter, parameterMetaInfos, i);
                 }
                 requestMap.put(annotation.path(), new RequestMethodWrapper(handlerGroup, method, parameterMetaInfos));
             }
         }
         return new RequestMethodMapper(requestMap);
+    }
+
+    private static void handleRequestParam(Parameter parameter, ParameterMetaInfo [] infos, int index) {
+        RequestParam param = parameter.getAnnotation(RequestParam.class);
+        if (param == null) {
+            return;
+        }
+        TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
+        ParameterMetaInfo metaInfo = new ParameterMetaInfo(param.key(), param.required(), typeParser);
+        infos[index] = metaInfo;
     }
 }
