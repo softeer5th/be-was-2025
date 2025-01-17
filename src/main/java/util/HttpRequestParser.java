@@ -1,6 +1,7 @@
 package util;
 
 import config.ServerConfig;
+import enums.HttpHeader;
 import enums.HttpMethod;
 import enums.HttpVersion;
 import exception.ClientErrorException;
@@ -90,8 +91,8 @@ public abstract class HttpRequestParser {
         String body = null;
 
         // 5.1 Content-Length가 있는 경우 본문을 해당 길이만큼 읽어온다
-        if (headers.containsKey("content-length")) {
-            int contentLength = Integer.parseInt(headers.get("content-length"));
+        if (headers.containsKey(HttpHeader.CONTENT_LENGTH.getName())) {
+            int contentLength = Integer.parseInt(headers.get(HttpHeader.CONTENT_LENGTH.getName()));
             byte[] bodyBytes = new byte[contentLength];
             dis.readFully(bodyBytes);
             body = new String(bodyBytes);
