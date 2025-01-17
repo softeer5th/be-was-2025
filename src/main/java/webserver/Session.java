@@ -20,6 +20,10 @@ public class Session {
         return sessionId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
     public int getMaxInactiveInterval() {
         return maxInactiveInterval;
     }
