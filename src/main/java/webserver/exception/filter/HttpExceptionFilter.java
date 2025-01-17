@@ -1,4 +1,4 @@
-package webserver.exception.resolver;
+package webserver.exception.filter;
 
 import webserver.enums.HttpStatusCode;
 import webserver.exception.HttpException;

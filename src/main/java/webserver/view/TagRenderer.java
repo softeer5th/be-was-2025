@@ -2,7 +2,7 @@ package webserver.view;
 
 import java.util.Map;
 
-// 특정 태그의 처리를 담당하는 클래스
+// 특정 태그의 렌더링을 담당하는 클래스
 public abstract class TagRenderer {
     // 태그의 이름. my-로 시작해야 함
     protected final String tagName;

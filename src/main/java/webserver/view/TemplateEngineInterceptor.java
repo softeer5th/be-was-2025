@@ -9,7 +9,7 @@ import webserver.session.HttpSession;
 import java.util.Map;
 
 
-// 템플릿 엔진을 사용하는 요청에 대한 처리를 담당하는 인터셉터
+// 템플릿을 사용하는 응답을 확인하여 템플릿 엔진을 통해 렌더링하여 결과값으로 보내는 인터셉터
 public class TemplateEngineInterceptor implements HandlerInterceptor {
     private static final String SESSION_ATTRIBUTE_NAME = "session";
     private final TemplateEngine templateEngine;
@@ -22,6 +22,7 @@ public class TemplateEngineInterceptor implements HandlerInterceptor {
 
     @Override
     public HttpResponse postHandle(HttpRequest request, HttpResponse response, Context context) {
+        // 응답이 템플릿을 사용하는지 확인
         ModelAndTemplate modelAndTemplate = response.getModelAndTemplate();
         if (modelAndTemplate == null) {
             return response;

@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import static util.ReflectionUtil.recursiveCallGetter;
 
+// childrenTemplate을 items의 갯수만큼 렌더링해주는 TagRenderer.
+// 각 렌더링 시 item을 model에 추가하여 childTemplate에서 item을 사용할 수 있게 한다.
 public class ForeachTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-foreach";
     public static final String ITEMS_ATTRIBUTE_NAME = "items";

@@ -1,4 +1,4 @@
-package webserver.exception.resolver;
+package webserver.exception.filter;
 
 import webserver.exception.LoginRequired;
 import webserver.request.HttpRequest;

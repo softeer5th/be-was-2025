@@ -9,7 +9,7 @@ import java.util.Optional;
 // 리플렉션 유틸 클래스
 public class ReflectionUtil {
     private static final String GET_METHOD = "get";
-    private static List<String> getterPrefix = List.of("get", "is");
+    private static final List<String> getterPrefix = List.of("get", "is");
 
     /* 객체의 필드를 가져오는 메서드. 만약 fieldName이 email이라면
        2. getEmail()
@@ -20,10 +20,8 @@ public class ReflectionUtil {
         순서대로 필드를 가져온다.
      */
     public static Optional<Object> callGetter(Object object, String fieldName) {
-        if (object == null)
+        if (object == null || fieldName == null || fieldName.isBlank())
             return Optional.empty();
-        if (fieldName.isBlank())
-            throw new IllegalArgumentException("필드 이름이 비었습니다.");
 
         if (object instanceof Map<?, ?> m)
             return Optional.ofNullable(m.get(fieldName));

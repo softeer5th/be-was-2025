@@ -6,11 +6,19 @@ import webserver.view.TemplateEngine;
 
 import java.util.Map;
 
+// 조건문이 참이면 childTemplate을 렌더링하고, 거짓이면 빈 문자열을 반환하는 TagRenderer
+// 지원하는 조건문 형식은 다음과 같다.
+// 1. boolean literal : true, false
+// 2. 객체 탐색 경로 : session.user.isAdmin
+// 3. not 연산자 : !session.user.isAdmin
+// 4. 이항 연산자 : session.user.isAdmin && session.user.isLogin
+// 5. 이항 연산자 : session.user.isAdmin || session.user.isLogin
 public class IfTagRenderer extends TagRenderer {
     public static final String IF_TAG_NAME = "my-if";
     public static final String CONDITION_ATTRIBUTE_NAME = "condition";
     private static final String BINARY_OPERATOR_PATTERN = "(&&)|(\\|\\|)";
     private static final String NOT_OPERATOR = "!";
+    private static final String EMPTY_STRING = "";
     private TemplateEngine engine;
 
     public IfTagRenderer() {
@@ -26,18 +34,16 @@ public class IfTagRenderer extends TagRenderer {
         this.engine = engine;
     }
 
-
-    // <my-if condition="session.user">children</my-if>
     @Override
     public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
         String condition = tagAttributes.get(CONDITION_ATTRIBUTE_NAME);
         if (isConditionTrue(model, condition)) {
             return engine.render(childrenTemplate, model);
         }
-        return "";
+        return EMPTY_STRING;
     }
-    
-    // && 와 || 의 우선순위는 앞에 있는 것이 높다.
+
+    // condition을 평가하여 참이면 true, 거짓이면 false를 반환하는 메서드
     public boolean isConditionTrue(Map<String, Object> model, String condition) {
         condition = condition.strip();
         // condition을 맨 앞에 오는 이항 연산자 기준으로 나누기
@@ -57,9 +63,7 @@ public class IfTagRenderer extends TagRenderer {
                 return false;
 
             // condition 이 객체 탐색 경로인 경우 ex) session.user.isAdmin
-            String objectTraversalPath = condition;
-
-            return ReflectionUtil.recursiveCallGetter(model, objectTraversalPath).isPresent();
+            return ReflectionUtil.recursiveCallGetter(model, condition).isPresent();
 
         } else {
             // condition에 && 또는 || 가 포함된 상황

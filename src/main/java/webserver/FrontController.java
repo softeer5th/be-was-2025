@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
 import webserver.enums.HttpVersion;
-import webserver.exception.resolver.ExceptionFilterChain;
+import webserver.exception.filter.ExceptionFilterChain;
 import webserver.handler.HttpHandler;
 import webserver.interceptor.InterceptorChain;
 import webserver.request.HttpRequest;

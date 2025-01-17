@@ -4,18 +4,10 @@ import util.ReflectionUtil;
 import webserver.view.TagRenderer;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/* <my-text>
-*   ${user.name}
-*   <my-if condition="session.user">
-asdasd
-</my-if>
-* </my-text>
-*
-*/
+// childrenTemplate에 있는 ${}를 model에 있는 값으로 치환해주는 TagRenderer
 public class TextTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-text";
 
@@ -43,20 +35,5 @@ public class TextTagRenderer extends TagRenderer {
         matcher.appendTail(sb);
         return engine.render(sb.toString(), model);
     }
-
-    private String traversePath(String path, Map<String, Object> model) {
-        String[] tokens = path.split("\\.");
-        Object cursor = model.get(tokens[0]);
-        for (int i = 1; i < tokens.length; i++) {
-            String fieldName = tokens[i];
-            Optional<Object> getter = ReflectionUtil.callGetter(cursor, fieldName);
-            if (getter.isEmpty()) {
-                return "";
-            }
-            cursor = getter.get();
-        }
-        return cursor.toString();
-    }
-
 
 }

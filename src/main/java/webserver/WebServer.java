@@ -4,9 +4,9 @@ import db.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
-import webserver.exception.resolver.ExceptionFilterChain;
-import webserver.exception.resolver.HttpExceptionFilter;
-import webserver.exception.resolver.LoginRequiredFilter;
+import webserver.exception.filter.ExceptionFilterChain;
+import webserver.exception.filter.HttpExceptionFilter;
+import webserver.exception.filter.LoginRequiredFilter;
 import webserver.file.StaticResourceManager;
 import webserver.handler.LoginHandler;
 import webserver.handler.LogoutHandler;
@@ -93,11 +93,12 @@ public class WebServer {
                 .outbound()
                 .add(sessionInterceptor)
                 .add(templateInterceptor)
-                .add(logInterceptor).build();
+                .add(logInterceptor)
+                .build();
 
         ExceptionFilterChain exceptionFilterChain = new ExceptionFilterChain()
-                .addResolver(new LoginRequiredFilter())
-                .addResolver(new HttpExceptionFilter());
+                .addFilter(new LoginRequiredFilter())
+                .addFilter(new HttpExceptionFilter());
 
 
         // 서버소켓을 생성한다. 웹서버는 기본적으로 8080번 포트를 사용한다.
