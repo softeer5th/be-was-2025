@@ -16,7 +16,7 @@ public class FileUtil {
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n"); // UTF-8 인코딩 유지
+                content.append(line).append("\n");
             }
         } catch (FileNotFoundException e) {
             throw new BaseException(FileErrorCode.FILE_NOT_FOUND);

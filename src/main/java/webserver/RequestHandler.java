@@ -37,7 +37,7 @@ public class RequestHandler implements Runnable {
 
             try {
                 final Handler handler = router.route(httpRequestInfo.getPath());
-                logger.debug("Url = " + httpRequestInfo.getPath());
+                logger.debug("Url = {}", httpRequestInfo.getPath());
 
                 response = handler.handle(httpRequestInfo);
             } catch (BaseException e) {
