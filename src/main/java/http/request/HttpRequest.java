@@ -5,16 +5,18 @@ import http.enums.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 public class HttpRequest {
     private HttpMethod method;
     private TargetInfo target;
     private HttpVersion version;
-    private String headers;
+    private Map<String, String> headers;
     private String body;
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(HttpMethod method, TargetInfo target, HttpVersion version, String headers, String body) {
+    public HttpRequest(HttpMethod method, TargetInfo target, HttpVersion version, Map<String, String> headers, String body) {
         this.method = method;
         this.target = target;
         this.version = version;
@@ -34,7 +36,7 @@ public class HttpRequest {
         return version;
     }
 
-    public String getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 

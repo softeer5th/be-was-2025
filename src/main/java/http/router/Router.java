@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class Router {
     private static final String STATIC_RESOURCE_PATH = "./src/main/resources/static";
-    private Map<String, Handler> routes = new HashMap<>();
+    private final Map<String, Handler> routes = new HashMap<>();
     private final Handler staticResourceHandler = StaticResourceHandler.getInstance(STATIC_RESOURCE_PATH);
     private final Handler userHandler = UserHandler.getInstance();
     private final Handler badRequestHandler = BadRequestHandler.getInstance();
@@ -41,6 +41,8 @@ public class Router {
     private void initializeRoutes() {
         routes.put("/user", userHandler);
         routes.put("/user/create", userHandler);
+        routes.put("/user/login", userHandler);
+        routes.put("/user/logout", userHandler);
     }
 
     public void addRoute(String path, Handler handler) {

@@ -17,9 +17,7 @@ import java.net.URISyntaxException;
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    private static final String RESOURCE_PATH = "./src/main/resources/static";
-
-    private Socket connection;
+    private final Socket connection;
 
     private static final Router router = new Router();
 
@@ -34,10 +32,10 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             HttpRequest httpRequest = HttpRequestParser.parseRequest(in);
-            HttpResponse httpResponse = new HttpResponse(out);
 
             Handler httpRequestHandler = router.route(httpRequest);
-            httpRequestHandler.handle(httpRequest, httpResponse);
+            HttpResponse response = httpRequestHandler.handle(httpRequest);
+            response.send(out);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }

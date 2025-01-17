@@ -59,7 +59,20 @@ public class HttpRequestParser {
             logger.debug("\nHTTP Request Body: \n" + requestBody + "\n");
         }
 
-        return new HttpRequest(method, targetInfo, version, requestHeaders, requestBody);
+        return new HttpRequest(method, targetInfo, version, parseRequestHeaders(requestHeaders), requestBody);
+    }
+
+    public static Map<String, String> parseRequestHeaders(String requestHeaders) {
+        Map<String, String> requestHeadersMap = new HashMap<>();
+        if (requestHeaders != null) {
+            requestHeaders = requestHeaders.trim();
+            String[] tokens = requestHeaders.split("\n");
+            for (String token : tokens) {
+                String[] keyValue = token.split(":");
+                requestHeadersMap.put(keyValue[0], keyValue[1].trim());
+            }
+        }
+        return requestHeadersMap;
     }
 
     public static Map<String, Object> parseRequestBody(String requestBody) throws UnsupportedEncodingException {

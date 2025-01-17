@@ -1,7 +1,5 @@
 package http.handler;
 
-import http.enums.ErrorMessage;
-import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
 import http.request.TargetInfo;
 import http.response.HttpResponse;
@@ -13,7 +11,9 @@ import org.mockito.MockedStatic;
 import util.FileUtil;
 import util.HttpRequestUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +24,7 @@ public class StaticResourceHandlerTest {
     private StaticResourceHandler handler;
     private HttpRequest mockRequest;
     private HttpResponse mockResponse;
+    private OutputStream out;
     private static MockedStatic<HttpRequestUtil> mockHttpRequestUtil;
     private static MockedStatic<FileUtil> mockFileUtil;
 
@@ -31,7 +32,7 @@ public class StaticResourceHandlerTest {
     public void setUp() {
         handler = StaticResourceHandler.getInstance("./src/test/resources/static/");
         mockRequest = mock(HttpRequest.class);
-        mockResponse = mock(HttpResponse.class);
+        out = new ByteArrayOutputStream();
         mockHttpRequestUtil = mockStatic(HttpRequestUtil.class);
         mockFileUtil = mockStatic(FileUtil.class);
     }
@@ -59,9 +60,11 @@ public class StaticResourceHandlerTest {
         mockFileUtil.when(() -> FileUtil.fileToByteArray(anyString()))
                 .thenReturn(testContent.getBytes());
 
-        handler.handle(mockRequest, mockResponse);
+        mockResponse = handler.handle(mockRequest);
 
-        verify(mockResponse).sendSuccessResponse(eq(HttpResponseStatus.OK), eq(contentType), eq(testContent));
+        mockResponse.send(out);
+        String responseStatusLine = out.toString().split("\r\n")[0];
+        assertEquals("HTTP/1.1 200 OK", responseStatusLine);
     }
 
     @Test
@@ -77,9 +80,11 @@ public class StaticResourceHandlerTest {
         mockFileUtil.when(() -> FileUtil.fileToByteArray(anyString()))
                 .thenReturn(null);
 
-        handler.handle(mockRequest, mockResponse);
+        mockResponse = handler.handle(mockRequest);
 
-        verify(mockResponse).sendErrorResponse(eq(HttpResponseStatus.NOT_FOUND), eq(ErrorMessage.NOT_FOUND_PATH_AND_FILE));
+        mockResponse.send(out);
+        String responseStatusLine = out.toString().split("\r\n")[0];
+        assertEquals("HTTP/1.1 404 Not Found", responseStatusLine);
     }
 
     @Test
@@ -95,7 +100,7 @@ public class StaticResourceHandlerTest {
         mockFileUtil.when(() -> FileUtil.fileToByteArray(anyString()))
                 .thenThrow(new IOException("Test exception"));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> handler.handle(mockRequest, mockResponse));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> handler.handle(mockRequest));
         assertInstanceOf(IOException.class, exception.getCause());
     }
 }

@@ -19,6 +19,9 @@ public class HttpResponseStatusTest {
         assertEquals(400, HttpResponseStatus.BAD_REQUEST.getStatusCode());
         assertEquals("Bad Request", HttpResponseStatus.BAD_REQUEST.getStatusMessage());
 
+        assertEquals(401, HttpResponseStatus.UNAUTHORIZED.getStatusCode());
+        assertEquals("Unauthorized", HttpResponseStatus.UNAUTHORIZED.getStatusMessage());
+
         assertEquals(403, HttpResponseStatus.FORBIDDEN.getStatusCode());
         assertEquals("Forbidden", HttpResponseStatus.FORBIDDEN.getStatusMessage());
 
@@ -32,6 +35,7 @@ public class HttpResponseStatusTest {
         assertEquals("200 OK", HttpResponseStatus.OK.toString());
         assertEquals("201 Created", HttpResponseStatus.CREATED.toString());
         assertEquals("400 Bad Request", HttpResponseStatus.BAD_REQUEST.toString());
+        assertEquals("401 Unauthorized", HttpResponseStatus.UNAUTHORIZED.toString());
         assertEquals("403 Forbidden", HttpResponseStatus.FORBIDDEN.toString());
         assertEquals("404 Not Found", HttpResponseStatus.NOT_FOUND.toString());
     }
