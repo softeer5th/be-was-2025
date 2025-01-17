@@ -12,8 +12,6 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
 
     @Override
     public byte[] handle(byte[] fileData, HttpRequest httpRequest) {
-        StringBuilder sb = new StringBuilder();
-
         String htmlContent = new String(fileData);
 
         Cookie cookie = httpRequest.getCookie("sessionId");
