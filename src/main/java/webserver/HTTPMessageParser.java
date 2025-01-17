@@ -7,7 +7,10 @@ import util.HeterogeneousContainer;
 import webserver.enumeration.HTTPMethod;
 import webserver.message.HTTPRequest;
 import webserver.message.body.BodyParser;
+import webserver.message.body.BodyParserFactory;
 import webserver.message.header.HeaderParseManager;
+import webserver.message.header.records.ContentTypeRecord;
+import webserver.reader.ByteStreamReader;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -43,10 +46,27 @@ public class HTTPMessageParser {
         HeterogeneousContainer parsedHeaders = HeaderParseManager.getInstance().parse(headers);
         builder.setHeaders(parsedHeaders);
         logger.debug("Request Header : {}", sb.toString());
+        parseBody(bufferedInputStream, parsedHeaders, builder);
         return builder.build();
     }
 
-    private String readLineWithLog(BufferedReader reader, StringBuilder sb) throws IOException {
+    private void parseBody(
+            BufferedInputStream inputStream,
+            HeterogeneousContainer headers,
+            HTTPRequest.Builder request) throws IOException {
+        String method = request.getMethod();
+        switch (method) {
+            case "POST":
+            case "PUT":
+            case "PATCH":
+                ContentTypeRecord meta = headers.get("content-type", ContentTypeRecord.class)
+                        .orElseThrow(() -> new ParseException("Content-type header not set"));
+                BodyParser parser = BodyParserFactory.createFor(meta.contentType().detail);
+                HeterogeneousContainer body = parser.parse(headers, inputStream);
+                request.body(body);
+        }
+    }
+
     private String readLineWithLog(ByteStreamReader reader, StringBuilder sb) throws IOException {
         String str = reader.readLine();
         sb.append(str);

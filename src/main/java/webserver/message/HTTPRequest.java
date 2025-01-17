@@ -89,5 +89,8 @@ public class HTTPRequest {
         public HTTPRequest build() {
             return new HTTPRequest(method, uri, version, body, headers, parameters);
         }
+        public String getMethod() {
+            return method;
+        }
     }
 }
