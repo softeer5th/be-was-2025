@@ -32,4 +32,10 @@ public class SessionManager {
     public void removeSession(String sessionId){
         sessionStore.remove(sessionId);
     }
+
+    public Object getSessionAttribute(String sessionId, String attributeName){
+        Session session = sessionStore.get(sessionId);
+
+        return session.getAttribute(attributeName);
+    }
 }
