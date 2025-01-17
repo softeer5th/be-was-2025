@@ -30,9 +30,7 @@ public class CookieManager {
         }
 
         public SetCookie maxAge(int seconds) {
-            if (seconds > 0) {
-                cookieBuilder.append("; Max-Age=").append(seconds);
-            }
+            cookieBuilder.append("; Max-Age=").append(seconds);
             return this;
         }
 
