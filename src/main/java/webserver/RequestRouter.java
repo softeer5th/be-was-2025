@@ -3,6 +3,7 @@ package webserver;
 import Entity.QueryParameters;
 import db.Database;
 import exception.MissingUserInfoException;
+import handler.GetHandler;
 import http.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponse;
@@ -28,18 +29,18 @@ public class RequestRouter {
     private final Map<String, BiConsumer<HttpRequest, DataOutputStream>> postHandlers = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final String RESOURCES_PATH = "./src/main/resources/static";
-    public static final String LOGIN_FAILED_PAGE = "http://localhost:8080/login/login_failed.html";
-    public static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
-    public static final String LOGINED_MAIN_PAGE = "http://localhost:8080/main/index.html";
-    public static final String MAIN_PAGE = "http://localhost:8080/index.html";
-    public static final String SIGNIN_PATH = "/user/signIn";
-    public static final String SIGNUP_PATH = "/user/create";
-    public static final String LOGOUT_PATH = "/user/logout";
-    public static final String USER_INFO_PATH = "/user/info";
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String CONTENT_LENGTH = "Content-Length";
-    public static final String SET_COOKIE = "Set-Cookie";
-    public static final String LOCATION = "location";
+    private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/login/login_failed.html";
+    private static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
+    private static final String LOGINED_MAIN_PAGE = "http://localhost:8080/main/index.html";
+    private static final String MAIN_PAGE = "http://localhost:8080/index.html";
+    private static final String SIGNIN_PATH = "/user/signIn";
+    private static final String SIGNUP_PATH = "/user/create";
+    private static final String LOGOUT_PATH = "/user/logout";
+    private static final String USER_INFO_PATH = "/user/info";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_LENGTH = "Content-Length";
+    private static final String SET_COOKIE = "Set-Cookie";
+    private static final String LOCATION = "location";
     private final Map<String, User> userSessions;
 
     public RequestRouter() {
@@ -48,7 +49,7 @@ public class RequestRouter {
     }
 
     private void init() {
-        this.addGetHandler(this::handleGetRequest);
+        this.addGetHandler(GetHandler::handleGetRequest);
         this.addPostHandler(SIGNUP_PATH, this::handleSignUp);
         this.addPostHandler(SIGNIN_PATH, this::handleSignIn);
         this.addPostHandler(LOGOUT_PATH, this::handleLogout);
@@ -76,40 +77,48 @@ public class RequestRouter {
         HttpResponse.respond404(dos);
     }
 
+    private void addGetHandler(BiConsumer<HttpRequest, DataOutputStream> handler) {
+        getHandler.put(HttpMethod.GET, handler);
+    }
+
+    private void addPostHandler(String path, BiConsumer<HttpRequest, DataOutputStream> handler) {
+        postHandlers.put(path, handler);
+    }
+
     /*
      * GET request -> 정적 파일 반환
      */
-    private void handleGetRequest(HttpRequest request, DataOutputStream dos) {
-        try {
-            String fileExtension = request.getRequestPath().split("\\.")[1];
-            File file = new File(RESOURCES_PATH + request.getRequestPath());
-            if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
-                HttpResponse.respond404(dos);
-                return;
-            }
-            byte[] body = readFile(file);
-            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
-            httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
-            httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
-            httpResponse.respond();
-        } catch (IOException e) {
-            logger.error("Get Request Error, " + e.getMessage());
-        }
-    }
+//    private void handleGetRequest(HttpRequest request, DataOutputStream dos) {
+//        try {
+//            String fileExtension = request.getRequestPath().split("\\.")[1];
+//            File file = new File(RESOURCES_PATH + request.getRequestPath());
+//            if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
+//                HttpResponse.respond404(dos);
+//                return;
+//            }
+//            byte[] body = readFile(file);
+//            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
+//            httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
+//            httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
+//            httpResponse.respond();
+//        } catch (IOException e) {
+//            logger.error("Get Request Error, " + e.getMessage());
+//        }
+//    }
 
-    private void handleSignUp(HttpRequest request, DataOutputStream dos) {
-        try {
-            creatUser(request.getBody());
-            HttpResponse.respond302(MAIN_PAGE, dos);
-        } catch (Exception e) {
-            logger.debug("Signup failed, " + e.getMessage());
-            try {
-                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
-            } catch (IOException ex) {
-                logger.error("Redirection Error, " + ex.getMessage());
-            }
-        }
-    }
+//    private void handleSignUp(HttpRequest request, DataOutputStream dos) {
+//        try {
+//            creatUser(request.getBody());
+//            HttpResponse.respond302(MAIN_PAGE, dos);
+//        } catch (Exception e) {
+//            logger.debug("Signup failed, " + e.getMessage());
+//            try {
+//                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
+//            } catch (IOException ex) {
+//                logger.error("Redirection Error, " + ex.getMessage());
+//            }
+//        }
+//    }
 
     /*
      * 유저 일치 확인 : userId, password
@@ -193,14 +202,6 @@ public class RequestRouter {
         return user;
     }
 
-    private void addGetHandler(BiConsumer<HttpRequest, DataOutputStream> handler) {
-        getHandler.put(HttpMethod.GET, handler);
-    }
-
-    private void addPostHandler(String path, BiConsumer<HttpRequest, DataOutputStream> handler) {
-        postHandlers.put(path, handler);
-    }
-
     private void creatUser(String requestBody) throws Exception {
         QueryParameters queryParameters = new QueryParameters(requestBody);
         User.validateSignUpUserParameters(queryParameters);
@@ -212,12 +213,12 @@ public class RequestRouter {
         User.validateSignUpUserIdDuplication(user);
         Database.addUser(user);
     }
-
-    private byte[] readFile(File file) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(file);
-        byte[] fileBytes = new byte[(int) file.length()];
-        fileInputStream.read(fileBytes);
-        return fileBytes;
-    }
+//
+//    private byte[] readFile(File file) throws IOException {
+//        FileInputStream fileInputStream = new FileInputStream(file);
+//        byte[] fileBytes = new byte[(int) file.length()];
+//        fileInputStream.read(fileBytes);
+//        return fileBytes;
+//    }
 }
 
