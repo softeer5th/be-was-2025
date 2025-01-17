@@ -1,7 +1,7 @@
 package webserver;
 
 import exception.NotFoundRequestHandlerException;
-import handler.FileRequestHandler;
+import handler.request_handler.FileRequestHandler;
 import handler.mapping.RequestHandlerMapping;
 import http.request.HttpRequestResolver;
 import http.response.HttpResponse;

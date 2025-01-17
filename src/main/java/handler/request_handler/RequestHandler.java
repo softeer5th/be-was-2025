@@ -1,4 +1,4 @@
-package handler;
+package handler.request_handler;
 
 import http.request.HttpRequest;
 import http.response.HttpResponse;

@@ -1,6 +1,6 @@
 package user;
 
-import handler.UserSignUpRequestHandler;
+import handler.request_handler.UserSignUpRequestHandler;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.enums.HttpMethod;
