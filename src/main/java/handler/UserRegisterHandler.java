@@ -14,6 +14,7 @@ import http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.QueryUtil;
+import util.Validator;
 
 public class UserRegisterHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRegisterHandler.class);
@@ -33,9 +34,10 @@ public class UserRegisterHandler implements Handler {
         String password = queryParams.get("password");
         String email = queryParams.get("email");
 
+        Validator.validateUser(userId, nickname, password, email);
         User user = new User(userId, nickname, password, email);
         user.registerUser();
-        logger.debug("Registered userId : {}, nickname : {}, email : {}", user.getUserId(), nickname, email);
+        logger.debug("Registered userId : {}, nickname : {}, email : {}", user.getUserId(), user.getNickname(), user.getEmail());
 
         response.setStatus(HttpStatus.FOUND);
         response.setHeaders("Location", "/registration/success.html");
