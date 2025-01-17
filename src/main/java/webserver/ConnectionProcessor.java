@@ -6,9 +6,11 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.enums.CookieName;
 import webserver.request.Request;
 import webserver.response.ResponseBuilder;
 import webserver.request.RequestParser;
+import webserver.session.SessionManager;
 
 public class ConnectionProcessor implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionProcessor.class);
@@ -31,7 +33,8 @@ public class ConnectionProcessor implements Runnable {
 
             DataOutputStream dos = new DataOutputStream(out);
 
-            responseBuilder.buildResponse(dos, request);
+            String sid = request.cookie.getValue(CookieName.SESSION_COOKIE.getName());
+            responseBuilder.buildResponse(dos, request, SessionManager.validate(sid));
 
         } catch (IOException e) {
             logger.error(e.getMessage());

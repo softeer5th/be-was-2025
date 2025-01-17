@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class ResponseBuilder {
     private final static Map<String, Handler> getPages = Map.of(
+            "/user/logout", new LogoutHandler(),
             "default", new StaticFileHandler()
     );
     private final static Map<String, Handler> postPages = Map.of(
@@ -19,21 +20,17 @@ public class ResponseBuilder {
             "default", new Page404Handler()
     );
 
-    public void buildResponse(DataOutputStream dos, Request request) throws IOException {
+    public void buildResponse(DataOutputStream dos, Request request, String sid) throws IOException {
         Map<String, Handler> pages = switch (request.method) {
             case "GET" -> getPages;
             case "POST" -> postPages;
             default -> getPages;
         };
 
-        Response response;
-        if (pages.containsKey(request.url)) {
-            Handler handler = pages.get(request.url);
-            response = handler.handle(request);
-        }
-        else{
-            response = pages.get("default").handle(request);
-        }
+        Handler handler = pages.getOrDefault(request.getUrl(), pages.get("default"));
+        if(sid != null) {handler.setSessionId(sid);}
+
+        Response response = handler.handle(request);
         ResponseWriter.write(dos, response);
     }
 }

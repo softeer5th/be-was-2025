@@ -27,4 +27,9 @@ public class SessionManager {
 
     public static void clearExpiredSessions() {
     }
+
+    public static String validate(String sid){
+        if(sid == null || sessions.containsKey(sid)) return sid;
+        return null;
+    }
 }
