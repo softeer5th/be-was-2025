@@ -29,6 +29,10 @@ public class User {
         return email;
     }
 
+    public void changePassword(String newPassword) { this.password = newPassword; }
+
+    public void changeName(String newName) { this.name = newName; }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
