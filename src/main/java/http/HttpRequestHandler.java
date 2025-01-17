@@ -1,14 +1,17 @@
 package http;
 
+import http.constant.HttpMethod;
+import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.FileUtils;
-import util.MimeType;
 import util.PathPool;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
+import util.exception.SessionNotFoundException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class HttpRequestHandler {
@@ -16,10 +19,10 @@ public class HttpRequestHandler {
 
     public HttpRequestHandler() {}
 
-    public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) {
+    public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
         try {
             String path = httpRequest.getPath().toLowerCase();
-            String method = httpRequest.getMethod().toLowerCase();
+            HttpMethod method = httpRequest.getMethod();
 
             if (PathPool.getInstance().isAvailable(method, path)) {
                 Method classMethod = PathPool.getInstance().getMethod(method, path);
@@ -32,24 +35,16 @@ public class HttpRequestHandler {
             httpResponse.writeStatusLine(HttpStatus.OK);
             httpResponse.writeBody(file);
             httpResponse.send();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            byte[] body = e.getMessage().getBytes();
-            httpResponse.writeStatusLine(HttpStatus.INTERNAL_SERVER_ERROR);
-            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
-            httpResponse.send();
         } catch (NoSuchPathException e) {
-            byte[] body = e.httpStatus.getReasonPhrase().getBytes();
-            httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
-            httpResponse.send();
+            httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (NotAllowedMethodException e) {
-            byte[] body = e.httpStatus.getReasonPhrase().getBytes();
-            httpResponse.writeStatusLine(e.httpStatus);
-            httpResponse.writeBody(body, MimeType.TXT.getMimeType());
-            httpResponse.send();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
+            httpResponse.sendError(e.httpStatus, e.getMessage());
+        } catch (IllegalAccessException e) {
+            httpResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof SessionNotFoundException ex) {
+                httpResponse.sendError(ex.httpStatus, e.getMessage());
+            }
         }
     }
 }

@@ -1,8 +1,11 @@
-package util;
+package webserver;
 
 import http.*;
+import http.constant.HttpHeader;
+import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.MimeType;
 import util.exception.InvalidRequestLineSyntaxException;
 
 import java.io.*;
@@ -28,7 +31,7 @@ public class RequestParser {
             requestHandler.handleRequest(httpRequest, httpResponse);
         } catch (InvalidRequestLineSyntaxException e) {
             errorResponse(dos, HttpStatus.BAD_REQUEST, e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
             errorResponse(dos, HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
     }

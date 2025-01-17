@@ -1,7 +1,10 @@
 package http;
 
+import http.constant.HttpHeader;
+import http.constant.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.Cookie;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -13,7 +16,7 @@ import java.util.Map;
 public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    private final String method;
+    private final HttpMethod method;
     private final String path;
     private final String version;
     private final Map<String,String> queries;
@@ -22,9 +25,11 @@ public class HttpRequest {
 
     private final URI uri;
 
+    private final Map<String, String> sessionIds;
+
 
     public HttpRequest(String method, String path, String version, List<String> request) throws UnsupportedEncodingException {
-        this.method = method;
+        this.method = HttpMethod.valueOf(method.toUpperCase());
         this.version = version;
 
         this.uri = URI.create(path);
@@ -33,6 +38,17 @@ public class HttpRequest {
         this.headers = parseHeaders(request);
         this.queries = parseQuery(uri.getQuery());
         this.body = extractBody(request);
+
+        this.sessionIds = extractSessionIds();
+    }
+
+    private Map<String, String> extractSessionIds() {
+        Map<String, String> ids = new HashMap<>();
+        if (!headers.containsKey(HttpHeader.COOKIE.value().toLowerCase())) {
+            return ids;
+        }
+
+        return Cookie.parse(headers.get(HttpHeader.COOKIE.value().toLowerCase()));
     }
 
     private Map<String, String> parseHeaders(List<String> request) {
@@ -40,7 +56,7 @@ public class HttpRequest {
         for (String header: request) {
             if (header.isBlank()) break;
             String[] tokens = header.split(":", 2);
-            headers.put(tokens[0].trim().toLowerCase(), tokens[1].trim());
+            headers.merge(tokens[0].trim().toLowerCase(), tokens[1].trim(), String::concat);
         }
 
         return headers;
@@ -55,25 +71,26 @@ public class HttpRequest {
         String[] queryArray = resolveQuery(queryString);
         for (String s : queryArray) {
             String[] items = s.split("=");
-            String key = items[0];
-            String value = items.length > 1 ? items[1] : null;
-            query.put(key.toLowerCase(), value);
+            String key = items[0].trim();
+            String value = items.length > 1 ? items[1].trim() : null;
+            query.put(key, value);
         }
         return query;
     }
 
     private String extractBody(List<String> request) {
-        return headers.computeIfPresent(HttpHeader.CONTENT_LENGTH.value().toLowerCase(), (k, v) -> {
-            int len = request.size();
-            return request.get(len - 1);
-        });
+        if (!headers.containsKey(HttpHeader.CONTENT_LENGTH.value().toLowerCase())) {
+            return null;
+        }
+        int len = request.size();
+        return request.get(len - 1);
     }
 
     private String[] resolveQuery(String query) {
         return query.split("&");
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 
@@ -99,5 +116,9 @@ public class HttpRequest {
 
     public String getBody() {
         return body;
+    }
+
+    public Map<String, String> getSessionIds() {
+        return sessionIds;
     }
 }
