@@ -3,7 +3,6 @@ package webserver;
 import Entity.QueryParameters;
 import db.Database;
 import exception.MissingUserInfoException;
-import handler.GetHandler;
 import http.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponse;
@@ -14,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import util.ContentTypeUtil;
 
 import javax.security.sasl.AuthenticationException;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +21,14 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public class RequestRouter {
+    private static final String LOGOUT_BUTTON_INFO = "<form action=\"/user/logout\" method=\"POST\" style=\"display: inline;\">\n" +
+            "              <button type=\"submit\" id=\"logout-btn\" class=\"btn btn_ghost btn_size_s\">\n" +
+            "                로그아웃\n" +
+            "              </button>\n" +
+            "            </form>";
+    public static final String REGISTRATION_BUTTON_INFO = "<a class=\"btn btn_ghost btn_size_s\" href=\"/registration/index.html\">\n" +
+            "              회원 가입\n" +
+            "            </a>";
     private final Map<HttpMethod, BiConsumer<HttpRequest, DataOutputStream>> getHandler = new HashMap<>();
     private final Map<String, BiConsumer<HttpRequest, DataOutputStream>> postHandlers = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
@@ -88,37 +92,63 @@ public class RequestRouter {
     /*
      * GET request -> 정적 파일 반환
      */
-//    private void handleGetRequest(HttpRequest request, DataOutputStream dos) {
-//        try {
-//            String fileExtension = request.getRequestPath().split("\\.")[1];
-//            File file = new File(RESOURCES_PATH + request.getRequestPath());
-//            if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
-//                HttpResponse.respond404(dos);
-//                return;
-//            }
-//            byte[] body = readFile(file);
-//            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
-//            httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
-//            httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
-//            httpResponse.respond();
-//        } catch (IOException e) {
-//            logger.error("Get Request Error, " + e.getMessage());
-//        }
-//    }
+    private void handleGetRequest(HttpRequest request, DataOutputStream dos) {
+        try {
+            String fileExtension = request.getRequestPath().split("\\.")[1];
+            File file = new File(RESOURCES_PATH + request.getRequestPath());
+            if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
+                HttpResponse.respond404(dos);
+                return;
+            }
 
-//    private void handleSignUp(HttpRequest request, DataOutputStream dos) {
-//        try {
-//            creatUser(request.getBody());
-//            HttpResponse.respond302(MAIN_PAGE, dos);
-//        } catch (Exception e) {
-//            logger.debug("Signup failed, " + e.getMessage());
-//            try {
-//                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
-//            } catch (IOException ex) {
-//                logger.error("Redirection Error, " + ex.getMessage());
-//            }
-//        }
-//    }
+            String fileContent = readFileAsString(file);
+
+            String sid = request.getCookieSid();
+            if (sid != null && userSessions.containsKey(sid)) {
+                fileContent = fileContent.replace("{firstButtonRequestPath}", "/mypage/index.html");
+                fileContent = fileContent.replace("{firstButtonName}", userSessions.get(sid).getName());
+                fileContent = fileContent.replace("{secondButtonInfo}", LOGOUT_BUTTON_INFO);
+            }
+            else {
+                fileContent = fileContent.replace("{firstButtonRequestPath}", "/login/index.html");
+                fileContent = fileContent.replace("{firstButtonName}", "로그인");
+                fileContent = fileContent.replace("{secondButtonInfo}", REGISTRATION_BUTTON_INFO);
+            }
+
+            byte[] body = fileContent.getBytes();
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
+            httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
+            httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
+            httpResponse.respond();
+        } catch (IOException e) {
+            logger.error("Get Request Error, " + e.getMessage());
+        }
+    }
+
+    private String readFileAsString(File file) throws IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                contentBuilder.append(line).append("\n");
+            }
+        }
+        return contentBuilder.toString();
+    }
+
+    private void handleSignUp(HttpRequest request, DataOutputStream dos) {
+        try {
+            creatUser(request.getBody());
+            HttpResponse.respond302(MAIN_PAGE, dos);
+        } catch (Exception e) {
+            logger.debug("Signup failed, " + e.getMessage());
+            try {
+                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
+            } catch (IOException ex) {
+                logger.error("Redirection Error, " + ex.getMessage());
+            }
+        }
+    }
 
     /*
      * 유저 일치 확인 : userId, password

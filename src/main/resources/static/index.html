@@ -6,7 +6,6 @@
     <link href="./reset.css" rel="stylesheet" />
     <link href="./global.css" rel="stylesheet" />
     <link href="./main.css" rel="stylesheet" />
-    <script src="./main.js"></script>
   </head>
   <body>
     <div class="container">
@@ -14,12 +13,10 @@
         <a href="/index.html"><img src="./img/signiture.svg" /></a>
         <ul class="header__menu">
           <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/login/index.html">로그인</a>
+            <a class="btn btn_contained btn_size_s" href="{firstButtonRequestPath}">{firstButtonName}</a>
           </li>
           <li class="header__menu__item">
-            <a class="btn btn_ghost btn_size_s" href="/registration/index.html">
-              회원 가입
-            </a>
+            {secondButtonInfo}
           </li>
         </ul>
       </header>
