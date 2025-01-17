@@ -33,7 +33,9 @@ public class RequestRouter {
     public static final String LOGINED_MAIN_PAGE = "http://localhost:8080/main/index.html";
     public static final String MAIN_PAGE = "http://localhost:8080/index.html";
     public static final String SIGNIN_PATH = "/user/signIn";
-    public static final String SIGNUP_PAGE = "/user/create";
+    public static final String SIGNUP_PATH = "/user/create";
+    public static final String LOGOUT_PATH = "/user/logout";
+    public static final String USER_INFO_PATH = "/user/info";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String SET_COOKIE = "Set-Cookie";
@@ -43,6 +45,14 @@ public class RequestRouter {
     public RequestRouter() {
         init();
         userSessions = new HashMap<>();
+    }
+
+    private void init() {
+        this.addGetHandler(this::handleGetRequest);
+        this.addPostHandler(SIGNUP_PATH, this::handleSignUp);
+        this.addPostHandler(SIGNIN_PATH, this::handleSignIn);
+        this.addPostHandler(LOGOUT_PATH, this::handleLogout);
+        this.addPostHandler(USER_INFO_PATH, this::handleUserInfo);
     }
 
     public void route(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
@@ -66,114 +76,109 @@ public class RequestRouter {
         HttpResponse.respond404(dos);
     }
 
-    private void init() {
-        // GET request -> 정적 파일 반환
-        this.addGetHandler((request, dos) -> {
-            try {
-                String fileExtension = request.getRequestPath().split("\\.")[1];
-                File file = new File(RESOURCES_PATH + request.getRequestPath());
-                if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
-                    HttpResponse.respond404(dos);
-                    return;
-                }
-                byte[] body = readFile(file);
-                HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
-                httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
-                httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
-                httpResponse.respond();
-            } catch (IOException e) {
-                logger.error("Get Request Error, " + e.getMessage());
+    /*
+     * GET request -> 정적 파일 반환
+     */
+    private void handleGetRequest(HttpRequest request, DataOutputStream dos) {
+        try {
+            String fileExtension = request.getRequestPath().split("\\.")[1];
+            File file = new File(RESOURCES_PATH + request.getRequestPath());
+            if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
+                HttpResponse.respond404(dos);
+                return;
             }
-        });
-
-        // /user/creat 경로로 POST 요청시 -> 회원가입 이후 index/html 리다이랙션
-        this.addPostHandler(SIGNUP_PAGE, (request, dos) -> {
-            try {
-                creatUser(request.getBody());
-                HttpResponse.respond302(MAIN_PAGE, dos);
-            } catch (Exception e) {
-                logger.debug("Signup failed, " + e.getMessage());
-                try {
-                    HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
-                } catch (IOException ex) {
-                    logger.error("Redirection Error, " + ex.getMessage());
-                }
-            }
-        });
-
-        /*
-         * /user/signIn 경로로 POST 요청시 -> 로그인 로직 수행
-         * 유저 일치 확인 : userId, password
-         * 로그인 실패 -> loginFailed 페이지 반환
-         * 로그인 성공 -> index.html 리다이랙트, 쿠키 발급
-         */
-        this.addPostHandler(SIGNIN_PATH, (request, dos) -> {
-            QueryParameters queryParameters = new QueryParameters(request.getBody());
-            try {
-                User.validateSignInUserParameters(queryParameters);
-                User user = signIn(queryParameters.get("userId"), queryParameters.get("password"));
-                // 쿠키 발급
-                String sessionId = UUID.randomUUID().toString();
-                HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
-                httpResponse.addHeader(SET_COOKIE, "sid=" + sessionId + "; Path=/");
-                httpResponse.addHeader(LOCATION, MAIN_PAGE);
-                httpResponse.respond();
-                userSessions.put(sessionId, user);
-            } catch (MissingUserInfoException | AuthenticationException e) {
-                // 로그인 실패
-                logger.debug(e.getMessage());
-                try {
-                    HttpResponse.respond302(LOGIN_FAILED_PAGE, dos);
-                } catch (IOException ex) {
-                    logger.error("SignIn Redirection Error" + ex.getMessage());
-                }
-            } catch (IOException e) {
-                logger.error("SignIn Error" + e.getMessage());
-            }
-        });
-
-        /*
-         * 로그아웃
-         * sid=null 의 새로운 쿠키 발급, session
-         */
-        this.addPostHandler("/user/logout", (request, dos) -> {
-            String sid = request.getCookieSid();
-            if (sid != null) {
-                userSessions.remove(sid);
-            }
-            try {
-                HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
-                httpResponse.addHeader(SET_COOKIE, "sid=" + null + "; Path=/");
-                httpResponse.addHeader("location", MAIN_PAGE);
-                httpResponse.respond();
-            } catch (IOException e) {
-                logger.error("Logout Redirection Error" + e.getMessage());
-            }
-        });
-
-        /*
-         * 쿠키의 sid로 로그인 여부를 판단 후 userName 반환
-         */
-        this.addPostHandler("/user/info", (request, dos) -> {
-            // 세션 정보 존재 -> userName={userName}
-            // 세션 정보 부재 -> userName=null
-            String sid = request.getCookieSid();
-            byte[] body;
-            if (sid != null && userSessions.containsKey(sid)) {
-                body = ("userName=" + userSessions.get(sid).getName()).getBytes();
-            } else {
-                body = ("userName=null").getBytes();
-            }
-            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, "text/html");
-            httpResponse.addHeader(CONTENT_TYPE, "text/html");
+            byte[] body = readFile(file);
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
+            httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
             httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
-            try {
-                httpResponse.respond();
-            } catch (IOException e) {
-                logger.error("/user/info response error, {}", e.getMessage());
-            }
+            httpResponse.respond();
+        } catch (IOException e) {
+            logger.error("Get Request Error, " + e.getMessage());
+        }
+    }
 
-        });
+    private void handleSignUp(HttpRequest request, DataOutputStream dos) {
+        try {
+            creatUser(request.getBody());
+            HttpResponse.respond302(MAIN_PAGE, dos);
+        } catch (Exception e) {
+            logger.debug("Signup failed, " + e.getMessage());
+            try {
+                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
+            } catch (IOException ex) {
+                logger.error("Redirection Error, " + ex.getMessage());
+            }
+        }
+    }
+
+    /*
+     * 유저 일치 확인 : userId, password
+     * 로그인 실패 -> loginFailed 페이지 반환
+     * 로그인 성공 -> index.html 리다이랙트, 쿠키 발급
+     */
+    private void handleSignIn(HttpRequest request, DataOutputStream dos) {
+        QueryParameters queryParameters = new QueryParameters(request.getBody());
+        try {
+            User.validateSignInUserParameters(queryParameters);
+            User user = signIn(queryParameters.get("userId"), queryParameters.get("password"));
+            // 쿠키 발급
+            String sessionId = UUID.randomUUID().toString();
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
+            httpResponse.addHeader(SET_COOKIE, "sid=" + sessionId + "; Path=/");
+            httpResponse.addHeader(LOCATION, MAIN_PAGE);
+            httpResponse.respond();
+            userSessions.put(sessionId, user);
+        } catch (MissingUserInfoException | AuthenticationException e) {
+            // 로그인 실패
+            logger.debug(e.getMessage());
+            try {
+                HttpResponse.respond302(LOGIN_FAILED_PAGE, dos);
+            } catch (IOException ex) {
+                logger.error("SignIn Redirection Error" + ex.getMessage());
+            }
+        } catch (IOException e) {
+            logger.error("SignIn Error" + e.getMessage());
+        }
+    }
+
+    /*
+     * 로그아웃
+     * sid=null 의 새로운 쿠키 발급, session 정보 저장
+     */
+    private void handleLogout(HttpRequest request, DataOutputStream dos) {
+        String sid = request.getCookieSid();
+        if (sid != null) {
+            userSessions.remove(sid);
+        }
+        try {
+            HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
+            httpResponse.addHeader(SET_COOKIE, "sid=" + null + "; Path=/");
+            httpResponse.addHeader("location", MAIN_PAGE);
+            httpResponse.respond();
+        } catch (IOException e) {
+            logger.error("Logout Redirection Error" + e.getMessage());
+        }
+    }
+
+    /*
+     * 쿠키의 sid로 로그인 여부를 판단 후 userName 반환
+     */
+    private void handleUserInfo(HttpRequest request, DataOutputStream dos) {
+        String sid = request.getCookieSid();
+        byte[] body;
+        if (sid != null && userSessions.containsKey(sid)) {
+            body = ("userName=" + userSessions.get(sid).getName()).getBytes();
+        } else {
+            body = ("userName=null").getBytes();
+        }
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, "text/html");
+        httpResponse.addHeader(CONTENT_TYPE, "text/html");
+        httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
+        try {
+            httpResponse.respond();
+        } catch (IOException e) {
+            logger.error("/user/info response error, {}", e.getMessage());
+        }
     }
 
     private User signIn(String userId, String password) throws AuthenticationException {
