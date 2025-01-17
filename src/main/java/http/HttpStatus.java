@@ -10,6 +10,7 @@ public enum HttpStatus {
     FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Unsupported Media Type"),
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
+    CONFLICT(409, "Conflict"),
     UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type"),
     INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 

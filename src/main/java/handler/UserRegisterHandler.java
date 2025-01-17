@@ -2,8 +2,10 @@ package handler;
 
 import static http.HttpMethod.POST;
 
+import db.Database;
 import exception.BaseException;
 import exception.HttpErrorCode;
+import exception.UserErrorCode;
 import http.HttpRequestInfo;
 import http.HttpStatus;
 
@@ -35,6 +37,7 @@ public class UserRegisterHandler implements Handler {
         String email = queryParams.get("email");
 
         Validator.validateUser(userId, nickname, password, email);
+        checkDuplicateUserId(userId);
         User user = new User(userId, nickname, password, email);
         user.registerUser();
         logger.debug("Registered userId : {}, nickname : {}, email : {}", user.getUserId(), user.getNickname(), user.getEmail());
@@ -43,6 +46,12 @@ public class UserRegisterHandler implements Handler {
         response.setHeaders("Location", "/registration/success.html");
 
         return response;
+    }
+
+    private void checkDuplicateUserId(String userId) {
+        if(Database.findUserById(userId) != null) {
+            throw new BaseException(UserErrorCode.DUPLICATE_USER_ID);
+        }
     }
 
 }
