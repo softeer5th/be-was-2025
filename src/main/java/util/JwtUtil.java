@@ -18,10 +18,12 @@ public class JwtUtil {
     public static String generateToken(User user) {
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         String userId = user.getUserId();
+        String name = user.getName();
         if (userId == null) return null;
 
         return Jwts.builder()
                 .subject(userId)
+                .claim("name", name)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .signWith(key)
