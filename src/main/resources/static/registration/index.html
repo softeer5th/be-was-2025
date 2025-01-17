@@ -80,10 +80,19 @@
             return;
         }
 
-        const url = `/user/create?id=${encodeURIComponent(user_id)}&name=${encodeURIComponent(user_name)}&password=${encodeURIComponent(user_password)}`;
+        const url = "/user/create";
+
+        const body = `id=${encodeURIComponent(user_id)}&name=${encodeURIComponent(user_name)}&password=${encodeURIComponent(user_password)}`;
 
         // 서버에 요청 전송
-        fetch(url, {method: "GET"})
+        fetch(url, {
+            method: "POST",
+            body: body,
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": body.length.toString(),
+            },
+        })
             .then(response => {
                 if (response.redirected) {
                     alert("회원가입 성공");
