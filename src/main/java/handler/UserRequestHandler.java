@@ -16,15 +16,20 @@ import response.HttpResponse;
 
 import static enums.HttpMethod.POST;
 import static exception.ErrorCode.REQUEST_NOT_ALLOWED;
+
 /*
  * 사용자와 관련된 기능(회원가입, 로그인, 로그아웃)을 담당하는 핸들러
  */
 public class UserRequestHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRequestHandler.class);
     private static final String USER_REQUEST_PREFIX = "/user/";
+
     private static final String REDIRECT_URL = "http://localhost:8080/index.html";
     private static final String LOGIN_FAIL_URL = "http://localhost:8080/login/fail.html";
+
     private static final String SID = "SID";
+    private static final String EXPIRED_COOKIE_TIMESTAMP = "Expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    private static final String DEFAULT_COOKIE_PATH = "Path=/";
 
     private final UserManager userManager;
 
@@ -59,7 +64,7 @@ public class UserRequestHandler implements Handler {
                 response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
                 response.setHeaders(
                         HttpHeader.LOCATION.getName(), REDIRECT_URL,
-                        HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; Path=/", SID, sessionId)
+                        HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; %s", SID, sessionId, DEFAULT_COOKIE_PATH)
                 );
             } catch (LoginException e) {
                 response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, e.getMessage());
@@ -71,7 +76,7 @@ public class UserRequestHandler implements Handler {
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeaders(
                     HttpHeader.LOCATION.getName(), REDIRECT_URL,
-                    HttpHeader.SET_COOKIE.getName(), String.format("%s=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/", SID)
+                    HttpHeader.SET_COOKIE.getName(), String.format("%s=; %s; %s", SID, EXPIRED_COOKIE_TIMESTAMP, DEFAULT_COOKIE_PATH)
             );
         }
 
