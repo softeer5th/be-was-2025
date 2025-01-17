@@ -1,19 +1,27 @@
 package http.handler;
 
+import com.sun.jdi.request.InvalidRequestStateException;
+import db.Database;
+import db.SessionDB;
 import http.enums.ErrorMessage;
 import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
 import http.request.TargetInfo;
 import http.response.HttpResponse;
+import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.FileUtil;
 import util.HttpRequestUtil;
-
-import java.io.IOException;
+import util.JwtUtil;
 
 public class StaticResourceHandler implements Handler {
     private final String staticResourcePath;
+    private static final String LOGIN_PAGE_PATH = "/login/index.html";
 
-    private static volatile StaticResourceHandler instance;
+    private static final Logger logger = LoggerFactory.getLogger(StaticResourceHandler.class);
+
+    private static StaticResourceHandler instance;
 
     private StaticResourceHandler(String staticResourcePath) {
         this.staticResourcePath = staticResourcePath;
@@ -42,6 +50,13 @@ public class StaticResourceHandler implements Handler {
 
         String body; // 해당 파일의 경로를 byte로 전달
         try {
+            if (path.equals(staticResourcePath + "/mypage/index.html")) {
+                String sid = HttpRequestUtil.getCookieValueByKey(request, "sid");
+                String userId = JwtUtil.getIdFromToken(sid);
+                User user = SessionDB.getUser(sid);
+                Database.findUserById(userId);
+                if (!userId.equals(user.getUserId())) throw new InvalidRequestStateException("로그인 되지 않은 사용자입니다.");
+            }
             byte[] file = FileUtil.fileToByteArray(path);
             if (file != null) {
                 body = new String(file);
@@ -53,8 +68,11 @@ public class StaticResourceHandler implements Handler {
                         .errorResponse(HttpResponseStatus.NOT_FOUND, ErrorMessage.NOT_FOUND_PATH_AND_FILE)
                         .build();
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            response = builder
+                    .redirectResponse(HttpResponseStatus.FOUND, LOGIN_PAGE_PATH)
+                    .build();
         }
         return response;
     }
