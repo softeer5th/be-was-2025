@@ -64,13 +64,13 @@ public class HttpResponse {
 
     public void setBody(byte[] body) {
         this.body = body;
+        System.out.println(body.length);
         setContentLength(body.length);
     }
 
     public void setBody(String bodyString) {
         byte[] body = bodyString.getBytes();
-        this.body = body;
-        setContentLength(body.length);
+        setBody(body);
     }
 
     public void setContentType(FileContentType extension) {
@@ -81,11 +81,18 @@ public class HttpResponse {
         headers.put("Content-Length", String.valueOf(length));
     }
 
+    public void setResponse(HttpStatus status, FileContentType contentType) {
+        setStatus(status);
+        setContentType(contentType);
+        setBody("");
+    }
+
     public void setResponse(HttpStatus status, FileContentType contentType, String body) {
         setStatus(status);
         setContentType(contentType);
         setBody(body);
     }
+
     public void setResponse(HttpStatus status, FileContentType contentType, byte[] body) {
         setStatus(status);
         setContentType(contentType);
@@ -101,7 +108,8 @@ public class HttpResponse {
             }
             dos.writeBytes("\r\n");
 
-            dos.write(body, 0, body.length);
+            if (body.length > 0)
+                dos.write(body, 0, body.length);
             dos.writeBytes("\r\n");
             dos.flush();
         } catch (IOException e) {

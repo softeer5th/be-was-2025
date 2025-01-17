@@ -47,7 +47,7 @@ public class UserRequestHandler implements Handler {
 
             userManager.createUser(userCreateRequest);
 
-            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "successssssss");
+            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_URL);
         } else if (path.startsWith(PATH.LOGIN.endPoint)) {
             checkPostMethod(request.getMethod());
@@ -56,7 +56,7 @@ public class UserRequestHandler implements Handler {
             try {
                 final String sessionId = userManager.loginUser(userLoginRequest);
 
-                response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "login success");
+                response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
                 response.setHeaders(
                         HttpHeader.LOCATION.getName(), REDIRECT_URL,
                         HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; Path=/", SID, sessionId)
@@ -68,7 +68,7 @@ public class UserRequestHandler implements Handler {
         } else if (path.startsWith(PATH.LOGOUT.endPoint)) {
             userManager.logoutUser(request.getHeaderValue(HttpHeader.SET_COOKIE.getName()));
 
-            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "logoutSuccess");
+            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeaders(
                     HttpHeader.LOCATION.getName(), REDIRECT_URL,
                     HttpHeader.SET_COOKIE.getName(), String.format("%s=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/", SID)
