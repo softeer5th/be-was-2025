@@ -37,7 +37,7 @@ class RequestRouterTest {
     }
 
     @Test
-    @DisplayName("path가 파일 확장자로 끝나면 staticFileHandler로 라우팅한다.")
+    @DisplayName("path가 파일 확장자로 끝나면 staticFileHandler를 반환한다.")
     void routeToStaticFileHandler() {
         String path = "/another/index.html";
         final Handler handler = router.route(path);
@@ -47,7 +47,7 @@ class RequestRouterTest {
     }
 
     @Test
-    @DisplayName("path가 /이면 HomeHandler로 라우팅한다")
+    @DisplayName("path가 /이면 HomeHandler를 반환한다.")
     void routeToHomeHandler() {
         String path = "/";
         final Handler handler = router.route(path);
@@ -56,7 +56,7 @@ class RequestRouterTest {
     }
 
     @Test
-    @DisplayName("라우터에 등록되지 않은 path로 요청이 에러가 발생한다.")
+    @DisplayName("라우터에 등록되지 않은 path로 요청이 오면 에러가 발생한다.")
     void route_invalidPath() {
         String path = "/invalid";
         Assertions.assertThatThrownBy(()->router.route(path))

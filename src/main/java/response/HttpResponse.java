@@ -64,7 +64,6 @@ public class HttpResponse {
 
     public void setBody(byte[] body) {
         this.body = body;
-        System.out.println(body.length);
         setContentLength(body.length);
     }
 
