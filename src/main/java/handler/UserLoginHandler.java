@@ -46,7 +46,7 @@ public class UserLoginHandler implements Handler {
 
         response.setCookies("sid=" + sid);
         response.setCookies("Path=/");
-        response.setStatus(HttpStatus.FOUND);
+        response.setStatus(HttpStatus.SEE_OTHER);
         response.setHeaders("Location", "/index.html");
 
         return response;
