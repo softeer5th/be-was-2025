@@ -1,8 +1,6 @@
 package webserver.response;
 
-import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
-import webserver.exception.HttpException;
 import webserver.header.ResponseHeader;
 import webserver.header.SetCookie;
 import webserver.request.HttpRequest;
@@ -19,13 +17,6 @@ public class HttpResponseWriter {
     // 일반적인 응답을 전송
     public void writeResponse(HttpRequest request, HttpResponse response, OutputStream out) {
         write(request.getVersion(), response, out);
-    }
-
-    // HttpException이 발생했을 때의 응답을 전송
-    public void writeError(HttpVersion version, HttpException e, OutputStream out) {
-        HttpResponse errorResponse = new HttpResponse(HttpStatusCode.of(e.getStatusCode()));
-        errorResponse.setBody(e.getMessage());
-        write(version, errorResponse, out);
     }
 
     private void write(HttpVersion version, HttpResponse response, OutputStream out) {

@@ -21,11 +21,6 @@ public class TemplateEngineInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public HttpRequest preHandle(HttpRequest request, Context context) {
-        return HandlerInterceptor.super.preHandle(request, context);
-    }
-
-    @Override
     public HttpResponse postHandle(HttpRequest request, HttpResponse response, Context context) {
         ModelAndTemplate modelAndTemplate = response.getModelAndTemplate();
         if (modelAndTemplate == null) {

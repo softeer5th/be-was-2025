@@ -5,6 +5,7 @@ import java.util.Map;
 
 // 세션 객체
 public class HttpSession {
+    public static final String USER_KEY = "user";
     private final String sessionId;
     private final Map<String, Object> sessionMap = new HashMap<>();
 

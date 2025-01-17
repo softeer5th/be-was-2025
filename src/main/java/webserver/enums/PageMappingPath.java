@@ -6,6 +6,7 @@ public enum PageMappingPath {
     ARTICLES("/article"),
     COMMENT("/comment"),
     LOGIN("/login"),
+    MYPAGE("/mypage"),
     REGISTRATION("/registration");
 
     public final String path;

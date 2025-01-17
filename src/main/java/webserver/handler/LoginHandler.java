@@ -28,7 +28,7 @@ public class LoginHandler implements HttpHandler {
             return HttpResponse.redirect("/user/login_failed.html");
         }
         HttpSession session = request.getSession();
-        session.set("user", user);
+        session.set(HttpSession.USER_KEY, user);
         return HttpResponse.redirect(INDEX.path);
     }
 }

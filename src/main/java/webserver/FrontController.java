@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
 import webserver.enums.HttpVersion;
-import webserver.exception.HttpException;
+import webserver.exception.resolver.ExceptionFilterChain;
 import webserver.handler.HttpHandler;
 import webserver.interceptor.InterceptorChain;
 import webserver.request.HttpRequest;
@@ -14,7 +14,6 @@ import webserver.response.HttpResponseWriter;
 import webserver.router.PathRouter;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -30,16 +29,18 @@ public class FrontController implements Runnable {
     private final PathRouter router;
 
     private final List<HttpVersion> supportedHttpVersions;
-    private final InterceptorChain chain;
+    private final InterceptorChain interceptorChain;
+    private final ExceptionFilterChain exceptionFilterChain;
 
 
-    public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, PathRouter router, InterceptorChain chain) {
+    public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, PathRouter router, InterceptorChain interceptorChain, ExceptionFilterChain exceptionFilterChain) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
         this.responseWriter = responseWriter;
         this.router = router;
         this.supportedHttpVersions = config.getSupportedHttpVersions();
-        this.chain = chain;
+        this.interceptorChain = interceptorChain;
+        this.exceptionFilterChain = exceptionFilterChain;
     }
 
     public void run() {
@@ -64,21 +65,20 @@ public class FrontController implements Runnable {
                 request.setPathVariables(routingResult.pathVariables());
 
                 // interceptor chain에게 요청 처리 위임
-                HttpResponse response = chain.execute(request, handler);
+                HttpResponse response = interceptorChain.execute(request, handler);
 
                 responseWriter.writeResponse(request, response, out);
 //                logger.debug("Client:{}:{}, Response: {}", connection.getInetAddress(), connection.getPort(), response);
 
-            } catch (HttpException e) {
+            } catch (Exception e) {
                 logger.debug(e.getMessage());
                 // 에러 응답
-                // HTTP 버전이 설정되어 있지 않으면 기본값으로 응답
-                HttpVersion version = request != null ? request.getVersion() : supportedHttpVersions.get(0);
-                responseWriter.writeError(version, e, out);
+                HttpResponse response = exceptionFilterChain.catchException(e, request);
+                responseWriter.writeResponse(request, response, out);
             }
 
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error("unhandled exception occurred", e);
         }
     }
 

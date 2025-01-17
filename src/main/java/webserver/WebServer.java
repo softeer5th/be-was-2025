@@ -4,6 +4,9 @@ import db.Database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
+import webserver.exception.resolver.ExceptionFilterChain;
+import webserver.exception.resolver.HttpExceptionFilter;
+import webserver.exception.resolver.LoginRequiredFilter;
 import webserver.file.StaticResourceManager;
 import webserver.handler.LoginHandler;
 import webserver.handler.LogoutHandler;
@@ -12,6 +15,7 @@ import webserver.handler.ServeStaticFileHandler;
 import webserver.interceptor.HandlerInterceptor;
 import webserver.interceptor.InterceptorChain;
 import webserver.interceptor.LoggingInterceptor;
+import webserver.interceptor.LoginRequiredPathInterceptor;
 import webserver.request.HttpRequestParser;
 import webserver.response.HttpResponseWriter;
 import webserver.router.PathRouter;
@@ -31,6 +35,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static webserver.enums.PageMappingPath.MYPAGE;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
@@ -78,14 +84,20 @@ public class WebServer {
         HandlerInterceptor sessionInterceptor = new SessionInterceptor(sessionManager);
         HandlerInterceptor logInterceptor = new LoggingInterceptor();
         HandlerInterceptor templateInterceptor = new TemplateEngineInterceptor(templateEngine, resourceManager);
-        InterceptorChain chain = InterceptorChain
+        HandlerInterceptor loginRequiredInterceptor = new LoginRequiredPathInterceptor(MYPAGE.path);
+        InterceptorChain interceptorChain = InterceptorChain
                 .inbound()
                 .add(sessionInterceptor)
+                .add(loginRequiredInterceptor)
                 .add(logInterceptor)
                 .outbound()
                 .add(sessionInterceptor)
                 .add(templateInterceptor)
                 .add(logInterceptor).build();
+
+        ExceptionFilterChain exceptionFilterChain = new ExceptionFilterChain()
+                .addResolver(new LoginRequiredFilter())
+                .addResolver(new HttpExceptionFilter());
 
 
         // 서버소켓을 생성한다. 웹서버는 기본적으로 8080번 포트를 사용한다.
@@ -95,7 +107,7 @@ public class WebServer {
             // 클라이언트가 연결될때까지 대기한다.
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                Runnable requestHandler = new FrontController(config, connection, requestParser, responseWriter, router, chain);
+                Runnable requestHandler = new FrontController(config, connection, requestParser, responseWriter, router, interceptorChain, exceptionFilterChain);
                 es.submit(requestHandler);
             }
         }
