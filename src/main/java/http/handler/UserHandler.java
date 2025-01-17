@@ -1,6 +1,7 @@
 package http.handler;
 
 import db.Database;
+import db.SessionDB;
 import http.enums.ErrorMessage;
 import http.enums.HttpMethod;
 import http.enums.HttpResponseStatus;
@@ -11,6 +12,7 @@ import http.response.HttpResponse;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtil;
 import util.JwtUtil;
 
 import java.io.IOException;
@@ -86,7 +88,7 @@ public class UserHandler implements Handler {
             return builder
                     .errorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.INVALID_PARAMETER)
                     .build();
-        } else if ((user = Database.findUserById(userId.get())) == null) {
+        } else if ((user = Database.findUserById(userId.get())) == null || !user.getPassword().equals(password.get())) {
             return builder
                     .errorResponse(HttpResponseStatus.UNAUTHORIZED, ErrorMessage.INVALID_ID_PASSWORD)
                     .build();
@@ -97,8 +99,11 @@ public class UserHandler implements Handler {
         Map<String, String> valueParams = new HashMap<>();
         Map<String, String> optionParams = new HashMap<>();
         String sid = JwtUtil.generateToken(user);
+//        String sid = UUID.randomUUID().toString();
         valueParams.put("sid", sid);
         optionParams.put("Max-Age", "3600");
+
+        SessionDB.saveSession(sid, user);
 
         return builder
                 .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
@@ -112,10 +117,23 @@ public class UserHandler implements Handler {
         valueParams.put("sid", "");
         optionParams.put("Max-Age", "0");
 
-        return builder
-                .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
-                .setCookie(valueParams, optionParams)
-                .build();
+        try {
+            String sid = HttpRequestUtil.getCookieValueByKey(request, "sid");
+            logger.debug("User Logout: {}", sid);
+
+            logger.debug(SessionDB.getUser(sid).toString());
+            SessionDB.removeSession(sid);
+
+            return builder
+                    .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
+                    .setCookie(valueParams, optionParams)
+                    .build();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return builder
+                    .errorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.BAD_REQUEST)
+                    .build();
+        }
     }
 
     private Optional<Object> getParam(Map<String, Object> params, String key) {

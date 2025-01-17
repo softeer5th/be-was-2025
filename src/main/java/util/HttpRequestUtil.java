@@ -1,6 +1,7 @@
 package util;
 
 import http.enums.ContentType;
+import http.request.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,5 +49,16 @@ public class HttpRequestUtil {
             path += DEFAULT_STATIC_RESOURCE_FILE;
         }
         return path;
+    }
+
+    public static String getCookieValueByKey(HttpRequest request, String key) {
+        String rawCookie = request.getHeaders().get("Cookie");
+        if (rawCookie == null) return null;
+        String[] token = rawCookie.split(";");
+        for (String cookie : token) {
+            String keyValue = cookie.split("=")[0].trim();
+            if (keyValue.equals(key)) return cookie.split("=")[1].trim();
+        }
+        return null;
     }
 }
