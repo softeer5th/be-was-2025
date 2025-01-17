@@ -18,13 +18,12 @@ public class RegisterServlet extends HttpServlet {
 
         User user = new User(userId, password, name, email);
         if(Database.findUserById(userId) == null) {
-            Database.addUser(user);
+            Database.saveUser(user);
             response.setStatus(HttpStatus.FOUND);
-            response.setHeader("Location", "/index.html");
+            response.setHeader("Location", "/");
         } else {
-            response.setStatus(HttpStatus.BAD_REQUEST);
-            response.setBody("already registered");
+            response.setStatus(HttpStatus.FOUND);
+            response.setHeader("Location", "/registration/failed.html");
         }
-        response.send();
     }
 }

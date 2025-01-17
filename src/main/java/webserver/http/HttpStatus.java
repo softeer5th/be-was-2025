@@ -47,5 +47,4 @@ public enum HttpStatus {
         }
         throw new IllegalArgumentException("Unknown HTTP status message: " + message);
     }
-
 }
