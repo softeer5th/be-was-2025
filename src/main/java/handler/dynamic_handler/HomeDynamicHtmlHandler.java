@@ -25,7 +25,7 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
 
         String userName = retrieveUserNameBySessionId(cookie.getValue());
 
-        String dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, String.format(createMenuItemContentLogin(), userName)ㅠ);
+        String dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, String.format(createMenuItemContentLogin(), userName));
 
         return dynamicHtmlContent.getBytes();
     }
