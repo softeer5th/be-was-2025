@@ -4,20 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
-
     private String method;
-
     private String path;
-
-    private final Map<String, String> queries = new HashMap<>();
-
+    private final Map<String, String> params = new HashMap<>();
     private String version;
-
     private final Map<String, String> headers = new HashMap<>();
+    private byte[] body;
 
-    private String body;
-
-    public String getBody() { return body; }
+    public byte[] getBody() { return body; }
 
     public String getMethod() {
         return method;
@@ -32,10 +26,10 @@ public class HttpRequest {
     }
 
     public String getHeader(String name) {
-        return headers.get(name);
+        return headers.get(name.toLowerCase());
     }
 
-    public String getParameter(String name) {return queries.get(name);}
+    public String getParameter(String name) {return params.get(name);}
 
     public void setMethod(String method) { this.method = method; }
 
@@ -43,8 +37,10 @@ public class HttpRequest {
 
     public void setVersion(String version) { this.version = version; }
 
-    public void setHeader(String name, String value) { this.headers.put(name, value); }
+    public void setHeader(String name, String value) { this.headers.put(name.toLowerCase(), value.toLowerCase()); }
 
-    public void setQuery(String name, String value) { this.queries.put(name, value); }
+    public void setParameter(String name, String value) { this.params.put(name, value); }
+
+    public void setBody(byte[] body) { this.body = body; }
 }
 
