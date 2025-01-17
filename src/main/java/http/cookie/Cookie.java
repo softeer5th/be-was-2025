@@ -106,10 +106,10 @@ public class Cookie {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(getName()).append("=\"").append(getValue()).append('"');
+        sb.append(getName()).append("=").append(getValue());
 
         if(getDomain() != null)
-            sb.append("; Domain=\"").append(getDomain()).append('"');
+            sb.append("; Domain=").append(getDomain());
 
         if(httpOnly){
             sb.append("; HttpOnly");
@@ -120,7 +120,7 @@ public class Cookie {
         }
 
         if(getPath() != null){
-            sb.append("; Path=\"").append(getPath()).append('"');
+            sb.append("; Path=").append(getPath());
         }
 
         if(sameSite != null){
