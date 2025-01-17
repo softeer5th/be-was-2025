@@ -11,7 +11,7 @@ import webserver.response.Response;
 import webserver.session.Session;
 import webserver.session.SessionManager;
 
-public class LoginHandler implements Handler{
+public class LoginHandler extends Handler{
     @Override
     public Response handle(Request request) {
         Response response = new Response(request, HttpStatusCode.FOUND);

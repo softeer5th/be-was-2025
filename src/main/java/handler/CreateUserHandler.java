@@ -6,7 +6,7 @@ import webserver.request.Request;
 import util.UserManager;
 import webserver.response.Response;
 
-public class CreateUserHandler implements Handler{
+public class CreateUserHandler extends Handler{
     @Override
     public Response handle(Request request) {
         Response response = new Response(request, HttpStatusCode.SEE_OTHER);
