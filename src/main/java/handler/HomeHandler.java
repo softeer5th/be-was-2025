@@ -20,7 +20,7 @@ public class HomeHandler implements Handler {
     public HttpResponse handle(HttpRequestInfo request) {
         checkHttpMethod(request);
         HttpResponse response = new HttpResponse(SEE_OTHER, HTML_UTF_8, "");
-        response.setHeaders(HttpHeader.LOCATION.getName(), HOME_URL);
+        response.setHeader(HttpHeader.LOCATION.getName(), HOME_URL);
         return response;
     }
 

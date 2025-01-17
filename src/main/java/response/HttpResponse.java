@@ -47,11 +47,11 @@ public class HttpResponse {
         this.status = status;
     }
 
-    public void setHeaders(String name, String value) {
+    public void setHeader(String name, String value) {
         headers.put(name, value);
     }
 
-    public void setHeaders(String... keyValues) {
+    public void setHeader(String... keyValues) {
         if (keyValues.length % 2 != 0) {
             throw new ServerErrorException(KEY_VALUE_SHOULD_BE_EVEN);
         }

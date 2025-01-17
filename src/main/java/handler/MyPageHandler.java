@@ -51,7 +51,7 @@ public class MyPageHandler implements Handler {
 
     private void redirectToHomePage(HttpResponse response) {
         response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, "");
-        response.setHeaders(HttpHeader.LOCATION.getName(), REDIRECT_PATH);
+        response.setHeader(HttpHeader.LOCATION.getName(), REDIRECT_PATH);
     }
 
     private void serveRequestedFile(HttpRequestInfo request, HttpResponse response) {
