@@ -1,12 +1,10 @@
 package webserver;
 
-import db.Database;
 import http.handler.Handler;
 import http.request.HttpRequest;
 import http.request.HttpRequestParser;
 import http.response.HttpResponse;
 import http.router.Router;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +28,6 @@ public class RequestHandler implements Runnable {
     public void run() {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
-        User testUser = new User("asdf", "asdf", "asdfadfsadf", "asdf@asdf");
-        Database.addUser(testUser);
-//        SessionDB
-
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
