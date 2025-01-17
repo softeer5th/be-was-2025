@@ -1,6 +1,5 @@
 package http;
 
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 
@@ -9,6 +8,7 @@ public class HttpResponse {
     private final DataOutputStream dos;
     private final byte[] body;
     private final String contentType;
+    private final StringBuilder headerBuilder;
     private static final String NOT_FOUND_PAGE = "<html><body><h1 style=\"text-align: center\">404 Not Found</h1></body></html>";
 
     public HttpResponse(HttpStatus httpStatus, DataOutputStream dos,
@@ -17,31 +17,41 @@ public class HttpResponse {
         this.dos = dos;
         this.body = body;
         this.contentType = contentType;
+        this.headerBuilder = new StringBuilder();
+        addRequestLine();
     }
 
     public void respond() throws IOException {
-        makeHeader();
-        makeBody();
+        headerBuilder.append("\r\n");
+        dos.writeBytes(headerBuilder.toString());
+        if (body != null) makeBody();
         send();
     }
 
-    public static void respond404(DataOutputStream dos) throws IOException{
+    public static void respond404(DataOutputStream dos) throws IOException {
         byte[] body = NOT_FOUND_PAGE.getBytes();
         HttpResponse httpResponse = new HttpResponse(HttpStatus.NOT_FOUND, dos, body, "text/html");
+        httpResponse.addHeader("Content-Type", httpResponse.contentType);
+        httpResponse.addHeader("Content-Length", String.valueOf(httpResponse.body.length));
         httpResponse.respond();
     }
 
-    private void makeHeader() throws IOException {
-        StringBuilder header = new StringBuilder();
-        header.append("HTTP/1.1 ").append(httpStatus.getCode()).append(' ').append(httpStatus.getStatus()).append(" \r\n");
-        header.append("Content-Type: ").append(contentType).append(";charset=utf-8\r\n");
-        header.append("Content-Length: ").append(body.length).append("\r\n\r\n");
-        dos.writeBytes(header.toString());
+    public static void respond302(String path, DataOutputStream dos) throws IOException {
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
+        httpResponse.addHeader("location", path);
+        httpResponse.respond();
+    }
+
+    private void addRequestLine() {
+        headerBuilder.append("HTTP/1.1 ").append(httpStatus.getCode()).append(' ').append(httpStatus.getStatus()).append(" \r\n");
+    }
+
+    public void addHeader(String key, String value) {
+        headerBuilder.append(key).append(": ").append(value).append("\r\n");
     }
 
     private void makeBody() throws IOException {
         dos.write(body, 0, body.length);
-        dos.flush();
     }
 
     private void send() throws IOException {

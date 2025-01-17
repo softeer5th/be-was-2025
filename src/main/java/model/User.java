@@ -1,6 +1,9 @@
 package model;
 
 import Entity.QueryParameters;
+import db.Database;
+import exception.DuplicateUserIdException;
+import exception.MissingUserInfoException;
 
 import java.util.Set;
 
@@ -17,10 +20,23 @@ public class User {
         this.email = email;
     }
 
-    public static void validateUserParameters(QueryParameters queryParameters) {
+    public static void validateSignUpUserParameters(QueryParameters queryParameters) {
         Set<String> keys = queryParameters.getKeySet();
         if (!keys.contains("userId") || !keys.contains("password") || !keys.contains("name") || !keys.contains("email")) {
-            throw new IllegalArgumentException("User 정보 중 누락된 항목이 존재합니다.");
+            throw new MissingUserInfoException("회원가입 정보 중 누락된 항목이 존재합니다.");
+        }
+    }
+
+    public static void validateSignInUserParameters(QueryParameters queryParameters) {
+        Set<String> keys = queryParameters.getKeySet();
+        if (!keys.contains("userId") || !keys.contains("password")) {
+            throw new MissingUserInfoException("로그인 정보 중 누락된 항목이 존재합니다.");
+        }
+    }
+
+    public static void validateSignUpUserIdDuplication(User user) {
+        if (Database.findUserById(user.userId).isPresent()) {
+            throw new DuplicateUserIdException("이미 존재하는 user id 입니다.");
         }
     }
 
