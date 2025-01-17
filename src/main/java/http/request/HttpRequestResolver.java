@@ -1,17 +1,13 @@
-package http;
+package http.request;
 
-import http.enums.HttpMethod;
+import http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HttpRequestResolver {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestResolver.class);
@@ -70,10 +66,24 @@ public class HttpRequestResolver {
         while((line = br.readLine()) != null && !line.isEmpty()){
             sb.append(line).append("\n");
             String[] lineParts = line.split(":\\s*");
-            httpRequest.addHeader(lineParts[0].toUpperCase(), lineParts[1].toUpperCase());
+
+            if(lineParts[0].equalsIgnoreCase("cookie")){
+                parseHttpRequestCookies(lineParts[1], httpRequest);
+            }else{
+                httpRequest.addHeader(lineParts[0].toUpperCase(), lineParts[1].toUpperCase());
+            }
         }
 
         logger.debug("header: \n{}", sb.toString());
+    }
+
+    private void parseHttpRequestCookies(String cookieValueLine, HttpRequest httpRequest){
+        String[] cookieValues = cookieValueLine.split(";");
+
+        for(String cookieValue: cookieValues){
+            Cookie cookie = Cookie.parseCookie(cookieValue);
+            httpRequest.addCookie(cookie);
+        }
     }
 
     private void parseHttpRequestBody(BufferedReader br, HttpRequest httpRequest) throws IOException {

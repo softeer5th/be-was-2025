@@ -1,8 +1,8 @@
 package user;
 
-import handler.UserRequestHandler;
-import http.HttpRequest;
-import http.HttpResponse;
+import handler.UserSignUpRequestHandler;
+import http.request.HttpRequest;
+import http.response.HttpResponse;
 import http.enums.HttpMethod;
 import http.enums.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class SignUpTest {
-    private UserRequestHandler userRequestHandler = new UserRequestHandler();
+    private UserSignUpRequestHandler userSignUpRequestHandler = new UserSignUpRequestHandler();
 
     @Test
     @DisplayName("회원가입 성공")
@@ -21,7 +21,7 @@ public class SignUpTest {
         HttpRequest httpRequest = createSignUpHttpRequest("aaaa", "bbbb", "1234");
 
         // when
-        HttpResponse httpResponse = userRequestHandler.handle(httpRequest);
+        HttpResponse httpResponse = userSignUpRequestHandler.handle(httpRequest);
 
         // then
         assertThat(httpResponse.getHttpStatus()).isEqualTo(HttpStatus.OK);
@@ -32,11 +32,11 @@ public class SignUpTest {
     void 이미_존재하는_사용자_아이다가_있어_회원가입_실패(){
         // given
         HttpRequest httpRequest1 = createSignUpHttpRequest("aaaa", "abcd", "1234");
-        userRequestHandler.handle(httpRequest1);
+        userSignUpRequestHandler.handle(httpRequest1);
         HttpRequest httpRequest2 = createSignUpHttpRequest("aaaa", "efgh", "5678");
 
         // when
-        HttpResponse httpResponse = userRequestHandler.handle(httpRequest2);
+        HttpResponse httpResponse = userSignUpRequestHandler.handle(httpRequest2);
 
         // then
         assertThat(httpResponse.getHttpStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -47,11 +47,11 @@ public class SignUpTest {
     void 이미_존재하는_닉네임이_있어_회원가입_실패(){
         // given
         HttpRequest httpRequest1 = createSignUpHttpRequest("aaaa", "abcd", "1234");
-        userRequestHandler.handle(httpRequest1);
+        userSignUpRequestHandler.handle(httpRequest1);
         HttpRequest httpRequest2 = createSignUpHttpRequest("bbbb", "abcd", "5678");
 
         // when
-        HttpResponse httpResponse = userRequestHandler.handle(httpRequest2);
+        HttpResponse httpResponse = userSignUpRequestHandler.handle(httpRequest2);
 
         // then
         assertThat(httpResponse.getHttpStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);

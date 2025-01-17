@@ -1,8 +1,6 @@
-package http;
+package http.response;
 
 import http.enums.HttpStatus;
-import http.enums.MimeType;
-import util.FileUtil;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

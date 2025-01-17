@@ -1,9 +1,11 @@
-package http;
+package http.request;
 
+import http.cookie.Cookie;
 import http.enums.HttpMethod;
 
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
@@ -12,6 +14,8 @@ public class HttpRequest {
     private String protocol;
     private final Map<String, String> queryParams = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
+    private final Map<String, Cookie> cookies = new HashMap<>();
+
     private char[] body;
 
     public HttpRequest(){}
@@ -61,6 +65,14 @@ public class HttpRequest {
 
     public void setBody(char[] body){
         this.body = body;
+    }
+
+    public Cookie getCookie(String cookieName){
+        return cookies.get(cookieName.toLowerCase());
+    }
+
+    public void addCookie(Cookie cookie){
+        cookies.put(cookie.getName().toLowerCase(), cookie);
     }
 
     public Map<String, String> convertBodyToMap(){

@@ -1,5 +1,6 @@
-package http;
+package http.response;
 
+import http.cookie.Cookie;
 import http.enums.HttpStatus;
 
 import java.util.HashMap;
@@ -10,11 +11,16 @@ public class HttpResponse {
     private Map<String, String> headers = new HashMap<>();
     private byte[] body;
 
-    public HttpResponse(HttpStatus httpStatus, String contentType, int contentLength, String location, byte[] data){
+    public HttpResponse(HttpStatus httpStatus, String contentType, int contentLength, String location, Cookie cookie, byte[] data){
         this.httpStatus = httpStatus;
         setContentType(contentType);
         setContentLength(contentLength);
         setLocation(location);
+
+        if(cookie != null){
+            setCookie(cookie);
+        }
+
         this.body = data;
     }
 
@@ -42,6 +48,10 @@ public class HttpResponse {
         headers.put("Location", location);
     }
 
+    public void setCookie(Cookie cookie){
+        headers.put("Set-Cookie", cookie.toString());
+    }
+
     public void setBody(byte[] body){
         this.body = body;
     }
@@ -50,6 +60,7 @@ public class HttpResponse {
         private String contentType;
         private int contentLength;
         private String location;
+        private Cookie cookie;
         private byte[] body;
 
 
@@ -75,6 +86,11 @@ public class HttpResponse {
             return this;
         }
 
+        public Builder setCookie(Cookie cookie){
+            this.cookie = cookie;
+            return this;
+        }
+
         public Builder body(byte[] body){
             this.contentLength = body.length;
             this.body = body;
@@ -82,7 +98,7 @@ public class HttpResponse {
         }
 
         public HttpResponse build(){
-            return new HttpResponse(httpStatus, contentType, contentLength, location, body);
+            return new HttpResponse(httpStatus, contentType, contentLength, location, cookie, body);
         }
     }
 }

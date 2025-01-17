@@ -2,8 +2,8 @@ package handler;
 
 import db.Database;
 import exception.*;
-import http.HttpRequest;
-import http.HttpResponse;
+import http.request.HttpRequest;
+import http.response.HttpResponse;
 import http.enums.HttpStatus;
 import http.enums.MimeType;
 import model.User;
@@ -11,7 +11,7 @@ import model.User;
 import java.util.Collection;
 import java.util.Map;
 
-public class UserRequestHandler implements  RequestHandler{
+public class UserSignUpRequestHandler implements  RequestHandler{
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
         return true;
