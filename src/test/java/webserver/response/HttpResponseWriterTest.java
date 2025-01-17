@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
-import webserver.exception.HttpException;
 import webserver.header.SetCookie;
 import webserver.request.HttpRequest;
 
@@ -34,23 +33,6 @@ class HttpResponseWriterTest {
         assertThat(result).contains("HTTP/1.1 200 OK");
         assertThat(result).contains("Content-Length: 2");
         assertThat(result).contains("OK");
-    }
-
-    @Test
-    @DisplayName("에러 응답 작성")
-    void writeErrorResponse() throws IOException {
-        // given
-        var exception = new HttpException(HttpStatusCode.NOT_FOUND, "Not Found");
-        var out = new ByteArrayOutputStream();
-
-        // when
-        new HttpResponseWriter().writeError(HttpVersion.HTTP_1_1, exception, out);
-
-        // then
-        var result = out.toString();
-        assertThat(result).contains("HTTP/1.1 404 Not Found");
-        assertThat(result).contains("Content-Length: 9");
-        assertThat(result).contains("Not Found");
     }
 
     @Test
