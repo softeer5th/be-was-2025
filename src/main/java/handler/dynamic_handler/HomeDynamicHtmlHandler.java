@@ -2,7 +2,10 @@ package handler.dynamic_handler;
 
 import db.Database;
 import http.cookie.Cookie;
+import http.enums.HttpStatus;
+import http.enums.MimeType;
 import http.request.HttpRequest;
+import http.response.HttpResponse;
 import http.session.SessionManager;
 import model.User;
 
@@ -11,21 +14,25 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
     private static final String DYNAMIC_CONTENT = "<!-- DYNAMIC_CONTENT -->";
 
     @Override
-    public byte[] handle(byte[] fileData, HttpRequest httpRequest) {
+    public HttpResponse handle(byte[] fileData, String extension, HttpRequest httpRequest) {
         String htmlContent = new String(fileData);
 
         Cookie cookie = httpRequest.getCookie("sessionId");
-        
+
+        String dynamicHtmlContent = null;
+
         if(cookie == null){
-            String dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, createMenuItemContentNotLogin());
-            return dynamicHtmlContent.getBytes();
+             dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, createMenuItemContentNotLogin());
+        }else{
+            String userName = retrieveUserNameBySessionId(cookie.getValue());
+            dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, String.format(createMenuItemContentLogin(), userName));
         }
 
-        String userName = retrieveUserNameBySessionId(cookie.getValue());
-
-        String dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, String.format(createMenuItemContentLogin(), userName));
-
-        return dynamicHtmlContent.getBytes();
+        return new HttpResponse.Builder()
+                .httpStatus(HttpStatus.OK)
+                .contentType(MimeType.getMimeType(extension))
+                .body(dynamicHtmlContent.getBytes())
+                .build();
     }
 
     private String retrieveUserNameBySessionId(String sessionId){
