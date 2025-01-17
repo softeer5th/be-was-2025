@@ -3,6 +3,7 @@ package http.enums;
 public enum HttpStatus {
     OK(200, "OK"),
     SEE_OTHER(303, "See Other"),
+    TEMPORARY_REDIRECT(307, "Temporary Redirect"),
     NOT_FOUND(404, "Not Found"),
     INTERNAL_SERVER_ERROR(500, "INTERNAL SERVER ERROR");
 
