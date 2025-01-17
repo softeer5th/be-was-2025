@@ -29,7 +29,6 @@ public class HttpRequest {
         this.body = new String(requestBody);
     }
 
-    // get -> split(";") -> for(0~length) {s.startWith("sid=") -> split("=") -> tokens[1] 이
     public String getCookieSid() {
         try {
             String s = headers.get("Cookie");
