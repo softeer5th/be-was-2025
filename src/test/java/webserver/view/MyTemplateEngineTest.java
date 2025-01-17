@@ -152,7 +152,7 @@ class MyTemplateEngineTest {
 
     @Test
     @DisplayName("my-include, my-if, my-text 태그 렌더링")
-    void testIncludeIfTextTags() {
+    void test6() {
         // given
         TemplateFileReader fileReader = mock(TemplateFileReader.class);
         when(fileReader.read("header")).thenReturn("<header><my-text>${session.user.name}</my-text></header>");
@@ -181,5 +181,32 @@ class MyTemplateEngineTest {
         assertThat(actual).contains("<body>id1</body>");
         assertThat(actual).doesNotContain("<my-include template=\"header\"></my-include>");
         assertThat(actual).doesNotContain("<my-include template=\"body\"></my-include>");
+    }
+
+    @Test
+    @DisplayName("my-foreach 태그 items 속성에 객체 탐색 경로 사용")
+    void test7() {
+        // given
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new ForeachTagRenderer("my-foreach"))
+                .registerTagHandler(new TextTagRenderer("my-text"));
+        String template = """
+                <my-foreach items="session.users" item="user">
+                    <div><my-text>${user.name}</my-text></div>
+                </my-foreach>
+                """;
+        Map<String, Object> model = new HashMap<>();
+        model.put("session", Map.of(
+                "users", List.of(
+                        Map.of("name", "alice"),
+                        Map.of("name", "bob")
+                )
+        ));
+
+        // when
+        String actual = templateEngine.render(template, model);
+
+        // then
+        assertThat(actual).contains("<div>alice</div><div>bob</div>");
     }
 }

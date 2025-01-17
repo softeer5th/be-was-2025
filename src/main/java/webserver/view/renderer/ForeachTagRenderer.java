@@ -7,6 +7,9 @@ import webserver.view.TemplateEngine;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
+
+import static util.ReflectionUtil.recursiveCallGetter;
 
 public class ForeachTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-foreach";
@@ -35,17 +38,13 @@ public class ForeachTagRenderer extends TagRenderer {
             throw new InternalServerError(ITEM_ATTRIBUTE_NAME + " attribute가 이미 모델에 있습니다.");
 
         StringBuilder result = new StringBuilder();
-        Object itemsObject = model.get(itemsAttribute);
-        Iterator<?> iterator = null;
-        if (itemsObject instanceof Iterable<?> iterable)
-            iterator = iterable.iterator();
-        else if (itemsObject instanceof Object[] array)
-            iterator = Arrays.stream(array).iterator();
-        else
-            throw new InternalServerError(ITEMS_ATTRIBUTE_NAME + " attribute가 Iterable이나 배열이 아닙니다.");
+        Optional<Object> itemsObject = recursiveCallGetter(model, itemsAttribute);
+        if (itemsObject.isEmpty())
+            throw new InternalServerError(ITEMS_ATTRIBUTE_NAME + " attribute가 모델에 없습니다.");
+        Iterator<?> iterator = resolveIterator(itemsObject.get());
 
-
-        for (Object item : (Iterable<?>) model.get(itemsAttribute)) {
+        while (iterator.hasNext()) {
+            Object item = iterator.next();
             model.put(itemAttribute, item);
             result.append(engine.render(childrenTemplate, model));
             model.remove(itemAttribute);
@@ -56,5 +55,13 @@ public class ForeachTagRenderer extends TagRenderer {
     @Override
     public String getTagName() {
         return DEFAULT_TAG_NAME;
+    }
+
+    private Iterator<?> resolveIterator(Object itemsObject) {
+        if (itemsObject instanceof Iterable<?> iterable)
+            return iterable.iterator();
+        if (itemsObject instanceof Object[] array)
+            return Arrays.stream(array).iterator();
+        throw new InternalServerError(ITEMS_ATTRIBUTE_NAME + " attribute가 Iterable이나 배열이 아닙니다.");
     }
 }
