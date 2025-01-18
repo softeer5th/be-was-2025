@@ -11,12 +11,12 @@ import java.util.Map;
 
 public class ResponseBuilder {
     private final static Map<String, Handler> getPages = Map.of(
-            "/user/logout", new LogoutHandler(),
             "default", new StaticFileHandler()
     );
     private final static Map<String, Handler> postPages = Map.of(
             "/user/create", new CreateUserHandler(),
             "/user/login.html", new LoginHandler(),
+            "/user/logout", new LogoutHandler(),
             "default", new Page404Handler()
     );
 
