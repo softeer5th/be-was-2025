@@ -10,12 +10,14 @@
     <my-include template="/common/header.html"></my-include>
     <div class="page">
         <h2 class="page-title">게시글 작성</h2>
-        <form class="form">
+        <form action="/article" class="form" enctype="application/x-www-form-urlencoded" method="post">
             <div class="textfield textfield_size_m">
                 <p class="title_textfield">내용</p>
                 <textarea
                         autocomplete="username"
                         class="input_textfield"
+                        maxlength="1000"
+                        minlength="0"
                         placeholder="글의 내용을 입력하세요"
                 ></textarea>
             </div>
@@ -23,7 +25,7 @@
                     class="btn btn_contained btn_size_m"
                     id="registration-btn"
                     style="margin-top: 24px"
-                    type="button"
+                    type="submit"
             >
                 작성 완료
             </button>
