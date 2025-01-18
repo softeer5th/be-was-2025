@@ -23,7 +23,6 @@
       </header>
       <div class="page">
         <h2 class="page-title">마이페이지</h2>
-
         <div class="profile_container">
           <div class="profile_box">
               <div class="profile_image">
@@ -39,13 +38,14 @@
                   </div>
               </div>
         </div>
-          <form class="form">
+          <form class="form" action="/user/edit" method="post">
             <div class="textfield textfield_size_s input_margin">
               <p class="title_textfield">닉네임</p>
               <input
                 class="input_textfield"
                 placeholder="{회원 가입 시 입력했던 닉네임}"
                 autocomplete="username"
+                name="username"
               />
             </div>
             <div class="textfield textfield_size_s">
@@ -54,6 +54,7 @@
                 class="input_textfield"
                 placeholder="비밀번호를 변경할 경우 입력해주세요"
                 autocomplete="current-password"
+                name="password"
               />
             </div>
             <div class="textfield textfield_size_s">
@@ -63,13 +64,14 @@
                 type="password"
                 placeholder="한 번 더 입력해주세요"
                 autocomplete="current-password"
+                name="passwordRewrite"
               />
             </div>
             <button
               id="registration-btn"
               class="btn btn_contained btn_size_m input_margin"
             
-              type="button"
+              type="submit"
             >
               변경사항 저장
             </button>
