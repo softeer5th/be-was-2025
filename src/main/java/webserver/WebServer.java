@@ -36,7 +36,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static webserver.enums.PageMappingPath.MYPAGE;
+import static webserver.enums.PageMappingPath.*;
 
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
@@ -78,6 +78,9 @@ public class WebServer {
                 .setHandler("/registration", new RegistrationHandler(database))
                 .setHandler("/login", new LoginHandler(database))
                 .setHandler("/logout", new LogoutHandler());
+                .setHandler(REGISTRATION.path, new RegistrationHandler(database))
+                .setHandler(LOGIN.path, new LoginHandler(database))
+                .setHandler(LOGOUT.path, new LogoutHandler())
 
         SessionManager sessionManager = new MemorySessionManager();
 
