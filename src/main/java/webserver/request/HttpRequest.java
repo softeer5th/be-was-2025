@@ -55,14 +55,6 @@ public class HttpRequest {
         return headers;
     }
 
-    public Optional<String> getBodyAsString() {
-        return bodyParser.getBodyAsString();
-    }
-
-    public Optional<Map<String, String>> getBodyAsMap() {
-        return bodyParser.getBodyAsMap();
-    }
-
     public <T> Optional<T> getBody(Class<T> clazz) {
         return bodyParser.getBody(clazz);
     }

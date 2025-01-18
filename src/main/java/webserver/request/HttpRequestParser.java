@@ -1,6 +1,5 @@
 package webserver.request;
 
-import webserver.config.ServerConfig;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
@@ -24,10 +23,10 @@ import static webserver.enums.ParsingConstant.*;
 
 // 사용자의 요청을 파싱하여 HttpRequest 객체를 생성
 public class HttpRequestParser {
-    private final int MAX_HEADER_SIZE;
+    private final int maxHeaderSize;
 
-    public HttpRequestParser(ServerConfig config) {
-        this.MAX_HEADER_SIZE = config.getMaxHeaderSize();
+    public HttpRequestParser(Integer maxHeaderSize) {
+        this.maxHeaderSize = maxHeaderSize;
     }
 
     // Body 직전 헤더까지 읽기
@@ -37,7 +36,7 @@ public class HttpRequestParser {
         int buf;
         // request line 앞에 오는 연속된 CRLF는 무시해야 함. (rfc9112#section-2.2)
         while ((buf = inputStream.read()) != -1) {
-            if (++totalReadBytes > MAX_HEADER_SIZE)
+            if (++totalReadBytes > maxHeaderSize)
                 throw new HttpException(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, "Header Size가 너무 큽니다.");
             sb.append((char) buf);
             if (sb.length() >= 2) {
@@ -52,7 +51,7 @@ public class HttpRequestParser {
 
         // request line ~ header까지 읽기
         while ((buf = inputStream.read()) != -1) {
-            if (++totalReadBytes > MAX_HEADER_SIZE)
+            if (++totalReadBytes > maxHeaderSize)
                 throw new HttpException(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, "Header Size가 너무 큽니다.");
             sb.append((char) buf);
             // \n 혹은 \r\n이 2번 나오면 header가 끝난 것으로 간주

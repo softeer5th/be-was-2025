@@ -63,10 +63,10 @@ public class WebServer {
         ExecutorService es = Executors.newFixedThreadPool(config.getThreadPoolSize());
         Database database = new Database();
 
-        HttpRequestParser requestParser = new HttpRequestParser(config);
+        HttpRequestParser requestParser = new HttpRequestParser(config.getMaxHeaderSize());
         HttpResponseWriter responseWriter = new HttpResponseWriter();
 
-        StaticResourceManager resourceManager = new StaticResourceManager(config);
+        StaticResourceManager resourceManager = new StaticResourceManager(config.getStaticResourceDirectory());
         TemplateEngine templateEngine = new MyTemplateEngine()
                 .registerTagHandler(new ForeachTagRenderer())
                 .registerTagHandler(new IfTagRenderer())
@@ -75,7 +75,7 @@ public class WebServer {
 
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
-                .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
+                .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config.getDefaultPageFileName(), config.getTemplateFileExtension()))
                 .setHandler(REGISTRATION.path, new RegistrationHandler(database))
                 .setHandler(LOGIN.path, new LoginHandler(database))
                 .setHandler(LOGOUT.path, new LogoutHandler())

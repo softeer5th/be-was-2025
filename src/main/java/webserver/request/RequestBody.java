@@ -38,8 +38,23 @@ public class RequestBody {
         this.body = body;
     }
 
+    public <T> Optional<T> getBody(Class<T> clazz) {
+        if (clazz == String.class) {
+            return (Optional<T>) getBodyAsString();
+        }
+        if (clazz == Map.class) {
+            return (Optional<T>) getBodyAsMap();
+        }
+        String contentType = headers.getHeader(CONTENT_TYPE.value);
+        if (APPLICATION_X_WWW_FORM_URLENCODED.equals(contentType)) {
+            return getBodyAsMap().flatMap(map -> Mapper.mapToObject(map, clazz));
+        }
+        log.error("지원하지 않는 Content-Type 입니다. Content-Type: {}", contentType);
+        return Optional.empty();
+    }
+
     // body를 String으로 반환
-    public Optional<String> getBodyAsString() {
+    private Optional<String> getBodyAsString() {
         if (stringBodyCache != null)
             return Optional.of(stringBodyCache);
         readBodyAsRaw();
@@ -51,7 +66,7 @@ public class RequestBody {
     }
 
     // body를 Map으로 반환
-    public Optional<Map<String, String>> getBodyAsMap() {
+    private Optional<Map<String, String>> getBodyAsMap() {
         if (mapBodyCache != null)
             return Optional.of(mapBodyCache);
         readBodyAsRaw();
@@ -62,15 +77,6 @@ public class RequestBody {
             mapBodyCache = null;
         }
         return Optional.ofNullable(mapBodyCache);
-    }
-
-    public <T> Optional<T> getBody(Class<T> clazz) {
-        String contentType = headers.getHeader(CONTENT_TYPE.value);
-        if (APPLICATION_X_WWW_FORM_URLENCODED.equals(contentType)) {
-            return getBodyAsMap().flatMap(map -> Mapper.mapToObject(map, clazz));
-        }
-        log.error("지원하지 않는 Content-Type 입니다. Content-Type: {}", contentType);
-        return Optional.empty();
     }
 
     // application/x-www-form-urlencoded 형식의 body를 파싱하여 Map으로 반환

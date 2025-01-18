@@ -1,7 +1,6 @@
 package webserver.handler;
 
 import util.FileUtil;
-import webserver.config.ServerConfig;
 import webserver.enums.HttpStatusCode;
 import webserver.file.StaticResourceManager;
 import webserver.request.HttpRequest;
@@ -17,10 +16,10 @@ public class ServeStaticFileHandler implements HttpHandler {
     private final StaticResourceManager resourceManager;
     private final String templateFileExtension;
 
-    public ServeStaticFileHandler(StaticResourceManager resourceManager, ServerConfig config) {
+    public ServeStaticFileHandler(StaticResourceManager resourceManager, String defaultPageFileName, String templateFileExtension) {
         this.resourceManager = resourceManager;
-        this.defaultPageFileName = config.getDefaultPageFileName();
-        templateFileExtension = config.getTemplateFileExtension();
+        this.defaultPageFileName = defaultPageFileName;
+        this.templateFileExtension = templateFileExtension;
     }
 
     @Override

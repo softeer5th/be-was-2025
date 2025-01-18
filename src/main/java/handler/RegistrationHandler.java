@@ -42,14 +42,14 @@ public class RegistrationHandler implements HttpHandler {
     }
 
     private HttpResponse renderRegistrationPageWithErrorMessage() {
-        HttpResponse response = new HttpResponse(HttpStatusCode.UNAUTHORIZED);
+        HttpResponse response = new HttpResponse(HttpStatusCode.CONFLICT);
         ModelAndTemplate modelAndTemplate = new ModelAndTemplate(TEMPLATE_NAME);
         modelAndTemplate.setError("중복돤 아이디입니다.");
         response.renderTemplate(modelAndTemplate);
         return response;
     }
 
-    private record RegistrationRequest(String userId, String password, String name, String email) {
+    record RegistrationRequest(String userId, String password, String name, String email) {
         public User toUser() {
             return new User(userId, password, name, email);
         }

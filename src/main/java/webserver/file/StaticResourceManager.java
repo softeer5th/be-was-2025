@@ -1,7 +1,6 @@
 package webserver.file;
 
 import util.FileUtil;
-import webserver.config.ServerConfig;
 import webserver.view.TemplateFileReader;
 
 import java.io.File;
@@ -16,8 +15,8 @@ public class StaticResourceManager implements TemplateFileReader {
 
     private final String staticResourceDirectory;
 
-    public StaticResourceManager(ServerConfig config) {
-        this.staticResourceDirectory = config.getStaticResourceDirectory();
+    public StaticResourceManager(String staticResourceDirectory) {
+        this.staticResourceDirectory = staticResourceDirectory;
     }
 
 
