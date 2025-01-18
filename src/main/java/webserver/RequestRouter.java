@@ -35,15 +35,11 @@ public class RequestRouter {
     private static final String RESOURCES_PATH = "./src/main/resources/static";
     private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/login/login_failed.html";
     private static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
-    private static final String LOGINED_MAIN_PAGE = "http://localhost:8080/main/index.html";
     private static final String MAIN_PAGE = "http://localhost:8080/index.html";
     private static final String SIGNIN_PATH = "/user/signIn";
     private static final String SIGNUP_PATH = "/user/create";
     private static final String LOGOUT_PATH = "/user/logout";
     private static final String USER_INFO_PATH = "/user/info";
-    private static final String CONTENT_TYPE = "Content-Type";
-    private static final String CONTENT_LENGTH = "Content-Length";
-    private static final String SET_COOKIE = "Set-Cookie";
     private static final String LOCATION = "location";
     private final Map<String, User> userSessions;
 
@@ -117,8 +113,8 @@ public class RequestRouter {
 
             byte[] body = fileContent.getBytes();
             HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
-            httpResponse.addHeader(CONTENT_TYPE, ContentTypeUtil.getContentType(fileExtension));
-            httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
+            httpResponse.addHeader(HttpHeader.CONTENT_TYPE.getHeaderName(), ContentTypeUtil.getContentType(fileExtension));
+            httpResponse.addHeader(HttpHeader.CONTENT_LENGTH.getHeaderName(), String.valueOf(body.length));
             httpResponse.respond();
         } catch (IOException e) {
             logger.error("Get Request Error, " + e.getMessage());
@@ -163,7 +159,7 @@ public class RequestRouter {
             // 쿠키 발급
             String sessionId = UUID.randomUUID().toString();
             HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
-            httpResponse.addHeader(SET_COOKIE, "sid=" + sessionId + "; Path=/");
+            httpResponse.addHeader(HttpHeader.SET_COOKIE.getHeaderName(), String.format("sid=%s; Path=/", sessionId));
             httpResponse.addHeader(LOCATION, MAIN_PAGE);
             httpResponse.respond();
             userSessions.put(sessionId, user);
@@ -191,8 +187,8 @@ public class RequestRouter {
         }
         try {
             HttpResponse httpResponse = new HttpResponse(HttpStatus.FOUND, dos, null, null);
-            httpResponse.addHeader(SET_COOKIE, "sid=" + null + "; Path=/");
-            httpResponse.addHeader("location", MAIN_PAGE);
+            httpResponse.addHeader(HttpHeader.SET_COOKIE.getHeaderName(), "sid=; Path=/");
+            httpResponse.addHeader(HttpHeader.LOCATION.getHeaderName(), MAIN_PAGE);
             httpResponse.respond();
         } catch (IOException e) {
             logger.error("Logout Redirection Error" + e.getMessage());
@@ -211,8 +207,8 @@ public class RequestRouter {
             body = ("userName=null").getBytes();
         }
         HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, "text/html");
-        httpResponse.addHeader(CONTENT_TYPE, "text/html");
-        httpResponse.addHeader(CONTENT_LENGTH, String.valueOf(body.length));
+        httpResponse.addHeader(HttpHeader.CONTENT_TYPE.getHeaderName(), "text/html");
+        httpResponse.addHeader(HttpHeader.CONTENT_LENGTH.getHeaderName(), String.valueOf(body.length));
         try {
             httpResponse.respond();
         } catch (IOException e) {

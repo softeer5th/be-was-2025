@@ -31,7 +31,7 @@ public class HttpRequest {
 
     public String getCookieSid() {
         try {
-            String s = headers.get("Cookie");
+            String s = headers.get(HttpHeader.COOKIE.getHeaderName());
             String[] cookies = s.split("; ");
             for (String cookie : cookies) {
                 if (cookie.startsWith("sid=")) {
@@ -69,7 +69,7 @@ public class HttpRequest {
 
         for (int i = 1; i < headerLines.size(); i++) {
             String[] tokens = headerLines.get(i).split(":", 2);
-            headers.put(tokens[0], tokens[1]);
+            headers.put(tokens[0].toLowerCase(), tokens[1]);
         }
     }
 
@@ -78,10 +78,10 @@ public class HttpRequest {
     }
 
     public int getContentLength() {
-        if (headers.containsKey("Content-Length")) {
-            return Integer.parseInt(headers.get("Content-Length").trim());
+        if (headers.containsKey(HttpHeader.CONTENT_LENGTH.getHeaderName())) {
+            return Integer.parseInt(headers.get(HttpHeader.CONTENT_LENGTH.getHeaderName()).trim());
         }
-        throw new ExceptionInInitializerError("Can't Find Content-Length");
+        throw new ExceptionInInitializerError("Can't Find content-length");
     }
 
     public void log(Logger logger) {
