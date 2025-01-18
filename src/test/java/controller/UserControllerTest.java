@@ -164,6 +164,127 @@ class UserControllerTest {
         String cookieString = setCookie.toString();
         assertThat(cookieString).contains("Max-Age=0");
     }
+    @Test
+    @DisplayName("GET /mypage - 로그인 된 사용자 마이페이지 접근")
+    void testMypageSuccess() throws IOException {
+        // given
+        String userId = "testuser";
+        User user = new User(userId, "password", "Test User", "test@example.com");
+        Database.addUser(user);
+        String sessionUuid = UUID.randomUUID().toString();
+        HttpSession.put(sessionUuid, userId);
+
+        Cookie cookie = cookieFactory.create("sid=" + sessionUuid);
+        HttpRequest request = new HttpRequest.Builder()
+                .method(HttpMethod.GET)
+                .uri("/mypage")
+                .cookie(cookie)
+                .build();
+
+        // when
+        userController.mypage(request, response);
+
+        // then
+        assertThat(response.getHeader("Content-Type")).isEqualTo("text/html; charset=utf-8");
+        assertThat(response.getBody()).isNotNull();
+        String bodyContent = new String(response.getBody(), StandardCharsets.UTF_8);
+        assertThat(bodyContent).contains("<!DOCTYPE html");
+    }
+
+    @Test
+    @DisplayName("GET /mypage - 비로그인 시 로그인 페이지로 리다이렉션")
+    void testMypageRedirectToLogin() throws IOException {
+        // given
+        Cookie cookie = cookieFactory.create("");  // SESSION_ID 없음
+        HttpRequest request = new HttpRequest.Builder()
+                .method(HttpMethod.GET)
+                .uri("/mypage")
+                .cookie(cookie)
+                .build();
+
+        // when
+        userController.mypage(request, response);
+
+        // then
+        assertThat(response.getHeader("Location")).isEqualTo("/login");
+    }
+
+    @Test
+    @DisplayName("POST /user/edit - 비인가 접근 시 401 에러 및 에러 페이지 리다이렉션")
+    void testChangePasswordUnauthorized() throws IOException {
+        // given
+        Cookie cookie = cookieFactory.create("");  // SESSION_ID 없음
+        HttpRequest request = new HttpRequest.Builder()
+                .method(HttpMethod.POST)
+                .uri("/user/edit")
+                .cookie(cookie)
+                .addParameter("username", "Some Name")
+                .addParameter("password", "newpassword")
+                .addParameter("passwordRewrite", "newpassword")
+                .build();
+
+        // when
+        userController.changePassword(request, response);
+
+        // then
+        assertThat(response.getHeader("Location")).isEqualTo("/error/401.html");
+        assertThat(response.getStatusCode()).isEqualTo(StatusCode.UNAUTHORIZED);
+    }
+
+    @Test
+    @DisplayName("POST /user/edit - 비밀번호 재확인 실패 시 마이페이지로 리다이렉션")
+    void testChangePasswordMismatch() throws IOException {
+        // given
+        String userId = "testuser";
+        User user = new User(userId, "oldpassword", "Test User", "test@example.com");
+        Database.addUser(user);
+        String sessionUuid = UUID.randomUUID().toString();
+        HttpSession.put(sessionUuid, userId);
+
+        Cookie cookie = cookieFactory.create("sid=" + sessionUuid);
+        HttpRequest request = new HttpRequest.Builder()
+                .method(HttpMethod.POST)
+                .uri("/user/edit")
+                .cookie(cookie)
+                .addParameter("username", "Test User")
+                .addParameter("password", "newpassword")
+                .addParameter("passwordRewrite", "differentpassword")
+                .build();
+
+        // when
+        userController.changePassword(request, response);
+
+        // then
+        assertThat(response.getHeader("Location")).isEqualTo("/mypage");
+    }
+
+    @Test
+    @DisplayName("POST /user/edit - 성공적인 비밀번호 변경")
+    void testChangePasswordSuccess() throws IOException {
+        // given
+        String userId = "testuser";
+        User user = new User(userId, "oldpassword", "Test User", "test@example.com");
+        Database.addUser(user);
+        String sessionUuid = UUID.randomUUID().toString();
+        HttpSession.put(sessionUuid, userId);
+
+        Cookie cookie = cookieFactory.create("sid=" + sessionUuid);
+        HttpRequest request = new HttpRequest.Builder()
+                .method(HttpMethod.POST)
+                .uri("/user/edit")
+                .cookie(cookie)
+                .addParameter("username", "Test User")
+                .addParameter("password", "newpassword")
+                .addParameter("passwordRewrite", "newpassword")
+                .build();
+
+        // when
+        userController.changePassword(request, response);
+
+        // then
+        assertThat(response.getHeader("Location")).isEqualTo("/");
+        assertThat(user.getPassword()).isEqualTo("newpassword");
+    }
 
     private SetCookie extractFirstSetCookie(HttpResponse response) throws IllegalAccessException, NoSuchFieldException {
         Field cookies = response.getClass().getDeclaredField("cookies");
