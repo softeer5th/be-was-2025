@@ -1,6 +1,7 @@
 package handler;
 
 import util.FileFinder;
+import util.HtmlContentReplacer;
 import util.enums.HttpStatusCode;
 import webserver.request.Request;
 import webserver.response.Response;
@@ -15,7 +16,13 @@ public class ReadFileHandler extends Handler {
         try{
             FileFinder fileFinder = new FileFinder(request.url);
             byte[] body = null;
-            if (fileFinder.find()) { body = fileFinder.readFileToBytes(); }
+            if (fileFinder.find()) {
+                body = fileFinder.readFileToBytes();
+                if(request.isHtml()){
+                    HtmlContentReplacer replacer = new HtmlContentReplacer(sessionId);
+                    body = replacer.replace(body);
+                }
+            }
             response.setBody(body);
             response.setStatusCode(HttpStatusCode.OK);
         } catch(NullPointerException e){

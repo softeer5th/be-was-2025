@@ -80,4 +80,8 @@ public class Request {
     public String getHeader(String headerName) {
         return headers.get(headerName);
     }
+
+    public boolean isHtml(){
+        return contentType.equals(Mime.HTML.getContentType());
+    }
 }
