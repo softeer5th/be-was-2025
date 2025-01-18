@@ -1,4 +1,4 @@
-package webserver.handler;
+package handler;
 
 import db.Database;
 import model.User;
@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import webserver.enums.PageMappingPath;
 import webserver.exception.BadRequest;
 import webserver.exception.Conflict;
+import webserver.handler.HttpHandler;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 

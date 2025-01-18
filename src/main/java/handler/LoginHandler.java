@@ -1,8 +1,9 @@
-package webserver.handler;
+package handler;
 
 import db.Database;
 import model.User;
 import webserver.exception.BadRequest;
+import webserver.handler.HttpHandler;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 import webserver.session.HttpSession;

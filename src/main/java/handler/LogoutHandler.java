@@ -1,5 +1,6 @@
-package webserver.handler;
+package handler;
 
+import webserver.handler.HttpHandler;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 

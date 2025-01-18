@@ -1,6 +1,9 @@
 package webserver;
 
 import db.Database;
+import handler.LoginHandler;
+import handler.LogoutHandler;
+import handler.RegistrationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
@@ -8,9 +11,6 @@ import webserver.exception.filter.ExceptionFilterChain;
 import webserver.exception.filter.HttpExceptionFilter;
 import webserver.exception.filter.LoginRequiredFilter;
 import webserver.file.StaticResourceManager;
-import webserver.handler.LoginHandler;
-import webserver.handler.LogoutHandler;
-import webserver.handler.RegistrationHandler;
 import webserver.handler.ServeStaticFileHandler;
 import webserver.interceptor.HandlerInterceptor;
 import webserver.interceptor.InterceptorChain;
