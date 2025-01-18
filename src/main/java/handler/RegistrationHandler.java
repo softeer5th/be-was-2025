@@ -31,13 +31,13 @@ public class RegistrationHandler implements HttpHandler {
     public HttpResponse handlePost(HttpRequest request) {
         RegistrationRequest body = request.getBody(RegistrationRequest.class).orElseThrow(() -> new BadRequest("Invalid Request Body"));
         User user = body.toUser();
-        log.debug("body: {}", user);
+        log.debug("registration request: {}", user);
         // 중복 사용자 검사
         if (database.findUserById(user.getUserId()).isPresent()) {
             return renderRegistrationPageWithErrorMessage();
         }
         // 데이터베이스에 사용자 추가
-        database.addUser(user);
+        database.saveUser(user);
         return HttpResponse.redirect(PageMappingPath.INDEX.path);
     }
 

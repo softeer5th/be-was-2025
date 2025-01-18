@@ -69,7 +69,7 @@ class RegistrationHandlerTest {
                 "name", "name",
                 "email", "example@example.com"
         )));
-        database.addUser(new User("id", "123423", "John", "abc2@example2.com"));
+        database.saveUser(new User("id", "123423", "John", "abc2@example2.com"));
 
         // when & then
         assertThatThrownBy(() -> handler.handlePost(request))
