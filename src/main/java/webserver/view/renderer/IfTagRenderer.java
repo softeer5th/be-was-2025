@@ -44,7 +44,7 @@ public class IfTagRenderer extends TagRenderer {
     }
 
     // condition을 평가하여 참이면 true, 거짓이면 false를 반환하는 메서드
-    public boolean isConditionTrue(Map<String, Object> model, String condition) {
+    private boolean isConditionTrue(Map<String, Object> model, String condition) {
         condition = condition.strip();
         // condition을 맨 앞에 오는 이항 연산자 기준으로 나누기
         String[] tokens = condition.split(BINARY_OPERATOR_PATTERN, 2);

@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 // 각 커스텀 태그를 처리하는 TagRenderer를 등록하여 사용한다.
 // 템플릿 문자열을 파싱하여 커스텀 태그를 찾고, 각 태그를 렌더링하여 최종 결과를 반환한다.
 public class MyTemplateEngine implements TemplateEngine {
+    // my- 로 시작하는 여는 태그 및 닫는 태그를 찾기 위한 정규식
     private static final Pattern tagPattern = Pattern.compile("<(/?my-[a-z]+)(( *([a-z]+)=\"([a-z0-9.&|!/]+)\")*)>");
     private static final String TAG_NAME_PREFIX = "my-";
     private static final String ATTRIBUTE_DELIMITER = " ";
@@ -19,7 +20,6 @@ public class MyTemplateEngine implements TemplateEngine {
     private static final String OPEN_TAG_SUFFIX = ">";
 
     private final Map<String, TagRenderer> tagHandlers = new ConcurrentHashMap<>();
-    // my- 로 시작하는 여는 태그 및 닫는 태그를 찾기 위한 정규식
 
     public MyTemplateEngine registerTagHandler(TagRenderer tagRenderer) {
         // 태그 이름이 my-로 시작하는지 확인
