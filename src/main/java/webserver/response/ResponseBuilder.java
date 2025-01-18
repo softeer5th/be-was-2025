@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class ResponseBuilder {
     private final static Map<String, Handler> getPages = Map.of(
-            "default", new StaticFileHandler()
+            "default", new ReadFileHandler()
     );
     private final static Map<String, Handler> postPages = Map.of(
             "/user/create", new CreateUserHandler(),

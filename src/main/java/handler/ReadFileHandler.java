@@ -7,7 +7,7 @@ import webserver.response.Response;
 
 import java.io.IOException;
 
-public class StaticFileHandler extends Handler {
+public class ReadFileHandler extends Handler {
 
     @Override
     public Response handle(Request request) {
