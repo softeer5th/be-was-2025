@@ -1,7 +1,7 @@
 package model;
 
 public class User {
-    public static String USER_ID = "userid";
+    public static String USER_ID = "userId";
     public static String USERNAME = "name";
     public static String PASSWORD = "password";
     public static String EMAIL = "email";
@@ -36,5 +36,9 @@ public class User {
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
     }
 }
