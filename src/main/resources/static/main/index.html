@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<dynamic />
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -12,6 +13,14 @@
       <header class="header">
         <a href="/main"><img src="../img/signiture.svg" /></a>
         <ul class="header__menu">
+          <my_if true>
+            <li class="header__menu__item">
+              <p class="comment__item__user__nickname">안녕하세요!</p>
+            </li>
+            <li class="header__menu__item">
+              <a class="comment__item__user__nickname" href="/mypage">$userName</a>
+            </li>
+          </my_if>
           <li class="header__menu__item">
             <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
           </li>
@@ -28,7 +37,10 @@
         <div class="post">
           <div class="post__account">
             <img class="post__account__img" />
-            <p class="post__account__nickname">account</p>
+            <p class="post__account__nickname">
+              <my_if true>$userId</my_if>
+              <my_if false>account</my_if>
+            </p>
           </div>
           <img class="post__img" />
           <div class="post__menu">
