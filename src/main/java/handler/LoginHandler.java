@@ -20,6 +20,11 @@ public class LoginHandler implements HttpHandler {
     }
 
     @Override
+    public HttpResponse handleGet(HttpRequest request) {
+        return HttpResponse.render("/login/index.html");
+    }
+
+    @Override
     public HttpResponse handlePost(HttpRequest request) {
         Map<String, String> body = request.getBodyAsMap().orElseThrow(() -> new BadRequest("Invalid Request Body"));
         String userId = body.get("userId");

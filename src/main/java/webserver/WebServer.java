@@ -76,7 +76,7 @@ public class WebServer {
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
                 .setHandler("/registration", new RegistrationHandler(database))
-                .setHandler("/signin", new LoginHandler(database))
+                .setHandler("/login", new LoginHandler(database))
                 .setHandler("/logout", new LogoutHandler());
 
         SessionManager sessionManager = new MemorySessionManager();
