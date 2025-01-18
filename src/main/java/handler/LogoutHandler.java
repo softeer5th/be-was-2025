@@ -12,6 +12,11 @@ public class LogoutHandler extends Handler{
     @Override
     public Response handle(Request request){
         Response response = new Response(request, HttpStatusCode.FOUND);
+        if(sessionId == null){
+            response.setStatusCode(HttpStatusCode.SEE_OTHER);
+            response.addHeader("Location", Page.LOGIN.getPath());
+            return response;
+        }
         SessionManager.removeSession(sessionId);
         String deleteCookieString = CookieManager.deleteCookie(CookieName.SESSION_COOKIE);
         response.addHeader("Location", Page.MAIN_PAGE.getPath());
