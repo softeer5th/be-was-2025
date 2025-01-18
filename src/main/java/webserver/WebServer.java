@@ -75,7 +75,7 @@ public class WebServer {
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
-                .setHandler("/create", new RegistrationHandler(database))
+                .setHandler("/registration", new RegistrationHandler(database))
                 .setHandler("/signin", new LoginHandler(database))
                 .setHandler("/logout", new LogoutHandler());
 

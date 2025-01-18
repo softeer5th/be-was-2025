@@ -33,6 +33,12 @@ public class HttpResponse {
                 .setHeader(HttpHeader.LOCATION.value, location);
     }
 
+    public static HttpResponse render(String templateName) {
+        HttpResponse response = new HttpResponse(HttpStatusCode.OK);
+        response.renderTemplate(new ModelAndTemplate(templateName));
+        return response;
+    }
+
     public void renderTemplate(ModelAndTemplate modelAndTemplate) {
         if (!this.body.equals(ResponseBody.empty())) {
             throw new IllegalArgumentException("이미 Body가 설정되어 있습니다.");

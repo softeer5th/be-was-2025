@@ -23,6 +23,10 @@ public class RegistrationHandler implements HttpHandler {
         this.database = database;
     }
 
+    @Override
+    public HttpResponse handleGet(HttpRequest request) {
+        return HttpResponse.render("/registration/index.html");
+    }
 
     @Override
     public HttpResponse handlePost(HttpRequest request) {
