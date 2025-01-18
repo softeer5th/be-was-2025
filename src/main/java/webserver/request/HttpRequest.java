@@ -63,6 +63,9 @@ public class HttpRequest {
         return bodyParser.getBodyAsMap();
     }
 
+    public <T> Optional<T> getBody(Class<T> clazz) {
+        return bodyParser.getBody(clazz);
+    }
 
     public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {
         if (!supportedVersions.contains(version)) {

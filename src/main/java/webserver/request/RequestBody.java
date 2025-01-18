@@ -1,5 +1,8 @@
 package webserver.request;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import util.Mapper;
 import webserver.enums.HttpStatusCode;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
@@ -21,6 +24,7 @@ import static webserver.enums.ParsingConstant.*;
 
 // Request Body InputStream 을 읽어들여 파싱하는 클래스
 public class RequestBody {
+    private static final Logger log = LoggerFactory.getLogger(RequestBody.class);
     private final RequestHeader headers;
     private final InputStream body;
 
@@ -58,6 +62,15 @@ public class RequestBody {
             mapBodyCache = null;
         }
         return Optional.ofNullable(mapBodyCache);
+    }
+
+    public <T> Optional<T> getBody(Class<T> clazz) {
+        String contentType = headers.getHeader(CONTENT_TYPE.value);
+        if (APPLICATION_X_WWW_FORM_URLENCODED.equals(contentType)) {
+            return getBodyAsMap().flatMap(map -> Mapper.mapToObject(map, clazz));
+        }
+        log.error("지원하지 않는 Content-Type 입니다. Content-Type: {}", contentType);
+        return Optional.empty();
     }
 
     // application/x-www-form-urlencoded 형식의 body를 파싱하여 Map으로 반환
