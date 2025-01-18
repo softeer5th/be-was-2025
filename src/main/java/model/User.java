@@ -12,6 +12,10 @@ public class User {
     private String name;
     private String email;
 
+    // for deserialization
+    private User() {
+    }
+
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.passwordHash = hashPassword(password);
@@ -44,4 +48,5 @@ public class User {
     public String toString() {
         return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
     }
+    
 }
