@@ -26,28 +26,38 @@
                     </div>
                 </div>
             </div>
-            <form class="form">
+            <form action="/mypage" class="form" enctype="application/x-www-form-urlencoded" method="post">
                 <div class="textfield textfield_size_s input_margin">
                     <p class="title_textfield">닉네임</p>
                     <input
                             autocomplete="username"
                             class="input_textfield"
-                            placeholder="{회원 가입 시 입력했던 닉네임}"
+                            maxlength="20"
+                            minlength="3"
+                            name="name"
+                            placeholder="회원 가입 시 입력했던 닉네임"
+                            type="text"
                     />
                 </div>
                 <div class="textfield textfield_size_s">
                     <p class="title_textfield">비밀번호</p>
                     <input
-                            autocomplete="current-password"
+                            autocomplete="new-password"
                             class="input_textfield"
+                            maxlength="20"
+                            minlength="3"
+                            name="password"
                             placeholder="비밀번호를 변경할 경우 입력해주세요"
+                            type="password"
                     />
                 </div>
                 <div class="textfield textfield_size_s">
                     <p class="title_textfield">비밀번호 확인</p>
                     <input
-                            autocomplete="current-password"
                             class="input_textfield"
+                            maxlength="20"
+                            minlength="3"
+                            name="confirmPassword"
                             placeholder="한 번 더 입력해주세요"
                             type="password"
                     />
@@ -55,8 +65,7 @@
                 <button
                         class="btn btn_contained btn_size_m input_margin"
                         id="registration-btn"
-
-                        type="button"
+                        type="submit"
                 >
                     변경사항 저장
                 </button>
@@ -65,5 +74,21 @@
         </div>
     </div>
 </div>
+<script>
+    const password = document.querySelector('input[name="password"]');
+    const confirmPassword = document.querySelector('input[name="confirmPassword"]');
+
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("비밀번호가 일치하지 않습니다.");
+        } else {
+            confirmPassword.setCustomValidity("");
+        }
+    }
+
+    password.addEventListener('input', validatePassword);
+    confirmPassword.addEventListener('input', validatePassword);
+
+</script>
 </body>
 </html>
