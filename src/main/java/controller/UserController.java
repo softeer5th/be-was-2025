@@ -41,7 +41,8 @@ public class UserController {
      * 로그인 처리 핸들러.
      * 로그인 처리한 뒤, 홈으로 리다이렉션한다.
      * 로그인 처리에 실패하면, /user/login_failed 창으로 리다이렉션한다.
-     * @param request 정상적으로 파싱된 request 객체
+     *
+     * @param request  정상적으로 파싱된 request 객체
      * @param response 정상적으로 생성된 response 객체
      */
     @Mapping(path = "/login", method = HttpMethod.POST)
@@ -54,6 +55,10 @@ public class UserController {
         }
         User userById = Database.findUserById(inputUserId);
         if (userById == null) {
+            response.setLocation("/user/login_failed");
+            return;
+        }
+        if (!inputPassword.equals(userById.getPassword())) {
             response.setLocation("/user/login_failed");
             return;
         }
