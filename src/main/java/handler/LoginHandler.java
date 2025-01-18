@@ -10,7 +10,6 @@ import webserver.response.HttpResponse;
 import webserver.session.HttpSession;
 import webserver.view.ModelAndTemplate;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static webserver.enums.PageMappingPath.INDEX;
@@ -30,12 +29,10 @@ public class LoginHandler implements HttpHandler {
 
     @Override
     public HttpResponse handlePost(HttpRequest request) {
-        Map<String, String> body = request.getBodyAsMap().orElseThrow(() -> new BadRequest("Invalid Request Body"));
-        String userId = body.get("userId");
-        String password = body.get("password");
-        Optional<User> user = database.findUserById(userId);
+        LoginRequest body = request.getBody(LoginRequest.class).orElseThrow(() -> new BadRequest("Invalid Request Body"));
+        Optional<User> user = database.findUserById(body.userId());
         if (user.filter(u ->
-                u.isPasswordCorrect(password)).isEmpty()) {
+                u.isPasswordCorrect(body.password())).isEmpty()) {
             return renderLoginPageWithErrorMessage();
         }
         HttpSession session = request.getSession();
@@ -49,5 +46,8 @@ public class LoginHandler implements HttpHandler {
         modelAndTemplate.setError("아이디 또는 비밀번호가 틀립니다.");
         response.renderTemplate(modelAndTemplate);
         return response;
+    }
+
+    private record LoginRequest(String userId, String password) {
     }
 }
