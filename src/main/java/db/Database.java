@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Database {
     private Map<String, User> users = new ConcurrentHashMap<>();
 
-    public void addUser(User user) {
+    public void saveUser(User user) {
         users.put(user.getUserId(), user);
     }
 
