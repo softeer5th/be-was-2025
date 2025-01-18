@@ -44,9 +44,14 @@ public class User {
         return this.passwordHash.equals(hashPassword(password));
     }
 
+    public void update(String name, String newPassword) {
+        this.name = name;
+        this.passwordHash = hashPassword(newPassword);
+    }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
     }
-    
+
 }

@@ -3,6 +3,7 @@ package webserver;
 import db.Database;
 import handler.LoginHandler;
 import handler.LogoutHandler;
+import handler.MypageHandler;
 import handler.RegistrationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,12 +76,10 @@ public class WebServer {
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config))
-                .setHandler("/registration", new RegistrationHandler(database))
-                .setHandler("/login", new LoginHandler(database))
-                .setHandler("/logout", new LogoutHandler());
                 .setHandler(REGISTRATION.path, new RegistrationHandler(database))
                 .setHandler(LOGIN.path, new LoginHandler(database))
                 .setHandler(LOGOUT.path, new LogoutHandler())
+                .setHandler(MYPAGE.path, new MypageHandler(database));
 
         SessionManager sessionManager = new MemorySessionManager();
 
