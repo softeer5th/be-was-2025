@@ -2,6 +2,7 @@ package util.enums;
 
 public enum Page {
     MAIN_PAGE("/"),
+    MAIN_LOGIN("/main"),
     LOGIN("/login"),
     REGISTRATION("/registration");
 
