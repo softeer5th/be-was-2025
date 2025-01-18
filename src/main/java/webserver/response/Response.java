@@ -31,18 +31,10 @@ public class Response {
         this.statusCode = statusCode;
     }
 
-    public void setBody(){
+    public void setBody(byte[] body){
         headers.put("Content-Type", request.contentType);
-        try {
-            FileFinder fileFinder = new FileFinder(request.url);
-            if (fileFinder.find()) {
-                body = fileFinder.readFileToBytes();
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
         if(body != null){
+            this.body = body;
             headers.put("Content-Length", String.valueOf(body.length));
         }
         else headers.put("Content-Length", "0");
