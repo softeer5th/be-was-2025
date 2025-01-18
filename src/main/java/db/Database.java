@@ -4,6 +4,7 @@ import model.User;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
@@ -13,8 +14,8 @@ public class Database {
         users.put(user.getUserId(), user);
     }
 
-    public User findUserById(String userId) {
-        return users.get(userId);
+    public Optional<User> findUserById(String userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     public Collection<User> findAll() {

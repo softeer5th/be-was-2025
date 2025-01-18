@@ -34,7 +34,7 @@ public class RegistrationHandler implements HttpHandler {
         log.debug("body: {}", body);
         User user = mapToUser(body);
         // 중복 사용자 검사
-        if (database.findUserById(user.getUserId()) != null) {
+        if (database.findUserById(user.getUserId()).isPresent()) {
             throw new Conflict("User Id Already Exists");
         }
 

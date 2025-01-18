@@ -47,10 +47,10 @@ class RegistrationHandlerTest {
         HttpResponse response = handler.handlePost(request);
 
         // then
-        User user = database.findUserById("id");
+        User user = database.findUserById("id").get();
         assertThat(user).isNotNull();
         assertThat(user.getUserId()).isEqualTo("id");
-        assertThat(user.getPassword()).isEqualTo("1234");
+        assertThat(user.isPasswordCorrect("1234")).isTrue();
         assertThat(user.getName()).isEqualTo("name");
         assertThat(user.getEmail()).isEqualTo("example@example.com");
         // 회원가입 완료 후 INDEX 페이지로 리다이렉트

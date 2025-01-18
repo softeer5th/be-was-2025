@@ -9,6 +9,7 @@ import webserver.response.HttpResponse;
 import webserver.session.HttpSession;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static webserver.enums.PageMappingPath.INDEX;
 
@@ -29,12 +30,13 @@ public class LoginHandler implements HttpHandler {
         Map<String, String> body = request.getBodyAsMap().orElseThrow(() -> new BadRequest("Invalid Request Body"));
         String userId = body.get("userId");
         String password = body.get("password");
-        User user = database.findUserById(userId);
-        if (user == null || !user.getPassword().equals(password)) {
+        Optional<User> user = database.findUserById(userId);
+        if (user.filter(u ->
+                u.isPasswordCorrect(password)).isEmpty()) {
             return HttpResponse.redirect("/user/login_failed.html");
         }
         HttpSession session = request.getSession();
-        session.set(HttpSession.USER_KEY, user);
+        session.set(HttpSession.USER_KEY, user.get());
         return HttpResponse.redirect(INDEX.path);
     }
 }

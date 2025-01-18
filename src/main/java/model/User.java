@@ -1,24 +1,31 @@
 package model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import util.HashUtil;
+
 public class User {
+    private static final Logger log = LoggerFactory.getLogger(User.class);
+    private static final String PASSWORD_SALT = "yTC2%fdK9@vQ";
     private String userId;
-    private String password;
+    private String passwordHash;
     private String name;
     private String email;
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
-        this.password = password;
+        this.passwordHash = hashPassword(password);
         this.name = name;
         this.email = email;
     }
 
-    public String getUserId() {
-        return userId;
+    private static String hashPassword(String password) {
+        String saltedPassword = password + PASSWORD_SALT;
+        return HashUtil.hash(saltedPassword);
     }
 
-    public String getPassword() {
-        return password;
+    public String getUserId() {
+        return userId;
     }
 
     public String getName() {
@@ -29,8 +36,12 @@ public class User {
         return email;
     }
 
+    public boolean isPasswordCorrect(String password) {
+        return this.passwordHash.equals(hashPassword(password));
+    }
+
     @Override
     public String toString() {
-        return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
+        return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
     }
 }
