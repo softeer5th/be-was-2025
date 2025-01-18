@@ -3,10 +3,7 @@ package webserver;
 import Entity.QueryParameters;
 import db.Database;
 import exception.MissingUserInfoException;
-import http.HttpMethod;
-import http.HttpRequest;
-import http.HttpResponse;
-import http.HttpStatus;
+import http.*;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 public class RequestRouter {
@@ -41,11 +39,10 @@ public class RequestRouter {
     private static final String LOGOUT_PATH = "/user/logout";
     private static final String USER_INFO_PATH = "/user/info";
     private static final String LOCATION = "location";
-    private final Map<String, User> userSessions;
+    private static final Map<String, User> userSessions = new ConcurrentHashMap<>();
 
     public RequestRouter() {
         init();
-        userSessions = new HashMap<>();
     }
 
     private void init() {
