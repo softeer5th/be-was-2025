@@ -7,16 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpRequest {
     private HttpMethod httpMethod;
     private Map<String, String> headers;
     private String body;
     private String requestPath;
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(List<String> headerLines, BufferedReader br, Logger logger) throws IOException {
+    public HttpRequest(List<String> headerLines, BufferedReader br) throws IOException {
         headers = new HashMap<>();
-        log(logger);
+        log();
         setHeader(headerLines);
         setBody(br);
     }
@@ -84,7 +86,7 @@ public class HttpRequest {
         throw new ExceptionInInitializerError("Can't Find content-length");
     }
 
-    public void log(Logger logger) {
+    public void log() {
         StringBuilder logMessageBuilder = new StringBuilder();
         logMessageBuilder.append("\nHeader : {\n");
         logMessageBuilder.append("method : " + httpMethod).append(' ').append("path : " + requestPath).append('\n');

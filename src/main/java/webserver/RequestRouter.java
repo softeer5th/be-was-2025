@@ -31,7 +31,7 @@ public class RequestRouter {
             "            </a>";
     private final Map<HttpMethod, BiConsumer<HttpRequest, DataOutputStream>> getHandler = new HashMap<>();
     private final Map<String, BiConsumer<HttpRequest, DataOutputStream>> postHandlers = new HashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestRouter.class);
     private static final String RESOURCES_PATH = "./src/main/resources/static";
     private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/login/login_failed.html";
     private static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
