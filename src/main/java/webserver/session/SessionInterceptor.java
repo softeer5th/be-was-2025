@@ -55,7 +55,7 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     // 쿠키에서 세션 ID를 추출하는 메서드
     private String extractSessionId(HttpRequest request) {
-        return request.getHeaders().getCookie(COOKIE_NAME);
+        return request.getHeaders().getCookie(COOKIE_NAME).getValue();
     }
 
     // 세션 ID를 Set-Cookie로 브라우저에 저장하는 메서드

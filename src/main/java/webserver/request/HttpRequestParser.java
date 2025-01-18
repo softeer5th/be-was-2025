@@ -7,12 +7,15 @@ import webserver.enums.HttpVersion;
 import webserver.enums.ParsingConstant;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
+import webserver.header.Cookie;
 import webserver.header.RequestHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static webserver.enums.HttpHeader.COOKIE;
@@ -89,10 +92,6 @@ public class HttpRequestParser {
         }
     }
 
-    private record RequestLine(HttpMethod method, RequestTarget requestTarget, HttpVersion version) {
-
-    }
-
     // Request Line 문자열을 파싱하여 RequestLine 객체 생성
     private RequestLine parseRequestLine(String requestLine) {
         String[] tokens = requestLine.split(REQUEST_LINE_SEPARATOR.value);
@@ -129,13 +128,13 @@ public class HttpRequestParser {
         return headers;
     }
 
-    // 쿠키 정보를 파싱하여 Map으로 반환
-    private Map<String, String> parseCookies(String value) {
-        Map<String, String> cookies = new HashMap<>();
+    // 쿠키 정보를 파싱하여 List로 반환
+    private List<Cookie> parseCookies(String value) {
+        List<Cookie> cookies = new ArrayList<>();
         String[] cookiePairs = value.split(ParsingConstant.COOKIE_SEPARATOR.value);
         for (String cookiePair : cookiePairs) {
             String[] cookie = cookiePair.split(ParsingConstant.COOKIE_KEY_VALUE_SEPARATOR.value);
-            cookies.put(cookie[0].trim(), cookie[1].trim());
+            cookies.add(new Cookie(cookie[0].strip(), cookie[1].strip()));
         }
         return cookies;
     }
@@ -160,5 +159,9 @@ public class HttpRequestParser {
             }
         }
         return new RequestTarget(path, queryMap);
+    }
+
+    private record RequestLine(HttpMethod method, RequestTarget requestTarget, HttpVersion version) {
+
     }
 }

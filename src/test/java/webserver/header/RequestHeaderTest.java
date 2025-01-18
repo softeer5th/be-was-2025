@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,27 +24,27 @@ class RequestHeaderTest {
         String cookieValue = "abc123";
 
         // when
-        requestHeader.addCookie(cookieName, cookieValue);
+        requestHeader.addCookie(new Cookie(cookieName, cookieValue));
 
         // then
-        assertThat(requestHeader.getCookie(cookieName)).isEqualTo(cookieValue);
+        assertThat(requestHeader.getCookie(cookieName)).extracting(Cookie::getValue).isEqualTo(cookieValue);
     }
 
     @Test
     @DisplayName("쿠키 여러개 추가")
     void addCookies() {
         // given
-        Map<String, String> cookies = Map.of(
-                "sessionId", "abc123",
-                "userId", "user1"
+        List<Cookie> cookies = List.of(
+                new Cookie("sessionId", "abc123"),
+                new Cookie("userId", "user1")
         );
 
         // when
         requestHeader.addCookies(cookies);
 
         // then
-        assertThat(requestHeader.getCookie("sessionId")).isEqualTo("abc123");
-        assertThat(requestHeader.getCookie("userId")).isEqualTo("user1");
+        assertThat(requestHeader.getCookie("sessionId")).extracting(Cookie::getValue).isEqualTo("abc123");
+        assertThat(requestHeader.getCookie("userId")).extracting(Cookie::getValue).isEqualTo("user1");
     }
 
     @Test
@@ -52,11 +52,11 @@ class RequestHeaderTest {
     void addCookiesOverwrite() {
         // given
         // when
-        requestHeader.addCookie("sessionId", "abc");
-        requestHeader.addCookie("sessionId", "123");
+        requestHeader.addCookie(new Cookie("sessionId", "abc"));
+        requestHeader.addCookie(new Cookie("sessionId", "123"));
 
         // then
-        assertThat(requestHeader.getCookie("sessionId")).isEqualTo("123");
+        assertThat(requestHeader.getCookie("sessionId")).extracting(Cookie::getValue).isEqualTo("123");
     }
 
     @Test
