@@ -3,6 +3,7 @@ package webserver.header;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 // HTTP Request Header 정보를 담는 객체
 public class RequestHeader extends AbstractHttpHeader {
@@ -21,8 +22,8 @@ public class RequestHeader extends AbstractHttpHeader {
         cookies.forEach(this::addCookie);
     }
 
-    public Cookie getCookie(String name) {
-        return cookies.get(name);
+    public Optional<Cookie> getCookie(String name) {
+        return Optional.ofNullable(cookies.get(name));
     }
 
 

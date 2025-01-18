@@ -2,10 +2,13 @@ package webserver.session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.header.Cookie;
 import webserver.header.SetCookie;
 import webserver.interceptor.HandlerInterceptor;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
+
+import java.util.Optional;
 
 // 쿠키를 기반으로 세션을 식별하는 인터셉터
 public class SessionInterceptor implements HandlerInterceptor {
@@ -20,12 +23,10 @@ public class SessionInterceptor implements HandlerInterceptor {
     @Override
     public HttpRequest preHandle(HttpRequest request, Context context) {
         // 쿠키에서 세션 ID를 추출
-        String sessionId = extractSessionId(request);
-        HttpSession session = sessionManager.getSession(sessionId).orElse(null);
-        if (sessionId == null || session == null) {
-            // 세션 ID가 없거나 session이 만료되었으면 세션을 새로 만든다.
-            session = sessionManager.createAndSaveSession();
-        }
+        Optional<String> sessionId = extractSessionId(request);
+        HttpSession session = sessionId.flatMap(sessionManager::getSession)
+                .orElseGet(sessionManager::createAndSaveSession); // 세션이 없으면 생성
+
         log.debug("preHandle: Session: {}", session);
         // handler에서 세션을 사용할 수 있게 request에 세션을 설정
         request.setSession(session);
@@ -54,8 +55,8 @@ public class SessionInterceptor implements HandlerInterceptor {
     }
 
     // 쿠키에서 세션 ID를 추출하는 메서드
-    private String extractSessionId(HttpRequest request) {
-        return request.getHeaders().getCookie(COOKIE_NAME).getValue();
+    private Optional<String> extractSessionId(HttpRequest request) {
+        return request.getHeaders().getCookie(COOKIE_NAME).map(Cookie::getValue);
     }
 
     // 세션 ID를 Set-Cookie로 브라우저에 저장하는 메서드

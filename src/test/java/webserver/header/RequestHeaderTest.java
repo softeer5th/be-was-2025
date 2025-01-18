@@ -27,7 +27,8 @@ class RequestHeaderTest {
         requestHeader.addCookie(new Cookie(cookieName, cookieValue));
 
         // then
-        assertThat(requestHeader.getCookie(cookieName)).extracting(Cookie::getValue).isEqualTo(cookieValue);
+        assertThat(requestHeader.getCookie(cookieName))
+                .isPresent().map(Cookie::getValue).hasValue(cookieValue);
     }
 
     @Test
@@ -43,8 +44,10 @@ class RequestHeaderTest {
         requestHeader.addCookies(cookies);
 
         // then
-        assertThat(requestHeader.getCookie("sessionId")).extracting(Cookie::getValue).isEqualTo("abc123");
-        assertThat(requestHeader.getCookie("userId")).extracting(Cookie::getValue).isEqualTo("user1");
+        assertThat(requestHeader.getCookie("sessionId"))
+                .isPresent().map(Cookie::getValue).hasValue("abc123");
+        assertThat(requestHeader.getCookie("userId"))
+                .isPresent().map(Cookie::getValue).hasValue("user1");
     }
 
     @Test
@@ -56,7 +59,8 @@ class RequestHeaderTest {
         requestHeader.addCookie(new Cookie("sessionId", "123"));
 
         // then
-        assertThat(requestHeader.getCookie("sessionId")).extracting(Cookie::getValue).isEqualTo("123");
+        assertThat(requestHeader.getCookie("sessionId"))
+                .isPresent().map(Cookie::getValue).hasValue("123");
     }
 
     @Test

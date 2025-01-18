@@ -51,9 +51,6 @@ public class FrontController implements Runnable {
             try {
                 request = requestParser.parse(in);
 
-//                logger.debug("New Client: {}:{}, Request: {}", connection.getInetAddress(),
-//                        connection.getPort(), request);
-
                 // request http version이 서버에서 지원하는지 검증
                 request.validateSupportedHttpVersion(supportedHttpVersions);
 
@@ -68,7 +65,6 @@ public class FrontController implements Runnable {
                 HttpResponse response = interceptorChain.execute(request, handler);
 
                 responseWriter.writeResponse(request.getVersion(), response, out);
-//                logger.debug("Client:{}:{}, Response: {}", connection.getInetAddress(), connection.getPort(), response);
 
             } catch (Exception e) {
                 logger.debug(e.getMessage());
