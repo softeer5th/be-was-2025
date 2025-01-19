@@ -6,10 +6,11 @@ import webserver.annotation.Body;
 import webserver.annotation.RequestMapping;
 import webserver.enumeration.HTTPMethod;
 import webserver.exception.HTTPException;
+import webserver.message.record.ResponseData;
 
 public class UserEntryPoint {
     @RequestMapping(path = "/user/create", method = HTTPMethod.POST)
-    public String signUp(
+    public ResponseData<String> signUp(
             @Body(key="userId") String userId,
             @Body(key="nickname") String nickname,
             @Body(key="password") String password
@@ -20,6 +21,6 @@ public class UserEntryPoint {
         }
         User user = new User(userId, nickname, password, "mock@mock.com");
         Database.addUser(user);
-        return "SUCCESS";
+        return ResponseData.redirect("/index.html");
     }
 }
