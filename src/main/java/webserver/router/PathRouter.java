@@ -24,6 +24,9 @@ public class PathRouter {
     }
 
     public PathRouter setHandler(String path, HttpHandler handler) {
+        if ("/".equals(path)) {
+            root.handler = handler;
+        }
 
         String[] segments = pathToSegments(path);
 
@@ -49,6 +52,9 @@ public class PathRouter {
 
 
     public RoutingResult route(String path) {
+        if ("/".equals(path)) {
+            return new RoutingResult(root.handler, Map.of());
+        }
 
         String[] segments = pathToSegments(path);
 

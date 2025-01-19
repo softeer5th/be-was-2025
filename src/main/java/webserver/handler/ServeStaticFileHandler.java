@@ -5,7 +5,6 @@ import webserver.enums.HttpStatusCode;
 import webserver.file.StaticResourceManager;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
-import webserver.view.ModelAndTemplate;
 
 import java.io.File;
 import java.util.Optional;
@@ -14,12 +13,10 @@ import java.util.Optional;
 public class ServeStaticFileHandler implements HttpHandler {
     private final String defaultPageFileName;
     private final StaticResourceManager resourceManager;
-    private final String templateFileExtension;
 
-    public ServeStaticFileHandler(StaticResourceManager resourceManager, String defaultPageFileName, String templateFileExtension) {
+    public ServeStaticFileHandler(StaticResourceManager resourceManager, String defaultPageFileName) {
         this.resourceManager = resourceManager;
         this.defaultPageFileName = defaultPageFileName;
-        this.templateFileExtension = templateFileExtension;
     }
 
     @Override
@@ -28,13 +25,6 @@ public class ServeStaticFileHandler implements HttpHandler {
         // 디렉토리일 경우 디렉토리 내의 default page 파일을 요청 경로로 판단
         if (resourceManager.isDirectory(requestPath))
             requestPath = FileUtil.joinPath(requestPath, defaultPageFileName);
-
-        if (isTemplateFile(requestPath)) {
-            ModelAndTemplate modelAndTemplate = new ModelAndTemplate(requestPath);
-            HttpResponse response = new HttpResponse(HttpStatusCode.OK);
-            response.renderTemplate(modelAndTemplate);
-            return response;
-        }
 
         Optional<File> fileOptional = resourceManager.getFile(requestPath);
         return fileOptional
@@ -47,7 +37,4 @@ public class ServeStaticFileHandler implements HttpHandler {
                         new HttpResponse(HttpStatusCode.NOT_FOUND));
     }
 
-    private boolean isTemplateFile(String requestPath) {
-        return requestPath.endsWith(templateFileExtension);
-    }
 }

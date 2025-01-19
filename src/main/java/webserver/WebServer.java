@@ -1,10 +1,7 @@
 package webserver;
 
 import db.Database;
-import handler.LoginHandler;
-import handler.LogoutHandler;
-import handler.MypageHandler;
-import handler.RegistrationHandler;
+import handler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
@@ -23,9 +20,7 @@ import webserver.router.PathRouter;
 import webserver.session.MemorySessionManager;
 import webserver.session.SessionInterceptor;
 import webserver.session.SessionManager;
-import webserver.view.MyTemplateEngine;
-import webserver.view.TemplateEngine;
-import webserver.view.TemplateEngineInterceptor;
+import webserver.view.*;
 import webserver.view.renderer.ForeachTagRenderer;
 import webserver.view.renderer.IfTagRenderer;
 import webserver.view.renderer.IncludeTagRenderer;
@@ -66,16 +61,18 @@ public class WebServer {
         HttpRequestParser requestParser = new HttpRequestParser(config.getMaxHeaderSize());
         HttpResponseWriter responseWriter = new HttpResponseWriter();
 
-        StaticResourceManager resourceManager = new StaticResourceManager(config.getStaticResourceDirectory());
+        StaticResourceManager resourceManager = new StaticResourceManager(config.getStaticDirectory());
+        TemplateFileReader templateFileReader = new TemplateFileReaderImpl(config.getTemplateDirectory());
         TemplateEngine templateEngine = new MyTemplateEngine()
                 .registerTagHandler(new ForeachTagRenderer())
                 .registerTagHandler(new IfTagRenderer())
                 .registerTagHandler(new TextTagRenderer())
-                .registerTagHandler(new IncludeTagRenderer(resourceManager));
+                .registerTagHandler(new IncludeTagRenderer(templateFileReader));
 
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
-                .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config.getDefaultPageFileName(), config.getTemplateFileExtension()))
+                .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config.getDefaultPageFileName()))
+                .setHandler(INDEX.path, new IndexHandler())
                 .setHandler(REGISTRATION.path, new RegistrationHandler(database))
                 .setHandler(LOGIN.path, new LoginHandler(database))
                 .setHandler(LOGOUT.path, new LogoutHandler())
@@ -85,7 +82,7 @@ public class WebServer {
 
         HandlerInterceptor sessionInterceptor = new SessionInterceptor(sessionManager);
         HandlerInterceptor logInterceptor = new LoggingInterceptor();
-        HandlerInterceptor templateInterceptor = new TemplateEngineInterceptor(templateEngine, resourceManager);
+        HandlerInterceptor templateInterceptor = new TemplateEngineInterceptor(templateEngine, templateFileReader);
         HandlerInterceptor loginRequiredInterceptor = new LoginRequiredPathInterceptor(MYPAGE.path);
         InterceptorChain interceptorChain = InterceptorChain
                 .inbound()

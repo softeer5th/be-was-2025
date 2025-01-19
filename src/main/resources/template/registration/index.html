@@ -10,7 +10,8 @@
     <my-include template="/common/header.html"></my-include>
     <div class="page">
         <h2 class="page-title">회원가입</h2>
-        <form action="/registration" class="form" enctype="application/x-www-form-urlencoded" method="post">
+        <form action="/registration" class="form" enctype="application/x-www-form-urlencoded"
+              method="post">
             <div class="textfield textfield_size_s">
                 <p class="title_textfield">이메일</p>
                 <input
@@ -20,6 +21,7 @@
                         minlength="3"
                         name="email"
                         placeholder="이메일을 입력해주세요"
+                        required
                         type="email"
                 />
             </div>
@@ -32,6 +34,7 @@
                         minlength="3"
                         name="userId"
                         placeholder="아이디를 입력해주세요"
+                        required
                         type="text"
                 />
             </div>
@@ -44,6 +47,7 @@
                         minlength="3"
                         name="name"
                         placeholder="닉네임을 입력해주세요"
+                        required
                         type="text"
                 />
             </div>
@@ -56,6 +60,7 @@
                         minlength="3"
                         name="password"
                         placeholder="비밀번호를 입력해주세요"
+                        required
                         type="password"
                 />
             </div>

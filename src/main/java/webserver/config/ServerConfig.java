@@ -23,13 +23,13 @@ public class ServerConfig {
     // 서버에서 사용할 스레드 풀 크기
     private final Integer threadPoolSize;
     // src/main/resources 폴더를 기준으로 static 폴더까지의 상대 경로
-    private final String staticResourceDirectory;
+    private final String staticDirectory;
+    // src/main/resources 폴더를 기준으로 template 폴더까지의 상대 경로
+    private final String templateDirectory;
     // 기본 페이지 파일 이름
     private final String defaultPageFileName;
     // 헤더의 최대 크기. byte 단위
     private final Integer maxHeaderSize;
-    // 템플릿 파일의 확장자
-    private final String templateFileExtension;
 
     public ServerConfig() {
         this(DEFAULT_PROPERTIES_FILE_PATH);
@@ -43,18 +43,18 @@ public class ServerConfig {
             supportedHttpVersions = Arrays.stream(props.getProperty("supportedHttpVersions").split(",")).map(HttpVersion::of).toList();
             port = Integer.parseInt(props.getProperty("port"));
             threadPoolSize = Integer.parseInt(props.getProperty("threadPoolSize"));
-            staticResourceDirectory = props.getProperty("staticResourceDirectory");
+            staticDirectory = props.getProperty("staticDirectory");
+            templateDirectory = props.getProperty("templateDirectory");
             defaultPageFileName = props.getProperty("defaultPageFileName");
             maxHeaderSize = Integer.parseInt(props.getProperty("maxHeaderSize"));
-            templateFileExtension = props.getProperty("templateFileExtension");
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String getStaticResourceDirectory() {
-        return staticResourceDirectory;
+    public String getStaticDirectory() {
+        return staticDirectory;
     }
 
     public List<HttpVersion> getSupportedHttpVersions() {
@@ -77,7 +77,7 @@ public class ServerConfig {
         return maxHeaderSize;
     }
 
-    public String getTemplateFileExtension() {
-        return templateFileExtension;
+    public String getTemplateDirectory() {
+        return templateDirectory;
     }
 }
