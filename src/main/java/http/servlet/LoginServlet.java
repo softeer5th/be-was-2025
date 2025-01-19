@@ -44,7 +44,7 @@ public class LoginServlet implements Servlet {
 		foundUser.validatePassword(body.get().get("password"));
 
 		String sessionId = UUID.randomUUID().toString().substring(0, 15);
-		HttpSessionStorage.createSession(new HttpSession(sessionId, SESSION_ID, foundUser));
+		HttpSessionStorage.saveSession(new HttpSession(sessionId, foundUser.toMap()));
 
 		response.setCookie(SESSION_ID, sessionId, CookieType.PATH.name(), "/");
 		response.setRedirectResponse(response, request.getVersion(), HttpStatus.FOUND, LOGIN_SUCCESS_PAGE);
