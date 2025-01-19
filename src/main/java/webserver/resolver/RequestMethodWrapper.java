@@ -1,6 +1,7 @@
 package webserver.resolver;
 
 import webserver.exception.HTTPException;
+import webserver.message.record.ResponseData;
 import webserver.resolver.records.ParameterMetaInfo;
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
@@ -9,6 +10,7 @@ import webserver.message.HTTPResponse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Optional;
 
 public class RequestMethodWrapper implements ResourceResolver {
@@ -26,10 +28,17 @@ public class RequestMethodWrapper implements ResourceResolver {
     public void resolve(HTTPRequest request, HTTPResponse.Builder response) {
         Object[] args = getParameters(request, response);
         try {
-            method.invoke(handlerGroup, args);
-            response.body("SUCCESS".getBytes());
+            Object result = method.invoke(handlerGroup, args);
             response.contentType(HTTPContentType.APPLICATION_JSON);
             response.statusCode(HTTPStatusCode.OK);
+            if (result.getClass().isAssignableFrom(ResponseData.class)) {
+                ResponseData unwrapped = (ResponseData) result;
+                Map<String, String> headers = unwrapped.getHeaders();
+                response.statusCode(unwrapped.getStatus());
+                for (Map.Entry<String, String> header : headers.entrySet()) {
+                    response.setHeader(header.getKey(), header.getValue());
+                }
+            }
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new HTTPException.Builder()
                     .causedBy("method invoke")
