@@ -1,19 +1,14 @@
 package http.servlet;
 
-import static http.HttpSessionStorage.*;
-
 import java.io.IOException;
 import java.nio.file.Paths;
 
 import enums.ContentType;
 import enums.HttpHeader;
 import enums.HttpStatus;
-import http.HttpSessionStorage;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
-import model.User;
 import util.FileUtils;
-import view.HomePageTemplate;
 
 public class HomeServlet implements Servlet {
 	private static final String STATIC_FILES_PATH = "static";
@@ -28,12 +23,7 @@ public class HomeServlet implements Servlet {
 		}
 
 		String body = FileUtils.getFileAsString(path);
-
-		String sessionId = request.getSessionId();
-		if (HttpSessionStorage.getSession(sessionId) != null) {
-			User foundUser = (User)getSession(sessionId).getAttribute(SESSION_ID);
-			body = HomePageTemplate.renderLoginPage(body, foundUser);
-		}
+		response.setHasToRender(true);
 
 		ContentType contentType = request.inferContentType();
 

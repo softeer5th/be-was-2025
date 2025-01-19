@@ -74,7 +74,7 @@ public class HttpHeaders {
 
 	public void setHeader(String headerName, String... values) {
 		headerName = headerName.toLowerCase();
-		List<String> valueList = headers.getOrDefault(headerName, new ArrayList<>());
+		List<String> valueList = new ArrayList<>();
 
 		for (String value : values) {
 			String strippedValue = value.strip();

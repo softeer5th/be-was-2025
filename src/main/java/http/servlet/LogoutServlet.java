@@ -17,6 +17,7 @@ public class LogoutServlet implements Servlet {
 			HttpSessionStorage.removeSession(sessionId);
 		}
 
+		// TODO: 클라이언트 쪽의 쿠키도 신경써보자. Set-Cookie: 빈문자열같은거?
 		response.setRedirectResponse(response, request.getVersion(), HttpStatus.FOUND, LOGOUT_SUCCESS_PAGE);
 	}
 }
