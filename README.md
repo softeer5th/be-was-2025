@@ -34,6 +34,11 @@
 - [X] 로그인 시 메인페이지에 로그아웃 버튼 생성
 
 
+### 피드백 반영
+- [X] request header 이름 case-insensitive
+- [X] Logger static 으로 설정
+- [ ] 이중 try catch 수정할것
+- [ ] 예외처리 한곳에서 할 것
 
 
 ## 학습 정리
@@ -46,6 +51,7 @@
 [DAY 7](https://github.com/softeer5th/backend-page/wiki/7%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 [DAY 8](https://github.com/softeer5th/backend-page/wiki/8%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 [DAY 9](https://github.com/softeer5th/backend-page/wiki/9%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
+[DAY 10](https://github.com/softeer5th/backend-page/wiki/10%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 
 
 
