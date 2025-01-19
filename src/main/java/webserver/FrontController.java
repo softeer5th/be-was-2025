@@ -55,7 +55,7 @@ public class FrontController implements Runnable {
                 request.validateSupportedHttpVersion(supportedHttpVersions);
 
                 // request path에 해당하는 handler와 매칭된 path variable 찾기
-                PathRouter.RoutingResult routingResult = router.route(request.getRequestTarget().getPath());
+                PathRouter.RoutingResult routingResult = router.route(request.getMethod(), request.getRequestTarget().getPath());
 
                 HttpHandler handler = routingResult.handler();
                 // requst에 매칭된 path variable 설정+

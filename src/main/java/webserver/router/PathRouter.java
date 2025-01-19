@@ -1,7 +1,9 @@
 package webserver.router;
 
+import webserver.enums.HttpMethod;
 import webserver.handler.HttpHandler;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,11 +13,14 @@ public class PathRouter {
     private static final String SEGMENT_DELIMITER = "/";
     private static final String PATH_VARIABLE_PREFIX = "{";
     private static final String PATH_VARIABLE_SUFFIX = "}";
-    private final RouterTrieNode root;
+    private final Map<HttpMethod, RouterTrieNode> rootMap;
     private HttpHandler defaultHandler;
 
     public PathRouter() {
-        this.root = new RouterTrieNode();
+        this.rootMap = new EnumMap<>(HttpMethod.class);
+        for (HttpMethod method : HttpMethod.values()) {
+            rootMap.put(method, new RouterTrieNode());
+        }
     }
 
     public PathRouter setDefaultHandler(HttpHandler handler) {
@@ -24,13 +29,20 @@ public class PathRouter {
     }
 
     public PathRouter setHandler(String path, HttpHandler handler) {
+        for (HttpMethod method : HttpMethod.values()) {
+            setHandler(method, path, handler);
+        }
+        return this;
+    }
+
+    public PathRouter setHandler(HttpMethod method, String path, HttpHandler handler) {
         if ("/".equals(path)) {
-            root.handler = handler;
+            rootMap.get(method).handler = handler;
         }
 
         String[] segments = pathToSegments(path);
 
-        RouterTrieNode current = root;
+        RouterTrieNode current = rootMap.get(method);
         for (String segment : segments) {
             if (isPathVariable(segment)) {
                 // segment가 path variable인 경우
@@ -51,9 +63,9 @@ public class PathRouter {
     }
 
 
-    public RoutingResult route(String path) {
+    public RoutingResult route(HttpMethod method, String path) {
         if ("/".equals(path)) {
-            return new RoutingResult(root.handler, Map.of());
+            return new RoutingResult(rootMap.get(method).handler, Map.of());
         }
 
         String[] segments = pathToSegments(path);
@@ -62,7 +74,7 @@ public class PathRouter {
         // Map<path variable name, path variable value> 형태로 저장
         Map<String, String> pathVariables = new HashMap<>();
 
-        RouterTrieNode current = this.root;
+        RouterTrieNode current = this.rootMap.get(method);
         for (String segment : segments) {
             // 정적인 경로로 등록된 Handler를 우선순위가 높게 처리
             if (current.children.containsKey(segment)) {
