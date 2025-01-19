@@ -15,7 +15,7 @@ public class RequestMethodMapper implements ResourceResolver{
     }
     @Override
     public void resolve(HTTPRequest request, HTTPResponse.Builder response) {
-        ResourceResolver resolver = resolvers.get(request.getUri());
+        ResourceResolver resolver = resolvers.get(request.getMethod() + " " + request.getUri());
         if (resolver == null) {
             throw new HTTPException.Builder()
                     .causedBy(RequestMethodWrapper.class)

@@ -37,7 +37,7 @@ public class MethodResolverFactory {
                     handleRequestParam(parameter, parameterMetaInfos, i);
                     handleBody(parameter, parameterMetaInfos, i);
                 }
-                requestMap.put(annotation.path(), new RequestMethodWrapper(handlerGroup, method, parameterMetaInfos));
+                requestMap.put(annotation.method() + " " + annotation.path(), new RequestMethodWrapper(handlerGroup, method, parameterMetaInfos));
             }
         }
         return new RequestMethodMapper(requestMap);
