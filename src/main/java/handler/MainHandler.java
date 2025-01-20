@@ -10,6 +10,7 @@ import util.DynamicHtmlEditor;
 import util.FileUtils;
 import util.MimeType;
 import util.SessionUtils;
+import util.exception.UserNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class MainHandler implements Handler{
 
         Session session = SessionUtils.findSession(httpRequest);
         User user = Database.findUserById(session.userId())
-                .orElseThrow(() -> new RuntimeException("user not found"));
+                .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
         content = DynamicHtmlEditor.edit(content, "username", user.getName());
 
 

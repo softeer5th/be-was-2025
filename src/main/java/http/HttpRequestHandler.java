@@ -9,6 +9,7 @@ import util.ApiPathPool;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
 import util.exception.SessionNotFoundException;
+import util.exception.UserNotFoundException;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -43,6 +44,8 @@ public class HttpRequestHandler {
             httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (IllegalAccessException e) {
             httpResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (UserNotFoundException e) {
+            httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof SessionNotFoundException ex) {
                 httpResponse.sendError(ex.httpStatus, e.getMessage());
