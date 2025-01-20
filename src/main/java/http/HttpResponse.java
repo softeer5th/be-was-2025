@@ -4,6 +4,7 @@ import http.constant.HttpHeader;
 import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.FileUtils;
 import util.MimeType;
 
 import java.io.*;
@@ -53,15 +54,11 @@ public class HttpResponse {
     }
 
     public void writeBody(File file) throws IOException{
-        InputStream is = new FileInputStream(file);
-        byte[] body = is.readAllBytes();
-        is.close();
+        byte[] body = FileUtils.convertToByte(file);
 
-        String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+        String extension = FileUtils.getExtension(file);
         String mimeType = MimeType.valueOf(extension.toUpperCase()).getMimeType();
-        writeHeader(HttpHeader.CONTENT_TYPE.value(), mimeType);
-        writeHeader(HttpHeader.CONTENT_LENGTH.value(), body.length);
-        writeBody(body);
+        writeBody(body, mimeType);
     }
 
     public void send() {
