@@ -109,6 +109,12 @@
   height: 320px;
 }
 
+.textfield_size_m {
+  gap: 4px;
+  padding: 8px 16px;
+  width: 680px;
+}
+
 .title_textfield {
   height: 14px;
   font-weight: 500;
