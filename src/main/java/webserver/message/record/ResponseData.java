@@ -26,8 +26,8 @@ public class ResponseData<T> {
             headers.put(key, value);
             return this;
         }
-        public ResponseDataBuilder<T> setCookies(String key, SetCookieRecord setCookie) {
-            setCookies.put(key, setCookie);
+        public ResponseDataBuilder<T> setCookies(SetCookieRecord setCookie) {
+            setCookies.put(setCookie.name(), setCookie);
             return this;
         }
 
