@@ -3,6 +3,7 @@ package handler;
 import util.FileFinder;
 import util.HtmlContentReplacer;
 import util.enums.HttpStatusCode;
+import util.enums.Page;
 import webserver.request.Request;
 import webserver.response.Response;
 
@@ -13,6 +14,13 @@ public class ReadFileHandler extends Handler {
     @Override
     public Response handle(Request request) {
         Response response = new Response(request);
+
+        if(sessionId == null && Page.isRequireLogin(request.url)){
+            response.setStatusCode(HttpStatusCode.SEE_OTHER);
+            response.addHeader("Location", Page.LOGIN.getPath());
+            return response;
+        }
+
         try{
             FileFinder fileFinder = new FileFinder(request.url);
             byte[] body = null;
@@ -26,6 +34,7 @@ public class ReadFileHandler extends Handler {
             response.setBody(body);
             response.setStatusCode(HttpStatusCode.OK);
         } catch(NullPointerException e){
+            System.out.println(e.getMessage());
             response.setStatusCode(HttpStatusCode.NOT_FOUND);
         } catch (IOException e) {
             response.setStatusCode(HttpStatusCode.INTERNAL_SERVER_ERROR);
