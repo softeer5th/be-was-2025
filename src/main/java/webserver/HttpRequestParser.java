@@ -41,10 +41,8 @@ public class HttpRequestParser {
 
         String line;
         while ((line = br.readLine()) != null && !line.isEmpty()) {
-            // 일반적으로 "Header-Name: Header-Value" 형태
             int index = line.indexOf(":");
             if (index == -1) {
-                // 잘못된 형식일 수 있음. 필요하면 예외처리하거나 무시 가능
                 continue;
             }
             String key = line.substring(0, index).trim();
