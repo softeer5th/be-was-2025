@@ -37,8 +37,8 @@
   <div class="wrapper">
     <div class="post">
       <div class="post__account">
-        <img class="post__account__img" id="account-img" />
-        <p class="post__account__nickname" id="nickname"></p>
+        <img class="post__account__img" id="account-img" alt="" />
+        <span id="nickname"></span>
       </div>
       <img class="post__img" />
       <div class="post__menu">
@@ -159,28 +159,33 @@
 </div>
 
 <script>
-  async function loadUserInfo() {
+  window.addEventListener("DOMContentLoaded", async () => {
     try {
       const response = await fetch("/api/user/validate");
       const result = await response.json();
 
       if (result.isSuccess) {
-        console.log("유저 데이터 받기 성공");
-        const name = result.data;
-        console.log(`유저 이름: ${name}`);
+        const { name, base64Image } = result.data;
+
         document.getElementById("nickname").textContent = name;
         document.getElementById("greeting-nickname").textContent = name;
-      } else {
-        console.log("로그인되지 않음 or 에러:", result);
-        // window.location.href = "/index.html";
-      }
-    } catch (err) {
-      console.error("사용자 정보 조회 중 오류:", err);
-      // window.location.href = "/index.html";
-    }
-  }
 
-  loadUserInfo();
+        if (base64Image) {
+          document.getElementById("account-img").src = `data:image/png;base64,${base64Image}`;
+        } else {
+          document.getElementById("account-img").removeAttribute("src");
+          document.getElementById("account-img").style.backgroundColor = "#ccc";
+          document.getElementById("account-img").style.width = "40px";
+          document.getElementById("account-img").style.height = "40px";
+          document.getElementById("account-img").style.borderRadius = "50%";
+        }
+      } else {
+        console.warn("로그인이 필요합니다.");
+      }
+    } catch (error) {
+      console.error("사용자 정보 요청 중 오류:", error);
+    }
+  });
 
   document.getElementById("write-btn").addEventListener("click", async () => {
     try {
