@@ -1,9 +1,6 @@
 package util;
 
-import handler.Handler;
-import handler.HomeHandler;
-import handler.MainHandler;
-import handler.MypageHandler;
+import handler.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,6 +9,8 @@ public class StaticResourcePathPool {
     private final ConcurrentHashMap<String, Handler> staticResourceMap = new ConcurrentHashMap<>();
 
     private static final StaticResourcePathPool instance = new StaticResourcePathPool();
+
+    private static final DefaultStaticResourceHandler defaultHandler = new DefaultStaticResourceHandler();
 
     private StaticResourcePathPool() {
        initStaticResourcePath();
@@ -24,7 +23,7 @@ public class StaticResourcePathPool {
     }
 
     public Handler getHandler(String path) {
-        return staticResourceMap.get(path);
+        return staticResourceMap.getOrDefault(path, defaultHandler);
     }
 
     public static StaticResourcePathPool getInstance() {

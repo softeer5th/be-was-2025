@@ -1,11 +1,13 @@
 package http;
 
-import handler.StaticResourceHandler;
+import handler.Handler;
 import http.constant.HttpMethod;
 import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ApiPathPool;
+import util.FileUtils;
+import util.StaticResourcePathPool;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
 import util.exception.SessionNotFoundException;
@@ -36,8 +38,9 @@ public class HttpRequestHandler {
                 return;
             }
 
-            StaticResourceHandler staticResourceHandler = new StaticResourceHandler(httpRequest, httpResponse);
-            staticResourceHandler.handleStaticResource();
+            Handler handler = StaticResourcePathPool.getInstance().getHandler(path);
+
+            handler.handle(httpRequest, httpResponse);
         } catch (NoSuchPathException e) {
             httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (NotAllowedMethodException e) {
