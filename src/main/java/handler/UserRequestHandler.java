@@ -73,7 +73,7 @@ public class UserRequestHandler implements Handler {
         } else if (path.startsWith(PATH.LOGOUT.endPoint)) {
             userManager.logoutUser(request.getHeaderValue(HttpHeader.SET_COOKIE.getName()));
 
-            response.setResponse(HttpStatus.UNAUTHORIZED, FileContentType.HTML_UTF_8);
+            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeader(
                     HttpHeader.LOCATION.getName(), REDIRECT_URL,
                     HttpHeader.SET_COOKIE.getName(), String.format("%s=; %s; %s", SID, EXPIRED_COOKIE_TIMESTAMP, DEFAULT_COOKIE_PATH)
