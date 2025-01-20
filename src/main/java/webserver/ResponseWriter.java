@@ -4,9 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
+import webserver.message.record.SetCookieRecord;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +39,19 @@ public class ResponseWriter {
         void appendNewLine() {
             sb.append("\r\n");
         }
+        void appendSetCookieHeader(SetCookieRecord setCookie) {
+            sb.append("Set-Cookie: ");
+            sb.append(setCookie.getName());
+            sb.append("=");
+            sb.append(setCookie.getValue());
+            setCookie.getAttributes().forEach((key, value) -> {
+                sb.append("; ");
+                sb.append(key);
+                sb.append("=");
+                sb.append(value);
+            });
+            appendNewLine();
+        }
         String build() {
             return sb.toString();
         }
@@ -54,6 +69,7 @@ public class ResponseWriter {
             for (Map.Entry<String, String> entry : entries) {
                 builder.appendHeader(entry.getKey(), entry.getValue());
             }
+            response.getSetCookies().forEach(builder::appendSetCookieHeader);
             builder.appendNewLine();
             out.writeBytes(builder.build());
             out.write(response.getBody(), 0, response.getBody().length);
