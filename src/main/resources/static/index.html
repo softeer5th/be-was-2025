@@ -18,9 +18,12 @@
               <a href="/mypage">안녕하세요, ${userId}님</a>
             `;
           document.getElementById('login-buttons').style.display = 'none';
+          document.getElementById('write-article').setAttribute('href', '/write');
         } else {
           document.getElementById('user-info').innerHTML = '';
           document.getElementById('login-buttons').style.display = 'flex';
+
+          document.getElementById('write-article').setAttribute('href', '/login');
         }
 
         document.getElementById('main-content').style.display = 'block';
@@ -159,8 +162,8 @@
             이전 글
           </a>
         </li>
-        <li class="nav__menu__item">
-          <a class="btn btn_ghost btn_size_m" href="/write">글 작성</a>
+        <li class ="nav__menu__item">
+          <a id="write-article" class="btn btn_ghost btn_size_m" href="/write">글 작성</a>
         </li>
         <li class="nav__menu__item">
           <a class="btn btn_ghost btn_size_m" href="/comment">댓글 작성</a>
