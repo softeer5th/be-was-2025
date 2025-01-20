@@ -6,6 +6,7 @@ import util.enums.HttpStatusCode;
 import util.enums.Page;
 import webserver.request.Request;
 import webserver.response.Response;
+import webserver.session.SessionManager;
 
 import java.io.IOException;
 
@@ -14,6 +15,7 @@ public class ReadFileHandler extends Handler {
     @Override
     public Response handle(Request request) {
         Response response = new Response(request);
+        sessionId = SessionManager.validate(sessionId);
 
         if(sessionId == null && Page.isRequireLogin(request.url)){
             response.setStatusCode(HttpStatusCode.SEE_OTHER);
