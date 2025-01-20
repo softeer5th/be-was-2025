@@ -18,11 +18,12 @@ public class HttpRequestInfo {
     private final HttpMethod method;
     private final String path;
     private final Map<String, String> headers;
+    private final Map<String, Cookie> cookies;
     private final String body;
-    private final String sid;
 
     public HttpRequestInfo(InputStream inputStream) throws IOException {
         this.headers = new HashMap<>();
+        this.cookies = new HashMap<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
         String requestLine = reader.readLine();
@@ -39,34 +40,34 @@ public class HttpRequestInfo {
 
         this.method = HttpMethod.match(requestTokens[0].toLowerCase());
         this.path = requestTokens[1];
+        parseHeaders(reader);
         this.body = parseRequestBody(reader);
-        this.sid = extractSidFromHeaders();
     }
 
-    private String parseRequestBody(BufferedReader reader) throws IOException {
+    private void parseHeaders(BufferedReader reader) throws IOException {
         String line;
-        boolean isBody = false;
-        int contentLength = 0;
-        StringBuilder body = new StringBuilder();
 
-        while ((line = reader.readLine()) != null) {
-            if (line.isEmpty()) { // 헤더와 본문 사이의 빈 줄
-                isBody = true;
-                break;
-            }
-            if (line.toLowerCase().startsWith("content-length:")) {
-                contentLength = Integer.parseInt(line.split(":")[1].trim());
-            } else if (line.toLowerCase().startsWith("cookie:")) {
-                headers.put("Cookie", line.substring(8).trim());
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            if (line.toLowerCase().startsWith("cookie:")) {
+                this.cookies.putAll(parseCookies(line.substring(8).trim()));
             } else {
                 String[] headerParts = line.split(": ", 2);
                 if (headerParts.length == 2) {
-                    headers.put(headerParts[0].trim(), headerParts[1].trim());
+                    headers.put(headerParts[0].trim().toLowerCase(), headerParts[1].trim().toLowerCase());
                 }
             }
         }
+    }
 
-        if (isBody && contentLength > 0) {
+    private String parseRequestBody(BufferedReader reader) throws IOException {
+        int contentLength = 0;
+        StringBuilder body = new StringBuilder();
+
+        if (headers.containsKey("Content-Length".toLowerCase())) {
+            contentLength = Integer.parseInt(headers.get("Content-Length".toLowerCase()));
+        }
+
+        if (contentLength > 0) {
             char[] buffer = new char[contentLength];
             int read = reader.read(buffer, 0, contentLength);
             if (read > 0) {
@@ -74,20 +75,104 @@ public class HttpRequestInfo {
             }
             logger.debug("Body = {}", body);
         }
+
         return body.toString();
     }
 
-    private String extractSidFromHeaders() {
-        if (headers.containsKey("Cookie")) {
-            String[] cookies = headers.get("Cookie").split("; ");
-            for (String cookie : cookies) {
-                String[] keyValue = cookie.split("=");
-                if (keyValue.length == 2 && keyValue[0].trim().equals("sid")) {
-                    return keyValue[1].trim();
+    private Map<String, Cookie> parseCookies(String cookieHeader) {
+        String[] cookieParts = cookieHeader.split("; ");
+        Map<String, Cookie> cookieMap = new HashMap<>();
+        Cookie newCookie = null;
+
+
+        for (String part : cookieParts) {
+            if (part.contains("=")) {
+                String[] keyValue = part.split("=", 2);
+                String name = keyValue[0].trim();
+                String value = keyValue[1].trim();
+
+                newCookie = new Cookie(name, value);
+                cookies.put(name, newCookie);
+            } else {
+                if (newCookie != null) {
+                    applyCookieOption(newCookie, part.trim(), "");
                 }
             }
         }
-        return null;
+        return cookieMap;
+    }
+
+    /*
+        private String parseRequestBody(BufferedReader reader) throws IOException {
+            String line;
+            boolean isBody = false;
+            int contentLength = 0;
+            StringBuilder body = new StringBuilder();
+
+            while ((line = reader.readLine()) != null) {
+                if (line.isEmpty()) { // 헤더와 본문 사이의 빈 줄
+                    isBody = true;
+                    break;
+                }
+                if (line.toLowerCase().startsWith("content-length:")) {
+                    contentLength = Integer.parseInt(line.split(":")[1].trim());
+                } else if (line.toLowerCase().startsWith("cookie:")) {
+                    parseCookies(line.substring(8).trim());
+                } else {
+                    String[] headerParts = line.split(": ", 2);
+                    if (headerParts.length == 2) {
+                        headers.put(headerParts[0].trim(), headerParts[1].trim());
+                    }
+                }
+            }
+
+            if (isBody && contentLength > 0) {
+                char[] buffer = new char[contentLength];
+                int read = reader.read(buffer, 0, contentLength);
+                if (read > 0) {
+                    body.append(buffer, 0, read);
+                }
+                logger.debug("Body = {}", body);
+            }
+            return body.toString();
+        }
+
+        private void parseCookies(String cookieHeader) {
+            String[] cookieParts = cookieHeader.split("; ");
+            Cookie newCookie = null;
+
+            for (String part : cookieParts) {
+                if (part.contains("=")) {
+                    String[] keyValue = part.split("=", 2);
+                    String name = keyValue[0].trim();
+                    String value = keyValue[1].trim();
+
+                    newCookie = new Cookie(name, value);
+                    cookies.put(name, newCookie);
+                } else {
+                    if (newCookie != null) {
+                        applyCookieOption(newCookie, part.trim(), "");
+                    }
+                }
+
+                logger.debug("Parsed Cookies: {}", newCookie);
+            }
+        }
+    */
+    private void applyCookieOption(Cookie cookie, String option, String value) {
+        switch (option.toLowerCase()) {
+            case "max-age":
+                cookie.setMaxAge(Long.parseLong(value));
+                break;
+            case "path":
+                cookie.setPath(value);
+                break;
+            case "httponly":
+                cookie.setHttpOnly(true);
+                break;
+            default:
+                break;
+        }
     }
 
 
@@ -103,8 +188,7 @@ public class HttpRequestInfo {
         return body;
     }
 
-    public String getSid() {
-        return sid;
+    public Cookie getCookie(String name) {
+        return cookies.get(name);
     }
-
 }

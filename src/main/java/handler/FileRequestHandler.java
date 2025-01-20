@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import util.FileUtil;
 import http.HttpResponse;
 
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ public class FileRequestHandler implements Handler {
         String path = request.getPath();
         User user = getAuthenticatedUser(request);
 
-        if (RESTRICTED_PAGES.contains(path) && user == null) {
+        if (RESTRICTED_PAGES.contains(path)) {
             logger.error("Unauthorized access to: {}", path);
             throw new BaseException(FileErrorCode.FORBIDDEN_ACCESS);
         }
@@ -44,6 +43,7 @@ public class FileRequestHandler implements Handler {
 
         // 로그인 상태라면 UI 수정
         if (user != null) {
+            logger.debug("User logged in: {}", user);
             replaceLoginUI(contentBuilder, user.getNickname());
         }
 
@@ -58,11 +58,18 @@ public class FileRequestHandler implements Handler {
     }
 
     private User getAuthenticatedUser(HttpRequestInfo request) {
-        String sid = request.getSid();
-        if (sid == null) return null;
+        String sid = "";
+        if( request.getCookie("sid") != null) {
+            logger.debug("Found cookie: {}", request.getCookie("sid"));
+            sid = request.getCookie("sid").getValue();
+            if (sid.isEmpty()) return null;
+        }
 
         String userId = SessionManager.findUserBySessionID(sid);
-        if (userId == null) return null;
+        if (userId == null){
+            logger.error("Login user not found");
+            return null;
+        }
 
         return Database.findUserById(userId);
     }

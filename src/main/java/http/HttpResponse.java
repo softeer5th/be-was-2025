@@ -20,7 +20,7 @@ public class HttpResponse {
     private HttpStatus status;
     private final Map<String, String> headers;
     private byte[] body;
-    private final List<String> cookies = new ArrayList<>();
+    private final List<Cookie> cookies = new ArrayList<>();
 
     public HttpResponse() {
         this.status = HttpStatus.OK;
@@ -51,8 +51,8 @@ public class HttpResponse {
         headers.put("Content-Type", fileExtension);
     }
 
-    public void setCookies(String value) {
-        cookies.add(value);
+    public void setCookies(Cookie cookie) {
+        cookies.add(cookie);
     }
 
     public void setBody(String bodyString) {
@@ -80,16 +80,12 @@ public class HttpResponse {
                 dos.writeBytes(entry.getKey() + ": " + entry.getValue() + NEW_LINE);
             }
 
-            dos.writeBytes("Set-Cookie: ");
-            int cookieCount = cookies.size();
-            for (int i = 0; i < cookieCount; i++) {
-                dos.writeBytes(cookies.get(i));
-                if (i < cookieCount - 1) {
-                    dos.writeBytes("; ");
-                }
+            for (Cookie cookie : cookies) {
+                dos.writeBytes("Set-Cookie: ");
+                dos.writeBytes(cookie.toString() + NEW_LINE);
             }
 
-            dos.writeBytes(NEW_LINE + NEW_LINE);
+            dos.writeBytes(NEW_LINE);
             if (body != null && body.length > 0) {
                 dos.write(body, 0, body.length);
             }

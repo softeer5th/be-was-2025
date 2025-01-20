@@ -4,6 +4,7 @@ import db.Database;
 import db.SessionManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
+import http.Cookie;
 import http.HttpRequestInfo;
 import http.HttpResponse;
 import http.HttpStatus;
@@ -44,11 +45,16 @@ public class UserLoginHandler implements Handler {
         String sid = UUID.randomUUID().toString();
         SessionManager.saveSession(sid, userId);
 
-        response.setCookies("sid=" + sid);
-        response.setCookies("Path=/");
-        response.setStatus(HttpStatus.SEE_OTHER);
+        response.setStatus(HttpStatus.FOUND);
+        response.setCookies(createSessionCookie(sid));
         response.setHeaders("Location", "/index.html");
 
         return response;
+    }
+
+    private Cookie createSessionCookie(String sid) {
+        Cookie cookie = new Cookie("sid", sid);
+        cookie.setPath("/");
+        return cookie;
     }
 }
