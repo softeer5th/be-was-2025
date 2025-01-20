@@ -143,6 +143,34 @@
             </li>
           </ul>
         </nav>
+        <div style="text-align: center; margin-top: 24px;">
+          <a class="btn btn_contained btn_size_s" id="write-btn" href="#">
+            글쓰기
+          </a>
+        </div>
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            const writeBtn = document.getElementById("write-btn");
+            writeBtn.addEventListener("click", function (event) {
+              event.preventDefault();
+              fetch("/api/user/validate", { method: "GET" })
+                      .then((res) => res.json())
+                      .then((data) => {
+                        if (data.isSuccess) {
+                          window.location.href = "/write.html";
+                        } else {
+                          alert("글쓰기는 로그인 후 이용할 수 있어요!")
+                          window.location.href = "/user/login.html";
+                        }
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                        alert("글쓰기는 로그인 후 이용할 수 있어요!")
+                        window.location.href = "/user/login.html";
+                      });
+            });
+          });
+        </script>
       </div>
     </div>
   </body>
