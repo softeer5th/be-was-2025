@@ -18,16 +18,16 @@ import static exception.ErrorCode.FILE_NOT_FOUND;
 /*
  * 로그인 여부에 따라 마이페이지 서빙을 관리하는 핸들러
  */
-public class MyPageHandler implements Handler {
+public class DynamicFileHandler implements Handler {
 
-    private static final Logger log = LoggerFactory.getLogger(MyPageHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(DynamicFileHandler.class);
 
     private static final String STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
     private static final String REDIRECT_PATH = "/login/index.html";
 
     private final UserManager userManager;
 
-    public MyPageHandler() {
+    public DynamicFileHandler() {
         this.userManager = UserManager.getInstance();
     }
 
