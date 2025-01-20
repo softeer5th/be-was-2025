@@ -1,20 +1,10 @@
 package exception;
 
-import enums.HttpStatus;
-
-public class ServerErrorException extends RuntimeException {
-    private final ErrorCode errorCode;
+public class ServerErrorException extends ErrorException {
 
     public ServerErrorException(ErrorCode errorCode) {
-        this.errorCode = errorCode;
+        super(errorCode);
     }
 
-    @Override
-    public String getMessage() {
-        return errorCode.getMessage();
-    }
 
-    public HttpStatus getHttpStatus(){
-        return errorCode.getHttpStatus();
-    }
 }
