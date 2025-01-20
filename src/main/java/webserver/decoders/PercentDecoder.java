@@ -19,7 +19,7 @@ public class PercentDecoder implements ByteDecoder {
                 byte hex2 = bytes[i + 2];
                 if (isHexNumber(hex1) && isHexNumber(hex2)) {
                     String hexString = new String(new byte[]{hex1, hex2}, StandardCharsets.US_ASCII);
-                    byte hexValue = Byte.parseByte(hexString, 16);
+                    byte hexValue = (byte)(Integer.parseInt(hexString, 16) & 0xFF);
                     out.write(hexValue);
                 } else {
                     out.write(bytes[i]);
