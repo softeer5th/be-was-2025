@@ -27,8 +27,8 @@ public class RequestParser {
             HttpRequest httpRequest =  new HttpRequest(requestLine[0], requestLine[1], requestLine[2], request.subList(1, request.size()));
             HttpResponse httpResponse = new HttpResponse(dos);
 
-            HttpRequestHandler requestHandler = new HttpRequestHandler();
-            requestHandler.handleRequest(httpRequest, httpResponse);
+            HttpRequestHandler requestHandler = new HttpRequestHandler(httpRequest, httpResponse);
+            requestHandler.handleRequest();
         } catch (InvalidRequestLineSyntaxException e) {
             errorResponse(dos, HttpStatus.BAD_REQUEST, e);
         } catch (IOException e) {

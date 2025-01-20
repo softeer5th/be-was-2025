@@ -16,10 +16,15 @@ import java.lang.reflect.Method;
 
 public class HttpRequestHandler {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
+    private final HttpRequest httpRequest;
+    private final HttpResponse httpResponse;
 
-    public HttpRequestHandler() {}
+    public HttpRequestHandler(HttpRequest httpRequest, HttpResponse httpResponse) {
+        this.httpRequest = httpRequest;
+        this.httpResponse = httpResponse;
+    }
 
-    public void handleRequest(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
+    public void handleRequest() throws IOException {
         try {
             String path = httpRequest.getPath().toLowerCase();
             HttpMethod method = httpRequest.getMethod();
