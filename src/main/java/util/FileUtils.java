@@ -2,8 +2,7 @@ package util;
 
 import util.exception.NoSuchPathException;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class FileUtils {
     private static final String ROOT_PATH = "./src/main/resources/static";
@@ -28,4 +27,20 @@ public class FileUtils {
 
         return file;
     }
+
+    public static String getExtension(File file) {
+        return file.getName().substring(file.getName().lastIndexOf(".") + 1);
+    }
+
+    public static byte[] convertToByte(File file) throws IOException {
+        FileInputStream fis = new FileInputStream(file);
+        return fis.readAllBytes();
+    }
+
+    public static String convertToString(File file) throws IOException {
+        byte[] b = convertToByte(file);
+
+        return new String(b, "utf-8");
+    }
+
 }
