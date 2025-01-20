@@ -5,7 +5,6 @@ public class User {
     private String password;
     private String name;
     private String email;
-    // 추가
     private byte[] profileImage;
 
     public User(String userId, String password, String name, String email, byte[] profileImage) {
