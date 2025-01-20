@@ -5,7 +5,6 @@ import enums.HttpHeader;
 import enums.HttpMethod;
 import enums.HttpStatus;
 import exception.ClientErrorException;
-import exception.LoginException;
 import manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ public class UserRequestHandler implements Handler {
     private static final String USER_REQUEST_PREFIX = "/user/";
 
     private static final String REDIRECT_URL = "http://localhost:8080/index.html";
-    private static final String LOGIN_FAIL_URL = "http://localhost:8080/login/fail.html";
 
     private static final String SID = "SID";
     private static final String EXPIRED_COOKIE_TIMESTAMP = "Expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -57,19 +55,14 @@ public class UserRequestHandler implements Handler {
         } else if (path.startsWith(PATH.LOGIN.endPoint)) {
             checkPostMethod(request.getMethod());
             UserLoginRequest userLoginRequest = UserLoginRequest.of((String) request.getBody());
+            final String sessionId = userManager.loginUser(userLoginRequest);
 
-            try {
-                final String sessionId = userManager.loginUser(userLoginRequest);
+            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
+            response.setHeader(
+                    HttpHeader.LOCATION.getName(), REDIRECT_URL,
+                    HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; %s", SID, sessionId, DEFAULT_COOKIE_PATH)
+            );
 
-                response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
-                response.setHeader(
-                        HttpHeader.LOCATION.getName(), REDIRECT_URL,
-                        HttpHeader.SET_COOKIE.getName(), String.format("%s=%s; %s", SID, sessionId, DEFAULT_COOKIE_PATH)
-                );
-            } catch (LoginException e) {
-                response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8, e.getMessage());
-                response.setHeader(HttpHeader.LOCATION.getName(), LOGIN_FAIL_URL);
-            }
         } else if (path.startsWith(PATH.LOGOUT.endPoint)) {
             userManager.logoutUser(request.getHeaderValue(HttpHeader.SET_COOKIE.getName()));
 

@@ -1,8 +1,8 @@
 package webserver;
 
 import enums.FileContentType;
-import exception.ClientErrorException;
-import exception.ServerErrorException;
+import exception.ErrorException;
+import handler.ExceptionHandler;
 import handler.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +40,10 @@ public class RequestDispatcher implements Runnable {
 
                 final Handler handler = router.route(path);
                 response = handler.handle(httpRequestInfo);
-            } catch (ClientErrorException e) {
-                response = new HttpResponse(e.getHttpStatus(), FileContentType.HTML_UTF_8, e.getMessage());
-            }catch (ServerErrorException e){
-                response = new HttpResponse(e.getHttpStatus(), FileContentType.HTML_UTF_8, e.getMessage());
+            } catch (ErrorException e) {
+                logger.error(e.getMessage());
+                response = new HttpResponse(e.getHttpStatus(), FileContentType.HTML_UTF_8, ExceptionHandler.handle(e));
             }
-
             response.send(dos);
 
 
