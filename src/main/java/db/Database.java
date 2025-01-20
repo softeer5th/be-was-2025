@@ -1,5 +1,6 @@
 package db;
 
+import model.Post;
 import model.User;
 
 import java.sql.*;
@@ -13,12 +14,20 @@ public class Database {
     static {
         try (Connection connection = DriverManager.getConnection(DB_URL);
              Statement statement = connection.createStatement()) {
-            String createTableQuery = "CREATE TABLE IF NOT EXISTS Users (" +
+            String createUserTable = "CREATE TABLE IF NOT EXISTS Users (" +
                     "userId VARCHAR(255) PRIMARY KEY, " +
                     "password VARCHAR(255), " +
                     "name VARCHAR(255), " +
                     "email VARCHAR(255))";
-            statement.execute(createTableQuery);
+            statement.execute(createUserTable);
+
+            String createPostTable = "CREATE TABLE IF NOT EXISTS Posts (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "userId VARCHAR(255), " +
+                    "title VARCHAR(255), " +
+                    "content TEXT, " +
+                    "FOREIGN KEY (userId) REFERENCES Users(userId))";
+            statement.execute(createPostTable);
         } catch (SQLException e) {
             throw new RuntimeException("Error initializing database", e);
         }
@@ -38,6 +47,20 @@ public class Database {
             throw new RuntimeException("Error adding user", e);
         }
     }
+
+    public static void addPost(Post post) {
+        String insertQuery = "INSERT INTO Posts (userId, title, content) VALUES (?, ?, ?)";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+            preparedStatement.setString(1, post.getUserId());
+            preparedStatement.setString(2, post.getTitle());
+            preparedStatement.setString(3, post.getContent());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding post", e);
+        }
+    }
+
 
     public static User findUserById(String userId) {
         String selectQuery = "SELECT * FROM Users WHERE userId = ?";
