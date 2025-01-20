@@ -15,4 +15,17 @@ public class SessionUtils {
         return SessionStore.findBySessionId(sessionId).orElseThrow(() ->
                 new SessionNotFoundException("세션이 존재하지 않습니다."));
     }
+
+    public static boolean isLogin(HttpRequest request) {
+        if (!request.getSessionIds().containsKey(Cookie.SESSION_COOKIE_NAME)) {
+            return false;
+        }
+
+        String sessionId = request.getSessionIds().get(Cookie.SESSION_COOKIE_NAME);
+        if (SessionStore.findBySessionId(sessionId).isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
 }

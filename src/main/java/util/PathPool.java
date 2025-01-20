@@ -1,9 +1,9 @@
 package util;
 
+import handler.*;
 import http.constant.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponse;
-import handler.UserHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.exception.NotAllowedMethodException;
@@ -17,6 +17,8 @@ public class PathPool {
     private static final Logger logger = LoggerFactory.getLogger(PathPool.class);
     private final ConcurrentHashMap<String, ConcurrentHashMap<HttpMethod, Method>> methodMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Object> classMap = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<String, Handler> staticResourceMap = new ConcurrentHashMap<>();
     private static final PathPool instance;
 
     static {
@@ -34,7 +36,11 @@ public class PathPool {
     }
 
     private PathPool() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+        initApiPath();
+        initStaticResourcePath();
+    }
 
+    private void initApiPath() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         Constructor<UserHandler> c = UserHandler.class.getDeclaredConstructor();
         UserHandler userHandler = c.newInstance();
 
@@ -58,6 +64,12 @@ public class PathPool {
         classMap.put("/user/logout", userHandler);
     }
 
+    private void initStaticResourcePath() {
+        staticResourceMap.put("/", new HomeHandler());
+        staticResourceMap.put("/main", new MainHandler());
+        staticResourceMap.put("/mypage", new MypageHandler());
+    }
+
     public boolean isAvailable(HttpMethod method, String path) {
         if (!classMap.containsKey(path)) {
             return false;
@@ -78,6 +90,10 @@ public class PathPool {
 
     public Object getClass(String path) {
         return classMap.get(path);
+    }
+
+    public Handler getHandler(String path) {
+        return staticResourceMap.get(path);
     }
 
 }

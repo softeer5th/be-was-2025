@@ -1,10 +1,10 @@
 package http;
 
+import handler.StaticResourceHandler;
 import http.constant.HttpMethod;
 import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.FileUtils;
 import util.PathPool;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
@@ -30,11 +30,8 @@ public class HttpRequestHandler {
                 return;
             }
 
-            File file = FileUtils.findFile(path);
-
-            httpResponse.writeStatusLine(HttpStatus.OK);
-            httpResponse.writeBody(file);
-            httpResponse.send();
+            StaticResourceHandler staticResourceHandler = new StaticResourceHandler(httpRequest, httpResponse);
+            staticResourceHandler.handleStaticResource();
         } catch (NoSuchPathException e) {
             httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (NotAllowedMethodException e) {
