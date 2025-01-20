@@ -17,6 +17,7 @@ public class RequestRouter implements Router {
 
         // 초기 경로와 핸들러 등록
         routeMap.put(Pattern.compile("^/user(/.*)?$"), new UserRequestHandler());
+        routeMap.put(Pattern.compile("^/board(/.*)?$"), new BoardHandler());
         // 루트 경로의 index.html과 mypage/ 하위의 index.html 제외
         routeMap.put(Pattern.compile("^/(?!mypage/.*index\\.html$|index\\.html$|article/index\\.html$).*\\.(html|css|js|svg)$"), new StaticFileHandler());
         routeMap.put(Pattern.compile("^/$"), new HomeHandler());
