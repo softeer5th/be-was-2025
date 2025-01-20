@@ -1,10 +1,11 @@
 package handler;
 
-import db.Database;
-import model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import user.User;
+import user.UserDao;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.PageMappingPath;
@@ -19,13 +20,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class RegistrationHandlerTest {
-    private Database database;
+    private UserDao userDao;
     private RegistrationHandler handler;
 
     @BeforeEach
     void setUp() {
-        database = new Database();
-        handler = new RegistrationHandler(database);
+        userDao = mock(UserDao.class);
+        handler = new RegistrationHandler(userDao);
     }
 
     @Test
@@ -35,12 +36,14 @@ class RegistrationHandlerTest {
         var request = mock(HttpRequest.class);
         when(request.getBody(any())).thenReturn(Optional.of(new RegistrationHandler
                 .RegistrationRequest("id", "1234", "name", "example@example.com")));
+        var userCaptor = ArgumentCaptor.forClass(User.class);
+        when(userDao.saveUser(userCaptor.capture())).thenReturn(true);
 
         // when
         HttpResponse response = handler.handlePost(request);
 
         // then
-        User user = database.findUserById("id").get();
+        User user = userCaptor.getValue();
         assertThat(user).isNotNull();
         assertThat(user.getUserId()).isEqualTo("id");
         assertThat(user.isPasswordCorrect("1234")).isTrue();
@@ -58,8 +61,8 @@ class RegistrationHandlerTest {
         var request = mock(HttpRequest.class);
         when(request.getBody(any())).thenReturn(Optional.of(new RegistrationHandler
                 .RegistrationRequest("id", "1234", "name", "example@example.com")));
+        when(userDao.findUserById("id")).thenReturn(Optional.of(User.create("id", "123423", "John", "abc2@example2.com")));
 
-        database.saveUser(new User("id", "123423", "John", "abc2@example2.com"));
 
         // when
         var response = handler.handlePost(request);

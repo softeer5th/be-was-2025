@@ -1,9 +1,9 @@
 package handler;
 
-import db.Database;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import user.User;
+import user.UserDao;
 import webserver.enums.HttpStatusCode;
 import webserver.exception.BadRequest;
 import webserver.handler.HttpHandler;
@@ -17,10 +17,10 @@ import static webserver.enums.PageMappingPath.INDEX;
 public class MypageHandler implements HttpHandler {
     private static final String TEMPLATE_NAME = "/mypage/index.html";
     private static final Logger log = LoggerFactory.getLogger(MypageHandler.class);
-    private final Database database;
+    private final UserDao userDao;
 
-    public MypageHandler(Database database) {
-        this.database = database;
+    public MypageHandler(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class MypageHandler implements HttpHandler {
             return renderPageWithError();
         }
         user.update(body.name(), body.password());
-        database.saveUser(user);
+        userDao.saveUser(user);
 
         return HttpResponse.redirect(INDEX.path);
     }

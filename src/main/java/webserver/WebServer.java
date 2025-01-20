@@ -4,6 +4,7 @@ import db.Database;
 import handler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import user.UserDao;
 import webserver.config.ServerConfig;
 import webserver.exception.filter.ExceptionFilterChain;
 import webserver.exception.filter.HttpExceptionFilter;
@@ -56,7 +57,9 @@ public class WebServer {
         }
 
         ExecutorService es = Executors.newFixedThreadPool(config.getThreadPoolSize());
-        Database database = new Database();
+
+        Database database = new Database(config.getJdbcUrl(), config.getUsername(), config.getPassword());
+        UserDao userDao = new UserDao(database);
 
         HttpRequestParser requestParser = new HttpRequestParser(config.getMaxHeaderSize());
         HttpResponseWriter responseWriter = new HttpResponseWriter();
@@ -73,10 +76,10 @@ public class WebServer {
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config.getDefaultPageFileName()))
                 .setHandler(INDEX.path, new IndexHandler())
-                .setHandler(REGISTRATION.path, new RegistrationHandler(database))
-                .setHandler(LOGIN.path, new LoginHandler(database))
+                .setHandler(REGISTRATION.path, new RegistrationHandler(userDao))
+                .setHandler(LOGIN.path, new LoginHandler(userDao))
                 .setHandler(LOGOUT.path, new LogoutHandler())
-                .setHandler(MYPAGE.path, new MypageHandler(database));
+                .setHandler(MYPAGE.path, new MypageHandler(userDao));
 
         SessionManager sessionManager = new MemorySessionManager();
 

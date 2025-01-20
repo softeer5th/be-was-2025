@@ -1,9 +1,9 @@
 package handler;
 
-import db.Database;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import user.User;
+import user.UserDao;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.PageMappingPath;
 import webserver.exception.BadRequest;
@@ -16,10 +16,10 @@ import webserver.view.ModelAndTemplate;
 public class RegistrationHandler implements HttpHandler {
     private static final String TEMPLATE_NAME = "/registration/index.html";
     private static final Logger log = LoggerFactory.getLogger(RegistrationHandler.class);
-    private final Database database;
+    private final UserDao userDao;
 
-    public RegistrationHandler(Database database) {
-        this.database = database;
+    public RegistrationHandler(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
@@ -33,11 +33,11 @@ public class RegistrationHandler implements HttpHandler {
         User user = body.toUser();
         log.debug("registration request: {}", user);
         // 중복 사용자 검사
-        if (database.findUserById(user.getUserId()).isPresent()) {
+        if (userDao.findUserById(user.getUserId()).isPresent()) {
             return renderRegistrationPageWithErrorMessage();
         }
         // 데이터베이스에 사용자 추가
-        database.saveUser(user);
+        userDao.saveUser(user);
         return HttpResponse.redirect(PageMappingPath.INDEX.path);
     }
 
@@ -51,7 +51,7 @@ public class RegistrationHandler implements HttpHandler {
 
     record RegistrationRequest(String userId, String password, String name, String email) {
         public User toUser() {
-            return new User(userId, password, name, email);
+            return User.create(userId, password, name, email);
         }
     }
 }

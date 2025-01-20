@@ -1,4 +1,4 @@
-package model;
+package user;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +16,15 @@ public class User {
     private User() {
     }
 
-    public User(String userId, String password, String name, String email) {
+    User(String userId, String passwordHash, String name, String email) {
         this.userId = userId;
-        this.passwordHash = hashPassword(password);
+        this.passwordHash = passwordHash;
         this.name = name;
         this.email = email;
+    }
+
+    public static User create(String userId, String password, String name, String email) {
+        return new User(userId, hashPassword(password), name, email);
     }
 
     private static String hashPassword(String password) {
@@ -54,4 +58,8 @@ public class User {
         return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
     }
 
+
+    String getPasswordHash() {
+        return passwordHash;
+    }
 }

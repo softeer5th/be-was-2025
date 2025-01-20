@@ -1,24 +1,29 @@
 package db;
 
-import model.User;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Database {
-    private Map<String, User> users = new ConcurrentHashMap<>();
 
-    public void saveUser(User user) {
-        users.put(user.getUserId(), user);
+    private final String jdbcUrl;
+    private final String username;
+    private final String password;
+
+    public Database(String jdbcUrl, String username, String password) {
+        this.jdbcUrl = jdbcUrl;
+        this.username = username;
+        this.password = password;
+
     }
 
-    public Optional<User> findUserById(String userId) {
-        return Optional.ofNullable(users.get(userId));
+    public Connection getConnection() {
+        try {
+            return DriverManager.getConnection(jdbcUrl, username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Collection<User> findAll() {
-        return users.values();
-    }
+
 }
