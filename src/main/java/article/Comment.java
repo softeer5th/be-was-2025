@@ -1,4 +1,6 @@
-package model;
+package article;
+
+import user.User;
 
 public class Comment {
     private User writer;
@@ -8,6 +10,8 @@ public class Comment {
     public Comment(User writer, String content, Article article) {
         this.writer = writer;
         this.content = content;
-        article.addComment(this);
+        this.article = article;
+        article.getComments().add(this);
     }
+
 }

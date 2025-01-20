@@ -1,4 +1,6 @@
-package model;
+package article;
+
+import user.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,15 @@ public class Article {
         this.comments = new ArrayList<>();
     }
 
-    void addComment(Comment comment) {
-        comments.add(comment);
+    public User getWriter() {
+        return writer;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
     }
 }
