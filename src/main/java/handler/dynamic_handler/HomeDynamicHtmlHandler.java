@@ -11,7 +11,8 @@ import model.User;
 
 public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
     private final SessionManager sessionManager = SessionManager.getInstance();
-    private static final String DYNAMIC_CONTENT = "<!-- DYNAMIC_CONTENT -->";
+    private static final String MENU = "<!-- MENU -->";
+    private static final String WRITE_BUTTON = "<!-- WRITE_BUTTON -->";
 
     @Override
     public HttpResponse handle(byte[] fileData, String extension, HttpRequest httpRequest) {
@@ -22,10 +23,10 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
         String dynamicHtmlContent = null;
 
         if(cookie == null){
-             dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, createMenuItemContentNotLogin());
+             dynamicHtmlContent = htmlContent.replace(MENU, createMenuNotLogin());
         }else{
             String userName = retrieveUserNameBySessionId(cookie.getValue());
-            dynamicHtmlContent = htmlContent.replace(DYNAMIC_CONTENT, String.format(createMenuItemContentLogin(), userName));
+            dynamicHtmlContent = htmlContent.replace(MENU, String.format(createMenuAfterLogin(), userName));
         }
 
         return new HttpResponse.Builder()
@@ -41,7 +42,7 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
         return user.getName();
     }
 
-    private String createMenuItemContentNotLogin(){
+    private String createMenuNotLogin(){
         StringBuilder sb = new StringBuilder();
         sb.append("<li class=\"header__menu__item\">\n");
         sb.append("\t<a class=\"btn btn_contained btn_size_s\" href=\"/login\">로그인</a>\n");
@@ -52,7 +53,7 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
         return sb.toString();
     }
 
-    private String createMenuItemContentLogin(){
+    private String createMenuAfterLogin(){
         StringBuilder sb = new StringBuilder();
         sb.append("<li class=\"header__menu__item\">\n");
         sb.append("\t<a class=\"btn btn_ghost btn_size_s\" href=\"/mypage\">%s</a>\n");
