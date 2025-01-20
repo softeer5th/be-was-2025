@@ -15,7 +15,7 @@ public class HtmlContentReplacer {
 
     public HtmlContentReplacer(String sid){
         if(loggedIn = (sid != null)) {
-            User user = (User) SessionManager.getSession(sid).getAttribute("USER");
+            User user = (User) SessionManager.getSession(sid).getUser();
             userProperties.put("$userId", user.getUserId());
             userProperties.put("$userName", user.getName());
             userProperties.put("$userEmail", user.getEmail());
