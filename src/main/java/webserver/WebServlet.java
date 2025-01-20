@@ -34,10 +34,9 @@ public class WebServlet {
     }
 
     public void process(InputStream is, OutputStream os) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
         DataOutputStream dos = new DataOutputStream(os);
 
-        HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(br);
+        HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(is);
 
         try {
             HttpResponse httpResponse = apiRequestHandlerMapping.getHandler(httpRequest)

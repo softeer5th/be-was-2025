@@ -5,36 +5,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.ProtocolException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+import static http.request.HttpHeader.*;
 
 public class HttpRequestResolver {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestResolver.class);
     private static final HttpRequestResolver INSTANCE = new HttpRequestResolver();
+    private static final int MAX_BUFFER_SIZE = 8192; //8KB
 
     public static HttpRequestResolver getInstance(){
         return INSTANCE;
     }
 
-    public HttpRequest parseHttpRequest(BufferedReader br) throws IOException {
+    public HttpRequest parseHttpRequest(InputStream is) throws IOException {
         HttpRequest httpRequest = new HttpRequest();
 
-        parseHttpRequestLine(br, httpRequest);
-
-        parseHttpRequestHeader(br, httpRequest);
-
-        parseHttpRequestBody(br, httpRequest);
+        parseHttpRequestLine(is, httpRequest);
+        parseHttpRequestHeader(is, httpRequest);
+        parseHttpRequestBody(is, httpRequest);
 
         return httpRequest;
     }
 
-    private void parseHttpRequestLine(BufferedReader br, HttpRequest httpRequest) throws IOException {
-        String requestLine = br.readLine();
 
-        if(requestLine == null || requestLine.isEmpty()){
-            throw new IOException("request line is Empty");
-        }
+    private void parseHttpRequestLine(InputStream is, HttpRequest httpRequest) throws IOException {
+        String requestLine = readLine(is);
+
+        if(requestLine.isEmpty())
+            throw new ProtocolException("request line is empty");
+
         logger.debug("request line: {}", requestLine);
 
         String[] requestLineParts = requestLine.split("\\s+");
@@ -59,18 +65,31 @@ public class HttpRequestResolver {
         }
     }
 
-    private void parseHttpRequestHeader(BufferedReader br, HttpRequest httpRequest) throws IOException {
+    private void parseHttpRequestHeader(InputStream is, HttpRequest httpRequest) throws IOException {
         StringBuilder sb = new StringBuilder();
-        String line;
+        String headerLine;
 
-        while((line = br.readLine()) != null && !line.isEmpty()){
-            sb.append(line).append("\n");
-            String[] lineParts = line.split(":\\s*");
+        while(true){
+            // 헤더 라인 읽기
+            headerLine = readLine(is).trim();
 
-            if(lineParts[0].equalsIgnoreCase("cookie")){
-                parseHttpRequestCookies(lineParts[1], httpRequest);
+            if(headerLine.isEmpty())
+                break;
+
+            sb.append(headerLine).append("\n");
+            int colonIndex = headerLine.indexOf(':');
+
+            if(colonIndex == -1){
+                throw new ProtocolException("header line is missing a colon: " + headerLine);
+            }
+
+            String headerName = headerLine.substring(0, colonIndex).trim();
+            String headerValue = headerLine.substring(colonIndex + 1).trim();
+
+            if(headerName.equalsIgnoreCase(COOKIE.getName())){
+                parseHttpRequestCookies(headerValue, httpRequest);
             }else{
-                httpRequest.addHeader(lineParts[0].toUpperCase(), lineParts[1].toUpperCase());
+                httpRequest.addHeader(headerName, headerValue);
             }
         }
 
@@ -86,18 +105,52 @@ public class HttpRequestResolver {
         }
     }
 
-    private void parseHttpRequestBody(BufferedReader br, HttpRequest httpRequest) throws IOException {
-        String contentLength = httpRequest.getHeader("CONTENT-LENGTH");
+    private void parseHttpRequestBody(InputStream is, HttpRequest httpRequest) throws IOException {
+        String contentLengthValue= httpRequest.getHeader(CONTENT_LENGTH.getName());
 
-        if(contentLength != null){
-            char[] buf = new char[Integer.parseInt(contentLength)];
-            br.read(buf, 0, buf.length);
+        // Content-Length 헤더가 존재하다면 바디를 읽는다.
+        if (contentLengthValue != null) {
+            int contentLength = Integer.parseInt(contentLengthValue);
 
-            // URL 디코딩 처리
-            String decodedBody = URLDecoder.decode(new String(buf), StandardCharsets.UTF_8);
+            byte[] body = readBody(is, contentLength);
 
-            logger.debug("body: \n{}", decodedBody);
-            httpRequest.setBody(decodedBody.toCharArray());
+            logger.debug("body: \n{}", URLDecoder.decode(new String(body, StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            httpRequest.setBody(body);
         }
+    }
+
+    private String readLine(InputStream is) throws IOException {
+        return new String(readLineUntilCRLF(is), StandardCharsets.UTF_8);
+    }
+
+    private byte[] readLineUntilCRLF(InputStream is) throws IOException {
+        int prevByte = -1, curByte;
+
+        try(ByteArrayOutputStream baos = new ByteArrayOutputStream()){
+            while((curByte = is.read()) != -1){
+                baos.write(curByte);
+                if(prevByte == '\r' || curByte == '\n')
+                    break;
+                prevByte = curByte;
+            }
+            return baos.toByteArray();
+        }
+    }
+
+    private byte[] readBody(InputStream is, int contentLength) throws IOException {
+        int remainingLength = contentLength;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[MAX_BUFFER_SIZE];
+
+        while(remainingLength > 0){
+            int byteLength = is.read(buffer, 0, Math.min(buffer.length, remainingLength));
+
+            baos.write(buffer, 0, byteLength);
+            remainingLength -= byteLength;
+        }
+
+        return baos.toByteArray();
     }
 }

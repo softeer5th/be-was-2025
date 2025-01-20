@@ -3,6 +3,8 @@ package http.request;
 import http.cookie.Cookie;
 import http.enums.HttpMethod;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +18,7 @@ public class HttpRequest {
     private final Map<String, String> headers = new HashMap<>();
     private final Map<String, Cookie> cookies = new HashMap<>();
 
-    private char[] body;
+    private byte[] body;
 
     public HttpRequest(){}
 
@@ -40,7 +42,7 @@ public class HttpRequest {
         return headers.get(headerKey);
     }
 
-    public char[] getBody(){
+    public byte[] getBody(){
         return this.body;
     }
     public void setMethod(String methodName){
@@ -60,10 +62,10 @@ public class HttpRequest {
     }
 
     public void addHeader(String headerKey, String headerValue){
-        headers.put(headerKey, headerValue);
+        headers.put(headerKey.toLowerCase(), headerValue);
     }
 
-    public void setBody(char[] body){
+    public void setBody(byte[] body){
         this.body = body;
     }
 
@@ -77,7 +79,10 @@ public class HttpRequest {
 
     public Map<String, String> convertBodyToMap(){
         Map<String, String> dataMap = new HashMap<>();
-        String[] bodyParts = new String(body).split("&");
+
+        String bodyString = URLDecoder.decode(new String(body, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+
+        String[] bodyParts = bodyString.split("&");
 
         for(String bodyPart: bodyParts){
             String[] keyValue = bodyPart.trim().split("=");
