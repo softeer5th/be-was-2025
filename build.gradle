@@ -16,10 +16,11 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
 
+    implementation 'com.h2database:h2:2.3.232'
+
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     testImplementation 'org.assertj:assertj-core:3.16.1'
     testImplementation 'org.mockito:mockito-core:5.15.2'
-
 
 }
 

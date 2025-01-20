@@ -30,6 +30,12 @@ public class ServerConfig {
     private final String defaultPageFileName;
     // 헤더의 최대 크기. byte 단위
     private final Integer maxHeaderSize;
+    // jdbc url
+    private final String jdbcUrl;
+    // jdbc username
+    private final String username;
+    // jdbc password
+    private final String password;
 
     public ServerConfig() {
         this(DEFAULT_PROPERTIES_FILE_PATH);
@@ -47,7 +53,9 @@ public class ServerConfig {
             templateDirectory = props.getProperty("templateDirectory");
             defaultPageFileName = props.getProperty("defaultPageFileName");
             maxHeaderSize = Integer.parseInt(props.getProperty("maxHeaderSize"));
-
+            jdbcUrl = props.getProperty("jdbcUrl");
+            username = props.getProperty("username");
+            password = props.getProperty("password");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -79,5 +87,17 @@ public class ServerConfig {
 
     public String getTemplateDirectory() {
         return templateDirectory;
+    }
+
+    public String getJdbcUrl() {
+        return jdbcUrl;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
