@@ -1,23 +1,21 @@
 package handler;
 
+import util.enums.HttpStatusCode;
 import util.enums.Page;
 import webserver.request.Request;
 import util.UserManager;
-import webserver.response.ResponseWriter;
+import webserver.response.Response;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-public class CreateUserHandler implements Handler{
+public class CreateUserHandler extends Handler{
     @Override
-    public void handle(DataOutputStream dos, Request request) throws IOException {
-        ResponseWriter responseWriter = new ResponseWriter(dos, request);
+    public Response handle(Request request) {
+        Response response = new Response(request, HttpStatusCode.SEE_OTHER);
         try {
-            UserManager userManager = new UserManager();
-            userManager.addUser(request.getBody());
-            responseWriter.redirect(Page.MAIN_PAGE.getPath());
+            UserManager.addUser(request.getBody());
+            response.addHeader("Location", Page.MAIN_PAGE.getPath());
         } catch (IllegalArgumentException e) {
-            responseWriter.redirect(Page.REGISTRATION.getPath());
+            response.addHeader("Location", Page.REGISTRATION.getPath());
         }
+        return response;
     }
 }

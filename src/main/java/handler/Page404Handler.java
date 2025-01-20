@@ -2,15 +2,11 @@ package handler;
 
 import util.enums.HttpStatusCode;
 import webserver.request.Request;
-import webserver.response.ResponseWriter;
+import webserver.response.Response;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-public class Page404Handler implements Handler {
+public class Page404Handler extends Handler {
     @Override
-    public void handle(DataOutputStream dos, Request request) throws IOException {
-        ResponseWriter responseWriter = new ResponseWriter(dos, request);
-        responseWriter.write(HttpStatusCode.NOT_FOUND);
+    public Response handle(Request request) {
+        return new Response(request, HttpStatusCode.NOT_FOUND);
     }
 }

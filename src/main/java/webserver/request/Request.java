@@ -1,6 +1,7 @@
 package webserver.request;
 
 import util.enums.Mime;
+import webserver.cookie.Cookie;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ public class Request {
     public String extension = "html";
     public String parameter = null;
     public String contentType = "text/html";
+    public Cookie cookie = null;
 
     void setRequestLine(String requestLine) {
         this.requestLine = requestLine;
@@ -45,6 +47,10 @@ public class Request {
 
     void setBody(String body){
         this.body = body;
+    }
+
+    void setCookie(Cookie cookie){
+        this.cookie = cookie;
     }
 
     public Map<String,String> getHeaders(){

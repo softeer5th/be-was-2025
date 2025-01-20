@@ -1,42 +1,36 @@
 package webserver.response;
 
 
-import handler.CreateUserHandler;
-import handler.Handler;
-import handler.Page404Handler;
-import handler.StaticFileHandler;
+import handler.*;
 import webserver.request.Request;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 
 public class ResponseBuilder {
-    private final static Map<String, Handler> getPages = new HashMap<>();
-    private final static Map<String, Handler> postPages = new HashMap<>();
-    private static Map<String, Handler> pages;
+    private final static Map<String, Handler> getPages = Map.of(
+            "/user/logout", new LogoutHandler(),
+            "default", new StaticFileHandler()
+    );
+    private final static Map<String, Handler> postPages = Map.of(
+            "/user/create", new CreateUserHandler(),
+            "/user/login.html", new LoginHandler(),
+            "default", new Page404Handler()
+    );
 
-    public ResponseBuilder() {
-        postPages.put("/user/create", new CreateUserHandler());
-        postPages.put("default", new Page404Handler());
-        getPages.put("default", new StaticFileHandler());
-    }
+    public void buildResponse(DataOutputStream dos, Request request, String sid) throws IOException {
+        Map<String, Handler> pages = switch (request.method) {
+            case "GET" -> getPages;
+            case "POST" -> postPages;
+            default -> getPages;
+        };
 
-    public void buildResponse(DataOutputStream dos, Request request) throws IOException {
-        switch (request.method){
-            case "GET": pages = getPages; break;
-            case "POST": pages = postPages; break;
-            default: pages = getPages;
-        }
+        Handler handler = pages.getOrDefault(request.getUrl(), pages.get("default"));
+        if(sid != null) {handler.setSessionId(sid);}
 
-        if (pages.containsKey(request.url)) {
-            Handler handler = pages.get(request.url);
-            handler.handle(dos, request);
-        }
-        else{
-            pages.get("default").handle(dos, request);
-        }
+        Response response = handler.handle(request);
+        ResponseWriter.write(dos, response);
     }
 }
