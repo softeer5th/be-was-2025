@@ -6,7 +6,6 @@ import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ApiPathPool;
-import util.FileUtils;
 import util.StaticResourcePathPool;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
@@ -17,17 +16,17 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class HttpRequestHandler {
-    private static final Logger logger = LoggerFactory.getLogger(HttpRequestHandler.class);
+public class HttpRequestDispatcher {
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequestDispatcher.class);
     private final HttpRequest httpRequest;
     private final HttpResponse httpResponse;
 
-    public HttpRequestHandler(HttpRequest httpRequest, HttpResponse httpResponse) {
+    public HttpRequestDispatcher(HttpRequest httpRequest, HttpResponse httpResponse) {
         this.httpRequest = httpRequest;
         this.httpResponse = httpResponse;
     }
 
-    public void handleRequest() throws IOException {
+    public void dispatch() throws IOException {
         try {
             String path = httpRequest.getPath().toLowerCase();
             HttpMethod method = httpRequest.getMethod();
