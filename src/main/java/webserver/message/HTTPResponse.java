@@ -12,7 +12,7 @@ public class HTTPResponse {
         private HTTPVersion version;
         private HTTPStatusCode statusCode;
         private HTTPContentType contentType = HTTPContentType.DEFAULT_TYPE();
-        private byte[] body;
+        private byte[] body = new byte[0];
         private Map<String, String> headers = new LinkedHashMap<>();
 
         public Builder version(HTTPVersion version) {
