@@ -12,6 +12,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -31,10 +36,22 @@ class UserLoginHandlerTest {
         Database.addUser(new User("yulee", "yulee", "1234", "yulee@example.com"));
     }
 
+    private HttpRequestInfo createHttpRequest(HttpMethod method, String path, String body) throws IOException {
+        String rawRequest =
+                method + " " + path + " HTTP/1.1\r\n" +
+                        "Host: localhost\r\n" +
+                        "Content-Length: " + body.length() + "\r\n" +
+                        "\r\n" +
+                        body;
+
+        InputStream inputStream = new ByteArrayInputStream(rawRequest.getBytes(StandardCharsets.UTF_8));
+        return new HttpRequestInfo(inputStream);
+    }
+
     @Test
     @DisplayName("로그인 성공")
-    void testHandleWithValidLoginData() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(VALID_HTTP_METHOD, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
+    void testHandleWithValidLoginData() throws IOException {
+        HttpRequestInfo httpRequestInfo = createHttpRequest(VALID_HTTP_METHOD, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
         HttpResponse response = userLoginHandler.handle(httpRequestInfo);
 
         assertEquals(HttpStatus.FOUND, response.getStatus());
@@ -42,8 +59,8 @@ class UserLoginHandlerTest {
 
     @Test
     @DisplayName("잘못된 HTTP Method인 경우")
-    void testHandleWithInvalidHttpMethod() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(INVALID_HTTP_METHOD, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
+    void testHandleWithInvalidHttpMethod() throws IOException {
+        HttpRequestInfo httpRequestInfo = createHttpRequest(INVALID_HTTP_METHOD, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
 
         BaseException baseException = assertThrows(BaseException.class, () -> userLoginHandler.handle(httpRequestInfo));
         assertEquals(baseException.getMessage(), HttpErrorCode.INVALID_HTTP_METHOD.getMessage());
@@ -51,21 +68,21 @@ class UserLoginHandlerTest {
 
     @Test
     @DisplayName("일치하는 userId가 없는 경우")
-    void testHandleWithUserIdNotFound() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(VALID_HTTP_METHOD, VALID_REQUEST_PATH, NO_USER_PARAM);
+    void testHandleWithUserIdNotFound() throws IOException {
+        HttpRequestInfo httpRequestInfo = createHttpRequest(VALID_HTTP_METHOD, VALID_REQUEST_PATH, NO_USER_PARAM);
         HttpResponse response = userLoginHandler.handle(httpRequestInfo);
 
-        assertEquals(HttpStatus.FOUND, response.getStatus());
+        assertEquals(HttpStatus.SEE_OTHER, response.getStatus());
         assertEquals("/login/failed.html", response.getHeader("Location"));
     }
 
     @Test
     @DisplayName("비밀번호가 일치하지 않는 경우")
-    void testHandleWithIncorrectPassword() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(VALID_HTTP_METHOD, VALID_REQUEST_PATH, INVALID_PASSWORD_PARAM);
+    void testHandleWithIncorrectPassword() throws IOException {
+        HttpRequestInfo httpRequestInfo = createHttpRequest(VALID_HTTP_METHOD, VALID_REQUEST_PATH, INVALID_PASSWORD_PARAM);
         HttpResponse response = userLoginHandler.handle(httpRequestInfo);
 
-        assertEquals(HttpStatus.FOUND, response.getStatus());
+        assertEquals(HttpStatus.SEE_OTHER, response.getStatus());
         assertEquals("/login/failed.html", response.getHeader("Location"));
     }
 
