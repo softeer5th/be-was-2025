@@ -1,6 +1,6 @@
 package manager;
 
-import Response.HTTPResponse;
+import response.HTTPResponse;
 import constant.HTTPCode;
 import db.Database;
 import model.User;
@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HTTPRequest;
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Optional;
 
 import static util.Utils.generateSessionID;

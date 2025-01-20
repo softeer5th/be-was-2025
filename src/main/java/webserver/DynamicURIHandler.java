@@ -1,6 +1,6 @@
 package webserver;
 
-import Response.HTTPResponse;
+import response.HTTPResponse;
 import request.HTTPRequest;
 
 import constant.HTTPCode;
@@ -8,7 +8,6 @@ import manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;

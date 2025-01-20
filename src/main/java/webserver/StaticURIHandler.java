@@ -1,6 +1,6 @@
 package webserver;
 
-import Response.HTTPResponse;
+import response.HTTPResponse;
 import constant.HTTPCode;
 import db.Database;
 import org.slf4j.Logger;

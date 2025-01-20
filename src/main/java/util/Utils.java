@@ -1,6 +1,6 @@
 package util;
 
-import Response.HTTPResponse;
+import response.HTTPResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
