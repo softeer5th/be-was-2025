@@ -6,12 +6,12 @@ import webserver.Session;
 
 import java.time.LocalTime;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
-    private static Map<String, User> users = new HashMap<>();
-    private static Map<String, Session> sessions = new HashMap<>();
+    private static Map<String, User> users = new ConcurrentHashMap<>();
+    private static Map<String, Session> sessions = new ConcurrentHashMap<>();
 
     public static void addUser(User user) {
         users.put(user.getUserId(), user);
