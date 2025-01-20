@@ -7,6 +7,8 @@ import webserver.message.HTTPResponse;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 public class ResponseWriter {
     private static final Logger logger = LoggerFactory.getLogger(ResponseWriter.class);
@@ -48,6 +50,10 @@ public class ResponseWriter {
             builder.appendNewLine();
             builder.appendHeader("Content-Type", response.getContentType().toString());
             builder.appendHeader("Content-Length", String.valueOf(response.getBody().length));
+            Set<Map.Entry<String, String>> entries = response.getHeaders().entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                builder.appendHeader(entry.getKey(), entry.getValue());
+            }
             builder.appendNewLine();
             out.writeBytes(builder.build());
             out.write(response.getBody(), 0, response.getBody().length);
