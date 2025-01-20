@@ -35,7 +35,6 @@ public class URLEncodedParser implements BodyParser {
                 byte [] value = reader.readUntil(ByteConst.AMPERSAND).toByteArray() ;
                 String nameString = this.decoder.decode(name).toString("UTF-8");
                 String valueString = this.decoder.decode(value).toString("UTF-8");
-                System.out.println(nameString + ": " + valueString);
                 body.put(nameString, valueString);
             }
             return body;

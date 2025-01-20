@@ -101,7 +101,6 @@ public class HTTPMessageParser {
                     String key = URLDecoder.decode(matcher.group("key"), "UTF-8");
                     String value = URLDecoder.decode(matcher.group("value"), "UTF-8");
                     parameters.put(key, value);
-                    System.out.printf("%s = %s\n", key, value);
                 }
             }
             requestBuilder.setParameters(parameters);
