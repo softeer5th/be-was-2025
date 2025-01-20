@@ -91,8 +91,10 @@ public class DynamicHomeHandler implements Handler {
     private void addUserNameToHtml(String name, StringBuilder dynamicHtmlContent) {
         name = URLDecoder.decode(name, UTF_8);
         dynamicHtmlContent
+                .append("<a class=\"btn btn_contained btn_size_s\" href=\"/article/index.html\"> 글쓰기 </a>")
                 .append("<a class=\"btn btn_contained btn_size_s\" href=\"/mypage/index.html\">")
                 .append(name)
-                .append("님</a>");
+                .append("님</a>")
+                .append("<a href=\"/user/logout\"> 로그아웃 </a>");
     }
 }
