@@ -114,5 +114,9 @@ public abstract class HttpRequestParser {
         }
         return paramMap;
     }
+
+    public static String parseMultipartFormText(String body) {
+        return body.split("\r\n")[3];
+    }
 }
 
