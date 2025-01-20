@@ -15,9 +15,14 @@ import util.FileUtil;
 import util.HttpRequestUtil;
 import util.JwtUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class StaticResourceHandler implements Handler {
     private final String staticResourcePath;
-    private static final String LOGIN_PAGE_PATH = "/login/index.html";
+    private static final String INDEX_HTML = "/index.html";
+    private static final String LOGIN_PAGE_PATH = "/login";
+    private static final Map<String, String> needLoginPage = new HashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(StaticResourceHandler.class);
 
@@ -38,6 +43,11 @@ public class StaticResourceHandler implements Handler {
         return instance;
     }
 
+    static {
+        needLoginPage.put("/article", LOGIN_PAGE_PATH);
+        needLoginPage.put("/mypage", LOGIN_PAGE_PATH);
+    }
+
     @Override
     public HttpResponse handle(HttpRequest request) {
         TargetInfo target = request.getTarget();
@@ -50,13 +60,16 @@ public class StaticResourceHandler implements Handler {
 
         String body; // 해당 파일의 경로를 byte로 전달
         try {
-            if (path.equals(staticResourcePath + "/mypage/index.html")) {
-                String sid = HttpRequestUtil.getCookieValueByKey(request, "sid");
-                String userId = JwtUtil.getIdFromToken(sid);
-                User user = SessionDB.getUser(sid);
-                Database.findUserById(userId);
-                if (!userId.equals(user.getUserId())) throw new InvalidRequestStateException("로그인 되지 않은 사용자입니다.");
+            for (Map.Entry<String, String> entry : needLoginPage.entrySet()) {
+                if (path.equals(staticResourcePath + entry.getKey() + INDEX_HTML)) {
+                    String sid = HttpRequestUtil.getCookieValueByKey(request, "sid");
+                    String userId = JwtUtil.getIdFromToken(sid);
+                    User user = SessionDB.getUser(sid);
+                    Database.findUserById(userId);
+                    if (!userId.equals(user.getUserId())) throw new InvalidRequestStateException("로그인 되지 않은 사용자입니다.");
+                }
             }
+
             byte[] file = FileUtil.fileToByteArray(path);
             if (file != null) {
                 body = new String(file);
