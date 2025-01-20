@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./reset.css" rel="stylesheet" />
+    <link href="./global.css" rel="stylesheet" />
+    <link href="./main.css" rel="stylesheet" />
+    <title>글 작성</title>
+    <script>
+        window.onload = async function () {
+            try {
+                const response = await fetch('/user/login/status', { method: 'GET', credentials: 'include' });
+                const userId = response.ok ? await response.text() : null;
+
+                if (userId) {
+                    document.getElementById('user-info').innerHTML = `
+        <a href="/mypage">안녕하세요, ${userId}님</a>
+      `;
+                    document.getElementById('login-buttons').style.display = 'none';
+                } else {
+                    // 로그인하지 않은 경우 자동으로 로그인 페이지로 리다이렉트 (알람 없이)
+                    //window.location.href = '/login';
+                    //return; // 이후 코드 실행 방지
+                }
+            } catch (error) {
+                console.error('사용자 정보를 가져오지 못했습니다.', error);
+            }
+        };
+
+        function submitArticle() {
+            const content = document.getElementById('article-content').value;
+
+            if (!content.trim()) {
+                alert('본문을 입력하세요.');
+                return;
+            }
+
+            fetch('/api/articles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('게시물이 성공적으로 등록되었습니다!');
+                        window.location.href = '/';
+                    } else {
+                        alert('게시물 등록에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('게시물 등록 중 오류 발생:', error);
+                    alert('게시물 등록 중 오류가 발생했습니다.');
+                });
+        }
+    </script>
+    <style>
+        .content-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;  /* 왼쪽 정렬 */
+            margin: 50px 50px;        /* 왼쪽 및 상단 여백 추가 */
+        }
+
+        #article-content {
+            width: 70vw;  /* 가로를 뷰포트의 70%로 설정 */
+            height: 21vw; /* 10:7 비율 적용 (70vw * 7/10) */
+            max-width: 800px;
+            max-height: 700px;
+            padding: 20px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <a href="/"><img src="./img/signiture.svg" alt="Signiture" /></a>
+        <ul class="header__menu">
+            <li id="user-info" class="header__menu__item"></li>
+            <div id="login-buttons" class="header__menu">
+                <li class="header__menu__item">
+                    <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
+                </li>
+                <li class="header__menu__item">
+                    <a class="btn btn_ghost btn_size_s" href="/registration">회원 가입</a>
+                </li>
+            </div>
+        </ul>
+    </header>
+
+    <div class="content-box">
+        <h2>글 작성</h2>
+        <textarea id="article-content" placeholder="여기에 본문을 입력하세요..."></textarea>
+        <button class="submit-btn" onclick="submitArticle()">제출</button>
+    </div>
+</div>
+</body>
+</html>
