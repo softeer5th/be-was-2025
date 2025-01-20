@@ -39,6 +39,7 @@ public class UserEntryPoint {
         }
         String sessionId = UUID.randomUUID().toString();
         SetCookieRecord loginCookie = new SetCookieRecord.Builder("SID", sessionId)
+                .path("/")
                 .build();
 
         return new ResponseData.ResponseDataBuilder<String>()
