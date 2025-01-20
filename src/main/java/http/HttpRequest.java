@@ -57,8 +57,8 @@ public class HttpRequest {
 
     private void setHeader(List<String> headerLines) {
         String[] requestLineTokens = headerLines.get(0).split(" ");
-        String method = requestLineTokens[0];
-        requestPath = requestLineTokens[1];
+        String method = requestLineTokens[0].trim();
+        requestPath = requestLineTokens[1].trim();
 
         httpMethod = switch (method) {
             case "GET" -> HttpMethod.GET;
