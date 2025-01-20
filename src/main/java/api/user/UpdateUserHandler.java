@@ -78,6 +78,7 @@ public class UpdateUserHandler implements ApiHandler {
         if (newPassword != null && !newPassword.isBlank()) {
             currentUser.setPassword(newPassword);
         }
+        Database.updateUser(currentUser);
         logger.debug("사용자 정보 수정 완료: userId={}, name={}, password={}",
                 currentUser.getUserId(), currentUser.getName(), currentUser.getPassword());
     }
