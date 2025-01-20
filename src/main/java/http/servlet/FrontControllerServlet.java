@@ -32,6 +32,7 @@ public class FrontControllerServlet implements Servlet {
 		controllerMap.put("/login", new LoginServlet());
 		controllerMap.put("/logout", new LogoutServlet());
 		controllerMap.put("/mypage", new MyPageServlet());
+		controllerMap.put("/article", new ArticleServlet());
 		controllerMap.put("/user/create", new RegisterServlet());
 	}
 
