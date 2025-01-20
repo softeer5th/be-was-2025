@@ -3,6 +3,7 @@ package webserver.message.record;
 import webserver.enumeration.HTTPStatusCode;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ResponseData<T> {
@@ -81,5 +82,9 @@ public class ResponseData<T> {
 
     public Map<String, String> getHeaders() {
         return this.headers;
+    }
+
+    public Map<String, SetCookieRecord> getSetCookies() {
+        return this.setCookies;
     }
 }
