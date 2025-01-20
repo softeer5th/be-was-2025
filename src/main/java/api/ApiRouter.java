@@ -18,6 +18,7 @@ public class ApiRouter {
         handlers.add(new ValidateHandler());
         handlers.add(new UpdateUserHandler());
         handlers.add(new ImageCreateHandler());
+        handlers.add(new ImageDeleteHandler());
     }
 
     public LoadResult route(HttpRequest httpRequest) throws IOException {
