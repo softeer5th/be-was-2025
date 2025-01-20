@@ -4,7 +4,9 @@ import enums.FileContentType;
 import enums.HttpHeader;
 import exception.ClientErrorException;
 import exception.ErrorCode;
+import manager.BoardManager;
 import manager.UserManager;
+import model.Post;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HttpRequestInfo;
@@ -13,6 +15,7 @@ import util.CookieParser;
 import util.FileReader;
 
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.Optional;
 
 import static enums.HttpStatus.OK;
@@ -25,12 +28,15 @@ public class DynamicHomeHandler implements Handler {
     private static final Logger log = LoggerFactory.getLogger(DynamicHomeHandler.class);
 
     private static final String STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
-    private static final String REPLACE_TARGET = "{{user_info}}";
+    private static final String USER_REPLACE_TARGET = "<!--user-->";
+    private static final String POST_REPLACE_TARGET = "<!--post-->";
 
     private final UserManager userManager;
+    private final BoardManager boardManager;
 
     public DynamicHomeHandler() {
         this.userManager = UserManager.getInstance();
+        this.boardManager = BoardManager.getInstance();
     }
 
 
@@ -58,11 +64,53 @@ public class DynamicHomeHandler implements Handler {
         );
         endHeaderMenu(dynamicHtmlContent);
 
-
-        String body = html.replace(REPLACE_TARGET, dynamicHtmlContent.toString());
+        String body = html.replace(USER_REPLACE_TARGET, dynamicHtmlContent.toString());
+        StringBuilder postContent = new StringBuilder();
+        final List<Post> posts = boardManager.getPosts();
+        addPosts(posts, postContent);
+        body = body.replace(POST_REPLACE_TARGET, postContent.toString());
 
         response.setResponse(OK, extension, body);
         return response;
+    }
+
+    private void addPosts(List<Post> posts, StringBuilder postContent) {
+        for (Post post : posts) {
+            postContent
+                    .append("""
+                               <div class="wrapper">
+                            <div class="post">
+                              <div class="post__account">
+                                <img class="post__account__img" />
+                                <p class="post__account__nickname">account</p>
+                              </div>
+                              <img class="post__img" />
+                              <div class="post__menu">
+                                <ul class="post__menu__personal">
+                                  <li>
+                                    <button class="post__menu__btn">
+                                      <img src="./img/like.svg" />
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button class="post__menu__btn">
+                                      <img src="./img/sendLink.svg" />
+                                    </button>
+                                  </li>
+                                </ul>
+                                <button class="post__menu__btn">
+                                  <img src="./img/bookMark.svg" />
+                                </button>
+                              </div>
+                              <p class="post__article">
+                            """)
+                    .append(post.getContents())
+                    .append("""
+                                      </p>
+                                    </div>
+                            """);
+
+        }
     }
 
     private void startHeaderMenu(StringBuilder dynamicHtmlContent) {
