@@ -1,5 +1,6 @@
 package webserver.resolver.factory;
 
+import webserver.annotation.Body;
 import webserver.resolver.RequestMethodMapper;
 import webserver.resolver.RequestMethodWrapper;
 import webserver.resolver.ResourceResolver;
@@ -33,17 +34,32 @@ public class MethodResolverFactory {
                 ParameterMetaInfo[] parameterMetaInfos = new ParameterMetaInfo[parameters.length];
                 for (int i = 0 ; i < parameters.length; i++) {
                     Parameter parameter = parameters[i];
-                    RequestParam param = parameter.getAnnotation(RequestParam.class);
-                    if (param == null) {
-                        continue;
-                    }
-                    TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
-                    ParameterMetaInfo metaInfo = new ParameterMetaInfo(param.key(), param.required(), typeParser);
-                    parameterMetaInfos[i] = metaInfo;
+                    handleRequestParam(parameter, parameterMetaInfos, i);
+                    handleBody(parameter, parameterMetaInfos, i);
                 }
-                requestMap.put(annotation.path(), new RequestMethodWrapper(handlerGroup, method, parameterMetaInfos));
+                requestMap.put(annotation.method() + " " + annotation.path(), new RequestMethodWrapper(handlerGroup, method, parameterMetaInfos));
             }
         }
         return new RequestMethodMapper(requestMap);
+    }
+
+    private static void handleRequestParam(Parameter parameter, ParameterMetaInfo [] infos, int index) {
+        RequestParam param = parameter.getAnnotation(RequestParam.class);
+        if (param == null) {
+            return;
+        }
+        TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
+        ParameterMetaInfo metaInfo = ParameterMetaInfo.forParam(param.key(), param.required(), typeParser);
+        infos[index] = metaInfo;
+    }
+
+    private static void handleBody(Parameter parameter, ParameterMetaInfo[] infos, int index) {
+        Body body = parameter.getAnnotation(Body.class);
+        if (body == null) {
+            return;
+        }
+        TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
+        ParameterMetaInfo metaInfo = ParameterMetaInfo.forBody(body.key(), true, typeParser);
+        infos[index] = metaInfo;
     }
 }

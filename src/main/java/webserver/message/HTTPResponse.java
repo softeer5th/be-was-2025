@@ -4,12 +4,16 @@ import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
 import webserver.enumeration.HTTPVersion;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class HTTPResponse {
     static public class Builder {
         private HTTPVersion version;
         private HTTPStatusCode statusCode;
         private HTTPContentType contentType = HTTPContentType.DEFAULT_TYPE();
-        private byte[] body;
+        private byte[] body = new byte[0];
+        private Map<String, String> headers = new LinkedHashMap<>();
 
         public Builder version(HTTPVersion version) {
             this.version = version;
@@ -38,24 +42,33 @@ public class HTTPResponse {
             return this;
         }
 
+        public Builder setHeader(String key, String value) {
+            this.headers.put(key, value);
+            return this;
+        }
+
         public HTTPResponse build() {
-            return new HTTPResponse(version, statusCode, contentType, body);
+            return new HTTPResponse(version, statusCode, contentType, body, headers);
         }
     }
     private final HTTPVersion version;
     private final HTTPStatusCode statusCode;
     private final HTTPContentType contentType;
     private final byte[] body;
+    private final Map<String, String> headers;
 
-    private HTTPResponse(HTTPVersion version, HTTPStatusCode statusCode, HTTPContentType contentType, byte[] body) {
+    private HTTPResponse(HTTPVersion version, HTTPStatusCode statusCode, HTTPContentType contentType, byte[] body,
+                         Map<String, String> headers) {
         this.version = version;
         this.statusCode = statusCode;
         this.contentType = contentType;
         this.body = body;
+        this.headers = headers;
     }
 
     public HTTPVersion getVersion() { return this.version; }
     public HTTPStatusCode getStatusCode() { return this.statusCode; }
     public HTTPContentType getContentType() { return this.contentType; }
     public byte[] getBody() { return this.body; }
+    public Map<String, String> getHeaders() { return this.headers; }
 }

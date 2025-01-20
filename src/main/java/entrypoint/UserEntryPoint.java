@@ -2,17 +2,18 @@ package entrypoint;
 
 import db.Database;
 import model.User;
+import webserver.annotation.Body;
 import webserver.annotation.RequestMapping;
-import webserver.annotation.RequestParam;
 import webserver.enumeration.HTTPMethod;
 import webserver.exception.HTTPException;
+import webserver.message.record.ResponseData;
 
 public class UserEntryPoint {
-    @RequestMapping(path = "/user/create", method = HTTPMethod.GET)
-    public String signUp(
-            @RequestParam(key="userId", required = true) String userId,
-            @RequestParam(key="nickname", required = true) String nickname,
-            @RequestParam(key="password", required = true) String password
+    @RequestMapping(path = "/user/create", method = HTTPMethod.POST)
+    public ResponseData<String> signUp(
+            @Body(key="userId") String userId,
+            @Body(key="nickname") String nickname,
+            @Body(key="password") String password
     ) {
         if (Database.findUserById(userId) != null) {
             throw new HTTPException.Builder().causedBy("Sign up method")
@@ -20,6 +21,6 @@ public class UserEntryPoint {
         }
         User user = new User(userId, nickname, password, "mock@mock.com");
         Database.addUser(user);
-        return "SUCCESS";
+        return ResponseData.redirect("/index.html");
     }
 }
