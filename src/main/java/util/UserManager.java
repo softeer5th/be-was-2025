@@ -6,10 +6,10 @@ import model.User;
 public class UserManager {
     public static void addUser(String parameterString) {
         Parameter parameter = new Parameter(parameterString);
-        String userId = parameter.getId();
-        String userName = parameter.getName();
-        String password = parameter.getPassword();
-        String email = parameter.getEmail();
+        String userId = parameter.getValue("id");
+        String userName = parameter.getValue("name");
+        String password = parameter.getValue("password");
+        String email = parameter.getValue("email");
 
         if (Database.findUserById(userId) == null) {
             User user = new User(userId, password, userName, email);
@@ -19,8 +19,8 @@ public class UserManager {
 
     public static User logIn(String parameterString) {
         Parameter parameter = new Parameter(parameterString);
-        String userId = parameter.getId();
-        String password = parameter.getPassword();
+        String userId = parameter.getValue("id");
+        String password = parameter.getValue("password");
 
         User user = Database.findUserById(userId);
         if (user == null) throw new IllegalArgumentException("존재하지 않는 id입니다.");
