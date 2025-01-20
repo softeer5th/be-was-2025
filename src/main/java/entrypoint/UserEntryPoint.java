@@ -38,11 +38,9 @@ public class UserEntryPoint {
             return ResponseData.redirect("/user/login_failed.html");
         }
         String sessionId = UUID.randomUUID().toString();
-        SetCookieRecord loginCookie = new SetCookieRecord(
-            "SID",
-            sessionId,
-            LocalDateTime.of(2025,12,31,0,0)
-        );
+        SetCookieRecord loginCookie = new SetCookieRecord.Builder("SID", sessionId)
+                .build();
+
         return new ResponseData.ResponseDataBuilder<String>()
                 .setCookies(loginCookie)
                 .redirect("/index.html");

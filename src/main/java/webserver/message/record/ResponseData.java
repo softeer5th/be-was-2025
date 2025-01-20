@@ -28,7 +28,7 @@ public class ResponseData<T> {
             return this;
         }
         public ResponseDataBuilder<T> setCookies(SetCookieRecord setCookie) {
-            setCookies.put(setCookie.name(), setCookie);
+            setCookies.put(setCookie.getName(), setCookie);
             return this;
         }
 
