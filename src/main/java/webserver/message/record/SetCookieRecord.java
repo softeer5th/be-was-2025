@@ -1,6 +1,8 @@
 package webserver.message.record;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +22,13 @@ public class SetCookieRecord {
         }
         public Builder domain(String value) {
             attributes.put("Domain", value);
+            return this;
+        }
+        public Builder expires(LocalDateTime dateTime) {
+            String formattedDate = dateTime
+                    .atZone(ZoneId.of("GMT"))
+                    .format(DateTimeFormatter.RFC_1123_DATE_TIME);
+            attributes.put("Expires", formattedDate);
             return this;
         }
         public SetCookieRecord build() {
