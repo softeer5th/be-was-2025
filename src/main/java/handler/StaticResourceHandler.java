@@ -20,7 +20,7 @@ public class StaticResourceHandler {
     public void handleStaticResource() throws IOException {
         String path = httpRequest.getPath().toLowerCase();
 
-        Handler handler = PathPool.getInstance().getHandler(path);
+        Handler handler = StaticResourcePathPool.getInstance().getHandler(path);
 
         if (handler != null) {
             handler.handle(httpRequest, httpResponse);

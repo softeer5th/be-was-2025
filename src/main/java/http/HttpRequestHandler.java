@@ -5,7 +5,7 @@ import http.constant.HttpMethod;
 import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.PathPool;
+import util.ApiPathPool;
 import util.exception.NoSuchPathException;
 import util.exception.NotAllowedMethodException;
 import util.exception.SessionNotFoundException;
@@ -29,9 +29,9 @@ public class HttpRequestHandler {
             String path = httpRequest.getPath().toLowerCase();
             HttpMethod method = httpRequest.getMethod();
 
-            if (PathPool.getInstance().isAvailable(method, path)) {
-                Method classMethod = PathPool.getInstance().getMethod(method, path);
-                classMethod.invoke(PathPool.getInstance().getClass(path), httpRequest, httpResponse);
+            if (ApiPathPool.getInstance().isAvailable(method, path)) {
+                Method classMethod = ApiPathPool.getInstance().getMethod(method, path);
+                classMethod.invoke(ApiPathPool.getInstance().getClass(path), httpRequest, httpResponse);
                 return;
             }
 
