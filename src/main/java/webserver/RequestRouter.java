@@ -32,6 +32,7 @@ public class RequestRouter {
     private static final Logger logger = LoggerFactory.getLogger(RequestRouter.class);
     private static final String RESOURCES_PATH = "./src/main/resources/static";
     private static final String LOGIN_FAILED_PAGE = "http://localhost:8080/login/login_failed.html";
+    private static final String LOGIN_PAGE = "http://localhost:8080/login/index.html";
     private static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
     private static final String MAIN_PAGE = "http://localhost:8080/index.html";
     private static final String SIGNIN_PATH = "/user/signIn";
@@ -95,18 +96,31 @@ public class RequestRouter {
             }
 
             String fileContent = readFileAsString(file);
-
             String sid = request.getCookieSid();
-            if (sid != null && userSessions.containsKey(sid)) {
-                fileContent = fileContent.replace("{firstButtonRequestPath}", "/mypage/index.html");
-                fileContent = fileContent.replace("{firstButtonName}", userSessions.get(sid).getName());
-                fileContent = fileContent.replace("{secondButtonInfo}", LOGOUT_BUTTON_INFO);
+            if (request.getRequestPath().equals("/index.html")) {
+                if (sid != null && userSessions.containsKey(sid)) {
+                    fileContent = fileContent.replace("{firstButtonRequestPath}", "/mypage/index.html");
+                    fileContent = fileContent.replace("{firstButtonName}", userSessions.get(sid).getName());
+                    fileContent = fileContent.replace("{secondButtonInfo}", LOGOUT_BUTTON_INFO);
+                }
+                else {
+                    fileContent = fileContent.replace("{firstButtonRequestPath}", "/login/index.html");
+                    fileContent = fileContent.replace("{firstButtonName}", "로그인");
+                    fileContent = fileContent.replace("{secondButtonInfo}", REGISTRATION_BUTTON_INFO);
+                }
             }
-            else {
-                fileContent = fileContent.replace("{firstButtonRequestPath}", "/login/index.html");
-                fileContent = fileContent.replace("{firstButtonName}", "로그인");
-                fileContent = fileContent.replace("{secondButtonInfo}", REGISTRATION_BUTTON_INFO);
+
+            // 로그인 정보가 없는 경우 글쓰기 페이지 -> 로그인 페이지 리다이렉트
+            if (request.getRequestPath().equals("/article/index.html") && !isUserLoggedIn(request)) {
+                HttpResponse.respond302(LOGIN_PAGE, dos);
             }
+
+            // 로그인 정보가 없는 경우 마이페이지 -> 로그인 페이지 리다이렉트
+            if (request.getRequestPath().equals("/mypage/index.html") && !isUserLoggedIn(request)) {
+                HttpResponse.respond302(LOGIN_PAGE, dos);
+            }
+
+
 
             byte[] body = fileContent.getBytes();
             HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
