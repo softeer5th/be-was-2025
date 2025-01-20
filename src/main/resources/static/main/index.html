@@ -14,7 +14,17 @@
     <a href="/index.html"><img src="../img/signiture.svg" /></a>
     <ul class="header__menu">
       <li class="header__menu__item">
-        <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+        <button
+                id="greeting-btn"
+                class="btn btn_ghost btn_size_s"
+        >
+          안녕하세요 <span id="greeting-nickname"></span>님
+        </button>
+      </li>
+      <li class="header__menu__item">
+        <button class="btn btn_contained btn_size_s" id="write-btn">
+          글쓰기
+        </button>
       </li>
       <li class="header__menu__item">
         <button id="logout-btn" class="btn btn_ghost btn_size_s">
@@ -159,6 +169,7 @@
         const name = result.data;
         console.log(`유저 이름: ${name}`);
         document.getElementById("nickname").textContent = name;
+        document.getElementById("greeting-nickname").textContent = name;
       } else {
         console.log("로그인되지 않음 or 에러:", result);
         // window.location.href = "/index.html";
@@ -170,6 +181,22 @@
   }
 
   loadUserInfo();
+
+  document.getElementById("write-btn").addEventListener("click", async () => {
+    try {
+      const res = await fetch("/api/user/validate");
+      const data = await res.json();
+      if (data.isSuccess) {
+        window.location.href = "/write.html";
+      } else {
+        alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/user/login.html";
+      }
+    } catch (error) {
+      console.error("글쓰기 버튼 클릭 중 오류:", error);
+      window.location.href = "/user/login.html";
+    }
+  });
 
   document.getElementById("logout-btn").addEventListener("click", async () => {
     try {
@@ -210,6 +237,22 @@
       }
     } catch (error) {
       console.error("프로필 이동 중 오류:", error);
+      window.location.href = "/user/login.html";
+    }
+  });
+
+  document.getElementById("greeting-btn").addEventListener("click", async () => {
+    try {
+      const res = await fetch("/api/user/validate");
+      const data = await res.json();
+      if (data.isSuccess) {
+        window.location.href = "/mypage";
+      } else {
+        alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/user/login.html";
+      }
+    } catch (error) {
+      console.error("greeting-btn 클릭 중 오류:", error);
       window.location.href = "/user/login.html";
     }
   });
