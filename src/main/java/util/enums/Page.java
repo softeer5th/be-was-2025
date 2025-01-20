@@ -9,7 +9,8 @@ public enum Page {
     MAIN_LOGIN("/main"),
     LOGIN("/login"),
     REGISTRATION("/registration"),
-    MY_PAGE("/mypage");
+    MY_PAGE("/mypage"),
+    ARTICLE("/article");
 
     private final String path;
 
