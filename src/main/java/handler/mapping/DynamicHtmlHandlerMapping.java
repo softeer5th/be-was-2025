@@ -3,6 +3,7 @@ package handler.mapping;
 import handler.dynamic_handler.DynamicHtmlHandler;
 import handler.dynamic_handler.HomeDynamicHtmlHandler;
 import handler.dynamic_handler.MyPageDynamicHtmlHandler;
+import handler.dynamic_handler.WriteDynamicHtmlHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ public class DynamicHtmlHandlerMapping {
     private DynamicHtmlHandlerMapping(){
         handlerMap.put("/", new HomeDynamicHtmlHandler());
         handlerMap.put("/mypage", new MyPageDynamicHtmlHandler());
+        handlerMap.put("/write", new WriteDynamicHtmlHandler());
     }
     public static DynamicHtmlHandlerMapping getInstance(){
         return INSTANCE;
