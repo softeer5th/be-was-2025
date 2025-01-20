@@ -70,7 +70,7 @@ public class ReflectionUtil {
     }
 
     // 예외가 발생하면 Optional.empty()를 반환하는 메서드
-    private static <R> Optional<R> ignoreException(ThrowsSupplier<R> supplier) {
+    private static <R> Optional<R> ignoreException(ExceptionUtil.CheckedSupplier<R> supplier) {
         try {
             return Optional.ofNullable(supplier.get());
         } catch (Exception e) {
@@ -82,7 +82,5 @@ public class ReflectionUtil {
         return prefix.toLowerCase() + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
     }
 
-    private interface ThrowsSupplier<T> {
-        T get() throws Exception;
-    }
+ 
 }
