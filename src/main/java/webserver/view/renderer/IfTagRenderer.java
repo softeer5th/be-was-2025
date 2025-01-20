@@ -1,7 +1,5 @@
 package webserver.view.renderer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import util.ReflectionUtil;
 import webserver.exception.InternalServerError;
 import webserver.view.TagRenderer;
@@ -24,7 +22,6 @@ public class IfTagRenderer extends TagRenderer {
     private static final String COMPARE_BINARY_OPERATOR_PATTERN = "(>=)|(<=)|(>)|(<)|(==)|(!=)";
     private static final String NOT_OPERATOR = "!";
     private static final String EMPTY_STRING = "";
-    private static final Logger log = LoggerFactory.getLogger(IfTagRenderer.class);
     private TemplateEngine engine;
 
     public IfTagRenderer() {
@@ -65,7 +62,6 @@ public class IfTagRenderer extends TagRenderer {
                 String left = compareTokens[0].strip();
                 String right = compareTokens[1].strip();
                 String operator = condition.substring(left.length(), condition.length() - right.length()).strip();
-                log.debug("compare operator. left:{}, operator:{}, right:{}", left, operator, right);
                 return switch (operator) {
                     case ">=" -> parseInt(model, left) >= parseInt(model, right);
                     case "<=" -> parseInt(model, left) <= parseInt(model, right);

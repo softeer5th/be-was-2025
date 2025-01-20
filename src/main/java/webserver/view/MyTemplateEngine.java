@@ -1,8 +1,5 @@
 package webserver.view;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -19,7 +16,6 @@ public class MyTemplateEngine implements TemplateEngine {
     private static final Pattern ATTRIBUTE_PATTERN = Pattern.compile(" *(\\w+)=\"([^\"]+)\"");
     private static final String TAG_NAME_PREFIX = "my-";
     private static final String CLOSE_TAG_NAME_PREFIX = "/";
-    private static final Logger log = LoggerFactory.getLogger(MyTemplateEngine.class);
 
     private final Map<String, TagRenderer> tagHandlers = new ConcurrentHashMap<>();
 
@@ -75,7 +71,6 @@ public class MyTemplateEngine implements TemplateEngine {
         Map<String, String> currentTagAttributes = null;
 
         while (matcher.find()) {
-            log.debug("find tag: {}", matcher.group(0));
             String tagName = matcher.group(1);
             if (!isCurrentTagFound) {
                 // fist open tag
@@ -113,7 +108,6 @@ public class MyTemplateEngine implements TemplateEngine {
         while (matcher.find()) {
             String key = matcher.group(1);
             String value = matcher.group(2);
-            log.debug("key: {}, value: {}", key, value);
             result.put(key, value);
         }
         return result;
