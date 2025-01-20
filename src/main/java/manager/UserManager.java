@@ -10,6 +10,7 @@ import request.HTTPRequest;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Optional;
 
 import static util.Utils.generateSessionID;
 import static util.Utils.getSessionIdInCookie;
@@ -39,11 +40,13 @@ public class UserManager {
     }
 
     public HTTPResponse logIn(HTTPRequest httpRequest){
-        if(!Database.userExists(httpRequest.getBodyParameterByKey("userId"))){
+
+        Optional<User> optionalUser = Database.findUserById(httpRequest.getBodyParameterByKey("userId"));
+        if(optionalUser.isEmpty()){
             return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
 
-        User user = Database.findUserById(httpRequest.getBodyParameterByKey("userId"));
+        User user = optionalUser.get();
         if(!user.getPassword().equals(httpRequest.getBodyParameterByKey("password"))){
             return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
@@ -60,7 +63,11 @@ public class UserManager {
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
         String userId = Database.getSession(sessionId);
-        User user = Database.findUserById(userId);
+        Optional<User> optionalUser = Database.findUserById(userId);
+        if(optionalUser.isEmpty()){
+            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+        }
+        User user = optionalUser.get();
 
         return HTTPResponse.createSuccessResponse(httpRequest.getHttpVersion(), HTTPCode.OK, user.getName());
     }
