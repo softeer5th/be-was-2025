@@ -129,6 +129,11 @@
           <button id="show-all-btn" class="btn btn_ghost btn_size_m">
             모든 댓글 보기(3개)
           </button>
+          <div id="logged-in">
+            <a id="write" class="btn btn_ghost btn_size_m" href="/article">
+              글 작성
+            </a>
+          </div>
         </ul>
         <nav class="nav">
           <ul class="nav__menu">
@@ -217,5 +222,6 @@
     name.insertAdjacentHTML('afterend', `${getUserNameFromJwt(sid)}`);
   } else {
     document.getElementById('loggedInArea').style.display = 'none';
+    document.getElementById('logged-in').style.display = 'none'
   }
 </script>
