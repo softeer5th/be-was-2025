@@ -1,8 +1,8 @@
 package webserver.response.body;
 
 import webserver.enums.ContentType;
-import webserver.exception.InternalServerError;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Optional;
 
@@ -15,12 +15,8 @@ class StringBody extends ResponseBody {
     }
 
     @Override
-    public void writeBody(OutputStream out) {
-        try {
-            out.write(body.getBytes());
-        } catch (Exception e) {
-            throw new InternalServerError("응답 데이터를 전송하는데 실패했습니다.", e);
-        }
+    public void writeBody(OutputStream out) throws IOException {
+        out.write(body.getBytes());
     }
 
     @Override

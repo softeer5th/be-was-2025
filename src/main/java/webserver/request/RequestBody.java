@@ -1,10 +1,13 @@
 package webserver.request;
 
-import webserver.common.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import util.Mapper;
 import webserver.enums.HttpStatusCode;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
 import webserver.exception.InternalServerError;
+import webserver.header.RequestHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +24,8 @@ import static webserver.enums.ParsingConstant.*;
 
 // Request Body InputStream 을 읽어들여 파싱하는 클래스
 public class RequestBody {
-    private final HttpHeaders headers;
+    private static final Logger log = LoggerFactory.getLogger(RequestBody.class);
+    private final RequestHeader headers;
     private final InputStream body;
 
     private boolean isBodyAlreadyRead = false;
@@ -29,7 +33,7 @@ public class RequestBody {
     private Map<String, String> mapBodyCache;
     private String stringBodyCache;
 
-    public RequestBody(InputStream body, HttpHeaders headers) {
+    public RequestBody(InputStream body, RequestHeader headers) {
         this.headers = headers;
         this.body = body;
     }
@@ -51,7 +55,7 @@ public class RequestBody {
         if (mapBodyCache != null)
             return Optional.of(mapBodyCache);
         readBodyAsRaw();
-        String contentType = headers.getHeader(CONTENT_TYPE);
+        String contentType = headers.getHeader(CONTENT_TYPE.value);
         if (APPLICATION_X_WWW_FORM_URLENCODED.equals(contentType)) {
             mapBodyCache = parseXWwwFormUrlEncodedBody(rawBodyCache);
         } else {
@@ -60,8 +64,19 @@ public class RequestBody {
         return Optional.ofNullable(mapBodyCache);
     }
 
+    public <T> Optional<T> getBody(Class<T> clazz) {
+        String contentType = headers.getHeader(CONTENT_TYPE.value);
+        if (APPLICATION_X_WWW_FORM_URLENCODED.equals(contentType)) {
+            return getBodyAsMap().flatMap(map -> Mapper.mapToObject(map, clazz));
+        }
+        log.error("지원하지 않는 Content-Type 입니다. Content-Type: {}", contentType);
+        return Optional.empty();
+    }
+
     // application/x-www-form-urlencoded 형식의 body를 파싱하여 Map으로 반환
     private Map<String, String> parseXWwwFormUrlEncodedBody(byte[] body) {
+        if (body == null || body.length == 0)
+            return null;
         String bodyString;
         try {
             bodyString = URLDecoder.decode(new String(body), DEFAULT_CHARSET.value);
@@ -93,7 +108,7 @@ public class RequestBody {
             return;
         }
         isBodyAlreadyRead = true;
-        String contentLengthString = headers.getHeader(CONTENT_LENGTH);
+        String contentLengthString = headers.getHeader(CONTENT_LENGTH.value);
         byte[] buffer;
         if (contentLengthString != null) {
             try {

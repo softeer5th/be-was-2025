@@ -7,6 +7,7 @@ import java.util.Optional;
 
 // 빈 Body를 나타내는 클래스
 class EmptyBody extends ResponseBody {
+    static final EmptyBody INSTANCE = new EmptyBody();
 
     @Override
     public void writeBody(OutputStream out) {
@@ -26,5 +27,10 @@ class EmptyBody extends ResponseBody {
     @Override
     public String toString() {
         return "EmptyBody{}";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof EmptyBody;
     }
 }

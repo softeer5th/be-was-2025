@@ -30,4 +30,12 @@ class ContentTypeTest {
         assertThat(ContentType.of("hwp")).isEqualTo(ContentType.APPLICATION_OCTET_STREAM);
     }
 
+    @Test
+    @DisplayName("mime type 문자열 비교")
+    void equals() {
+        assertThat(ContentType.TEXT_PLAIN.equals("text/plain")).isTrue();
+        assertThat(ContentType.TEXT_HTML.equals("text/plaine")).isFalse();
+        assertThat(ContentType.APPLICATION_X_WWW_FORM_URLENCODED.equals("application/x-www-form-urlencoded")).isTrue();
+    }
+
 }

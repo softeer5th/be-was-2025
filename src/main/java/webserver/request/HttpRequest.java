@@ -1,10 +1,11 @@
 package webserver.request;
 
 
-import webserver.common.HttpHeaders;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpVersion;
 import webserver.exception.HttpVersionNotSupported;
+import webserver.header.RequestHeader;
+import webserver.session.HttpSession;
 
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,13 @@ public class HttpRequest {
     private final HttpMethod httpMethod;
     private final RequestTarget requestTarget;
     private final HttpVersion version;
-    private final HttpHeaders headers;
+    private final RequestHeader headers;
 
     private final RequestBody bodyParser;
     private Map<String, String> pathVariables;
+    private HttpSession session;
 
-    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, HttpHeaders headers, RequestBody bodyParser) {
+    public HttpRequest(HttpMethod httpMethod, RequestTarget requestTarget, HttpVersion version, RequestHeader headers, RequestBody bodyParser) {
         this.httpMethod = httpMethod;
         this.requestTarget = requestTarget;
         this.version = version;
@@ -49,7 +51,7 @@ public class HttpRequest {
         return version;
     }
 
-    public HttpHeaders getHeaders() {
+    public RequestHeader getHeaders() {
         return headers;
     }
 
@@ -61,6 +63,9 @@ public class HttpRequest {
         return bodyParser.getBodyAsMap();
     }
 
+    public <T> Optional<T> getBody(Class<T> clazz) {
+        return bodyParser.getBody(clazz);
+    }
 
     public void validateSupportedHttpVersion(List<HttpVersion> supportedVersions) {
         if (!supportedVersions.contains(version)) {
@@ -78,5 +83,13 @@ public class HttpRequest {
                 ", headers=" + headers +
                 ", pathVariables=" + pathVariables +
                 '}';
+    }
+
+    public HttpSession getSession() {
+        return session;
+    }
+
+    public void setSession(HttpSession session) {
+        this.session = session;
     }
 }

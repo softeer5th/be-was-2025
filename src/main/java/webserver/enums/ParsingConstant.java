@@ -18,7 +18,9 @@ public enum ParsingConstant {
     FORM_URLENCODED_KEY_VALUE_SEPARATOR("="),
     FORM_URLENCODED_DEFAULT_KEY(""),
     FORM_URLENCODED_DEFAULT_VALUE(""),
-    DEFAULT_CHARSET("UTF-8");
+    DEFAULT_CHARSET("UTF-8"),
+    COOKIE_SEPARATOR(";"),
+    COOKIE_KEY_VALUE_SEPARATOR("=");
 
     public final String value;
 

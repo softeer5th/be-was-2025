@@ -1,27 +1,29 @@
 package webserver.request;
 
-import webserver.common.HttpHeaders;
 import webserver.config.ServerConfig;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.HttpVersion;
+import webserver.enums.ParsingConstant;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
+import webserver.header.Cookie;
+import webserver.header.RequestHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
+import static webserver.enums.HttpHeader.COOKIE;
 import static webserver.enums.HttpHeader.HOST;
 import static webserver.enums.ParsingConstant.*;
 
 // 사용자의 요청을 파싱하여 HttpRequest 객체를 생성
 public class HttpRequestParser {
-    private static final Pattern EMPTY_LINE_PATTERN = Pattern.compile("^((" + HTTP_LINE_SEPARATOR.value + ")*)");
-    private static final Pattern END_OF_HEADER_PATTERN = Pattern.compile(HTTP_HEADERS_END_DELIMITER.value);
     private final int MAX_HEADER_SIZE;
 
     public HttpRequestParser(ServerConfig config) {
@@ -33,8 +35,6 @@ public class HttpRequestParser {
         int totalReadBytes = 0;
         StringBuilder sb = new StringBuilder();
         int buf;
-        boolean isRequestLineStarted = false;
-        boolean crMark = false;
         // request line 앞에 오는 연속된 CRLF는 무시해야 함. (rfc9112#section-2.2)
         while ((buf = inputStream.read()) != -1) {
             if (++totalReadBytes > MAX_HEADER_SIZE)
@@ -55,7 +55,7 @@ public class HttpRequestParser {
             if (++totalReadBytes > MAX_HEADER_SIZE)
                 throw new HttpException(HttpStatusCode.REQUEST_HEADER_FIELDS_TOO_LARGE, "Header Size가 너무 큽니다.");
             sb.append((char) buf);
-            // \n 혹은 \r\n이 나오면 header가 끝난 것으로 간주
+            // \n 혹은 \r\n이 2번 나오면 header가 끝난 것으로 간주
             if (sb.length() >= 4 && sb.substring(sb.length() - 4).matches("(" + HTTP_HEADERS_END_DELIMITER.value + ")$")) {
                 break;
             }
@@ -80,7 +80,7 @@ public class HttpRequestParser {
             // Request Line 문자열 파싱
             RequestLine requestLine = parseRequestLine(requestLineString);
             // Header Line 문자열 파싱
-            HttpHeaders headers = parseHeaders(headerLines);
+            RequestHeader headers = parseHeaders(headerLines);
 
             RequestBody bodyParser = new RequestBody(in, headers);
 
@@ -90,10 +90,6 @@ public class HttpRequestParser {
         } catch (Exception e) {
             throw new BadRequest("Invalid Request", e);
         }
-    }
-
-    private record RequestLine(HttpMethod method, RequestTarget requestTarget, HttpVersion version) {
-
     }
 
     // Request Line 문자열을 파싱하여 RequestLine 객체 생성
@@ -109,8 +105,8 @@ public class HttpRequestParser {
     }
 
     // Header Line 문자열을 파싱하여 Map<String, String> 객체 생성
-    private HttpHeaders parseHeaders(String headerLines) {
-        HttpHeaders headers = new HttpHeaders();
+    private RequestHeader parseHeaders(String headerLines) {
+        RequestHeader headers = new RequestHeader();
         for (String line : headerLines.split(HTTP_LINE_SEPARATOR.value)) {
             String[] tokens = line.split(HEADER_KEY_SEPARATOR.value, 2);
             // header name과 : 사이에 공백이 있으면 400 응답해야 함. (rfc9112#section-5.1)
@@ -119,14 +115,28 @@ public class HttpRequestParser {
             if (headerName.endsWith(SP.value))
                 throw new BadRequest("Header name 뒤에 공백이 있습니다.");
             // 서버는 클라이언트가 Host 헤더를 여러번 보내면 400 응답해야 함. (rfc9112#section-3.2)
-            if (headerName.equalsIgnoreCase(HOST.value) && headers.containsHeader(HOST))
+            if (HOST.equals(headerName) && headers.containsHeader(HOST))
                 throw new BadRequest("Host Header가 중복되었습니다.");
-            headers.setHeader(headerName, headerValue);
+            if (COOKIE.equals(headerName))
+                headers.addCookies(parseCookies(headerValue));
+            else
+                headers.setHeader(headerName, headerValue);
         }
         // 서버는 클라이언트가 Host 헤더를 보내지 않으면 400 응답해야 함. (rfc9112#section-3.2)
         if (!headers.containsHeader(HOST))
             throw new BadRequest("Host Header가 없습니다.");
         return headers;
+    }
+
+    // 쿠키 정보를 파싱하여 List로 반환
+    private List<Cookie> parseCookies(String value) {
+        List<Cookie> cookies = new ArrayList<>();
+        String[] cookiePairs = value.split(ParsingConstant.COOKIE_SEPARATOR.value);
+        for (String cookiePair : cookiePairs) {
+            String[] cookie = cookiePair.split(ParsingConstant.COOKIE_KEY_VALUE_SEPARATOR.value);
+            cookies.add(new Cookie(cookie[0].strip(), cookie[1].strip()));
+        }
+        return cookies;
     }
 
     // Request Target 문자열을 파싱하여 RequestTarget 객체 생성
@@ -149,5 +159,9 @@ public class HttpRequestParser {
             }
         }
         return new RequestTarget(path, queryMap);
+    }
+
+    private record RequestLine(HttpMethod method, RequestTarget requestTarget, HttpVersion version) {
+
     }
 }

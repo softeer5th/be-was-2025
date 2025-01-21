@@ -92,4 +92,8 @@ public enum HttpStatusCode {
         throw new InternalServerError("존재하지 않는 HttpStatusCode입니다.");
     }
 
+    public boolean isRedirection() {
+        return statusCode >= 300 && statusCode < 400;
+    }
+
 }

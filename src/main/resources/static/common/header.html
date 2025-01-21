@@ -1,0 +1,37 @@
+<header class="header">
+    <a href="/"><img src="../img/signiture.svg"/></a>
+    <my-if condition="error">
+        <my-text>
+            <p class="error-message fade-out">${error}</p>
+        </my-text>
+    </my-if>
+    <ul class="header__menu">
+        <my-if condition="session.user">
+            <li class="header__menu__item">
+                <my-text>
+                    <a class="btn btn_ghost btn_size_s" href="/mypage">안녕하세요, ${session.user.name}님!</a>
+                </my-text>
+            </li>
+            <li class="header__menu__item">
+                <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+            </li>
+            <li class="header__menu__item">
+                <form action="/logout" method="post">
+                    <button class="btn btn_ghost btn_size_s" id="logout-btn" type="submit">
+                        로그아웃
+                    </button>
+                </form>
+            </li>
+        </my-if>
+        <my-if condition="!session.user">
+            <li class="header__menu__item">
+                <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
+            </li>
+            <li class="header__menu__item">
+                <a class="btn btn_ghost btn_size_s" href="/registration">
+                    회원 가입
+                </a>
+            </li>
+        </my-if>
+    </ul>
+</header>

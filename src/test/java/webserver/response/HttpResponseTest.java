@@ -27,7 +27,7 @@ class HttpResponseTest {
         // then
 
         assertThat(httpResponse.getHeaders())
-                .matches(headers -> headers.getHeader(CONTENT_TYPE).equals(TEXT_HTML.mimeType))
+                .matches(headers -> headers.getHeader(CONTENT_TYPE.value).equals(TEXT_HTML.mimeType))
                 .matches(headers -> headers.containsHeader(CONTENT_LENGTH));
     }
 
@@ -43,8 +43,8 @@ class HttpResponseTest {
 
         // then
         assertThat(httpResponse.getHeaders())
-                .matches(headers -> headers.getHeader(CONTENT_TYPE).equals(TEXT_PLAIN.mimeType))
-                .matches(headers -> headers.getHeader(CONTENT_LENGTH).equals("13"));
+                .matches(headers -> headers.getHeader(CONTENT_TYPE.value).equals(TEXT_PLAIN.mimeType))
+                .matches(headers -> headers.getHeader(CONTENT_LENGTH.value).equals("13"));
     }
 
     @Test
@@ -60,5 +60,6 @@ class HttpResponseTest {
                 .matches(headers -> !headers.containsHeader(CONTENT_TYPE))
                 .matches(headers -> !headers.containsHeader(CONTENT_LENGTH));
     }
+
 
 }
