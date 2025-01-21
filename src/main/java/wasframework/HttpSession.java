@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpSession {
-    public static final String SESSION_ID = "SessionId";
-    private static Map<String, String> session = new ConcurrentHashMap<>();
+    public static final String SESSION_ID = "sid";
+    private static final Map<String, String> session = new ConcurrentHashMap<>();
 
     public static void put(String key, String value) {
         session.put(key, value);
@@ -14,5 +14,13 @@ public class HttpSession {
 
     public static String get(String key) {
         return session.get(key);
+    }
+
+    public static void remove(String key){
+        session.remove(key);
+    }
+
+    public static void clear(){
+        session.clear();
     }
 }

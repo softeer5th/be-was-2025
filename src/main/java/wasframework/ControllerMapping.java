@@ -17,6 +17,12 @@ public class ControllerMapping {
         this.controllers = controllers;
     }
 
+    /**
+     * 컨트롤러 메소드를 탐색하는 리플렉션 메소드
+     * @param path URI에 존재하는 경로를 담은 문자열
+     * @param httpMethod 주어진 HTTP Request의 메소드
+     * @return 매핑되는 메소드가 있으면 ControllerMethod 객체 반환, 아니면 null 반환
+     */
     public ControllerMethod getControllerMethod(String path, HttpMethod httpMethod) {
         for (Object controller : controllers) {
             Method[] methods = controller.getClass().getMethods();

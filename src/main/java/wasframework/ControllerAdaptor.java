@@ -11,6 +11,14 @@ import java.util.Map;
 
 public class ControllerAdaptor {
 
+    /**
+     * 적절한 파라미터를 매핑하여 컨트롤러의 핸들러를 invoke 해주는 메소드
+     * @param controllerMethod
+     * @param request
+     * @param response
+     * @throws InvocationTargetException 컨트롤러 내에서 예외가 발생했을 경우
+     * @throws RuntimeException 서버의 핸들러 중 private 메소드에 매핑된 핸들러가 있는 경우
+     */
     public void invoke(ControllerMethod controllerMethod, HttpRequest request, HttpResponse response) throws InvocationTargetException {
 
         Method method = controllerMethod.method();

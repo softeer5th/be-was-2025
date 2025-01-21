@@ -21,8 +21,13 @@ public class SignUpController {
 
     private static final Logger log = LoggerFactory.getLogger(SignUpController.class);
 
+    /**
+     * 회원가입 필수정보 입력 페이지
+     * @param response 정상적으로 생성된 response 객체만 들어옴.
+     * @throws IOException 파일이 존재
+     */
     @Mapping(path = "/registration", method = HttpMethod.GET)
-    public void registerPage(HttpRequest request, HttpResponse response) throws IOException {
+    public void registerPage(HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
         response.setHeader("Content-Type", "text/html; charset=utf-8");
 
@@ -31,12 +36,23 @@ public class SignUpController {
         response.setBody(readFile);
     }
 
+    /**
+     * 회원가입 처리 페이지.
+     * {@code User} 객체를 새로 생성하여 DB에 저장하고 home으로 리다이렉션함.
+     * @param request 정상적으로 파싱된 request 객체
+     * @param response 정상적으로 생성된 response 객체만 들어옴.
+     * @throws IOException
+     */
     @Mapping(path = "/user/create", method = HttpMethod.POST)
     public void createUser(HttpRequest request, HttpResponse response) throws IOException {
         String userId = request.getParameter(User.USER_ID);
         String password = request.getParameter(User.PASSWORD);
         String name = request.getParameter(User.USERNAME);
-        String email = null;
+        String email = request.getParameter(User.EMAIL);
+        if(userId == null || password == null || name == null || email == null){
+            response.setLocation("/registration");
+            return;
+        }
         User user = new User(userId, password, name, email);
         addUser(user);
 
@@ -44,21 +60,18 @@ public class SignUpController {
         response.setLocation("/");
     }
 
+    /**
+     * @param response 정상적으로 생성된 response 객체만 들어옴.
+     * @throws IOException
+     */
+    @Deprecated
     @Mapping(path = "/success", method = HttpMethod.GET)
-    public void signUpSuccess(HttpRequest request, HttpResponse response) throws IOException {
+    public void signUpSuccess(HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
         response.setHeader("Content-Type", "text/html;charset=utf-8");
 
         File file = new File("src/main/resources/static/registration/success.html");
         byte[] readFile = getFile(file);
         response.setBody(readFile);
-    }
-
-    @Mapping(path = "/test/{id}", method = HttpMethod.GET)
-    public void signUpTest(HttpRequest request, HttpResponse response, @PathVariable("id") int id) {
-        response.setStatusCode(StatusCode.OK);
-        response.setHeader("Content-Type", "text/html; charset=utf-8");
-        String body = "<h1>id 값은 " + id + "입니다. </h1>";
-        response.setBody(body.getBytes(StandardCharsets.UTF_8));
     }
 }

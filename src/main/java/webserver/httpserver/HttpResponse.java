@@ -3,6 +3,7 @@ package webserver.httpserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.header.Cookie;
+import webserver.httpserver.header.SetCookie;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -17,8 +18,12 @@ public class HttpResponse {
     private String protocol;
     private StatusCode statusCode;
     private final Map<String, String> headers = new HashMap<>();
-    private final List<Cookie> cookies = new ArrayList<>();
+    private final List<SetCookie> cookies = new ArrayList<>();
     private byte[] body;
+
+    public HttpResponse() {
+        setStatusCode(StatusCode.OK);
+    }
 
     public String getProtocol() {
         return protocol;
@@ -44,7 +49,7 @@ public class HttpResponse {
         headers.put(key, value);
     }
 
-    public void setCookie(Cookie cookie) {
+    public void setCookie(SetCookie cookie) {
         cookies.add(cookie);
     }
 
@@ -52,6 +57,10 @@ public class HttpResponse {
         return body;
     }
 
+    /**
+     * body를 지정하고, Content-Length 헤더도 함께 지정하는 메소드
+     * @param body
+     */
     public void setBody(byte[] body) {
         this.body = body;
         if (body != null) {
@@ -64,19 +73,27 @@ public class HttpResponse {
         setHeader("Location", location);
     }
 
-    public void send(DataOutputStream dos) throws IOException {
-        dos.writeBytes(protocol + " " + statusCode.code + " " + statusCode.message + "\n");
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            dos.writeBytes(header.getKey() + HEADER_DELIMITER + header.getValue() + "\n");
-        }
-        for (Cookie cookie : cookies) {
-            dos.writeBytes("Set-Cookie" + HEADER_DELIMITER + cookie.toString() + "\n");
-        }
-        dos.writeBytes("\n");
-        if (body != null && body.length > 0) {
-            dos.write(body, 0, body.length);
+    /**
+     * DataOutputStream 에 현재까지 작성한 HTTP 응답 메시지를 작성하는 메소드
+     * 스트림 작성 중 연결이 해제됐을 경우, 로그를 작성하고 종료한다.
+     * @param dos
+     */
+    public void send(DataOutputStream dos) {
+        try{
+            dos.writeBytes(protocol + " " + statusCode.code + " " + statusCode.message + "\n");
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                dos.writeBytes(header.getKey() + HEADER_DELIMITER + header.getValue() + "\n");
+            }
+            for (SetCookie cookie : cookies) {
+                dos.writeBytes("Set-Cookie" + HEADER_DELIMITER + cookie.toString() + "\n");
+            }
             dos.writeBytes("\n");
+            if (body != null && body.length > 0) {
+                dos.write(body, 0, body.length);
+            }
+            dos.flush();
+        } catch (IOException e) {
+            logger.debug("user disconnected");
         }
-        dos.flush();
     }
 }

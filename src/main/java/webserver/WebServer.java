@@ -13,6 +13,7 @@ import controller.UserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.*;
+import webserver.httpserver.HttpRequestFactory;
 import webserver.httpserver.RequestHandler;
 
 public class WebServer {
@@ -31,7 +32,8 @@ public class WebServer {
         ServletManager servletManager = new ServletManager(List.of(
                 new HomeController(),
                 new SignUpController(),
-                new UserController())
+                new UserController()),
+                new HttpRequestFactory()
         );
 
         runServer(port, executor, servletManager);

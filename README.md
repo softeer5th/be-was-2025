@@ -257,3 +257,133 @@ classDiagram
 - [ ] 스프링과 아키텍처가 지나치게 유사한 문제 해결
 - [ ] Ambiguous Mapping 검증
   -  /test/{id} 와 /test/hello 는 충돌해야 함
+
+
+# Level 6
+## 현재 문제점
+- [x] 핵심 비즈니스 로직에 대한 테스트 코드 작성
+- [x] 생성자 호출 시 반드시 호출되어야 하는 파싱 로직 때문에, stubbing 이 어려워짐
+  - 지나치게 무거워진 HttpRequest 생성자의 생성 로직을 분해할 필요성 느낌
+  - 객체의 생성 책임과 파싱 책임의 분리 -> 팩토리
+  - 매개변수와 파라미터를 동적으로 추가 가능하게 작성 -> 빌더 패턴
+- [x] 서블릿 매니저가 서빙 뿐만 아니라 예외처리까지 하는 문제
+  - ExceptionHandler 생성 -> 스프링과 겹침. 포기.
+- [x] 에러 페이지를 파일로 만들어서 그냥 파일로 찾아서 서빙하는게 좋을듯
+  - 스프링의 forward 와 겹침, 포기.
+- [x] 6단계 작성
+  - 커스텀 태그 생성 및 StringBuilder 로 동적 HTML 응답 만들기
+- [x] 테스트 코드 작성
+  - 테스트 코드 작성을 위한 아키텍처 재설계
+- [ ] 리소스 생성 시 반복해서 등장하는 파일 입력 받은 후 Response 에 기록하는 코드를 제거할 방법
+- [ ] 스프링과 아키텍처가 지나치게 유사한 문제 해결
+- [ ] Ambiguous Mapping 검증
+  -  /test/{id} 와 /test/hello 는 충돌해야 함
+
+## 도메인 모델 - level 6
+```mermaid
+classDiagram
+    class WebServer {
+        - logger: Logger
+    }
+
+    class RequestHandler {
+        - connectionSocket: Socket
+    }
+
+    class HttpRequestFactory{
+    }
+    
+    class CookieFactory{
+        
+    }
+
+    class HttpRequest {
+        - method: HttpMethod
+        - uri: String
+        - parameters: Map<String, String>
+        - protocol: String
+        - headers: Map<String, String>
+        - cookie: Cookie
+        - body: String
+    }
+
+    class HttpResponse {
+        - logger: Logger
+        - protocol: String
+        - statusCode: StatusCode
+        - headers: Map<String, String>
+        - setCookie: SetCookie
+        - body: byte[]
+    }
+    
+    class ServletManager {
+        - Servlets: Map<String, Servlet>
+    }
+    
+    class User{
+        - userId: String
+        - password: String
+        - name: String
+        - email: String
+    }
+    
+    class Database{
+        - users: Map<String, User>
+    }
+
+    WebServer "1" -- "0..*" RequestHandler : creates
+    WebServer *-- "1" ServletManager : create
+    ServletManager "1" -- "*" HttpRequest : uses
+    ServletManager "1" -- "*" HttpResponse : uses
+    RequestHandler --> ServletManager : use
+    ServletManager --> HttpRequestFactory : use
+    HttpRequestFactory *-- HttpRequest : create
+    HttpRequestFactory --> CookieFactory : use
+    ServletManager *-- DispatcherServlet
+    DispatcherServlet --> HandlerMapping
+    DispatcherServlet --> HandlerAdaptor
+    DispatcherServlet "1" -- "0..*" Controller
+    Controller "0..*" -- "1" Database
+    Controller --> User
+    Database "1" -- "0..*" User
+```
+
+## 추가적으로 배운 것
+### mockito-junit-jupiter
+
+- `@Mock` 어노테이션으로 간편하게 모킹을 지원하도록 하는 라이브러리.
+- 테스트 클래스 위에 `@ExtendWith(MockitoExtension.class)` 를 추가한다.
+
+### 생성자는 stubbing 이 불가능하다.
+
+- Creator 패턴에서는 되도록이면 이미 사용하는 객체가 생성하는 것이 좋다고 하지만,
+- 생성자의 책임이 지나치게 무거워지면 (ex: 예외를 던진다거나, 비즈니스 로직을 처리한다거나) 책임을 분리하는것이 좋다.
+
+### ConcurrentHashMap 이 key, value로 null을 지원하지 않는 이유
+
+#### HashMap은 왜 null 키/값을 허용할까?
+
+- HashMap
+  - 동시 접근에 대한 별도의 제어가 필요 없는 상황에서 사용하기 위한 자료구조
+  - 따라서 키/값이 null이더라도 특별히 복잡한 동기화나 상태 관리 로직이 필요하지 않음
+- 단일 스레드 환경에서의 null
+  - 실제로 의미 있는 값일 수 있음 → "아직 결정되지 않음"
+  - Map에 null 값을 저장해 활용할 수 있음
+- 키 존재 여부와 값이 null인 경우를 구분할 필요가 없는 경우가 많음
+  - 해당 변경사항은 자신이 직접 결정한 변경사항이므로, 논리적으로 오류가 없을 가능성이 높음.
+
+
+#### ConcurrentHashMap은 왜 null 키/값을 허용하지 않을까?
+
+- 동시성 환경의 특징
+  - ConcurrentHashMap은 기본적으로 동시성 환경에서 동작을 보장
+  - 이때, `map.get(key)`가 null을 리턴하면
+    - 키가 제거된건지
+    - 키의 값이 null인건지 구분해야 함
+- 단일 의미를 가지지 않기 때문에, **다른 스레드**가 해당 값이 무슨 의미를 갖는지 알 수 없음.
+
+## 남은 문제점
+- [ ] 리소스 생성 시 반복해서 등장하는 파일 입력 받은 후 Response 에 기록하는 코드를 제거할 방법
+- [ ] 스프링과 아키텍처가 지나치게 유사한 문제 해결
+- [ ] Ambiguous Mapping 검증
+  -  /test/{id} 와 /test/hello 는 충돌해야 함
