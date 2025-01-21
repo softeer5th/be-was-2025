@@ -25,7 +25,12 @@ public class UserCreateHandler implements RequestProcessor {
 
         try {
             Map<String, String> headers = requestHeader.getHeaders();
-            // 지정된 Content-Type이 아닐 경우
+
+            String method = requestHeader.getMethod();
+            if (!method.equals("POST")) {
+                throw new HTTPExceptions.Error405("Method not supported " + method);
+            }
+
             String contentType = headers.get("content-type");
             if (!contentType.equals("application/x-www-form-urlencoded")) {
                 throw new HTTPExceptions.Error415("Unsupported Media Type " + contentType);
@@ -37,7 +42,7 @@ public class UserCreateHandler implements RequestProcessor {
                 String[] keyValue = param.split("=");
                 // 키값에 등호가 있을 경우
                 if (keyValue.length != 2) {
-                    throw new HTTPExceptions.Error400("Invalid key");
+                    throw new HTTPExceptions.Error400("Unsupported parameter: " + param);
                 }
                 // 키값 중복
                 if (paramMap.containsKey(keyValue[0])) {

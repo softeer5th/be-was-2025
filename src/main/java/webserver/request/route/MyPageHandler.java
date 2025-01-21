@@ -22,6 +22,11 @@ public class MyPageHandler implements RequestProcessor {
         HTTPResponseBody responseBody = null;
 
         try {
+            String method = requestHeader.getMethod();
+            if (!method.equals("GET")) {
+                throw new HTTPExceptions.Error405("Method not supported " + method);
+            }
+
             for (Cookie cookie : cookieList) {
                 if (cookie.getName().equals("SESSIONID")) {
                     isLoggedIn = true;

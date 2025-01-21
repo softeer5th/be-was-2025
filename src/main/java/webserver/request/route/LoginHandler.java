@@ -21,6 +21,11 @@ public class LoginHandler implements RequestProcessor {
         HTTPResponseBody responseBody;
 
         try {
+            String method = requestHeader.getMethod();
+            if (!method.equals("GET")) {
+                throw new HTTPExceptions.Error405("Method not supported " + method);
+            }
+
             File file = new File("src/main/resources/static/login/index.html");
             if (!file.exists()) {
                 throw new HTTPExceptions.Error404("login/index.html not found");

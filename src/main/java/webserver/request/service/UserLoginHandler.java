@@ -28,9 +28,15 @@ public class UserLoginHandler implements RequestProcessor {
 
         try {
             Map<String, String> headers = requestHeader.getHeaders();
-            // 지정된 Content-Type이 아닐 경우
-            if (!headers.get("content-type").equals("application/x-www-form-urlencoded")) {
-                throw new HTTPExceptions.Error415("Content-type is not application/x-www-form-urlencoded");
+
+            String method = requestHeader.getMethod();
+            if (!method.equals("POST")) {
+                throw new HTTPExceptions.Error405("Method not supported " + method);
+            }
+
+            String contentType = headers.get("content-type");
+            if (!contentType.equals("application/x-www-form-urlencoded")) {
+                throw new HTTPExceptions.Error415("Unsupported Media Type " + contentType);
             }
 
             String[] params = requestBody.getBodyToString().split("&");

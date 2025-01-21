@@ -21,6 +21,11 @@ public class StaticResourceHandler implements RequestProcessor {
         HTTPResponseBody responseBody;
 
         try {
+            String method = requestHeader.getMethod();
+            if (!method.equals("GET")) {
+                throw new HTTPExceptions.Error405("Method not supported " + method);
+            }
+
             String[] uri = requestHeader.getUri().split("\\?");
             String path = uri[0];
             File file = new File("src/main/resources/static/" + path);
