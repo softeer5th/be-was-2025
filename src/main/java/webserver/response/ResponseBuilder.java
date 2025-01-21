@@ -18,6 +18,7 @@ public class ResponseBuilder {
             "/user/login.html", new LoginHandler(),
             "/user/logout", new LogoutHandler(),
             "/post/add", new AddPostHandler(),
+            "/comment/add", new AddCommentHandler(),
             "default", new Page404Handler()
     );
 

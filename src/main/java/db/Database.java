@@ -68,6 +68,20 @@ public class Database {
         }
     }
 
+    public static void addComment(String userId, int postId, String content) {
+        String insertQuery = "INSERT INTO Comments (userId, postId, content) VALUES (?, ?, ?)";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+            preparedStatement.setString(1, userId);
+            preparedStatement.setInt(2, postId);
+            preparedStatement.setString(3, content);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding comment", e);
+        }
+    }
+
+
 
     public static User findUserById(String userId) {
         String selectQuery = "SELECT * FROM Users WHERE userId = ?";
