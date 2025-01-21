@@ -24,6 +24,12 @@ public class ArticleServlet implements Servlet {
 	private static final String DEFAULT_HTML_FILE = "/index.html";
 	private static final String LOGIN_PAGE = "/login/index.html";
 
+	private final ArticleDatabase articleDatabase;
+
+	public ArticleServlet(ArticleDatabase articleDatabase) {
+		this.articleDatabase = articleDatabase;
+	}
+
 	@Override
 	public void service(HttpRequest request, HttpResponse response) throws IOException {
 		if(request.getMethod().equals(HttpMethod.GET)){
@@ -60,7 +66,6 @@ public class ArticleServlet implements Servlet {
 		Optional<Map<String, String>> body = request.getBodyAsMap();
 
 		if(body.isEmpty()){
-
 			return;
 		}
 
@@ -68,7 +73,7 @@ public class ArticleServlet implements Servlet {
 
 		User user = (User)session.getAttribute("user");
 		Article article = new Article(new String(body.get().get("content").getBytes(StandardCharsets.UTF_8)) , user.getUserId());
-		ArticleDatabase.save(article);
+		articleDatabase.save(article);
 
 		response.setStatusCode(HttpStatus.FOUND);
 		response.setVersion(request.getVersion());

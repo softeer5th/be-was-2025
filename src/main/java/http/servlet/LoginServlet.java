@@ -23,6 +23,12 @@ public class LoginServlet implements Servlet {
 	private static final String LOGIN_SUCCESS_PAGE = "/index.html";
 	private static final String LOGIN_FAILURE_PAGE = "/login/login_failed.html";
 
+	private final UserDatabase userDatabase;
+
+	public LoginServlet(UserDatabase userDatabase) {
+		this.userDatabase = userDatabase;
+	}
+
 	@Override
 	public void service(HttpRequest request, HttpResponse response) throws IOException {
 		if (request.getMethod().equals(HttpMethod.GET)) {
@@ -41,7 +47,7 @@ public class LoginServlet implements Servlet {
 			return;
 		}
 
-		User foundUser = UserDatabase.findUserByIdOrThrow(body.get().get("userId"));
+		User foundUser = userDatabase.findUserByIdOrThrow(body.get().get("userId"));
 		foundUser.validatePassword(body.get().get("password"));
 
 		HashMap<String, Object> model = new HashMap<>();

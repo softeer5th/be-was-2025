@@ -18,6 +18,12 @@ public class RegisterServlet implements Servlet {
 	private static final Logger logger = LoggerFactory.getLogger(RegisterServlet.class);
 	private static final String REGISTRATION_SUCCESS_PAGE = "/registration/registration-success.html";
 	private static final String INVALID_REQUEST_MESSAGE = "Invalid request parameters.";
+	private final UserDatabase userDatabase;
+
+	public RegisterServlet(UserDatabase userDatabase) {
+		this.userDatabase = userDatabase;
+	}
+
 	@Override
 	public void service(HttpRequest request, HttpResponse response) {
 		if (request.getMethod().equals(HttpMethod.POST)) {
@@ -45,7 +51,7 @@ public class RegisterServlet implements Servlet {
 
 		User user = userRequest.toUser();
 
-		if (UserDatabase.findUserById(user.getUserId()).isPresent()) {
+		if (userDatabase.findUserById(user.getUserId()).isPresent()) {
 			handleUserExists(response, request, user);
 			return;
 		}
@@ -65,7 +71,7 @@ public class RegisterServlet implements Servlet {
 	}
 
 	private void registerUser(HttpResponse response, HttpRequest request, User user) {
-		UserDatabase.addUser(user);
+		userDatabase.save(user);
 
 		response.setErrorResponse(response, request.getVersion(), HttpStatus.FOUND, REGISTRATION_SUCCESS_PAGE);
 		logger.debug("User: " + user + " is registered.");

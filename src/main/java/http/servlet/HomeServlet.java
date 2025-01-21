@@ -21,6 +21,11 @@ import view.View;
 public class HomeServlet implements Servlet {
 	private static final String STATIC_FILES_PATH = "static";
 	private static final String DEFAULT_HTML_FILE = "/index.html";
+	private final ArticleDatabase articleDatabase;
+
+	public HomeServlet(ArticleDatabase articleDatabase) {
+		this.articleDatabase = articleDatabase;
+	}
 
 	@Override
 	public void service(HttpRequest request, HttpResponse response) throws IOException {
@@ -42,7 +47,7 @@ public class HomeServlet implements Servlet {
 			page = "1";
 		}
 
-		Cursor<Article> foundArticle = ArticleDatabase.findNthArticle(Integer.parseInt(page));
+		Cursor<Article> foundArticle = articleDatabase.findNthArticle(Integer.parseInt(page));
 		foundArticle.getContent().ifPresent(article -> {
 			model.put("article", article);
 			model.put("hasPrevPage", foundArticle.hasPrevPage());
