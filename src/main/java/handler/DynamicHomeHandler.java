@@ -103,21 +103,18 @@ public class DynamicHomeHandler implements Handler {
                     .append("""
                             </li>
                             <li>
-                            """)
-                    .append("""
                               <a href="mailto:example@example.com">
                               <button class="post__menu__btn">
                                 <img src="./img/sendLink.svg" alt="Send Email" />
                               </button>
                             </a>
-                            """).append("""  
-                                  </li>
-                                </ul>
-                                <button class="post__menu__btn">
-                                  <img src="./img/bookMark.svg" />
-                                </button>
-                              </div>
-                              <p class="post__article">
+                            </li>
+                            </ul>
+                            """)
+                    .append(addBookMarkSvg(post.getId(), user))
+                    .append("""
+                            </div>
+                            <p class="post__article">
                             """)
                     .append(post.getContents())
                     .append("""
@@ -144,7 +141,6 @@ public class DynamicHomeHandler implements Handler {
             """;
 
     private String addLikeSvg(int postId, Optional<User> user) {
-
         if (user.isEmpty())
             return String.format(likeSvg, postId);
 
@@ -153,6 +149,30 @@ public class DynamicHomeHandler implements Handler {
 
 
         return String.format(likedSvg, postId);
+    }
+
+    private final String bookmarkSvg = """
+              <form action="/board/mark/%s" method="POST">
+                            <button type="submit" class="post__menu__btn">
+                            <img src="./img/bookMark.svg" alt="bookmark" />
+                            </button>
+                            </form>
+            """;
+    private final String bookmarkedSvg = """
+              <form action="/board/mark/%s" method="POST">
+                            <button type="submit" class="post__menu__btn">
+                            <img src="./img/bookMarked.svg" alt="bookmark" />
+                            </button>
+                            </form>
+            """;
+
+    private String addBookMarkSvg(int postId, Optional<User> user) {
+        if (user.isEmpty())
+            return String.format(bookmarkSvg, postId);
+        if (!boardManager.existsPostBookMark(postId, user.get().getId()))
+            return String.format(bookmarkSvg, postId);
+
+        return String.format(bookmarkedSvg, postId);
     }
 
     private void startHeaderMenu(StringBuilder dynamicHtmlContent) {

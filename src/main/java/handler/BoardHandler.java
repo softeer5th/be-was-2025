@@ -54,6 +54,22 @@ public class BoardHandler implements Handler {
 
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeader(HttpHeader.LOCATION.getName(), "/");
+        }  else if (request.getPath().startsWith("/board/mark")) {
+            validPostMethod(request.getMethod());
+            final String[] split = request.getPath().split("/");
+            if (split.length != 4)
+                throw new ClientErrorException(NOT_ALLOWED_PATH);
+            int postId = Integer.parseInt(split[3]);
+
+            final String cookie = request.getHeaderValue(HttpHeader.COOKIE.getName());
+            User user = userManager.getUserFromSession(CookieParser.parseCookie(cookie))
+                    .orElseThrow(() -> new ClientErrorException(INVALID_AUTHORITY));
+
+
+            boardManager.bookmarkPost(postId, user.getId());
+
+            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
+            response.setHeader(HttpHeader.LOCATION.getName(), "/");
         } else {
             throw new ClientErrorException(ErrorCode.NOT_ALLOWED_PATH);
         }
