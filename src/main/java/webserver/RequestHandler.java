@@ -114,7 +114,6 @@
 
                     // Todo: 단순히 path를 if-else문으로 하면 길게 나열되는 문제 발생. 이에 대해 처리하는 방법 구상하기
                     // Todo: POST 요청에서 파싱하는 과정을 메서드로 처리할 수 있을 듯 함.
-                    // Todo: 로그아웃 기능 추가
                     // path 기준으로 탐색
                     // default page
                     if (path.equals("/")) {
@@ -149,6 +148,34 @@
                             logger.error("{}File not found", path);
                             throw new HTTPExceptions.Error404("404 File not found");
                         }
+                    }
+                    // 마이페이지 요청에 대한 처리
+                    else if (path.equals("/mypage")) {
+                        boolean isLoggedIn = false;
+                        for (Cookie cookie : cookieList) {
+                            if (cookie.getName().equals("SESSIONID")) {
+                                isLoggedIn = true;
+                                break;
+                            }
+                        }
+
+                        if (!isLoggedIn) {
+                            responseHeader.setStatusCode(302);
+                            responseHeader.addHeader("Location", "/login");
+                            return;
+                        }
+
+                        File file = new File(resourcePath + "mypage/index.html");
+                        if (!file.exists()) {
+                            logger.error("{}File not found", path);
+                            throw new HTTPExceptions.Error404("404 File not found");
+                        }
+
+                        responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));
+
+                        responseHeader.setStatusCode(200);
+                        responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".html"));
+                        responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
                     }
                     // 로그인 완료에 대한 처리
                     else if (path.equals("/user/login") && method.equals("POST")) {
@@ -194,7 +221,7 @@
                                 Database.addSession(session);
 
                                 responseHeader.setStatusCode(302);
-                                responseHeader.addHeader("Location", "/main/index.html");
+                                responseHeader.addHeader("Location", "/index.html");
                             }
                             else {
                                 logger.error("User {} password does not match", userId);
@@ -266,7 +293,26 @@
 
                         responseHeader.setStatusCode(302);
                         responseHeader.addHeader("Location", "/index.html");
-                    } else {
+                    }
+                    else if (path.equals("/api/login-status")) {
+                       boolean isLoggedIn = false;
+                       String userName = "";
+                       for (Cookie cookie : cookieList) {
+                           if (cookie.getName().equals("SESSIONID")) {
+                               isLoggedIn = true;
+                               String sessionId = cookie.getValue();
+                               String userId = Database.findSessionById(sessionId).getUserId();
+                               userName = Database.findUserById(userId).getName();
+                               break;
+                           }
+                       }
+
+                       String jsonResponse = "{\"isLoggedIn\": " + isLoggedIn + ", \"userName\": \"" + userName +  "\"}";
+                       responseBody = new HTTPResponseBody(jsonResponse.getBytes(StandardCharsets.UTF_8));
+
+                       responseHeader.setStatusCode(200);
+                       responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".json"));
+                    }  else {
                         File file = new File(resourcePath + path);
                         if (file.exists()) {
                             responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));

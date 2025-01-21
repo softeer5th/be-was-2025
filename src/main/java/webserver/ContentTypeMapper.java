@@ -11,7 +11,8 @@ public class ContentTypeMapper {
             ".jpg", "image/jpeg",
             ".jpeg", "image/jpeg",
             ".ico", "image/vnd.microsoft.icon",
-            ".js", "application/javascript"
+            ".js", "application/javascript",
+            ".json", "application/json"
     );
 
     // Content-Type을 반환하는 메서드
