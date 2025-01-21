@@ -3,11 +3,12 @@ package http.servlet;
 import static http.HttpSessionStorage.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import db.Database;
+import db.UserDatabase;
 import enums.CookieType;
 import enums.HttpMethod;
 import enums.HttpStatus;
@@ -40,11 +41,14 @@ public class LoginServlet implements Servlet {
 			return;
 		}
 
-		User foundUser = Database.findUserByIdOrThrow(body.get().get("userId"));
+		User foundUser = UserDatabase.findUserByIdOrThrow(body.get().get("userId"));
 		foundUser.validatePassword(body.get().get("password"));
 
+		HashMap<String, Object> model = new HashMap<>();
+		model.put("user", foundUser);
+
 		String sessionId = UUID.randomUUID().toString().substring(0, 15);
-		HttpSessionStorage.saveSession(new HttpSession(sessionId, foundUser.toMap()));
+		HttpSessionStorage.saveSession(new HttpSession(sessionId, model));
 
 		response.setCookie(SESSION_ID, sessionId, CookieType.PATH.name(), "/");
 		response.setRedirectResponse(response, request.getVersion(), HttpStatus.FOUND, LOGIN_SUCCESS_PAGE);
