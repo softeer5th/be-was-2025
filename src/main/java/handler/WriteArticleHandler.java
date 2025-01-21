@@ -42,7 +42,7 @@ public class WriteArticleHandler implements HttpHandler {
         Article article = Article.create(loginUser, body.content());
         articleDao.insertArticle(article);
 
-        return HttpResponse.redirect(INDEX.path);
+        return HttpResponse.redirect(readArticlePath(article.getArticleId()));
 
     }
 

@@ -17,4 +17,7 @@ public enum PageMappingPath {
         this.path = path;
     }
 
+    public static String readArticlePath(Long articleId) {
+        return READ_ARTICLE.path.replace("{articleId}", articleId.toString());
+    }
 }
