@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class CookieParser {
     private static final Pattern COOKIE_PATTERN = Pattern.compile("[; ]?(?<name>([^=]+))=(?<value>([^;]*))");
 
-    public Map<String, String> parse(String cookieValue) {
+    public static Map<String, String> parse(String cookieValue) {
         Matcher matcher = COOKIE_PATTERN.matcher(cookieValue);
         Map<String, String> cookies = new HashMap<>();
         while (matcher.find()) {
