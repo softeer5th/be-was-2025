@@ -123,32 +123,31 @@ public class DynamicHomeHandler implements Handler {
         }
     }
 
+    private final String likeSvg = """
+             <form action="/board/like/%s" method="POST">
+             <button type="submit" class="post__menu__btn">
+             <img src="./img/like.svg" alt="Like" />
+             /button>
+             </form>
+            """;
+    private final String likedSvg = """
+            <form action="/board/like/%s" method="POST">
+            <button type="submit" class="post__menu__btn">
+            <img src="./img/liked.svg" alt="Like" />
+            </button>
+            </form>
+            """;
+
     private String addLikeSvg(int postId, Optional<User> user) {
+
         if (user.isEmpty())
-            return String.format("""
-                     <form action="/board/like/%s" method="POST">
-                                                                           <button type="submit" class="post__menu__btn">
-                                                                             <img src="./img/like.svg" alt="Like" />
-                                                                           </button>
-                                                                         </form>
-                    """, postId);
+            return String.format(likeSvg, postId);
 
         if (!boardManager.existsPostLike(postId, user.get().getId()))
-            return String.format("""
-                     <form action="/board/like/%s" method="POST">
-                                                                           <button type="submit" class="post__menu__btn">
-                                                                             <img src="./img/like.svg" alt="Like" />
-                                                                           </button>
-                                                                         </form>
-                    """, postId);
+            return String.format(likeSvg, postId);
 
-        return String.format("""
-                <form action="/board/like/%s" method="POST">
-                                                                           <button type="submit" class="post__menu__btn">
-                                                                             <img src="./img/liked.svg" alt="Like" />
-                                                                           </button>
-                                                                         </form>
-                """, postId);
+
+        return String.format(likedSvg, postId);
     }
 
     private void startHeaderMenu(StringBuilder dynamicHtmlContent) {
