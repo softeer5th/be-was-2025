@@ -44,6 +44,15 @@ public class HttpRequestInfo {
         this.body = parseRequestBody(reader);
     }
 
+    // 테스트용 보조 생성자
+    private HttpRequestInfo(HttpMethod method, String path, Map<String, String> headers, Map<String, Cookie> cookies, String body) {
+        this.method = method;
+        this.path = path;
+        this.headers = headers;
+        this.cookies = cookies;
+        this.body = body;
+    }
+
     private void parseHeaders(BufferedReader reader) throws IOException {
         String line;
 
@@ -102,7 +111,6 @@ public class HttpRequestInfo {
         return cookieMap;
     }
 
-
     private void applyCookieOption(Cookie cookie, String option, String value) {
         switch (option.toLowerCase()) {
             case "max-age":
@@ -119,6 +127,9 @@ public class HttpRequestInfo {
         }
     }
 
+    public static HttpRequestInfo forTest(HttpMethod method, String path) {
+        return new HttpRequestInfo(method, path, new HashMap<>(), new HashMap<>(), "");
+    }
 
     public String getPath() {
         return path;
