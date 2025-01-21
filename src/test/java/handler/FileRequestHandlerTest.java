@@ -1,45 +1,55 @@
 package handler;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import db.Database;
+import db.SessionManager;
 import exception.BaseException;
 import exception.FileErrorCode;
-import http.HttpMethod;
-import http.HttpRequestInfo;
-import http.HttpResponse;
-import http.HttpStatus;
+import http.*;
+import model.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileRequestHandlerTest {
-
+    private FileRequestHandler handler;
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String VALID_FILE_PATH = "/index.html";
     private static final String INVALID_FILE_PATH = "/invalid.html";
+    private static final String LOGIN_PAGE = "/login/index.html";
+    private static final String RESTRICTED_PAGE = "/mypage";
 
+    @BeforeEach
+    public void setUp() {
+        handler = new FileRequestHandler();
+    }
 
-    private HttpRequestInfo createHttpRequest(HttpMethod method, String path) throws IOException {
-        String rawRequest =
-                method + " " + path + " HTTP/1.1\r\n" +
-                        "Host: localhost";
+    private HttpRequestInfo createTestRequest(String path) {
+        return HttpRequestInfo.forTest(HTTP_METHOD, path, new HashMap<>(), new HashMap<>(), null);
+    }
 
-        InputStream inputStream = new ByteArrayInputStream(rawRequest.getBytes(StandardCharsets.UTF_8));
-        return new HttpRequestInfo(inputStream);
+    private HttpRequestInfo createLoggedInRequest(String path, String userId, String nickname) {
+        User testUser = new User(userId, nickname, "password1234!", "email@email.com");
+        Database.addUser(testUser);
+
+        String sid = "testSessionId";
+        SessionManager.saveSession(sid, userId);
+
+        Map<String, Cookie> cookies = new HashMap<>();
+        cookies.put("sid", new Cookie("sid", sid));
+
+        return HttpRequestInfo.forTest(HTTP_METHOD, path, new HashMap<>(), cookies, null);
     }
 
     @Test
     @DisplayName("정적파일 로드 성공")
-    void testHandleWithExistingFile() throws IOException {
-        FileRequestHandler handler = new FileRequestHandler();
-        HttpRequestInfo request = createHttpRequest(HTTP_METHOD, VALID_FILE_PATH);
-
+    void testHandleWithExistingFile() {
+        HttpRequestInfo request = createTestRequest(VALID_FILE_PATH);
         HttpResponse response = handler.handle(request);
 
         assertEquals(HttpStatus.OK, response.getStatus());
@@ -47,14 +57,48 @@ public class FileRequestHandlerTest {
     }
 
     @Test
-    @DisplayName("정적파일 로드 실패")
-    void testHandleWithFileNotFound() throws IOException {
-        FileRequestHandler handler = new FileRequestHandler();
-        HttpRequestInfo request = createHttpRequest(HTTP_METHOD, INVALID_FILE_PATH);
+    @DisplayName("존재하지 않는 정적 파일 로드 실패")
+    void testHandleWithFileNotFound() {
+        HttpRequestInfo request = createTestRequest(INVALID_FILE_PATH);
 
-        BaseException baseException = assertThrows(BaseException.class,
-                () -> handler.handle(request));
-        assertEquals(baseException.getMessage(), FileErrorCode.FILE_NOT_FOUND.getMessage());
+        BaseException baseException = assertThrows(BaseException.class, () -> handler.handle(request));
+        assertEquals(FileErrorCode.FILE_NOT_FOUND.getMessage(), baseException.getMessage());
     }
+
+    @Test
+    @DisplayName("로그인하지 않은 상태에서 동적 HTML 변경 없음")
+    void testHandleWithDynamicHtmlOnLogin_NotLoggedIn() {
+        HttpRequestInfo request = createTestRequest(LOGIN_PAGE);
+        HttpResponse response = handler.handle(request);
+
+        assertEquals(HttpStatus.OK, response.getStatus());
+
+        String responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
+        assertFalse(responseBody.contains("<a class=\"user-name\" href=\"/mypage\">사용자 :"));
+        assertTrue(responseBody.contains("<li class=\"header__menu__item\">"));
+    }
+
+    @Test
+    @DisplayName("로그인된 상태에서 동적 HTML 변경 확인")
+    void testHandleWithDynamicHtmlOnLogin_LoggedIn() {
+        HttpRequestInfo request = createLoggedInRequest(LOGIN_PAGE, "testId", "TestUser");
+        HttpResponse response = handler.handle(request);
+
+        assertEquals(HttpStatus.OK, response.getStatus());
+
+        String responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
+        assertTrue(responseBody.contains("<a class=\"user-name\" href=\"/mypage\">사용자 : TestUser</a>"));
+        assertTrue(responseBody.contains("<form action=\"/users/logout\" method=\"POST\">"));
+    }
+
+    @Test
+    @DisplayName("로그인하지 않은 사용자가 /mypage 접근 시 예외 발생")
+    void testHandleWithRestrictedPage_Unauthorized() {
+        HttpRequestInfo request = createTestRequest(RESTRICTED_PAGE);
+
+        BaseException exception = assertThrows(BaseException.class, () -> handler.handle(request));
+        assertEquals(FileErrorCode.FORBIDDEN_ACCESS.getMessage(), exception.getMessage());
+    }
+
 
 }

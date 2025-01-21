@@ -127,8 +127,8 @@ public class HttpRequestInfo {
         }
     }
 
-    public static HttpRequestInfo forTest(HttpMethod method, String path) {
-        return new HttpRequestInfo(method, path, new HashMap<>(), new HashMap<>(), "");
+    public static HttpRequestInfo forTest(HttpMethod method, String path, Map<String, String> headers, Map<String, Cookie> cookies, String body) {
+        return new HttpRequestInfo(method, path, headers, cookies, body);
     }
 
     public String getPath() {
