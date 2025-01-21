@@ -1,11 +1,11 @@
 package handler;
 
+import domain.User;
+import domain.UserDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import user.User;
-import user.UserDao;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.PageMappingPath;

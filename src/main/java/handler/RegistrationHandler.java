@@ -1,9 +1,9 @@
 package handler;
 
+import domain.User;
+import domain.UserDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import user.User;
-import user.UserDao;
 import webserver.enums.HttpStatusCode;
 import webserver.enums.PageMappingPath;
 import webserver.exception.BadRequest;

@@ -1,10 +1,10 @@
 package webserver;
 
 import db.Database;
+import domain.UserDao;
 import handler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import user.UserDao;
 import webserver.config.ServerConfig;
 import webserver.exception.filter.ExceptionFilterChain;
 import webserver.exception.filter.HttpExceptionFilter;
