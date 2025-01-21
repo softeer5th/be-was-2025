@@ -81,18 +81,20 @@ public class WebServer {
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config.getDefaultPageFileName()))
-                .setHandler(INDEX.path, new IndexHandler())
+                .setHandler(INDEX.path, new IndexHandler(articleDao))
                 .setHandler(REGISTRATION.path, new RegistrationHandler(userDao))
                 .setHandler(LOGIN.path, new LoginHandler(userDao))
                 .setHandler(LOGOUT.path, new LogoutHandler())
-                .setHandler(MYPAGE.path, new MypageHandler(userDao));
+                .setHandler(MYPAGE.path, new MypageHandler(userDao))
+                .setHandler(ARTICLES.path, new ArticleHandler(articleDao));
 
         SessionManager sessionManager = new MemorySessionManager();
 
         HandlerInterceptor sessionInterceptor = new SessionInterceptor(sessionManager);
         HandlerInterceptor logInterceptor = new LoggingInterceptor();
         HandlerInterceptor templateInterceptor = new TemplateEngineInterceptor(templateEngine, templateFileReader);
-        HandlerInterceptor loginRequiredInterceptor = new LoginRequiredPathInterceptor(MYPAGE.path);
+        HandlerInterceptor loginRequiredInterceptor = new LoginRequiredPathInterceptor(
+                MYPAGE.path, ARTICLES.path);
         InterceptorChain interceptorChain = InterceptorChain
                 .inbound()
                 .add(sessionInterceptor)

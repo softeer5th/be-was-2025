@@ -13,11 +13,11 @@ public abstract class AbstractDao {
     protected void executeInsert(ExceptionUtil.CheckedConsumer<Long> function, String sql, Object... params) {
         DatabaseUtil.run(pstmt -> {
                     pstmt.executeUpdate();
-                    try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                        rs.next();
-                        function.accept(rs.getLong(1));
-                    }
-                    throw new RuntimeException("Generated key 가 없습니다");
+                    ResultSet rs = pstmt.getGeneratedKeys();
+                    if (!rs.next())
+                        throw new RuntimeException("Generated key 가 없습니다");
+                    function.accept(rs.getLong(1));
+                    return null;
                 },
                 getConnection(),
                 closeConnection(),

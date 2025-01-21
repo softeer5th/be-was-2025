@@ -20,13 +20,13 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
             VALUES (?, ?)
             """;
     private static final String SELECT_ARTICLE_BY_ID = """
-            SELECT articleId, writerId, content
+            SELECT *
             FROM articles
             LEFT JOIN users ON articles.writerId = users.userId
             WHERE articleId = ?
             """;
     private static final String SELECT_LATEST_ARTICLE = """
-            SELECT articleId, writerId, content
+            SELECT *
             FROM articles
             LEFT JOIN users ON articles.writerId = users.userId
             ORDER BY articleId DESC

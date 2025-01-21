@@ -67,7 +67,7 @@ public class FrontController implements Runnable {
                 responseWriter.writeResponse(request.getVersion(), response, out);
 
             } catch (Exception e) {
-                logger.debug(e.getMessage());
+                logger.debug("에러 발생", e);
                 // 에러 응답
                 HttpResponse response = exceptionFilterChain.catchException(e, request);
                 HttpVersion version = request != null ? request.getVersion() : supportedHttpVersions.get(0);
