@@ -1,15 +1,14 @@
 package servlet;
 
 import exception.FileNotSupportedException;
+import exception.MethodNotAllowedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpRequestFactory;
 import webserver.httpserver.HttpResponse;
-import webserver.httpserver.header.CookieFactory;
 
 import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,6 +29,7 @@ public class ServletManager {
     public static final String FILE_NOT_SUPPORTED = "FILE_NOT_SUPPORTED";
     public static final String BAD_REQUEST = "BAD_REQUEST";
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+    public static final String METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED";
     public static final String DISPATCHER = "dispatcher";
     public static final String DEFAULT = "default";
     private static final Logger log = LoggerFactory.getLogger(ServletManager.class);
@@ -43,6 +43,7 @@ public class ServletManager {
         servlets.put(NOT_FOUND, new FileNotFoundPageServlet());
         servlets.put(BAD_REQUEST, new BadRequestServlet());
         servlets.put(INTERNAL_SERVER_ERROR, new InternalServerErrorServlet());
+        servlets.put(METHOD_NOT_ALLOWED, new MethodNotAllowedErrorServlet());
         requestFactory = factory;
     }
 
@@ -83,6 +84,10 @@ public class ServletManager {
         } catch (IOException | IllegalArgumentException e) {
             response.setProtocol("HTTP/1.1");
             servlets.get(BAD_REQUEST).handle(request, response);
+            return null;
+        } catch (MethodNotAllowedException e){
+            response.setProtocol("HTTP/1.1");
+            servlets.get(METHOD_NOT_ALLOWED).handle(request, response);
             return null;
         }
         return request;
