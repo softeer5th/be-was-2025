@@ -8,8 +8,10 @@ import webserver.enumeration.HTTPMethod;
 import webserver.exception.HTTPException;
 import webserver.message.record.ResponseData;
 import webserver.message.record.SetCookieRecord;
+import webserver.session.SessionStorage;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 public class UserEntryPoint {
@@ -41,7 +43,10 @@ public class UserEntryPoint {
         SetCookieRecord loginCookie = new SetCookieRecord.Builder("SID", sessionId)
                 .path("/")
                 .build();
-
+        if (SessionStorage.getStorage(sessionId) == null) {
+            Map<String, String> newSession = SessionStorage.setSession(sessionId);
+            newSession.put("userId", userId);
+        }
         return new ResponseData.ResponseDataBuilder<String>()
                 .setCookies(loginCookie)
                 .redirect("/index.html");
