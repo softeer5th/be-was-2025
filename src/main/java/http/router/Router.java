@@ -2,10 +2,7 @@ package http.router;
 
 import http.enums.ContentType;
 import http.enums.HttpMethod;
-import http.handler.BadRequestHandler;
-import http.handler.Handler;
-import http.handler.StaticResourceHandler;
-import http.handler.UserHandler;
+import http.handler.*;
 import http.request.HttpRequest;
 import http.request.TargetInfo;
 import org.slf4j.Logger;
@@ -20,6 +17,7 @@ public class Router {
     private final Handler staticResourceHandler = StaticResourceHandler.getInstance(STATIC_RESOURCE_PATH);
     private final Handler userHandler = UserHandler.getInstance();
     private final Handler badRequestHandler = BadRequestHandler.getInstance();
+    private final Handler postHandler = PostHandler.getInstance();
     private static final String compareExtensionRegex;
 
     private static final Logger logger = LoggerFactory.getLogger(Router.class);
@@ -43,6 +41,7 @@ public class Router {
         routes.put("/user/create", userHandler);
         routes.put("/user/login", userHandler);
         routes.put("/user/logout", userHandler);
+        routes.put("/post/article", postHandler);
     }
 
     public void addRoute(String path, Handler handler) {
@@ -64,7 +63,7 @@ public class Router {
                     }
                 }
             }
-            return StaticResourceHandler.getInstance(STATIC_RESOURCE_PATH); // 정적 파일 요청 처리
+            return staticResourceHandler; // 정적 파일 요청 처리
         }
         return badRequestHandler;
     }
