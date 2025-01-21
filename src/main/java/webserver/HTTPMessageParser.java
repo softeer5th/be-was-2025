@@ -8,6 +8,7 @@ import webserver.enumeration.HTTPMethod;
 import webserver.message.HTTPRequest;
 import webserver.message.body.BodyParser;
 import webserver.message.body.BodyParserFactory;
+import webserver.message.header.CookieParser;
 import webserver.message.header.HeaderParseManager;
 import webserver.message.header.records.ContentTypeRecord;
 import webserver.reader.ByteStreamReader;
@@ -48,6 +49,15 @@ public class HTTPMessageParser {
         logger.debug("Request Header : {}", sb.toString());
         parseBody(bufferedInputStream, parsedHeaders, builder);
         return builder.build();
+    }
+
+    private void parseCookie(HTTPRequest.Builder request, Map<String, String> headers) {
+        if (!headers.containsKey("cookie")) {
+            return;
+        }
+        String cookie = headers.get("cookie");
+        Map<String, String> cookieHeaders = CookieParser.parse(cookie);
+        request.cookies(cookieHeaders);
     }
 
     private void parseBody(
