@@ -33,7 +33,7 @@ public class StaticURIHandler implements URIHandler {
     @Override
     public HTTPResponse handle(HTTPRequest httpRequest) {
         if(httpRequest.getUri().equals("/mypage")){
-            Optional<String> cookie = httpRequest.getHeaderByKey(COOKIE);
+            Optional<String> cookie = httpRequest.getHeader(COOKIE);
             if(cookie.isEmpty()){
                 return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
             }

@@ -24,14 +24,14 @@ public class UserManager {
 
 
     public HTTPResponse signUp(HTTPRequest httpRequest){
-        if(Database.userExists(httpRequest.getBodyParameterByKey("userId"))){
+        if(Database.userExists(httpRequest.getBodyParameter("userId"))){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(),HTTPCode.ALREADY_EXIST_USER);
         }
 
-        User user = new User(httpRequest.getBodyParameterByKey("userId")
-                ,httpRequest.getBodyParameterByKey("password")
-                ,httpRequest.getBodyParameterByKey("name")
-                ,httpRequest.getBodyParameterByKey("email"));
+        User user = new User(httpRequest.getBodyParameter("userId")
+                ,httpRequest.getBodyParameter("password")
+                ,httpRequest.getBodyParameter("name")
+                ,httpRequest.getBodyParameter("email"));
         Database.addUser(user);
         logger.debug("signUp : " + user.getUserId());
         return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterSignUp);
@@ -40,13 +40,13 @@ public class UserManager {
 
     public HTTPResponse logIn(HTTPRequest httpRequest){
 
-        Optional<User> optionalUser = Database.findUserById(httpRequest.getBodyParameterByKey("userId"));
+        Optional<User> optionalUser = Database.findUserById(httpRequest.getBodyParameter("userId"));
         if(optionalUser.isEmpty()){
             return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
 
         User user = optionalUser.get();
-        if(!user.getPassword().equals(httpRequest.getBodyParameterByKey("password"))){
+        if(!user.getPassword().equals(httpRequest.getBodyParameter("password"))){
             return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
 
@@ -57,7 +57,7 @@ public class UserManager {
     }
 
     public HTTPResponse checkLoginStatus(HTTPRequest httpRequest){
-        Optional<String> cookie = httpRequest.getHeaderByKey(COOKIE);
+        Optional<String> cookie = httpRequest.getHeader(COOKIE);
         if(cookie.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }

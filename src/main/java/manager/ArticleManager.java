@@ -20,7 +20,7 @@ public class ArticleManager {
 
     public HTTPResponse createArticle(HTTPRequest httpRequest){
 
-        Optional<String> cookie = httpRequest.getHeaderByKey(COOKIE);
+        Optional<String> cookie = httpRequest.getHeader(COOKIE);
         if(cookie.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
@@ -39,7 +39,7 @@ public class ArticleManager {
         }
         User user = optionalUser.get();
 
-        String content = httpRequest.getBodyParameterByKey("content");
+        String content = httpRequest.getBodyParameter("content");
 
         Article article = new Article(user.getUserId(),content);
 
