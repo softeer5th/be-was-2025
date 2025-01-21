@@ -27,6 +27,14 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
         this.database = database;
     }
 
+    static User mapUser(ResultSet resultSet) throws SQLException {
+        return new User(
+                resultSet.getString("userId"),
+                resultSet.getString("passwordHash"),
+                resultSet.getString("name"),
+                resultSet.getString("email")
+        );
+    }
 
     public boolean saveUser(User user) {
         return executeUpdate(i -> i > 0, UPSERT_USER, user.getUserId(), user.getName(), user.getPasswordHash(), user.getEmail());
@@ -66,13 +74,4 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
         return true;
     }
 
-
-    private User mapUser(ResultSet resultSet) throws SQLException {
-        return new User(
-                resultSet.getString("userId"),
-                resultSet.getString("passwordHash"),
-                resultSet.getString("name"),
-                resultSet.getString("email")
-        );
-    }
 }
