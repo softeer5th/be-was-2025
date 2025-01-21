@@ -17,7 +17,7 @@ public class WebServer {
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
         int port = determinePort(args);
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         Router router = new RequestRouter();

@@ -4,7 +4,7 @@ import http.HttpStatus;
 
 public class BaseException extends RuntimeException {
 
-    private String message;
+    private final String message;
     private final HttpStatus status;
 
     public BaseException(ErrorCode code) {

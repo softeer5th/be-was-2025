@@ -2,6 +2,9 @@ package model;
 
 import db.Database;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 public class User {
 
     private String userId;
@@ -11,9 +14,9 @@ public class User {
 
     public User(String userId, String nickname, String password, String email) {
         this.userId = userId;
-        this.nickname = nickname;
+        this.nickname = URLDecoder.decode(nickname, StandardCharsets.UTF_8);
         this.password = password;
-        this.email = email;
+        this.email = URLDecoder.decode(email, StandardCharsets.UTF_8);
     }
 
     public String getUserId() {
@@ -22,6 +25,14 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override

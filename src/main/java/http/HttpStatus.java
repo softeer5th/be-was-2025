@@ -2,12 +2,17 @@ package http;
 
 public enum HttpStatus {
     OK(200, "OK"),
-    CREATED(201, "Created" ),
-    FOUND(302, "Found" ),
+    CREATED(201, "Created"),
+    FOUND(302, "Found"),
+    SEE_OTHER(303, "See Other"),
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
+    FORBIDDEN(403, "Forbidden"),
     NOT_FOUND(404, "Unsupported Media Type"),
-    UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type");
+    METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
+    CONFLICT(409, "Conflict"),
+    UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type"),
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 
     private final int code;
     private final String message;

@@ -2,8 +2,10 @@ package handler;
 
 import static http.HttpMethod.POST;
 
+import db.Database;
 import exception.BaseException;
 import exception.HttpErrorCode;
+import exception.UserErrorCode;
 import http.HttpRequestInfo;
 import http.HttpStatus;
 
@@ -14,6 +16,7 @@ import http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.QueryUtil;
+import util.Validator;
 
 public class UserRegisterHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRegisterHandler.class);
@@ -33,14 +36,22 @@ public class UserRegisterHandler implements Handler {
         String password = queryParams.get("password");
         String email = queryParams.get("email");
 
+        Validator.validateUser(userId, nickname, password, email);
+        checkDuplicateUserId(userId);
         User user = new User(userId, nickname, password, email);
         user.registerUser();
-        logger.debug("Registered userId : {}, nickname : {}, email : {}", user.getUserId(), nickname, email);
+        logger.debug("Registered userId : {}, nickname : {}, email : {}", user.getUserId(), user.getNickname(), user.getEmail());
 
         response.setStatus(HttpStatus.FOUND);
         response.setHeaders("Location", "/registration/success.html");
 
         return response;
+    }
+
+    private void checkDuplicateUserId(String userId) {
+        if(Database.findUserById(userId) != null) {
+            throw new BaseException(UserErrorCode.DUPLICATE_USER_ID);
+        }
     }
 
 }

@@ -1,14 +1,11 @@
 package util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import exception.BaseException;
 import exception.FileErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileUtilTest {
 
@@ -16,19 +13,19 @@ public class FileUtilTest {
     private static final String INVALID_FILE_PATH = "src/test/resources/invalid.html";
 
 
-    @Test
+   @Test
     @DisplayName("HTML 파일 byte 배열로 읽어오기 성공")
     void testReadHtmlFileAsBytes() {
-        byte[] result = FileUtil.readHtmlFileAsBytes(VALID_FILE_PATH);
+        String result = FileUtil.readHtmlFileAsString(VALID_FILE_PATH);
         assertNotNull(result);
-        assertTrue(result.length > 0);
+       assertFalse(result.isEmpty());
     }
 
     @Test
     @DisplayName("존재하지 않는 파일로 읽기 실패")
     void testReadHtmlFileAsBytesWithNonexistentFile() {
         BaseException baseException = assertThrows(BaseException.class,
-            () -> FileUtil.readHtmlFileAsBytes(INVALID_FILE_PATH));
+            () -> FileUtil.readHtmlFileAsString(INVALID_FILE_PATH));
         assertEquals(baseException.getMessage(), FileErrorCode.FILE_NOT_FOUND.getMessage());
     }
 

@@ -4,6 +4,7 @@ import db.Database;
 import db.SessionManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
+import http.Cookie;
 import http.HttpRequestInfo;
 import http.HttpResponse;
 import http.HttpStatus;
@@ -11,9 +12,9 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.QueryUtil;
-import util.SessionUtil;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static http.HttpMethod.POST;
 
@@ -36,19 +37,24 @@ public class UserLoginHandler implements Handler {
         User user = Database.findUserById(userId);
         if (user == null || !user.getPassword().equals(password)) {
             logger.debug("User with id {} and password {} not found", userId, password);
-            response.setStatus(HttpStatus.FOUND);
+            response.setStatus(HttpStatus.SEE_OTHER);
             response.setHeaders("Location", "/login/failed.html");
             return response;
         }
 
-        String sid = SessionUtil.generateSessionID();
+        String sid = UUID.randomUUID().toString();
         SessionManager.saveSession(sid, userId);
 
-        response.setCookies("sid=" + sid);
-        response.setCookies("Path=/");
         response.setStatus(HttpStatus.FOUND);
+        response.setCookies(createSessionCookie(sid));
         response.setHeaders("Location", "/index.html");
 
         return response;
+    }
+
+    private Cookie createSessionCookie(String sid) {
+        Cookie cookie = new Cookie("sid", sid);
+        cookie.setPath("/");
+        return cookie;
     }
 }

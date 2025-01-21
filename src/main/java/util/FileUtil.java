@@ -5,33 +5,27 @@ import exception.FileErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class FileUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
-    public static byte[] readHtmlFileAsBytes(String filepath) {
-        try {
-            File file = new File(filepath);
-            if (!file.exists() || file.isDirectory()) {
-                logger.error("File not found or is a directory: {}", filepath);
-                throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
+    public static String readHtmlFileAsString(String filepath) {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
             }
-
-            FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-
-            byte[] body = new byte[(int) file.length()];
-            bis.read(body);
-            return body;
+        } catch (FileNotFoundException e) {
+            throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
         } catch (IOException e) {
             logger.error("File read error: {}", e.getMessage());
-            throw new BaseException(FileErrorCode.FILE_NOT_FOUND);
+            throw new BaseException(FileErrorCode.FILE_READ_ERROR);
         }
+
+        return content.toString();
     }
 
     public static String getContentType(String path) {
