@@ -3,8 +3,9 @@ package webserver.enums;
 // 페이지 매핑 경로
 public enum PageMappingPath {
     INDEX("/"),
-    ARTICLES("/article"),
-    COMMENT("/comment"),
+    READ_ARTICLE("/article/{articleId}"),
+    WRITE_ARTICLE("/article"),
+    WRITE_COMMENT("/comment"),
     LOGIN("/login"),
     LOGOUT("/logout"),
     MYPAGE("/mypage"),
