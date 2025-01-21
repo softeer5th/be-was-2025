@@ -10,7 +10,8 @@ public enum Page {
     LOGIN("/login"),
     REGISTRATION("/registration"),
     MY_PAGE("/mypage"),
-    ARTICLE("/article");
+    ARTICLE("/article"),
+    COMMENT("/comment");
 
     private final String path;
 
@@ -19,7 +20,7 @@ public enum Page {
     }
 
     private static final Set<String> PATH_REQUIRING_LOGIN =
-            Stream.of(MAIN_LOGIN.getPath(), MY_PAGE.getPath())
+            Stream.of(MAIN_LOGIN.getPath(), MY_PAGE.getPath(), ARTICLE.getPath(), COMMENT.getPath())
             .collect(Collectors.toSet());
 
     public String getPath() {
