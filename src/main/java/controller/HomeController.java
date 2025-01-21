@@ -40,10 +40,8 @@ public class HomeController {
         String readFile = getFileAsString(file);
 
         String userId = HttpSession.get(sessionId);
-        String rendered = renderHeaderMenu(sessionId, userId, readFile);
+        String rendered = renderHeaderMenu(readFile,sessionId, userId);
 
         response.setBody(rendered.getBytes());
     }
-
-
 }
