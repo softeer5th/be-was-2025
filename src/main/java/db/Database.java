@@ -5,7 +5,6 @@ import model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class Database {
@@ -43,7 +42,6 @@ public class Database {
             preparedStatement.setString(4, user.getEmail());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             throw new RuntimeException("Error adding user", e);
         }
     }
@@ -77,13 +75,12 @@ public class Database {
                 );
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             throw new RuntimeException("Error finding user by ID", e);
         }
         return null;
     }
 
-    public static Collection<User> findAll() {
+    public static List<User> findAllUser() {
         String selectQuery = "SELECT * FROM Users";
         List<User> users = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(DB_URL);
@@ -101,5 +98,41 @@ public class Database {
             throw new RuntimeException("Error finding all users", e);
         }
         return users;
+    }
+
+    public static Post getPostById(String userId, int postId) {
+        String selectQuery = "SELECT * FROM Users WHERE userId = ? AND id = ?";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+            preparedStatement.setString(1, userId);
+            preparedStatement.setInt(2, postId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Post(
+                        resultSet.getInt("id"),
+                        resultSet.getString("userId"),
+                        resultSet.getString("title"),
+                        resultSet.getString("content")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding post", e);
+        }
+        return null;
+    }
+
+    public static int getFirstPostId(String userId) {
+        String selectQuery = "SELECT id FROM Posts WHERE userId = ? ORDER BY id ASC LIMIT 1";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+            preparedStatement.setString(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("id");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding first post ID for userId: " + userId, e);
+        }
+        return -1;
     }
 }

@@ -13,4 +13,12 @@ public class PostManager {
         Post post = new Post(userId, title, content);
         Database.addPost(post);
     }
+
+    public static Post getPost(String userId, int postId) {
+        return Database.getPostById(userId, postId);
+    }
+
+    public static int getFirstPostId(String userId) {
+        return Database.getFirstPostId(userId);
+    }
 }
