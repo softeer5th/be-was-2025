@@ -40,7 +40,7 @@
         <img class="post__account__img" id="account-img" alt="" />
         <span id="nickname"></span>
       </div>
-      <img class="post__img" />
+      <img class="post__img"  id="post-img"/>
       <div class="post__menu">
         <ul class="post__menu__personal">
           <li>
@@ -58,7 +58,7 @@
           <img src="../img/bookMark.svg" />
         </button>
       </div>
-      <p class="post__article"></p>
+      <p id="post-article" class="post__article"></p>
     </div>
     <ul class="comment">
       <li class="comment__item">
@@ -180,15 +180,16 @@
       const articleData = await articleRes.json();
       if (articleData.isSuccess) {
         const { content, base64Image } = articleData.data;
-        document.querySelector(".post__article").textContent = content || "게시글이 없어요. 새로운 글을 작성해주세요!";
+        document.getElementById("post-article").textContent =
+                content;
         if (base64Image) {
-          document.querySelector(".post__img").src = `data:image/png;base64,${base64Image}`;
+          document.getElementById("post-img").src = `data:image/png;base64,${base64Image}`;
         } else {
-          document.querySelector(".post__img").removeAttribute("src");
+          document.getElementById("post-img").removeAttribute("src");
         }
       } else {
         console.warn("게시글이 없거나 오류:", articleData.message);
-        document.querySelector(".post__article").textContent = "게시글이 없습니다.";
+        document.getElementById("post-article").textContent = "\"게시글이 없어요. 새로운 글을 작성해주세요!\"";
       }
     } catch (err) {
       console.error("게시글 로딩 중 오류:", err);

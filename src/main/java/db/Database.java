@@ -11,10 +11,8 @@ public class Database {
     private static final String JDBC_USER = "sa";
     private static final String JDBC_PASSWORD = "";
 
-    // 추가
     static {
         try {
-            Class.forName("org.h2.Driver");
             try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
                 String createUserTableSql = """
                   CREATE TABLE IF NOT EXISTS users (
@@ -29,7 +27,6 @@ public class Database {
                     stmt.execute(createUserTableSql);
                 }
 
-                // 추가: 게시글 테이블 생성
                 String createArticleTableSql = """
                   CREATE TABLE IF NOT EXISTS articles (
                     id IDENTITY PRIMARY KEY,

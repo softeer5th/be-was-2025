@@ -10,12 +10,15 @@ import global.util.CookieSessionUtil;
 import global.util.JsonUtil;
 import model.Article;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
 public class ArticleCreateHandler implements ApiHandler {
+    private static final Logger logger = LoggerFactory.getLogger(ArticleCreateHandler.class);
 
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
@@ -37,10 +40,12 @@ public class ArticleCreateHandler implements ApiHandler {
             byte[] imageBytes = null;
             if (base64Image != null && !base64Image.isBlank()) {
                 imageBytes = Base64.getDecoder().decode(base64Image);
+                logger.debug("이미지 데이터가 Base64로 디코딩되었습니다.");
             }
 
             Article article = new Article(null, currentUser.getUserId(), content, imageBytes);
             Database.addArticle(article);
+            logger.info("게시글이 성공적으로 생성되었습니다. 사용자 ID: {}, 내용: {}", currentUser.getUserId(), content);
 
             CommonResponse response = new CommonResponse(true, null, null, null);
             String json = JsonUtil.toJson(response);
@@ -52,6 +57,7 @@ public class ArticleCreateHandler implements ApiHandler {
             );
 
         } catch (Exception e) {
+            logger.error("게시글 생성 중 오류가 발생했습니다.", e);
             return createErrorResponse("SERVER-ERROR", "게시글 작성 중 오류가 발생했습니다.");
         }
     }
