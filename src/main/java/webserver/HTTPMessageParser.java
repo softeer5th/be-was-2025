@@ -15,6 +15,7 @@ import webserver.reader.ByteStreamReader;
 
 import java.io.*;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -46,18 +47,19 @@ public class HTTPMessageParser {
         readHeader(reader, sb, headers);
         HeterogeneousContainer parsedHeaders = HeaderParseManager.getInstance().parse(headers);
         builder.setHeaders(parsedHeaders);
+        Map<String, String> cookieHeaders = parseCookie(headers);
+        builder.cookies(cookieHeaders);
         logger.debug("Request Header : {}", sb.toString());
         parseBody(bufferedInputStream, parsedHeaders, builder);
         return builder.build();
     }
 
-    private void parseCookie(HTTPRequest.Builder request, Map<String, String> headers) {
+    private Map<String, String> parseCookie(Map<String, String> headers) {
         if (!headers.containsKey("cookie")) {
-            return;
+            return new HashMap<>();
         }
         String cookie = headers.get("cookie");
-        Map<String, String> cookieHeaders = CookieParser.parse(cookie);
-        request.cookies(cookieHeaders);
+        return CookieParser.parse(cookie);
     }
 
     private void parseBody(

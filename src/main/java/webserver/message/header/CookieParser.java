@@ -12,7 +12,7 @@ public class CookieParser {
         Matcher matcher = COOKIE_PATTERN.matcher(cookieValue);
         Map<String, String> cookies = new HashMap<>();
         while (matcher.find()) {
-            String name = matcher.group("name");
+            String name = matcher.group("name").trim();
             String values = matcher.group("value");
             cookies.put(name, values);
         }
