@@ -27,6 +27,15 @@ public class Database {
                     "content TEXT, " +
                     "FOREIGN KEY (userId) REFERENCES Users(userId))";
             statement.execute(createPostTable);
+
+            String createCommentTable = "CREATE TABLE IF NOT EXISTS Comments (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "userId VARCHAR(255) NOT NULL, " +
+                    "postId INT NOT NULL, " +
+                    "content TEXT NOT NULL, " +
+                    "FOREIGN KEY (userId) REFERENCES Users(userId), " +
+                    "FOREIGN KEY (postId) REFERENCES Posts(id))";
+            statement.execute(createCommentTable);
         } catch (SQLException e) {
             throw new RuntimeException("Error initializing database", e);
         }
