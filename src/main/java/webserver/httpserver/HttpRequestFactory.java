@@ -130,7 +130,7 @@ public class HttpRequestFactory {
 
     private static String readLine(BufferedInputStream bis) throws IOException {
         StringBuilder sb = new StringBuilder();
-        int inputData = 0;
+        int inputData;
         while ((inputData = bis.read()) != -1) {
             if (inputData == '\n') {
                 break;

@@ -11,14 +11,11 @@ import static db.DBUtils.close;
 import static db.DBUtils.getConnection;
 
 public enum UserDao {
-    USERS("users");
+    USERS;
 
 
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
-    private final String table;
-    UserDao(String table) {
-        this.table = table;
-    }
+
 
     /**
      * id와 매칭되는 user 를 찾아주는 메소드

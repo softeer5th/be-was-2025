@@ -1,7 +1,6 @@
 package db;
 
 import model.Board;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +9,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static db.DBUtils.close;
 import static db.DBUtils.getConnection;

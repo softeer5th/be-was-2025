@@ -1,9 +1,7 @@
 package controller;
 
-import db.Database;
 import db.UserDao;
 import model.User;
-import tag.HeaderMenu;
 import wasframework.HttpSession;
 import wasframework.Mapping;
 import webserver.httpserver.HttpMethod;

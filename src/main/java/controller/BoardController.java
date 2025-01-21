@@ -6,7 +6,6 @@ import exception.NotFoundException;
 import model.Board;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tag.HeaderMenu;
 import wasframework.HttpSession;
 import wasframework.Mapping;
 import wasframework.PathVariable;
@@ -15,13 +14,10 @@ import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpResponse;
 import webserver.httpserver.StatusCode;
 import webserver.httpserver.header.Cookie;
-import webserver.httpserver.header.SetCookie;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static tag.BoardBody.renderBoard;
 import static tag.HeaderMenu.renderHeaderMenu;
@@ -41,7 +37,6 @@ public class BoardController {
      *           존재하지 않는 id일 경우, 404 Not Found 페이지 던짐
      * @param request
      * @param response
-     * @throws IOException
      * @throws NotFoundException id 값이 잘못됐을 경우 던짐 (0 이하일 경우)
      */
     @Mapping(path = "/board/{id}", method = HttpMethod.GET)
@@ -74,6 +69,7 @@ public class BoardController {
             readFile = getFileAsString(file);
         } catch (IOException e) {
             log.error("기본 페이지 탐색 예외 발생:", e);
+            return;
         }
 
 
