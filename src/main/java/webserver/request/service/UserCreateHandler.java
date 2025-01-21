@@ -24,13 +24,12 @@ public class UserCreateHandler implements RequestProcessor {
         HTTPResponseBody responseBody;
 
         try {
-            Map<String, String> headers = requestHeader.getHeaders();
-
             String method = requestHeader.getMethod();
             if (!method.equals("POST")) {
                 throw new HTTPExceptions.Error405("Method not supported " + method);
             }
 
+            Map<String, String> headers = requestHeader.getHeaders();
             String contentType = headers.get("content-type");
             if (!contentType.equals("application/x-www-form-urlencoded")) {
                 throw new HTTPExceptions.Error415("Unsupported Media Type " + contentType);
