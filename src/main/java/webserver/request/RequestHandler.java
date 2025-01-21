@@ -28,6 +28,7 @@
                 "/registration", new RegistrationPageHandler(),
                 "/login", new LoginPageHandler(),
                 "/mypage", new MyPageHandler(),
+                "/write", new WritePageHandler(),
                 // service handler
                 "/user/create", new UserCreateHandler(),
                 "/user/login", new UserLoginHandler(),
