@@ -25,27 +25,44 @@ public class UserLogoutHandler implements Handler {
             throw new BaseException(HttpErrorCode.INVALID_HTTP_METHOD);
         }
         HttpResponse response = new HttpResponse();
-        String sid = request.getCookie("sid").getValue();
-        if (SessionManager.findUserBySessionID(sid) == null) {
-            logger.error("UserLogoutHandler: Invalid sessionID");
-            throw new BaseException(UserErrorCode.USER_NOT_FOUND_FOR_SESSION);
-        }
-
+        String sid = extractValidSessionId(request);
         SessionManager.removeSession(sid);
         logger.debug("User Logged out successfully.");
 
         response.setStatus(HttpStatus.FOUND);
-        response.setCookies(deleteSessionCookie());
+        response.setCookies(createExpiredSessionCookie());
         response.setHeaders("Location", "/index.html");
 
         return response;
     }
 
-    private Cookie deleteSessionCookie(){
+    private Cookie createExpiredSessionCookie() {
         Cookie cookie = new Cookie("sid", "");
         cookie.setMaxAge(0);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         return cookie;
+    }
+
+    private String extractValidSessionId(HttpRequestInfo request) {
+        Cookie sessionCookie = request.getCookie("sid");
+
+        if (sessionCookie == null) {
+            logger.error("No session cookie found in request");
+            throw new BaseException(UserErrorCode.MISSING_SESSION);
+        }
+
+        String sessionId = sessionCookie.getValue();
+        if (sessionId.isEmpty()) {
+            logger.error("Session cookie is empty");
+            throw new BaseException(UserErrorCode.INVALID_SESSION);
+        }
+
+        if (SessionManager.findUserBySessionID(sessionId) == null) {
+            logger.error("Invalid session ID: sid={}", sessionId);
+            throw new BaseException(UserErrorCode.USER_NOT_FOUND_FOR_SESSION);
+        }
+
+        return sessionId;
     }
 }

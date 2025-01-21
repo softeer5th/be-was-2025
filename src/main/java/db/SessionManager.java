@@ -42,10 +42,14 @@ public class SessionManager {
         sessions.clear();
     }
 
+    public static void setSessionExpire(String sessionId, long expires) {
+        sessions.get(sessionId).expiresAt = System.currentTimeMillis() + expires;
+    }
+
 
     private static class SessionData {
         private final String userId;
-        private final long expiresAt;
+        private long expiresAt;
 
         public SessionData(String userId, long expiresAt) {
             this.userId = userId;
