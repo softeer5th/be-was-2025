@@ -33,17 +33,17 @@ public class FileRequestHandlerTest {
         return HttpRequestInfo.forTest(HTTP_METHOD, path, new HashMap<>(), new HashMap<>(), null);
     }
 
-    private HttpRequestInfo createLoggedInRequest(String path, String userId, String nickname) {
-        User testUser = new User(userId, nickname, "password1234!", "email@email.com");
+    private HttpRequestInfo createLoggedInRequest() {
+        User testUser = new User("testId", "testUser","test1234!", "test@test.com");
         Database.addUser(testUser);
 
         String sid = "testSessionId";
-        SessionManager.saveSession(sid, userId);
+        SessionManager.saveSession(sid, "testId");
 
         Map<String, Cookie> cookies = new HashMap<>();
         cookies.put("sid", new Cookie("sid", sid));
 
-        return HttpRequestInfo.forTest(HTTP_METHOD, path, new HashMap<>(), cookies, null);
+        return HttpRequestInfo.forTest(HTTP_METHOD, FileRequestHandlerTest.LOGIN_PAGE, new HashMap<>(), cookies, null);
     }
 
     @Test
@@ -81,13 +81,13 @@ public class FileRequestHandlerTest {
     @Test
     @DisplayName("로그인된 상태에서 동적 HTML 변경 확인")
     void testHandleWithDynamicHtmlOnLogin_LoggedIn() {
-        HttpRequestInfo request = createLoggedInRequest(LOGIN_PAGE, "testId", "TestUser");
+        HttpRequestInfo request = createLoggedInRequest();
         HttpResponse response = handler.handle(request);
 
         assertEquals(HttpStatus.OK, response.getStatus());
 
         String responseBody = new String(response.getBody(), StandardCharsets.UTF_8);
-        assertTrue(responseBody.contains("<a class=\"user-name\" href=\"/mypage\">사용자 : TestUser</a>"));
+        assertTrue(responseBody.contains("<a class=\"user-name\" href=\"/mypage\">사용자 : testUser</a>"));
         assertTrue(responseBody.contains("<form action=\"/users/logout\" method=\"POST\">"));
     }
 
