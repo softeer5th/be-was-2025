@@ -12,7 +12,7 @@ import webserver.httpserver.header.Cookie;
 import java.io.File;
 import java.io.IOException;
 
-import static utils.FileUtils.getFile;
+import static tag.HeaderMenu.renderHeaderMenu;
 import static utils.FileUtils.getFileAsString;
 import static wasframework.HttpSession.SESSION_ID;
 
@@ -36,24 +36,14 @@ public class HomeController {
         Cookie cookie = request.getCookie();
         String sessionId = cookie.getCookie(SESSION_ID);
 
-        String userId = HttpSession.get(sessionId);
-        String usernameTag = (sessionId != null && userId != null) ?
-                getWelcomeTag(userId) : "";
-        String loginWriteTag = (sessionId != null && userId != null) ? HeaderMenu.WRITE.getTag() : HeaderMenu.LOGIN.getTag();
-        String signupLogoutTag = (sessionId != null && userId != null) ? HeaderMenu.LOGOUT.getTag() : HeaderMenu.SIGNUP.getTag();
-
-
         File file = new File("src/main/resources/static/index.html");
         String readFile = getFileAsString(file);
-        String rendered = readFile.replace("${username}", usernameTag)
-                .replace("${loginWrite}", loginWriteTag)
-                .replace("${signupLogout}", signupLogoutTag);
+
+        String userId = HttpSession.get(sessionId);
+        String rendered = renderHeaderMenu(sessionId, userId, readFile);
+
         response.setBody(rendered.getBytes());
     }
 
-    private static String getWelcomeTag(String userId) {
-        return "<li class=\"header__menu__item\">\n" +
-                "<a class=\"btn btn_ghost btn_size_s\" href=\"/mypage\">" +
-                userId + "님, 환영합니다!</a> </li>";
-    }
+
 }
