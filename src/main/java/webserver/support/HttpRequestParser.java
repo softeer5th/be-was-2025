@@ -3,6 +3,8 @@ package webserver.support;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.http.HttpRequest;
+import webserver.http.cookie.Cookie;
+import webserver.session.HttpSession;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,11 +86,24 @@ public class HttpRequestParser {
         for (int i = 1; i < lines.length; i++) {
             String[] header = lines[i].split(":", 2);
             if (header.length == 2) {
-                request.setHeader(header[0].trim().toLowerCase(), header[1].trim());
+                if(header[0].trim().equalsIgnoreCase("cookie")) parseCookie(request, header[1].trim());
+                else request.setHeader(header[0].trim().toLowerCase(), header[1].trim());
             }
         }
 
         logger.debug("Parsed Headers:\n{}", headerPart);
+    }
+
+    private static void parseCookie(HttpRequest request, String cookieString) {
+        String[] cookies = cookieString.split(";");
+        for (String cookie : cookies) {
+            String[] cookieParts = cookie.split("=");
+            if (cookieParts.length == 2) {
+                if(cookieParts[0].trim().equalsIgnoreCase(HttpSession.SESSION_NAME)) request.setSessionId(cookieParts[1].trim());
+                Cookie requestedCookie = new Cookie(cookieParts[0].trim(), cookieParts[1].trim());
+                request.addCookie(requestedCookie);
+            }
+        }
     }
 
     private static void parseBody(String rawRequest, InputStream inputStream, HttpRequest request, int contentLength) throws IOException {

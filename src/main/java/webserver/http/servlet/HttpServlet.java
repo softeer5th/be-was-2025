@@ -18,6 +18,7 @@ public abstract class HttpServlet {
             default:
                 response.setStatus(HttpStatus.NOT_FOUND);
         }
+        response.send();
     }
 
     protected void doGet(HttpRequest request, HttpResponse response) {

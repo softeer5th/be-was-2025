@@ -21,7 +21,7 @@ public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private final Socket connection;
     private final ServletMapper servletManager;
-    
+
     public RequestHandler(Socket connectionSocket , ServletMapper servletManager) {
         this.connection = connectionSocket;
         this.servletManager = servletManager;
@@ -36,6 +36,7 @@ public class RequestHandler implements Runnable {
 
             HttpRequest request = HttpRequestParser.parse(in);
             HttpResponse response = new HttpResponse(request, dos);
+            request.setResponse(response);
 
             if (requestStaticResource(request)) {
                 serveStaticResource(request, response);

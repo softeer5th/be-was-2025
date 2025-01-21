@@ -1,17 +1,20 @@
 package webserver.http;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.http.cookie.Cookie;
+
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class HttpResponse {
+    private final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
     private HttpRequest request;
     private DataOutputStream dos;
     private HttpStatus status = HttpStatus.OK;
     private final Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> cookies = new HashMap<>();
     private byte[] body;
-
-    public HttpResponse() {}
 
     public HttpResponse(HttpRequest request, DataOutputStream dos) {
         this.request = request;
@@ -21,10 +24,11 @@ public class HttpResponse {
     public void send() {
         try {
             writeStatusLine();
+            writeCookies();
             writeHeaders();
             writeBody();
         } catch (IOException e){
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -32,7 +36,7 @@ public class HttpResponse {
         try {
             readFile(file);
         } catch (IOException e){
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -42,6 +46,10 @@ public class HttpResponse {
 
     public void setContentLength(long contentLength) {
         setHeader("Content-Length", String.valueOf(contentLength));
+    }
+
+    public void addCookie(Cookie cookie) {
+        cookies.put(cookie.getName(), cookie.toString());
     }
 
     public void setRequest(HttpRequest request) {
@@ -73,6 +81,15 @@ public class HttpResponse {
                 "\r\n";
 
         dos.writeBytes(statusLine);
+    }
+
+    private void writeCookies() throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String cookie : cookies.values()) {
+            stringBuilder.append("Set-Cookie: ").append(cookie).append("\r\n");
+        }
+
+        dos.writeBytes(stringBuilder.toString());
     }
 
     private void writeHeaders() throws IOException {
