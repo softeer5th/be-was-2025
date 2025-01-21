@@ -23,6 +23,6 @@ public class Parameter {
     }
 
     public static String setPostId(String path, int postId) {
-        return path + "?postid=" + postId;
+        return path + "?postId=" + postId;
     }
 }

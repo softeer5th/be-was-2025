@@ -101,7 +101,7 @@ public class Database {
     }
 
     public static Post getPostById(String userId, int postId) {
-        String selectQuery = "SELECT * FROM Users WHERE userId = ? AND id = ?";
+        String selectQuery = "SELECT * FROM Posts WHERE userId = ? AND id = ?";
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
             preparedStatement.setString(1, userId);
@@ -116,7 +116,7 @@ public class Database {
                 );
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding post", e);
+            throw new RuntimeException(e.getMessage());
         }
         return null;
     }
