@@ -102,63 +102,7 @@ public class HttpRequestInfo {
         return cookieMap;
     }
 
-    /*
-        private String parseRequestBody(BufferedReader reader) throws IOException {
-            String line;
-            boolean isBody = false;
-            int contentLength = 0;
-            StringBuilder body = new StringBuilder();
 
-            while ((line = reader.readLine()) != null) {
-                if (line.isEmpty()) { // 헤더와 본문 사이의 빈 줄
-                    isBody = true;
-                    break;
-                }
-                if (line.toLowerCase().startsWith("content-length:")) {
-                    contentLength = Integer.parseInt(line.split(":")[1].trim());
-                } else if (line.toLowerCase().startsWith("cookie:")) {
-                    parseCookies(line.substring(8).trim());
-                } else {
-                    String[] headerParts = line.split(": ", 2);
-                    if (headerParts.length == 2) {
-                        headers.put(headerParts[0].trim(), headerParts[1].trim());
-                    }
-                }
-            }
-
-            if (isBody && contentLength > 0) {
-                char[] buffer = new char[contentLength];
-                int read = reader.read(buffer, 0, contentLength);
-                if (read > 0) {
-                    body.append(buffer, 0, read);
-                }
-                logger.debug("Body = {}", body);
-            }
-            return body.toString();
-        }
-
-        private void parseCookies(String cookieHeader) {
-            String[] cookieParts = cookieHeader.split("; ");
-            Cookie newCookie = null;
-
-            for (String part : cookieParts) {
-                if (part.contains("=")) {
-                    String[] keyValue = part.split("=", 2);
-                    String name = keyValue[0].trim();
-                    String value = keyValue[1].trim();
-
-                    newCookie = new Cookie(name, value);
-                    cookies.put(name, newCookie);
-                } else {
-                    if (newCookie != null) {
-                        applyCookieOption(newCookie, part.trim(), "");
-                    }
-                }
-
-                logger.debug("Parsed Cookies: {}", newCookie);
-            }
-        }
-    */
     private void applyCookieOption(Cookie cookie, String option, String value) {
         switch (option.toLowerCase()) {
             case "max-age":
