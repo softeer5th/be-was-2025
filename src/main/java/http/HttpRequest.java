@@ -81,7 +81,7 @@ public class HttpRequest {
         logger.debug("request Body: {}", new String(result));
         return result;
     }
-    
+
     public HttpMethod getMethod() {
         return method;
     }

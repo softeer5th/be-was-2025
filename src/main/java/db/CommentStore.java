@@ -1,8 +1,6 @@
 package db;
 
-import model.Article;
 import model.Comment;
-import model.User;
 
 import java.util.Comparator;
 import java.util.List;

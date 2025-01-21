@@ -47,7 +47,8 @@ public class ArticleHandler implements Handler {
         Session session = SessionUtils.findSession(httpRequest);
         User user = Database.findUserById(session.userId())
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
-        Map<String, String> data = RequestParser.parseBody(httpRequest);
+        String body = new String(httpRequest.getBody());
+        Map<String, String> data = RequestParser.parseBody(body);
 
         String content = data.get("content");
 

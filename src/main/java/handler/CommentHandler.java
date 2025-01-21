@@ -51,7 +51,7 @@ public class CommentHandler implements Handler {
         Session session = SessionUtils.findSession(httpRequest);
         User user = Database.findUserById(session.userId())
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
-        Map<String, String> data = RequestParser.parseBody(httpRequest);
+        Map<String, String> data = RequestParser.parseBody(new String(httpRequest.getBody()));
 
         String commentContent = data.get("content");
         String articleId = data.get("article");

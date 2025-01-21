@@ -23,7 +23,7 @@ public class UserHandler {
     }
 
     public void createUser(HttpRequest request, HttpResponse response) throws UnsupportedEncodingException {
-        Map<String, String> data = RequestParser.parseBody(request);
+        Map<String, String> data = RequestParser.parseBody(new String(request.getBody()));
         String userId = data.get("userId");
         String username = data.get("username");
         String password = data.get("password");
@@ -46,7 +46,7 @@ public class UserHandler {
     }
 
     public void loginUser(HttpRequest request, HttpResponse response) throws UnsupportedEncodingException {
-        Map<String, String> data = RequestParser.parseBody(request);
+        Map<String, String> data = RequestParser.parseBody(new String(request.getBody()));
         String userId = data.get("userId");
         String password = data.get("password");
         if (userId == null || password == null) {
