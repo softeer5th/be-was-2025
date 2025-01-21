@@ -35,6 +35,7 @@ public class HtmlContentReplacer {
             postProperties.put("$postContent", post.getContent());
             postProperties.put("$postUserId", post.getUserId());
         }
+        postProperties.put("$nowPost", PostManager.getNowPostId(postId));
         postProperties.put("$nextPost", PostManager.getNextPostId(postId));
         postProperties.put("$prevPost", PostManager.getPrevPostId(postId));
     }

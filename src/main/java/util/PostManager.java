@@ -35,4 +35,8 @@ public class PostManager {
         }
         return "?postId=" + (postId - 1);
     }
+
+    public static String getNowPostId(int postId) {
+        return "?postId=" + postId;
+    }
 }
