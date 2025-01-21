@@ -1,18 +1,14 @@
 package handler;
 
 import db.ArticleStore;
-import db.Database;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.constant.HttpStatus;
 import model.Article;
-import model.Session;
-import model.User;
 import util.DynamicHtmlEditor;
 import util.FileUtils;
 import util.MimeType;
 import util.SessionUtils;
-import util.exception.UserNotFoundException;
 
 import java.io.File;
 import java.io.IOException;

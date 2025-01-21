@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ApiPathPool;
 import util.StaticResourcePathPool;
-import util.exception.NoSuchPathException;
-import util.exception.NotAllowedMethodException;
-import util.exception.SessionNotFoundException;
-import util.exception.UserNotFoundException;
+import util.exception.*;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -53,7 +50,13 @@ public class HttpRequestDispatcher {
             httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof SessionNotFoundException ex) {
-                httpResponse.sendError(ex.httpStatus, e.getMessage());
+                httpResponse.sendError(ex.httpStatus, ex.getMessage());
+            }
+            if (e.getCause() instanceof UserNotFoundException ex) {
+                httpResponse.sendError(ex.httpStatus, ex.getMessage());
+            }
+            if (e.getCause() instanceof ArticleNotFoundException ex) {
+                httpResponse.sendError(ex.httpStatus, ex.getMessage());
             }
         }
     }

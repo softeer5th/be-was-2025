@@ -14,6 +14,7 @@ import util.DynamicHtmlEditor;
 import util.FileUtils;
 import util.MimeType;
 import util.SessionUtils;
+import util.exception.ArticleNotFoundException;
 import util.exception.UserNotFoundException;
 
 import java.io.File;
@@ -59,7 +60,7 @@ public class CommentHandler implements Handler {
         String articleId = data.get("article");
 
         Article article = ArticleStore.findArticleById(articleId)
-                .orElseThrow(() -> new RuntimeException());
+                .orElseThrow(() -> new ArticleNotFoundException("해당 게시글이 없습니다."));
 
         Comment comment = new Comment(commentContent, user, article);
         CommentStore.addComment(comment);
