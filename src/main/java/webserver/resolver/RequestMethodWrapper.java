@@ -42,10 +42,11 @@ public class RequestMethodWrapper implements ResourceResolver {
                     response.setHeader(header.getKey(), header.getValue());
                 }
                 response.contentType(unwrapped.getContentType());
-                ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                try (ObjectOutputStream oos = new ObjectOutputStream(bout)) {
+                try (ByteArrayOutputStream bout = new ByteArrayOutputStream();) {
                     Object object = unwrapped.getData();
-                    oos.writeObject(object);
+                    if (object instanceof String) {
+                        bout.write(((String)object).getBytes());
+                    }
                     response.body(bout.toByteArray());
                 }
                 response.setCookies(unwrapped.getSetCookies());
