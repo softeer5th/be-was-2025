@@ -31,7 +31,7 @@ public class UserManager {
     }
 
     public void createUser(final UserCreateRequest request) {
-        if (userDatabase.findUserById(request.userId()).isPresent())
+        if (userDatabase.findUserByUserId(request.userId()).isPresent())
             throw new ClientErrorException(ALREADY_EXIST_USERID);
 
         User user = new User(request.userId(),
@@ -45,18 +45,27 @@ public class UserManager {
         final User user = getOrElseThrow(userLoginRequest.userId());
         validPassword(user.getPassword(), userLoginRequest.password());
 
-        return sessionManager.makeAndSaveSessionId(userLoginRequest.userId());
+        return sessionManager.makeAndSaveSessionId(user.getId());
     }
 
-    public Optional<String> getNameFromSession(String sessionId) {
+    public Optional<Integer> getIdFromSession(String sessionId) {
         if (sessionId == null)
             return Optional.empty();
-        final String userId = sessionManager.getUserId(sessionId);
-        if (userId == null)
+        final Integer id = sessionManager.getId(sessionId);
+        if (id == null)
             return Optional.empty();
 
-        return userDatabase.findUserById(userId)
-                .map(User::getName);
+        return Optional.of(id);
+    }
+
+    public Optional<User> getUserFromSession(String sessionId) {
+        if (sessionId == null)
+            return Optional.empty();
+        final Integer id = sessionManager.getId(sessionId);
+        if (id == null)
+            return Optional.empty();
+
+        return userDatabase.findUserById(id);
     }
 
     public void logoutUser(final String sessionId) {
@@ -69,6 +78,6 @@ public class UserManager {
     }
 
     private User getOrElseThrow(final String userId) {
-        return userDatabase.findUserById(userId).orElseThrow(() -> new LoginException(NO_SUCH_USER_ID));
+        return userDatabase.findUserByUserId(userId).orElseThrow(() -> new LoginException(NO_SUCH_USER_ID));
     }
 }
