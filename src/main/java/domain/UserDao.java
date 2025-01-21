@@ -11,10 +11,6 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
-    private static final String CREATE_TABLE = """
-            CREATE TABLE IF NOT EXISTS users 
-            (userId VARCHAR(20), passwordHash VARCHAR(200), name VARCHAR(20), email VARCHAR(50), PRIMARY KEY(userId))
-            """;
     private static final String UPSERT_USER = """
             MERGE INTO users (userId, name, passwordHash, email)
             KEY (userId)
@@ -31,9 +27,6 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
         this.database = database;
     }
 
-    public void initTable() {
-        executeUpdate(i -> i == 0, CREATE_TABLE);
-    }
 
     public boolean saveUser(User user) {
         return executeUpdate(i -> i > 0, UPSERT_USER, user.getUserId(), user.getName(), user.getPasswordHash(), user.getEmail());
