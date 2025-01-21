@@ -2,7 +2,8 @@ package manager;
 
 
 import constant.HTTPCode;
-import db.Database;
+import db.ArticleDatabase;
+import db.UserDatabase;
 import db.SessionDatabase;
 import model.Article;
 import model.User;
@@ -33,7 +34,7 @@ public class ArticleManager {
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
         String userId = optionalUserId.get();
-        Optional<User> optionalUser = Database.findUserById(userId);
+        Optional<User> optionalUser = UserDatabase.findUserById(userId);
         if(optionalUser.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
@@ -43,13 +44,13 @@ public class ArticleManager {
 
         Article article = new Article(user.getUserId(),content);
 
-        Database.addArticle(article);
+        ArticleDatabase.addArticle(article);
 
         return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterCreateArticle);
     }
 
     public HTTPResponse getAllArticles(HTTPRequest httpRequest){
-        return HTTPResponse.createSuccessResponse(httpRequest.getHttpVersion(),HTTPCode.OK, Database.findAllArticles());
+        return HTTPResponse.createSuccessResponse(httpRequest.getHttpVersion(),HTTPCode.OK, ArticleDatabase.findAllArticles());
     }
 
 

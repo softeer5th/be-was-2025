@@ -1,6 +1,6 @@
 package manager;
 
-import db.Database;
+import db.UserDatabase;
 import response.HTTPResponse;
 import constant.HTTPCode;
 import db.SessionDatabase;
@@ -24,7 +24,7 @@ public class UserManager {
 
 
     public HTTPResponse signUp(HTTPRequest httpRequest){
-        if(Database.userExists(httpRequest.getBodyParameter("userId"))){
+        if(UserDatabase.userExists(httpRequest.getBodyParameter("userId"))){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(),HTTPCode.ALREADY_EXIST_USER);
         }
 
@@ -32,7 +32,7 @@ public class UserManager {
                 ,httpRequest.getBodyParameter("password")
                 ,httpRequest.getBodyParameter("name")
                 ,httpRequest.getBodyParameter("email"));
-        Database.addUser(user);
+        UserDatabase.addUser(user);
         logger.debug("signUp : " + user.getUserId());
         return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterSignUp);
 
@@ -40,7 +40,7 @@ public class UserManager {
 
     public HTTPResponse logIn(HTTPRequest httpRequest){
 
-        Optional<User> optionalUser = Database.findUserById(httpRequest.getBodyParameter("userId"));
+        Optional<User> optionalUser = UserDatabase.findUserById(httpRequest.getBodyParameter("userId"));
         if(optionalUser.isEmpty()){
             return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
@@ -71,7 +71,7 @@ public class UserManager {
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
         String userId = optionalUserId.get();
-        Optional<User> optionalUser = Database.findUserById(userId);
+        Optional<User> optionalUser = UserDatabase.findUserById(userId);
         if(optionalUser.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
