@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 /**
- * 게시글 정보를 데이터베이스에 접근하여 처리하는 클래스
+ * 게시글 정보를 데이터베이스에 저장하거나 조회하는 클래스
  */
 public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleDao> {
     private static final String INSERT_ARTICLE = """
@@ -48,6 +48,11 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
             """;
     private final Database database;
 
+    /**
+     * ArticleDao 객체를 생성한다.
+     *
+     * @param database 사용할 데이터베이스
+     */
     public ArticleDao(Database database) {
         this.database = database;
     }
@@ -118,12 +123,6 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
         }, SELECT_PREVIOUS_ARTICLE_ID, articleId);
     }
 
-    /**
-     * 트랜잭션에 참여한다.
-     *
-     * @param transaction 참여할 트랜잭션
-     * @return 트랜잭션에 참여한 새로운 UserDao
-     */
     @Override
     public ArticleDao joinTransaction(Transaction transaction) {
         return new ArticleDao(null) {
