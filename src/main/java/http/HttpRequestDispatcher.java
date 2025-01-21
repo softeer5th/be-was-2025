@@ -51,12 +51,12 @@ public class HttpRequestDispatcher {
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof SessionNotFoundException ex) {
                 httpResponse.sendError(ex.httpStatus, ex.getMessage());
-            }
-            if (e.getCause() instanceof UserNotFoundException ex) {
+            } else if (e.getCause() instanceof UserNotFoundException ex) {
                 httpResponse.sendError(ex.httpStatus, ex.getMessage());
-            }
-            if (e.getCause() instanceof ArticleNotFoundException ex) {
+            } else if (e.getCause() instanceof ArticleNotFoundException ex) {
                 httpResponse.sendError(ex.httpStatus, ex.getMessage());
+            } else {
+                httpResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
     }

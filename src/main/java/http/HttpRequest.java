@@ -9,6 +9,7 @@ import util.Cookie;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class HttpRequest {
     private final String version;
     private final Map<String,String> queries;
     private final Map<String, String> headers;
-    private final String body;
+    private final byte[] body;
 
     private final URI uri;
 
@@ -78,12 +79,14 @@ public class HttpRequest {
         return query;
     }
 
-    private String extractBody(List<String> request) {
+    private byte[] extractBody(List<String> request) {
         if (!headers.containsKey(HttpHeader.CONTENT_LENGTH.value().toLowerCase())) {
             return null;
         }
         int len = request.size();
-        return request.get(len - 1);
+        byte[] result = request.get(len - 1).getBytes();
+        logger.debug("request Body: {}", new String(result));
+        return result;
     }
 
     private String[] resolveQuery(String query) {
@@ -114,7 +117,7 @@ public class HttpRequest {
         return uri;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
     }
 

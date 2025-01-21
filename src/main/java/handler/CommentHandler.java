@@ -19,6 +19,8 @@ import util.exception.UserNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +48,7 @@ public class CommentHandler implements Handler {
         httpResponse.send();
     }
 
-    public void postComment(HttpRequest httpRequest, HttpResponse httpResponse) {
+    public void postComment(HttpRequest httpRequest, HttpResponse httpResponse) throws UnsupportedEncodingException {
         if (!SessionUtils.isLogin(httpRequest)) {
             httpResponse.redirect("/");
             return;
@@ -70,9 +72,10 @@ public class CommentHandler implements Handler {
         httpResponse.redirect("/main");
     }
 
-    private Map<String, String> parseBody(HttpRequest request) {
+    private Map<String, String> parseBody(HttpRequest request) throws UnsupportedEncodingException {
         Map<String, String> map = new HashMap<>();
-        String body = request.getBody();
+        String body = new String(request.getBody());
+        body = URLDecoder.decode(body, "utf-8");
         String[] tokens = body.split("&");
         for(String token: tokens) {
             String[] items = token.split("=");
