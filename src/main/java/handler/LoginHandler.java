@@ -1,6 +1,8 @@
 package handler;
 
 import model.User;
+import util.Parameter;
+import util.PostManager;
 import util.UserManager;
 import util.enums.CookieName;
 import util.enums.HttpStatusCode;
@@ -21,7 +23,9 @@ public class LoginHandler extends Handler{
             String setCookieString = new CookieManager
                     .SetCookie(CookieName.SESSION_COOKIE.getName(), session.getId())
                     .path(Page.MAIN_PAGE.getPath()).build();
-            response.addHeader("Location", Page.MAIN_LOGIN.getPath());
+            String path = Parameter
+                    .setPostId(Page.MAIN_LOGIN.getPath(), PostManager.getFirstPostId(user.getUserId()));
+            response.addHeader("Location", path);
             response.addHeader("Set-Cookie", setCookieString);
         } catch (IllegalArgumentException e) {
             response.addHeader("Location", Page.LOGIN.getPath());

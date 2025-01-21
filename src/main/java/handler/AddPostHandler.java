@@ -1,5 +1,6 @@
 package handler;
 
+import util.Parameter;
 import util.PostManager;
 import util.enums.HttpStatusCode;
 import util.enums.Page;
@@ -16,7 +17,9 @@ public class AddPostHandler extends Handler{
 
         try {
             PostManager.addPost(userId, request.getBody());
-            response.addHeader("Location", Page.MAIN_LOGIN.getPath());
+            String path = Parameter
+                    .setPostId(Page.MAIN_LOGIN.getPath(), PostManager.getFirstPostId(userId));
+            response.addHeader("Location", path);
         } catch (IllegalArgumentException e) {
             response.setStatusCode(HttpStatusCode.SEE_OTHER);
             response.addHeader("Location", Page.ARTICLE.getPath());

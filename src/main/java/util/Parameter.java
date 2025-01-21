@@ -21,4 +21,8 @@ public class Parameter {
     public String getValue(String key) {
         return parameterMap.get(key);
     }
+
+    public static String setPostId(String path, int postId) {
+        return path + "?postid=" + postId;
+    }
 }
