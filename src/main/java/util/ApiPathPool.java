@@ -1,9 +1,9 @@
 package util;
 
+import handler.*;
 import http.constant.HttpMethod;
 import http.HttpRequest;
 import http.HttpResponse;
-import handler.UserHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.exception.NotAllowedMethodException;
@@ -13,15 +13,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PathPool {
-    private static final Logger logger = LoggerFactory.getLogger(PathPool.class);
+public class ApiPathPool {
+    private static final Logger logger = LoggerFactory.getLogger(ApiPathPool.class);
     private final ConcurrentHashMap<String, ConcurrentHashMap<HttpMethod, Method>> methodMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Object> classMap = new ConcurrentHashMap<>();
-    private static final PathPool instance;
+
+    private static final ApiPathPool instance;
 
     static {
         try {
-            instance = new PathPool();
+            instance = new ApiPathPool();
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
@@ -33,8 +34,11 @@ public class PathPool {
         }
     }
 
-    private PathPool() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+    private ApiPathPool() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+        initApiPath();
+    }
 
+    private void initApiPath() throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         Constructor<UserHandler> c = UserHandler.class.getDeclaredConstructor();
         UserHandler userHandler = c.newInstance();
 
@@ -68,7 +72,7 @@ public class PathPool {
         return true;
     }
 
-    public static PathPool getInstance() {
+    public static ApiPathPool getInstance() {
         return instance;
     }
 
@@ -79,5 +83,4 @@ public class PathPool {
     public Object getClass(String path) {
         return classMap.get(path);
     }
-
 }
