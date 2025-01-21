@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import controller.BoardController;
 import controller.HomeController;
 import controller.SignUpController;
 import controller.UserController;
@@ -32,7 +33,8 @@ public class WebServer {
         ServletManager servletManager = new ServletManager(List.of(
                 new HomeController(),
                 new SignUpController(),
-                new UserController()),
+                new UserController(),
+                new BoardController()),
                 new HttpRequestFactory()
         );
 
