@@ -1,5 +1,6 @@
 package db;
 
+import model.Comment;
 import model.Post;
 import model.User;
 
@@ -156,4 +157,27 @@ public class Database {
         }
         return -1;
     }
+
+    public static List<Comment> findComments(int postId) {
+        String selectQuery = "SELECT * FROM Comments WHERE postId = ?";
+        List<Comment> comments = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+            preparedStatement.setInt(1, postId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                comments.add(new Comment(
+                        resultSet.getInt("id"),
+                        resultSet.getString("userId"),
+                        resultSet.getInt("postId"),
+                        resultSet.getString("content")
+                ));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding comments for postId: " + postId, e);
+        }
+        return comments;
+    }
+
 }

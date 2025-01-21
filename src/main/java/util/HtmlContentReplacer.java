@@ -1,27 +1,29 @@
 package util;
 
+import model.Comment;
 import model.Post;
 import model.User;
 import webserver.session.SessionManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HtmlContentReplacer {
     private static final String startIfString = "<my_if";
     private static final String endIfString = "</my_if>";
     private static final String isDynamicHtml = "<dynamic />";
-    private final Map<String, String> userProperties = new HashMap<>();
-    private final Map<String, String> postProperties = new HashMap<>();
+    private final String startCommentTag = "<comment_for_post>";
+    private final Map<String, String> properties = new HashMap<>();
     private boolean hasPost = false;
     private int postId = -1;
 
     public HtmlContentReplacer(String sid){
         if(sid != null) {
             User user = (User) SessionManager.getSession(sid).getUser();
-            userProperties.put("$userId", user.getUserId());
-            userProperties.put("$userName", user.getName());
-            userProperties.put("$userEmail", user.getEmail());
+            properties.put("$userId", user.getUserId());
+            properties.put("$userName", user.getName());
+            properties.put("$userEmail", user.getEmail());
         }
     }
 
@@ -31,13 +33,13 @@ public class HtmlContentReplacer {
         if(postId != -1) {
             Post post = PostManager.getPost(postId);
             hasPost = true;
-            postProperties.put("$postTitle", post.getTitle());
-            postProperties.put("$postContent", post.getContent());
-            postProperties.put("$postUserId", post.getUserId());
+            properties.put("$postTitle", post.getTitle());
+            properties.put("$postContent", post.getContent());
+            properties.put("$postUserId", post.getUserId());
         }
-        postProperties.put("$nowPost", PostManager.getNowPostId(postId));
-        postProperties.put("$nextPost", PostManager.getNextPostId(postId));
-        postProperties.put("$prevPost", PostManager.getPrevPostId(postId));
+        properties.put("$nowPost", PostManager.getNowPostId(postId));
+        properties.put("$nextPost", PostManager.getNextPostId(postId));
+        properties.put("$prevPost", PostManager.getPrevPostId(postId));
     }
 
     public byte[] replace(byte[] body) {
@@ -70,14 +72,39 @@ public class HtmlContentReplacer {
             }
         }
 
-        for(String property : userProperties.keySet()){
-            html = html.replace(property, userProperties.get(property));
-        }
-        for (String property : postProperties.keySet()) {
-            html = html.replace(property, postProperties.get(property));
+        if(html.contains(startCommentTag)) {
+            html = replaceComment(html, CommentManager.getCommentsByPost(postId));
         }
 
+        for(String property : properties.keySet()) {
+            html = html.replace(property, properties.get(property));
+        }
 
         return html.getBytes();
     }
+
+    private String replaceComment(String html, List<Comment> comments) {
+        properties.put("$commentAmmount", String.valueOf(comments.size()));
+        final String endCommentTag = "</comment_for_post>";
+
+        int startIndex = html.indexOf(startCommentTag);
+        int endIndex = html.indexOf(endCommentTag, startIndex);
+        if (endIndex == -1) {
+            return html;
+        }
+
+        String content = html.substring(startIndex, endIndex + endCommentTag.length());
+        String template = html.substring(startIndex + startCommentTag.length(), endIndex).trim();
+
+        StringBuilder newContent = new StringBuilder();
+        for (Comment comment : comments) {
+            String renderedComment = template
+                    .replace("$commentUserId", comment.getUserId())
+                    .replace("$commentContent", comment.getContent());
+            newContent.append(renderedComment).append("\n");
+        }
+
+        return html.replace(content, newContent.toString());
+    }
+
 }
