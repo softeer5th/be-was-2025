@@ -35,7 +35,7 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
             SELECT articleId
             FROM articles
             WHERE articleId > ?
-            ORDER BY articleId DESC
+            ORDER BY articleId ASC
             LIMIT 1
             """;
     private static final String SELECT_PREVIOUS_ARTICLE_ID = """
