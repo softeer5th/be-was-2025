@@ -126,9 +126,13 @@
                         </a>
                     </li>
                 </my-if>
-                <li class="nav__menu__item">
-                    <a class="btn btn_ghost btn_size_m">댓글 작성</a>
-                </li>
+                <my-if condition="article">
+                    <my-text>
+                        <li class="nav__menu__item">
+                            <a class="btn btn_ghost btn_size_m" href="/article/${article.articleId}/comment">댓글 작성</a>
+                        </li>
+                    </my-text>
+                </my-if>
                 <my-if condition="nextArticleId">
                     <my-text>
                         <li class="nav__menu__item">

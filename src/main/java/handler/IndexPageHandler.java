@@ -1,6 +1,7 @@
 package handler;
 
 import domain.ArticleDao;
+import domain.CommentDao;
 import webserver.request.HttpRequest;
 
 /**
@@ -12,8 +13,8 @@ public class IndexPageHandler extends ReadArticleHandler {
      *
      * @param articleDao 게시글 조회 시 사용하는 ArticleDao 객체
      */
-    public IndexPageHandler(ArticleDao articleDao) {
-        super(articleDao);
+    public IndexPageHandler(ArticleDao articleDao, CommentDao commentDao) {
+        super(articleDao, commentDao);
     }
 
     @Override

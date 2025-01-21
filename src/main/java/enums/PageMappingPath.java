@@ -5,7 +5,7 @@ public enum PageMappingPath {
     INDEX("/"),
     READ_ARTICLE("/article/{articleId}"),
     WRITE_ARTICLE("/article"),
-    WRITE_COMMENT("/comment"),
+    WRITE_COMMENT("/article/{articleId}/comment"),
     LOGIN("/login"),
     LOGOUT("/logout"),
     MYPAGE("/mypage"),
@@ -20,4 +20,5 @@ public enum PageMappingPath {
     public static String readArticlePath(Long articleId) {
         return READ_ARTICLE.path.replace("{articleId}", articleId.toString());
     }
+
 }
