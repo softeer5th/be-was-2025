@@ -51,10 +51,9 @@ public class UpdateUserServlet extends HttpServlet {
         response.setStatus(HttpStatus.FOUND);
         if(newPassword != null) {
             response.setHeader("location", "/mypage/success.html");
+            session.invalidate();
         } else {
             response.setHeader("location", "/");
         }
-
-        session.invalidate();
     }
 }
