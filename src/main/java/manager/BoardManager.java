@@ -2,7 +2,6 @@ package manager;
 
 import db.PostDatabase;
 import model.Post;
-import util.AutoKeyGenerator;
 
 import java.util.List;
 
@@ -23,12 +22,12 @@ public class BoardManager {
         return instance;
     }
 
-    public void save(String title){
-        Post post = new Post(AutoKeyGenerator.getKey(), title);
+    public void save(String content, String author) {
+        Post post = new Post(content, author);
         postDatabase.addPost(post);
     }
 
-    public List<Post> getPosts(){
+    public List<Post> getPosts() {
         return postDatabase.findAll();
     }
- }
+}

@@ -21,6 +21,7 @@ public enum ErrorCode {
     FILE_NOT_FOUND(BAD_REQUEST, "존재하지 않는 파일입니다."),
     NOT_ALLOWED_PATH(BAD_REQUEST, "잘못된 요청입니다."),
     ALREADY_EXIST_USERID(BAD_REQUEST,"이미 존재하는 userId입니다."),
+    INVALID_AUTHORITY(UNAUTHORIZED,"로그인한 사용지만 글을 작성할 수 있습니다."),
     NO_SUCH_USER_ID(BAD_REQUEST,"존재하지 않는 userId입니다."),
     INCORRECT_PASSWORD(BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
 
