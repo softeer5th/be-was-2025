@@ -48,7 +48,25 @@ public class UserDatabase {
         }
     }
 
-    public Optional<User> findUserById(String userId) {
+    public Optional<User> findUserById(int id) {
+        String query = "SELECT * FROM member WHERE id = ?";
+        try (Connection conn = DBConnectionManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User(rs.getInt("id"), rs.getString("user_id"), rs.getString("password"), rs.getString("nickname"), rs.getString("email"));
+                    return Optional.of(user);
+                }
+            }
+        } catch (SQLException e) {
+            throw new ServerErrorException(ERROR_WITH_DATABASE);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<User> findUserByUserId(String userId) {
         String query = "SELECT * FROM member WHERE user_id = ?";
         try (Connection conn = DBConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -56,7 +74,7 @@ public class UserDatabase {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    User user = new User(rs.getString("user_id"), rs.getString("password"), rs.getString("nickname"), rs.getString("email"));
+                    User user = new User(rs.getInt("id"), rs.getString("user_id"), rs.getString("password"), rs.getString("nickname"), rs.getString("email"));
                     return Optional.of(user);
                 }
             }
