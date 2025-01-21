@@ -24,9 +24,9 @@
         private static final String DEFAULT_HTTP_VERSION = "HTTP/1.1";
         private final Map<String, RequestProcessor> handlerMap = Map.of(
                 // route handler
-                "/", new DefaultHandler(),
-                "/registration", new RegistrationHandler(),
-                "/login", new LoginHandler(),
+                "/", new DefaultPageHandler(),
+                "/registration", new RegistrationPageHandler(),
+                "/login", new LoginPageHandler(),
                 "/mypage", new MyPageHandler(),
                 // service handler
                 "/user/create", new UserCreateHandler(),
@@ -131,7 +131,6 @@
                     logger.debug("path: {}, params: {}", path, queryParams);
                     logger.debug("method: {}", method);
 
-                    // Todo: POST 요청에서 파싱하는 과정을 메서드로 처리할 수 있을 듯 함.
                     RequestProcessor handler = handlerMap.getOrDefault(path, new StaticResourceHandler());
                     HTTPResponse response = handler.handle(requestHeader, requestBody, responseHeader, cookieList);
 

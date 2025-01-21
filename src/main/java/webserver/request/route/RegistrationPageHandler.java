@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-public class RegistrationHandler implements RequestProcessor {
+public class RegistrationPageHandler implements RequestProcessor {
     @Override
     public HTTPResponse handle(HTTPRequestHeader requestHeader, HTTPRequestBody requestBody, HTTPResponseHeader responseHeader, List<Cookie> cookieList) throws IOException {
         HTTPResponseBody responseBody;

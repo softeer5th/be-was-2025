@@ -1,8 +1,7 @@
 package webserver.request.route;
 
-import model.ContentType;
 import model.Cookie;
-import webserver.*;
+import webserver.HTTPExceptions;
 import webserver.request.HTTPRequestBody;
 import webserver.request.HTTPRequestHeader;
 import webserver.request.RequestProcessor;
@@ -10,15 +9,13 @@ import webserver.response.HTTPResponse;
 import webserver.response.HTTPResponseBody;
 import webserver.response.HTTPResponseHeader;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
-public class LoginHandler implements RequestProcessor {
+public class DefaultPageHandler implements RequestProcessor {
     @Override
     public HTTPResponse handle(HTTPRequestHeader requestHeader, HTTPRequestBody requestBody, HTTPResponseHeader responseHeader, List<Cookie> cookieList) throws IOException {
-        HTTPResponseBody responseBody;
+        HTTPResponseBody responseBody = null;
 
         try {
             String method = requestHeader.getMethod();
@@ -26,16 +23,8 @@ public class LoginHandler implements RequestProcessor {
                 throw new HTTPExceptions.Error405("Method not supported " + method);
             }
 
-            File file = new File("src/main/resources/static/login/index.html");
-            if (!file.exists()) {
-                throw new HTTPExceptions.Error404("login/index.html not found");
-            }
-
-            responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));
-
-            responseHeader.setStatusCode(200);
-            responseHeader.addHeader("Content-Type", ContentType.getContentType(".html"));
-            responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
+            responseHeader.setStatusCode(302);
+            responseHeader.addHeader("Location", "/index.html");
         } catch (HTTPExceptions e) {
             responseHeader.setStatusCode(e.getStatusCode());
             responseBody = new HTTPResponseBody(HTTPExceptions.getErrorMessageToBytes(e.getMessage()));
