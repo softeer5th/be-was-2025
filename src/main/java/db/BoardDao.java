@@ -4,10 +4,7 @@ import model.Board;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Optional;
 
 import static db.DBUtils.close;
@@ -54,25 +51,30 @@ public enum BoardDao {
      * @return
      */
     public Optional<Board> save(Board board){
-        String sql = "insert into boards(board_id, contents, writer, image_path) values (?, ?, ?, ?)";
+        String sql = "insert into boards(contents, writer, image_path) values (?, ?, ?)";
         Connection con = null;
         PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try{
             con = getConnection();
-            pstmt = con.prepareStatement(sql);
-            // 직접 계산하면 Thread Safe 하지 않음. 수정 요망 TODO
-            long boardId = getBoardSize() + 1;
-            pstmt.setLong(1, boardId);
-            pstmt.setString(2, board.getContents());
-            pstmt.setString(3, board.getWriter());
-            pstmt.setString(4, board.getImagePath());
+            pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, board.getContents());
+            pstmt.setString(2, board.getWriter());
+            pstmt.setString(3, board.getImagePath());
             pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+            long boardId = 0L;
+            if(rs.next()){
+                boardId = rs.getLong(1);
+            }else{
+                throw new SQLException("생성된 ID가 없음");
+            }
             Board newBoard = new Board(boardId, board.getWriter(), board.getContents(), board.getImagePath());
             return Optional.of(newBoard);
         } catch (SQLException e) {
             log.error("save 예외: ", e);
         }finally {
-            close(null, pstmt, con);
+            close(rs, pstmt, con);
         }
         return Optional.empty();
     }
