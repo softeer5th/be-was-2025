@@ -101,11 +101,16 @@ public class DynamicHomeHandler implements Handler {
                             """)
                     .append(addLikeSvg(post.getId(), user))
                     .append("""
-                                  </li>
-                                  <li>
-                                    <button class="post__menu__btn">
-                                      <img src="./img/sendLink.svg" />
-                                    </button>
+                            </li>
+                            <li>
+                            """)
+                    .append("""
+                              <a href="mailto:example@example.com">
+                              <button class="post__menu__btn">
+                                <img src="./img/sendLink.svg" alt="Send Email" />
+                              </button>
+                            </a>
+                            """).append("""  
                                   </li>
                                 </ul>
                                 <button class="post__menu__btn">
@@ -176,10 +181,11 @@ public class DynamicHomeHandler implements Handler {
     private void addUserNameToHtml(String name, StringBuilder dynamicHtmlContent) {
         name = URLDecoder.decode(name, UTF_8);
         dynamicHtmlContent
-                .append("<a class=\"btn btn_contained btn_size_s\" href=\"/article/index.html\"> 글쓰기 </a>")
-                .append("<a class=\"btn btn_contained btn_size_s\" href=\"/mypage/index.html\">")
+                .append("<a class=\"my-page-link\" href=\"/mypage/index.html\">")
                 .append(name)
                 .append("님</a>")
-                .append("<a href=\"/user/logout\"> 로그아웃 </a>");
+                .append("<a class=\"write-article-link\" href=\"/article/index.html\"> 글쓰기 </a>")
+                .append("<a class=\"logout-link\" href=\"/user/logout\"> 로그아웃 </a>");
+
     }
 }
