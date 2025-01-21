@@ -127,7 +127,7 @@ public class DynamicHomeHandler implements Handler {
              <form action="/board/like/%s" method="POST">
              <button type="submit" class="post__menu__btn">
              <img src="./img/like.svg" alt="Like" />
-             /button>
+             </button>
              </form>
             """;
     private final String likedSvg = """
