@@ -1,7 +1,7 @@
 package handler;
 
-import db.Database;
-import db.SessionManager;
+import config.AppConfig;
+import db.UserDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import http.*;
@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserLoginHandlerTest {
     private UserLoginHandler userLoginHandler;
+    private UserDataManager userDataManager;
 
     private static final HttpMethod VALID_HTTP_METHOD = HttpMethod.POST;
     private static final HttpMethod INVALID_HTTP_METHOD = HttpMethod.GET;
@@ -27,10 +28,11 @@ class UserLoginHandlerTest {
 
     @BeforeEach
     void setUp() {
-        userLoginHandler = new UserLoginHandler();
-        Database.clear();
-        SessionManager.clear();
-        Database.addUser(new User("testId", "testUser", "test1234!", "test@test.com"));
+        userLoginHandler = AppConfig.getUserLoginHandler();
+        userDataManager = AppConfig.getUserDataManager();
+
+        userDataManager.clear();
+        userDataManager.addUser(new User("testId", "testUser", "test1234!", "test@test.com"));
     }
 
     private HttpRequestInfo createTestRequest(HttpMethod method, String body) {

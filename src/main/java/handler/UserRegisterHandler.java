@@ -2,7 +2,7 @@ package handler;
 
 import static http.HttpMethod.POST;
 
-import db.Database;
+import db.UserDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import exception.UserErrorCode;
@@ -22,6 +22,12 @@ public class UserRegisterHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserRegisterHandler.class);
     private static final int QUERY_SIZE = 4;
 
+    private final UserDataManager userDataManager;
+
+    public UserRegisterHandler(UserDataManager userDataManager) {
+        this.userDataManager = userDataManager;
+    }
+
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         logger.info("UserRegisterHandler");
@@ -39,7 +45,7 @@ public class UserRegisterHandler implements Handler {
         Validator.validateUser(userId, nickname, password, email);
         checkDuplicateUserId(userId);
         User user = new User(userId, nickname, password, email);
-        user.registerUser();
+        userDataManager.addUser(user);
         logger.debug("Registered userId : {}, nickname : {}, email : {}", user.getUserId(), user.getNickname(), user.getEmail());
 
         response.setStatus(HttpStatus.FOUND);
@@ -49,7 +55,9 @@ public class UserRegisterHandler implements Handler {
     }
 
     private void checkDuplicateUserId(String userId) {
-        if(Database.findUserById(userId) != null) {
+        logger.error("checkDuplicateUserId : {}", userId);
+        logger.error("findUserById : {}", userDataManager.findUserById(userId));
+        if(userDataManager.findUserById(userId) != null) {
             throw new BaseException(UserErrorCode.DUPLICATE_USER_ID);
         }
     }

@@ -6,19 +6,26 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SessionManager {
-    private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
+public class LocalSessionDataManager implements SessionDataManager {
+    private static final Logger logger = LoggerFactory.getLogger(LocalSessionDataManager.class);
     private static final long EXPIRATION_TIME = 30 * 60 * 1000;
     private static final Map<String, SessionData> sessions = new ConcurrentHashMap<>();
+    private static final LocalSessionDataManager instance = new LocalSessionDataManager();
 
+    private LocalSessionDataManager() {
+    }
 
-    public static void saveSession(String sessionID, String userId) {
+    public static LocalSessionDataManager getInstance() {
+        return instance;
+    }
+
+    public void saveSession(String sessionID, String userId) {
         long expiresAt = System.currentTimeMillis() + EXPIRATION_TIME;
         sessions.put(sessionID, new SessionData(userId, expiresAt));
         logger.debug("Session created: sid={}, expires={}", sessionID, expiresAt);
     }
 
-    public static String findUserBySessionID(String sessionID) {
+    public String findUserBySessionID(String sessionID) {
         SessionData sessionData = sessions.get(sessionID);
         if (sessionData == null) {
             return null;
@@ -33,16 +40,16 @@ public class SessionManager {
         return sessionData.getUserId();
     }
 
-    public static void removeSession(String sessionID) {
+    public void removeSession(String sessionID) {
         logger.debug("Removing session: sid={}", sessionID);
         sessions.remove(sessionID);
     }
 
-    public static void clear() {
+    public void clear() {
         sessions.clear();
     }
 
-    public static void setSessionExpire(String sessionId, long expires) {
+    public void setSessionExpire(String sessionId, long expires) {
         sessions.get(sessionId).expiresAt = System.currentTimeMillis() + expires;
     }
 

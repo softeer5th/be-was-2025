@@ -1,7 +1,7 @@
 package handler;
 
-import db.Database;
-import db.SessionManager;
+import db.SessionDataManager;
+import db.UserDataManager;
 import exception.BaseException;
 import exception.FileErrorCode;
 import http.HttpRequestInfo;
@@ -21,6 +21,14 @@ public class FileRequestHandler implements Handler {
     private static final String STATIC_FILE_PATH = "src/main/resources/static";
 
     private static final Set<String> RESTRICTED_PAGES = Set.of("/mypage");
+
+    private final UserDataManager userDataManager;
+    private final SessionDataManager sessionDataManager;
+
+    public FileRequestHandler(UserDataManager userDataManager, SessionDataManager sessionDataManager) {
+        this.userDataManager = userDataManager;
+        this.sessionDataManager = sessionDataManager;
+    }
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
@@ -59,19 +67,19 @@ public class FileRequestHandler implements Handler {
 
     private User getAuthenticatedUser(HttpRequestInfo request) {
         String sid = "";
-        if( request.getCookie("sid") != null) {
+        if (request.getCookie("sid") != null) {
             logger.debug("Found cookie: {}", request.getCookie("sid"));
             sid = request.getCookie("sid").getValue();
             if (sid.isEmpty()) return null;
         }
 
-        String userId = SessionManager.findUserBySessionID(sid);
-        if (userId == null){
+        String userId = sessionDataManager.findUserBySessionID(sid);
+        if (userId == null) {
             logger.error("Login user not found");
             return null;
         }
 
-        return Database.findUserById(userId);
+        return userDataManager.findUserById(userId);
     }
 
     private void replaceLoginUI(StringBuilder content, String nickname) {

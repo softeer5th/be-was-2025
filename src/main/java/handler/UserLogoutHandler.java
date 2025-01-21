@@ -1,6 +1,6 @@
 package handler;
 
-import db.SessionManager;
+import db.SessionDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import exception.UserErrorCode;
@@ -16,6 +16,11 @@ import static http.HttpMethod.POST;
 public class UserLogoutHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserLogoutHandler.class);
 
+    private final SessionDataManager sessionDataManager;
+
+    public UserLogoutHandler(SessionDataManager sessionDataManager) {
+        this.sessionDataManager = sessionDataManager;
+    }
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
@@ -26,7 +31,7 @@ public class UserLogoutHandler implements Handler {
         }
         HttpResponse response = new HttpResponse();
         String sid = extractValidSessionId(request);
-        SessionManager.removeSession(sid);
+        sessionDataManager.removeSession(sid);
         logger.debug("User Logged out successfully.");
 
         response.setStatus(HttpStatus.FOUND);
@@ -58,7 +63,7 @@ public class UserLogoutHandler implements Handler {
             throw new BaseException(UserErrorCode.INVALID_SESSION);
         }
 
-        if (SessionManager.findUserBySessionID(sessionId) == null) {
+        if (sessionDataManager.findUserBySessionID(sessionId) == null) {
             logger.error("Invalid session ID: sid={}", sessionId);
             throw new BaseException(UserErrorCode.USER_NOT_FOUND_FOR_SESSION);
         }

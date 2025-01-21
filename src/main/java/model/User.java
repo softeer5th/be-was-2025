@@ -1,7 +1,5 @@
 package model;
 
-import db.Database;
-
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -39,9 +37,5 @@ public class User {
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", nickname=" + nickname + ", email="
                 + email + "]";
-    }
-
-    public void registerUser() {
-        Database.addUser(this);
     }
 }

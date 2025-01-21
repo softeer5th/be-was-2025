@@ -1,7 +1,7 @@
 package handler;
 
-import db.Database;
-import db.SessionManager;
+import config.AppConfig;
+import db.SessionDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import exception.UserErrorCode;
@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserLogoutHandlerTest {
-    private final UserLogoutHandler userLogoutHandler = new UserLogoutHandler();
+    private UserLogoutHandler userLogoutHandler;
+    private SessionDataManager sessionDataManager;
 
     private static final HttpMethod VALID_HTTP_METHOD = HttpMethod.POST;
     private static final HttpMethod INVALID_HTTP_METHOD = HttpMethod.GET;
@@ -28,15 +29,17 @@ class UserLogoutHandlerTest {
 
     @BeforeEach
     void setUp() {
-        Database.clear();
-        SessionManager.clear();
+        userLogoutHandler = AppConfig.getUserLogoutHandler();
+        sessionDataManager = AppConfig.getSessionDataManager();
+
+        sessionDataManager.clear();
 
         // 유효한 세션 저장
-        SessionManager.saveSession(VALID_SESSION_ID, "testId");
+        sessionDataManager.saveSession(VALID_SESSION_ID, "testId");
 
         // 만료된 세션 저장 (사용자를 찾을 수 없는 상태)
-        SessionManager.saveSession(EXPIRED_SESSION_ID, "testId");
-        SessionManager.setSessionExpire(EXPIRED_SESSION_ID, -1);
+        sessionDataManager.saveSession(EXPIRED_SESSION_ID, "testId");
+        sessionDataManager.setSessionExpire(EXPIRED_SESSION_ID, -1);
     }
 
     private HttpRequestInfo createTestRequestWithSession(String sessionId) {
