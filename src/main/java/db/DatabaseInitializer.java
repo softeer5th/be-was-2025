@@ -1,6 +1,10 @@
 package db;
 
 import util.DatabaseUtil;
+import util.ExceptionUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 /**
  * 데이터베이스 테이블 초기화를 담당하는 클래스
@@ -31,15 +35,18 @@ public class DatabaseInitializer {
             """;
     private static final String ADD_FOREIGN_KEY_ARTICLES = """
             ALTER TABLE articles
-            ADD FOREIGN KEY (writerId) REFERENCES users(userId)
+            ADD CONSTRAINT IF NOT EXISTS articles_writerId
+            FOREIGN KEY (writerId) REFERENCES users(userId)
             """;
     private static final String ADD_FOREIGN_KEY_COMMENTS_ARTICLES = """
             ALTER TABLE comments
-            ADD FOREIGN KEY (articleId) REFERENCES articles(articleId)
+            ADD CONSTRAINT IF NOT EXISTS comments_articleId
+            FOREIGN KEY (articleId) REFERENCES articles(articleId)
             """;
     private static final String ADD_FOREIGN_KEY_COMMENTS_USERS = """
             ALTER TABLE comments
-            ADD FOREIGN KEY (writerId) REFERENCES users(userId)
+                ADD CONSTRAINT IF NOT EXISTS comments_writerId
+                FOREIGN KEY (writerId) REFERENCES users(userId)
             """;
 
     private final Database database;
@@ -52,23 +59,28 @@ public class DatabaseInitializer {
      * 데이터베이스의 테이블을 생성하고 외래키 제약 조건을 설정
      */
     public void initTables() {
-        createTable();
-        setForeignKeyConstraints();
+        ExceptionUtil.wrapCheckedException(() -> {
+            Connection connection = database.getConnection();
+            createTable(connection);
+            setForeignKeyConstraints(connection);
+            connection.close();
+            return null;
+        });
     }
 
-    private void createTable() {
-        executeUpdate(CREATE_USERS_TABLE);
-        executeUpdate(CREATE_COMMENTS_TABLE);
-        executeUpdate(CREATE_ARTICLES_TABLE);
+    private void createTable(Connection connection) {
+        executeUpdate(CREATE_USERS_TABLE, connection);
+        executeUpdate(CREATE_COMMENTS_TABLE, connection);
+        executeUpdate(CREATE_ARTICLES_TABLE, connection);
     }
 
-    private void setForeignKeyConstraints() {
-        executeUpdate(ADD_FOREIGN_KEY_ARTICLES);
-        executeUpdate(ADD_FOREIGN_KEY_COMMENTS_ARTICLES);
-        executeUpdate(ADD_FOREIGN_KEY_COMMENTS_USERS);
+    private void setForeignKeyConstraints(Connection connection) {
+        executeUpdate(ADD_FOREIGN_KEY_ARTICLES, connection);
+        executeUpdate(ADD_FOREIGN_KEY_COMMENTS_ARTICLES, connection);
+        executeUpdate(ADD_FOREIGN_KEY_COMMENTS_USERS, connection);
     }
 
-    private void executeUpdate(String sql) {
-        DatabaseUtil.run(pstmt -> pstmt, database.getConnection(), true, sql);
+    private void executeUpdate(String sql, Connection connection) {
+        DatabaseUtil.run(PreparedStatement::executeUpdate, connection, false, sql);
     }
 }

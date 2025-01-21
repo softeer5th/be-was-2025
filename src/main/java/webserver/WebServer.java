@@ -1,6 +1,8 @@
 package webserver;
 
 import db.Database;
+import db.DatabaseInitializer;
+import domain.ArticleDao;
 import domain.UserDao;
 import handler.*;
 import org.slf4j.Logger;
@@ -59,7 +61,11 @@ public class WebServer {
         ExecutorService es = Executors.newFixedThreadPool(config.getThreadPoolSize());
 
         Database database = new Database(config.getJdbcUrl(), config.getUsername(), config.getPassword());
+        DatabaseInitializer initializer = new DatabaseInitializer(database);
+        // 데이터베이스 초기화
+        initializer.initTables();
         UserDao userDao = new UserDao(database);
+        ArticleDao articleDao = new ArticleDao(database);
 
         HttpRequestParser requestParser = new HttpRequestParser(config.getMaxHeaderSize());
         HttpResponseWriter responseWriter = new HttpResponseWriter();
