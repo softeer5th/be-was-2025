@@ -1,4 +1,6 @@
-package webserver;
+package webserver.request;
+
+import webserver.HTTPExceptions;
 
 public class HTTPRequestBody {
     private final byte[] body;

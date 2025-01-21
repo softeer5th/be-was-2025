@@ -1,4 +1,4 @@
-    package webserver;
+    package webserver.request;
 
     import java.io.*;
     import java.net.Socket;
@@ -6,13 +6,18 @@
     import java.util.*;
 
     import db.Database;
+    import model.Cookie;
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
+    import webserver.*;
     import webserver.request.api.LoginStatusApiHandler;
-    import webserver.request.*;
     import webserver.request.route.*;
     import webserver.request.service.*;
     import webserver.request.staticResource.*;
+    import webserver.response.HTTPResponse;
+    import webserver.response.HTTPResponseBody;
+    import webserver.response.HTTPResponseHeader;
+    import webserver.response.ResponseHandler;
 
     public class RequestHandler implements Runnable {
         private static final int MAX_LOGIN_SESSION_TIME = 3600;

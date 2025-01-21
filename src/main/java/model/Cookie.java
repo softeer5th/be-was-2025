@@ -1,4 +1,6 @@
-package webserver;
+package model;
+
+import webserver.HTTPExceptions;
 
 import java.util.HashMap;
 import java.util.Map;

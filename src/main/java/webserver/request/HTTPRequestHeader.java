@@ -1,4 +1,8 @@
-package webserver;
+package webserver.request;
+
+import webserver.HTTPExceptions;
+import webserver.HTTPMethod;
+import webserver.HTTPVersion;
 
 import java.util.*;
 

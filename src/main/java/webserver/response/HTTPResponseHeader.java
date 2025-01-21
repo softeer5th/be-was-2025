@@ -1,4 +1,6 @@
-package webserver;
+package webserver.response;
+
+import webserver.HTTPExceptions;
 
 import java.util.HashMap;
 import java.util.Map;

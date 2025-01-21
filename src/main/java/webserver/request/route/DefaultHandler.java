@@ -1,10 +1,13 @@
 package webserver.request.route;
 
-import webserver.*;
+import model.Cookie;
+import webserver.request.HTTPRequestBody;
+import webserver.request.HTTPRequestHeader;
 import webserver.request.RequestProcessor;
+import webserver.response.HTTPResponse;
+import webserver.response.HTTPResponseHeader;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 public class DefaultHandler implements RequestProcessor {

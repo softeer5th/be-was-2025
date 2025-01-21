@@ -1,4 +1,4 @@
-package webserver;
+package model;
 
 import java.time.LocalTime;
 import java.util.UUID;

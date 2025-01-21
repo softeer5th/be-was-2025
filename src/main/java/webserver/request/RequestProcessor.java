@@ -1,9 +1,10 @@
 package webserver.request;
 
-import webserver.*;
+import model.Cookie;
+import webserver.response.HTTPResponse;
+import webserver.response.HTTPResponseHeader;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 public interface RequestProcessor {

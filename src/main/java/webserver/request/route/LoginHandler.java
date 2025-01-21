@@ -1,7 +1,14 @@
 package webserver.request.route;
 
+import model.ContentType;
+import model.Cookie;
 import webserver.*;
+import webserver.request.HTTPRequestBody;
+import webserver.request.HTTPRequestHeader;
 import webserver.request.RequestProcessor;
+import webserver.response.HTTPResponse;
+import webserver.response.HTTPResponseBody;
+import webserver.response.HTTPResponseHeader;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +29,7 @@ public class LoginHandler implements RequestProcessor {
             responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));
 
             responseHeader.setStatusCode(200);
-            responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".html"));
+            responseHeader.addHeader("Content-Type", ContentType.getContentType(".html"));
             responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
         } catch (HTTPExceptions e) {
             responseHeader.setStatusCode(e.getStatusCode());

@@ -2,7 +2,7 @@ package db;
 
 import model.User;
 import webserver.HTTPExceptions;
-import webserver.Session;
+import model.Session;
 
 import java.time.LocalTime;
 import java.util.Collection;

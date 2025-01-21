@@ -1,8 +1,14 @@
 package webserver.request.api;
 
 import db.Database;
-import webserver.*;
+import model.ContentType;
+import model.Cookie;
+import webserver.request.HTTPRequestBody;
+import webserver.request.HTTPRequestHeader;
 import webserver.request.RequestProcessor;
+import webserver.response.HTTPResponse;
+import webserver.response.HTTPResponseBody;
+import webserver.response.HTTPResponseHeader;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +36,7 @@ public class LoginStatusApiHandler implements RequestProcessor {
         responseBody = new HTTPResponseBody(jsonResponse.getBytes(StandardCharsets.UTF_8));
 
         responseHeader.setStatusCode(200);
-        responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".json"));
+        responseHeader.addHeader("Content-Type", ContentType.getContentType(".json"));
         for (Cookie cookie : cookieList) {
             responseHeader.addHeader("Set-Cookie", cookie.toString());
         }

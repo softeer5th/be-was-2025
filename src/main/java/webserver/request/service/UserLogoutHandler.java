@@ -1,8 +1,14 @@
 package webserver.request.service;
 
 import db.Database;
+import model.Cookie;
 import webserver.*;
+import webserver.request.HTTPRequestBody;
+import webserver.request.HTTPRequestHeader;
 import webserver.request.RequestProcessor;
+import webserver.response.HTTPResponse;
+import webserver.response.HTTPResponseBody;
+import webserver.response.HTTPResponseHeader;
 
 import java.io.IOException;
 import java.util.List;

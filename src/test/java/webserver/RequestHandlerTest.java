@@ -4,6 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import webserver.request.RequestHandler;
+
 import java.io.*;
 import java.net.Socket;
 import static org.assertj.core.api.Assertions.assertThat;
