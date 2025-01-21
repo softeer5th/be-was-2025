@@ -3,7 +3,7 @@ package manager;
 import db.Database;
 import response.HTTPResponse;
 import constant.HTTPCode;
-import db.InMemoryDatabase;
+import db.SessionDatabase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,17 +51,17 @@ public class UserManager {
         }
 
         String sessionId = generateSessionID();
-        InMemoryDatabase.addSession(sessionId,user.getUserId());
+        SessionDatabase.addSession(sessionId,user.getUserId());
 
         return HTTPResponse.createLoginRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterLogIn, sessionId);
     }
 
     public HTTPResponse checkLoginStatus(HTTPRequest httpRequest){
         String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
-        if(!InMemoryDatabase.sessionExists(sessionId)){
+        if(!SessionDatabase.sessionExists(sessionId)){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
-        String userId = InMemoryDatabase.getSession(sessionId);
+        String userId = SessionDatabase.getSession(sessionId);
         Optional<User> optionalUser = Database.findUserById(userId);
         if(optionalUser.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);

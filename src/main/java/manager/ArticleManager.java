@@ -3,14 +3,13 @@ package manager;
 
 import constant.HTTPCode;
 import db.Database;
-import db.InMemoryDatabase;
+import db.SessionDatabase;
 import model.Article;
 import model.User;
 import request.HTTPRequest;
 import response.HTTPResponse;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static manager.UserManager.COOKIE;
 import static util.Utils.getSessionIdInCookie;
@@ -22,10 +21,10 @@ public class ArticleManager {
     public HTTPResponse createArticle(HTTPRequest httpRequest){
 
         String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
-        if(!InMemoryDatabase.sessionExists(sessionId)){
+        if(!SessionDatabase.sessionExists(sessionId)){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
-        String userId = InMemoryDatabase.getSession(sessionId);
+        String userId = SessionDatabase.getSession(sessionId);
         Optional<User> optionalUser = Database.findUserById(userId);
         if(optionalUser.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
