@@ -39,10 +39,10 @@ public class HttpRequestParserTest {
 
     @Test
     @DisplayName("HTTP Body를 Map으로 파싱 테스트")
-    public void testParseRequestBodyToMap() throws IOException {
+    public void testParseRequestQueryStringToMap() throws IOException {
         String requestBody = "name=John&age=30&city=Seoul";
 
-        Map<String, Object> parsedBody = HttpRequestParser.parseRequestBody(requestBody);
+        Map<String, Object> parsedBody = HttpRequestParser.parseRequestQueryString(requestBody);
 
         assertEquals(3, parsedBody.size());
         assertEquals("John", parsedBody.get("name"));
