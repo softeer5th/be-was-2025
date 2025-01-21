@@ -98,7 +98,7 @@ public class WebServer {
         HandlerInterceptor logInterceptor = new LoggingInterceptor();
         HandlerInterceptor templateInterceptor = new TemplateEngineInterceptor(templateEngine, templateFileReader);
         HandlerInterceptor loginRequiredInterceptor = new LoginRequiredPathInterceptor(
-                MYPAGE.path, WRITE_ARTICLE.path);
+                MYPAGE.path, WRITE_ARTICLE.path, WRITE_COMMENT.path);
         InterceptorChain interceptorChain = InterceptorChain
                 .inbound()
                 .add(sessionInterceptor)
