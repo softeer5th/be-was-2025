@@ -1,18 +1,8 @@
 package webserver;
 
-import manager.UserManager;
-import util.Utils;
-import db.Database;
-import model.User;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class DynamicURIHandlerTest {
 

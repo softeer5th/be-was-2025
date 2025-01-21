@@ -2,7 +2,7 @@ package webserver;
 
 import response.HTTPResponse;
 import constant.HTTPCode;
-import db.Database;
+import db.InMemoryDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HTTPRequest;
@@ -33,7 +33,7 @@ public class StaticURIHandler implements URIHandler {
     public HTTPResponse handle(HTTPRequest httpRequest) {
         if(httpRequest.getUri().equals("/mypage")){
             String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
-            if(!Database.sessionExists(sessionId)){
+            if(!InMemoryDatabase.sessionExists(sessionId)){
                 return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND, INDEX_HTML);
             }
         }
