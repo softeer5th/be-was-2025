@@ -1,7 +1,38 @@
 <web-app>
     <servlet>
+        <url>/</url>
+        <method>GET</method>
+        <class>servlet.HomeServlet</class>
+    </servlet>
+    <servlet>
         <url>/api/registration</url>
         <method>POST</method>
         <class>servlet.RegisterServlet</class>
     </servlet>
+    <servlet>
+        <url>/api/login</url>
+        <method>POST</method>
+        <class>servlet.LoginServlet</class>
+    </servlet>
+    <servlet>
+        <url>/api/logout</url>
+        <method>POST</method>
+        <class>servlet.LogoutServlet</class>
+    </servlet>
+    <servlet>
+        <url>/mypage</url>
+        <method>GET</method>
+        <class>servlet.MyPageServlet</class>
+    </servlet>
+    <servlet>
+        <url>/api/users/me</url>
+        <method>POST</method>
+        <class>servlet.UpdateUserServlet</class>
+    </servlet>
+    <servlet>
+        <url>/article</url>
+        <method>GET</method>
+        <class>servlet.ArticleServlet</class>
+    </servlet>
 </web-app>
+
