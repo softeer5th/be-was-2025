@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static util.ExceptionUtil.ignoreException;
+
 // 리플렉션 유틸 클래스
 public class ReflectionUtil {
     private static final String GET_METHOD = "get";
@@ -69,14 +71,6 @@ public class ReflectionUtil {
         return Optional.of(currentObject);
     }
 
-    // 예외가 발생하면 Optional.empty()를 반환하는 메서드
-    private static <R> Optional<R> ignoreException(ExceptionUtil.CheckedSupplier<R> supplier) {
-        try {
-            return Optional.ofNullable(supplier.get());
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
 
     private static String toCamelCase(String prefix, String fieldName) {
         return prefix.toLowerCase() + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
