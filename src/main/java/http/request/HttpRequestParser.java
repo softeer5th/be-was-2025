@@ -97,7 +97,7 @@ public class HttpRequestParser {
 
     private static int getContentLength(String requestHeaders) {
         for (String line : requestHeaders.split("\n")) {
-            if (line.contains("Content-Length")) {
+            if (line.toLowerCase().contains("content-length")) {
                 return Integer.parseInt(line.split(":")[1].trim());
             }
         }
