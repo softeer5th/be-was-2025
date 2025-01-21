@@ -31,15 +31,18 @@ public class HttpRequestDispatcher {
             String path = httpRequest.getPath().toLowerCase();
             HttpMethod method = httpRequest.getMethod();
 
-            if (ApiPathPool.getInstance().isAvailable(method, path)) {
-                Method classMethod = ApiPathPool.getInstance().getMethod(method, path);
-                classMethod.invoke(ApiPathPool.getInstance().getClass(path), httpRequest, httpResponse);
+            if (StaticResourcePathPool.getInstance().isAvailable(method, path)) {
+                Handler handler = StaticResourcePathPool.getInstance().getHandler(path);
+                handler.handle(httpRequest, httpResponse);
                 return;
             }
 
-            Handler handler = StaticResourcePathPool.getInstance().getHandler(path);
+            if (!ApiPathPool.getInstance().isAvailable(method, path)) {
+                throw new NoSuchPathException();
+            }
 
-            handler.handle(httpRequest, httpResponse);
+            Method classMethod = ApiPathPool.getInstance().getMethod(method, path);
+            classMethod.invoke(ApiPathPool.getInstance().getClass(path), httpRequest, httpResponse);
         } catch (NoSuchPathException e) {
             httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (NotAllowedMethodException e) {

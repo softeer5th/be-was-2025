@@ -60,6 +60,17 @@ public class ApiPathPool {
         classMap.put("/user/create", userHandler);
         classMap.put("/user/login", userHandler);
         classMap.put("/user/logout", userHandler);
+
+        Constructor<ArticleHandler> articleHandlerConstructor = ArticleHandler.class.getDeclaredConstructor();
+        ArticleHandler articleHandler = articleHandlerConstructor.newInstance();
+
+        Method postArticle = articleHandler.getClass().getDeclaredMethod("postArticle", HttpRequest.class, HttpResponse.class);
+        ConcurrentHashMap<HttpMethod, Method> articleMethods = new ConcurrentHashMap<>();
+
+        articleMethods.put(HttpMethod.POST, postArticle);
+
+        methodMap.put("/article", articleMethods);
+        classMap.put("/article", articleHandler);
     }
 
     public boolean isAvailable(HttpMethod method, String path) {
