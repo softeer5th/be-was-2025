@@ -1,7 +1,7 @@
 package db;
 
+import model.Article;
 import model.User;
-// 추가
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class Database {
         try {
             Class.forName("org.h2.Driver");
             try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
-                String createTableSql = """
+                String createUserTableSql = """
                   CREATE TABLE IF NOT EXISTS users (
                     user_id VARCHAR(255) PRIMARY KEY,
                     password VARCHAR(255),
@@ -26,7 +26,20 @@ public class Database {
                   )
                 """;
                 try (Statement stmt = conn.createStatement()) {
-                    stmt.execute(createTableSql);
+                    stmt.execute(createUserTableSql);
+                }
+
+                // 추가: 게시글 테이블 생성
+                String createArticleTableSql = """
+                  CREATE TABLE IF NOT EXISTS articles (
+                    id IDENTITY PRIMARY KEY,
+                    user_id VARCHAR(255),
+                    content CLOB,
+                    image BLOB
+                  )
+                """;
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.execute(createArticleTableSql);
                 }
             }
         } catch (Exception e) {
@@ -104,6 +117,39 @@ public class Database {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void addArticle(Article article) {
+        String sql = "INSERT INTO articles (user_id, content, image) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, article.getUserId());
+            pstmt.setString(2, article.getContent());
+            pstmt.setBytes(3, article.getImage());
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Article findLatestArticleByUserId(String userId) {
+        String sql = "SELECT * FROM articles WHERE user_id = ? ORDER BY id DESC LIMIT 1";
+        try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Article(
+                        rs.getLong("id"),
+                        rs.getString("user_id"),
+                        rs.getString("content"),
+                        rs.getBytes("image")
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static void clear() {
