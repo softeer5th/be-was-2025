@@ -96,4 +96,12 @@ public class ResponseData<T> {
     public Map<String, SetCookieRecord> getSetCookies() {
         return this.setCookies;
     }
+
+    public T getData() {
+        return this.data;
+    }
+
+    public HTTPContentType getContentType() {
+        return this.contentType;
+    }
 }
