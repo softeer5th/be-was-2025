@@ -102,6 +102,13 @@
   width: 320px;
 }
 
+.textfield_size_custom {
+  gap: 4px;
+  padding: 8px 16px;
+  width: 680px;
+  height: 40px;
+}
+
 .textfield_size_m {
   gap: 4px;
   padding: 8px 16px;
