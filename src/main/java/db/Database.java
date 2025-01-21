@@ -100,12 +100,11 @@ public class Database {
         return users;
     }
 
-    public static Post getPostById(String userId, int postId) {
-        String selectQuery = "SELECT * FROM Posts WHERE userId = ? AND id = ?";
+    public static Post getPostById(int postId) {
+        String selectQuery = "SELECT * FROM Posts WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
-            preparedStatement.setString(1, userId);
-            preparedStatement.setInt(2, postId);
+            preparedStatement.setInt(1, postId);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return new Post(
@@ -121,17 +120,16 @@ public class Database {
         return null;
     }
 
-    public static int getFirstPostId(String userId) {
-        String selectQuery = "SELECT id FROM Posts WHERE userId = ? ORDER BY id ASC LIMIT 1";
+    public static int getFirstPostId() {
+        String selectQuery = "SELECT id FROM Posts ORDER BY id ASC LIMIT 1";
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
-            preparedStatement.setString(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt("id");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding first post ID for userId: " + userId, e);
+            throw new RuntimeException("Error finding first post ID", e);
         }
         return -1;
     }

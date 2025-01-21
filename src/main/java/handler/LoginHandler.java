@@ -24,7 +24,7 @@ public class LoginHandler extends Handler{
                     .SetCookie(CookieName.SESSION_COOKIE.getName(), session.getId())
                     .path(Page.MAIN_PAGE.getPath()).build();
             String path = Parameter
-                    .setPostId(Page.MAIN_LOGIN.getPath(), PostManager.getFirstPostId(user.getUserId()));
+                    .setPostId(Page.MAIN_LOGIN.getPath(), PostManager.getFirstPostId());
             response.addHeader("Location", path);
             response.addHeader("Set-Cookie", setCookieString);
         } catch (IllegalArgumentException e) {

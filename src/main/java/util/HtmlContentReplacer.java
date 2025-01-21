@@ -13,15 +13,13 @@ public class HtmlContentReplacer {
     private static final String isDynamicHtml = "<dynamic />";
     private final Map<String, String> userProperties = new HashMap<>();
     private final Map<String, String> postProperties = new HashMap<>();
-    private String userId = null;
     private boolean hasPost = false;
     private int postId = -1;
 
     public HtmlContentReplacer(String sid){
         if(sid != null) {
             User user = (User) SessionManager.getSession(sid).getUser();
-            userId = user.getUserId();
-            userProperties.put("$userId", userId);
+            userProperties.put("$userId", user.getUserId());
             userProperties.put("$userName", user.getName());
             userProperties.put("$userEmail", user.getEmail());
         }
@@ -31,13 +29,14 @@ public class HtmlContentReplacer {
         Parameter parameter = new Parameter(queryString);
         postId = Integer.parseInt(parameter.getValue("postId"));
         if(postId != -1) {
-            Post post = PostManager.getPost(userId, postId);
+            Post post = PostManager.getPost(postId);
             hasPost = true;
             postProperties.put("$postTitle", post.getTitle());
             postProperties.put("$postContent", post.getContent());
+            postProperties.put("$postUserId", post.getUserId());
         }
-        postProperties.put("$nextPost", PostManager.getNextPostId(userId, postId));
-        postProperties.put("$prevPost", PostManager.getPrevPostId(userId, postId));
+        postProperties.put("$nextPost", PostManager.getNextPostId(postId));
+        postProperties.put("$prevPost", PostManager.getPrevPostId(postId));
     }
 
     public byte[] replace(byte[] body) {

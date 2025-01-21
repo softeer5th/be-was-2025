@@ -14,23 +14,23 @@ public class PostManager {
         Database.addPost(post);
     }
 
-    public static Post getPost(String userId, int postId) {
-        return Database.getPostById(userId, postId);
+    public static Post getPost(int postId) {
+        return Database.getPostById(postId);
     }
 
-    public static int getFirstPostId(String userId) {
-        return Database.getFirstPostId(userId);
+    public static int getFirstPostId() {
+        return Database.getFirstPostId();
     }
 
-    public static String getNextPostId(String userId, int postId) {
-        if(getPost(userId, postId + 1) == null) {
+    public static String getNextPostId(int postId) {
+        if(getPost(postId + 1) == null) {
             return "?postId=" + postId;
         }
         return "?postId=" + (postId + 1);
     }
 
-    public static String getPrevPostId(String userId, int postId) {
-        if(getPost(userId, postId - 1) == null) {
+    public static String getPrevPostId(int postId) {
+        if(getPost(postId - 1) == null) {
             return "?postId=" + postId;
         }
         return "?postId=" + (postId - 1);
