@@ -35,11 +35,10 @@ public enum BoardDao {
             resultSet = pstmt.executeQuery();
             if(resultSet.next()){
                 Long findBoardId = resultSet.getLong("board_id");
-                String findBoardSubject = resultSet.getString("subject");
                 String findBoardContents = resultSet.getString("contents");
                 String findBoardImagePath = resultSet.getString("image_path");
                 String findBoardWriter = resultSet.getString("writer");
-                return Optional.of(new Board(findBoardId, findBoardWriter,findBoardSubject,findBoardContents, findBoardImagePath));
+                return Optional.of(new Board(findBoardId, findBoardWriter,findBoardContents, findBoardImagePath));
             }
         } catch (SQLException e) {
             log.error("find 예외: ", e);
@@ -50,17 +49,16 @@ public enum BoardDao {
     }
 
     public Optional<Board> save(Board board){
-        String sql = "insert into boards(board_id, subject, contents, writer, image_path) values (?, ?, ?, ?, ?)";
+        String sql = "insert into boards(board_id, contents, writer, image_path) values (?, ?, ?, ?)";
         Connection con = null;
         PreparedStatement pstmt = null;
         try{
             con = getConnection();
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, boardSize.incrementAndGet());
-            pstmt.setString(2, board.getSubject());
-            pstmt.setString(3, board.getContents());
-            pstmt.setString(4, board.getWriter());
-            pstmt.setString(5, board.getImagePath());
+            pstmt.setString(2, board.getContents());
+            pstmt.setString(3, board.getWriter());
+            pstmt.setString(4, board.getImagePath());
             pstmt.executeUpdate();
             return Optional.of(board);
         } catch (SQLException e) {
