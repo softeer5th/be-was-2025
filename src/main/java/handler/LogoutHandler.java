@@ -4,7 +4,7 @@ import webserver.handler.HttpHandler;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
-import static webserver.enums.PageMappingPath.INDEX;
+import static enums.PageMappingPath.INDEX;
 
 /**
  * 로그아웃 요청을 처리하는 핸들러

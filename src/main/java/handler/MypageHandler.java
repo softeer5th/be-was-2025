@@ -12,7 +12,7 @@ import webserver.response.HttpResponse;
 import webserver.session.HttpSession;
 import webserver.view.ModelAndTemplate;
 
-import static webserver.enums.PageMappingPath.INDEX;
+import static enums.PageMappingPath.INDEX;
 
 /**
  * 마이페이지 요청을 처리하는 핸들러

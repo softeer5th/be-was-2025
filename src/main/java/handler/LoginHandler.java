@@ -14,7 +14,7 @@ import webserver.view.ModelAndTemplate;
 
 import java.util.Optional;
 
-import static webserver.enums.PageMappingPath.INDEX;
+import static enums.PageMappingPath.INDEX;
 
 /**
  * 로그인 요청을 처리하는 핸들러

@@ -2,13 +2,13 @@ package handler;
 
 import domain.User;
 import domain.UserDao;
+import enums.PageMappingPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
-import webserver.enums.PageMappingPath;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 

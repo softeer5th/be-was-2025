@@ -1,4 +1,4 @@
-package webserver.enums;
+package enums;
 
 // 페이지 매핑 경로
 public enum PageMappingPath {

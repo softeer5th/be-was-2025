@@ -9,7 +9,7 @@ import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 import webserver.session.HttpSession;
 
-import static webserver.enums.PageMappingPath.INDEX;
+import static enums.PageMappingPath.readArticlePath;
 
 /**
  * 게시글 작성을 처리하는 핸들러

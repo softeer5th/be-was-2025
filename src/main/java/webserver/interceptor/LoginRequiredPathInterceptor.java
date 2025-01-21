@@ -7,7 +7,7 @@ import webserver.session.HttpSession;
 
 import java.util.Set;
 
-import static webserver.enums.PageMappingPath.LOGIN;
+import static enums.PageMappingPath.LOGIN;
 
 // 특정한 페이지로의 로그인 없는 접근을 막는 인터셉터
 public class LoginRequiredPathInterceptor implements HandlerInterceptor {
