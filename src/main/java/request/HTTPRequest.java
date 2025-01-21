@@ -1,9 +1,6 @@
 package request;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class HTTPRequest {
     private String httpMethod;
@@ -23,11 +20,11 @@ public class HTTPRequest {
     public String getHttpVersion() {return httpVersion;}
     public void setHttpVersion(String httpVersion) {this.httpVersion = httpVersion;}
 
-    public String getHeaderByKey(String key){return headers.get(key);}
+    public Optional<String> getHeaderByKey(String key){return Optional.ofNullable(headers.get(key));}
     public Map<String, String> getHeaders() {return headers;}
     public void setHeaders(Map<String, String> headers) {this.headers = headers;}
 
-    public String getSingleQueryStringByKey(String key){return queryStringParameters.get(key).get(0);}
+    public Optional<String> getSingleQueryStringByKey(String key){return Optional.ofNullable(queryStringParameters.get(key).get(0));}
     public List<String> getAllQueryStringsByKey(String key){return queryStringParameters.get(key);}
     public Map<String, List<String>> getAllQueryStrings() {return queryStringParameters;}
     public void setQueryString(String key, String value) {
@@ -35,7 +32,7 @@ public class HTTPRequest {
         queryStringParameters.get(key).add(value);
     }
 
-    public String getPathVariableByKey(String key){return pathVariables.get(key);}
+    public Optional<String> getPathVariableByKey(String key){return Optional.ofNullable(pathVariables.get(key));}
     public Map<String, String> getAllPathVariables() {return pathVariables;}
     public void setPathVariable(String key, String value){pathVariables.put(key, value);}
 

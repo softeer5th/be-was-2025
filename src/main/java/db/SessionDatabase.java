@@ -2,6 +2,7 @@ package db;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionDatabase {
@@ -9,7 +10,7 @@ public class SessionDatabase {
 
     public static void addSession(String sessionId, String userId) {sessions.put(sessionId, userId);}
 
-    public static String getSession(String sessionId) {return sessions.get(sessionId);}
+    public static Optional<String> getSession(String sessionId) {return Optional.ofNullable(sessions.get(sessionId));}
 
     public static boolean sessionExists(String sessionId) { return sessions.containsKey(sessionId); }
 }

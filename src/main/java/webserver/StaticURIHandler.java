@@ -10,6 +10,7 @@ import request.HTTPRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 import static manager.UserManager.COOKIE;
 import static util.Utils.getSessionIdInCookie;
@@ -32,7 +33,11 @@ public class StaticURIHandler implements URIHandler {
     @Override
     public HTTPResponse handle(HTTPRequest httpRequest) {
         if(httpRequest.getUri().equals("/mypage")){
-            String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
+            Optional<String> cookie = httpRequest.getHeaderByKey(COOKIE);
+            if(cookie.isEmpty()){
+                return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+            }
+            String sessionId = getSessionIdInCookie(cookie.get());
             if(!SessionDatabase.sessionExists(sessionId)){
                 return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND, INDEX_HTML);
             }

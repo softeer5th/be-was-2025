@@ -57,11 +57,20 @@ public class UserManager {
     }
 
     public HTTPResponse checkLoginStatus(HTTPRequest httpRequest){
-        String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
+        Optional<String> cookie = httpRequest.getHeaderByKey(COOKIE);
+        if(cookie.isEmpty()){
+            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+        }
+        String sessionId = getSessionIdInCookie(cookie.get());
+
         if(!SessionDatabase.sessionExists(sessionId)){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
-        String userId = SessionDatabase.getSession(sessionId);
+        Optional<String> optionalUserId = SessionDatabase.getSession(sessionId);
+        if(optionalUserId.isEmpty()){
+            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+        }
+        String userId = optionalUserId.get();
         Optional<User> optionalUser = Database.findUserById(userId);
         if(optionalUser.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
