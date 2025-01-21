@@ -35,7 +35,7 @@ public class UserHandler {
         Database.findUserById(userId) .ifPresentOrElse(user -> {
                 response.redirect("/registration");
             }, () -> {
-                User user = new User(userId, username, password, null);
+                User user = new User(userId, password, username, null);
                 Database.addUser(user);
 
                 response.redirect("/");
@@ -81,7 +81,7 @@ public class UserHandler {
 
         response.redirect("/");
     }
-    
+
     private Map<String, String> parseBody(HttpRequest request) {
         Map<String, String> map = new HashMap<>();
         String body = request.getBody();
