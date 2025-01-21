@@ -2,19 +2,19 @@ package handler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import db.Database;
 import exception.BaseException;
 import exception.HttpErrorCode;
+import exception.UserErrorCode;
 import http.HttpMethod;
 import http.HttpRequestInfo;
 import http.HttpResponse;
 import http.HttpStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 class UserRegisterHandlerTest {
 
@@ -23,34 +23,82 @@ class UserRegisterHandlerTest {
     private static final HttpMethod VALID_HTTP_METHOD = HttpMethod.POST;
     private static final HttpMethod INVALID_HTTP_METHOD = HttpMethod.GET;
     private static final String VALID_REQUEST_PATH = "/users/register";
-    private static final String VALID_QUERY_PARAM = "userId=yulee&nickname=uri&password=qwer1234!&email=1234%40example.com";
 
-    private HttpRequestInfo createHttpRequest(HttpMethod method, String path, String body) throws IOException {
-        String rawRequest =
-                method + " " + path + " HTTP/1.1\r\n" +
-                        "Host: localhost\r\n" +
-                        "Content-Length: " + body.length() + "\r\n" +
-                        "\r\n" +
-                        body;
-
-        InputStream inputStream = new ByteArrayInputStream(rawRequest.getBytes(StandardCharsets.UTF_8));
-        return new HttpRequestInfo(inputStream);
+    @BeforeEach
+    void setUp() {
+        Database.clear();
     }
+
+
+    private HttpRequestInfo createTestRequest(String body) {
+        return HttpRequestInfo.forTest(VALID_HTTP_METHOD, VALID_REQUEST_PATH, new HashMap<>(), new HashMap<>(), body);
+    }
+
     @Test
     @DisplayName("회원가입 성공")
-    void testHandleWithValidUserData() throws IOException {
-        HttpRequestInfo httpRequestInfo = createHttpRequest(VALID_HTTP_METHOD, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
-        HttpResponse response = userRegisterHandler.handle(httpRequestInfo);
+    void testHandleWithValidUserData() {
+        HttpRequestInfo request = createTestRequest("userId=testId&nickname=testUser&password=test1234!&email=test@test.com");
+        HttpResponse response = userRegisterHandler.handle(request);
 
         assertEquals(HttpStatus.FOUND, response.getStatus());
     }
 
     @Test
     @DisplayName("잘못된 HTTP Method인 경우")
-    void testHandleWithInvalidHttpMethod() throws IOException {
-        HttpRequestInfo httpRequestInfo = createHttpRequest(INVALID_HTTP_METHOD, VALID_REQUEST_PATH, VALID_QUERY_PARAM);
+    void testHandleWithInvalidHttpMethod() {
+        HttpRequestInfo request = HttpRequestInfo.forTest(INVALID_HTTP_METHOD, VALID_REQUEST_PATH, new HashMap<>(), new HashMap<>(), "userId=testId&nickname=testUser&password=test1234!&email=test@test.com");
 
-        BaseException baseException = assertThrows(BaseException.class, () -> userRegisterHandler.handle(httpRequestInfo));
-        assertEquals(baseException.getMessage(), HttpErrorCode.INVALID_HTTP_METHOD.getMessage());
+        BaseException exception = assertThrows(BaseException.class, () -> userRegisterHandler.handle(request));
+        assertEquals(HttpErrorCode.INVALID_HTTP_METHOD.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("잘못된 아이디 형식")
+    void testHandleWithMissingUserId() {
+        HttpRequestInfo request = createTestRequest("userId=아이디&nickname=testUser&password=test1234!&email=test@test.com");
+
+        BaseException exception = assertThrows(BaseException.class, () -> userRegisterHandler.handle(request));
+        assertEquals(UserErrorCode.INVALID_USER_ID.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("잘못된 닉네임 형식")
+    void testHandleWithMissingUserNickname() {
+        HttpRequestInfo request = createTestRequest("userId=testId&nickname=!testUser&password=test1234!&email=test@test.com");
+
+        BaseException exception = assertThrows(BaseException.class, () -> userRegisterHandler.handle(request));
+        assertEquals(UserErrorCode.INVALID_NICKNAME.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("잘못된 이메일 형식")
+    void testHandleWithInvalidEmail() {
+        HttpRequestInfo request = createTestRequest("userId=testId&nickname=testUser&password=test1234!&email=testtest.com");
+
+        BaseException exception = assertThrows(BaseException.class, () -> userRegisterHandler.handle(request));
+        assertEquals(UserErrorCode.INVALID_EMAIL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("비밀번호가 약한 경우")
+    void testHandleWithWeakPassword() {
+        HttpRequestInfo request = createTestRequest("userId=testId&nickname=testUser&password=test1234&email=test@test.com");
+
+        BaseException exception = assertThrows(BaseException.class, () -> userRegisterHandler.handle(request));
+        assertEquals(UserErrorCode.INVALID_PASSWORD.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("중복된 userId로 회원가입 시도")
+    void testHandleWithDuplicateUserId() {
+        // 첫 번째 회원가입
+        HttpRequestInfo firstRequest = createTestRequest("userId=testId&nickname=testUser&password=test1234!&email=test@test.com");
+        userRegisterHandler.handle(firstRequest);
+
+        // 동일한 userId로 두 번째 회원가입 시도
+        HttpRequestInfo secondRequest = createTestRequest("userId=testId&nickname=testUser&password=test1234!&email=test@test.com");
+
+        BaseException exception = assertThrows(BaseException.class, () -> userRegisterHandler.handle(secondRequest));
+        assertEquals(UserErrorCode.DUPLICATE_USER_ID.getMessage(), exception.getMessage());
     }
 }
