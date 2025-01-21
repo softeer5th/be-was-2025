@@ -28,4 +28,8 @@ public class ExceptionUtil {
     public interface CheckedFunction<T, R> {
         R apply(T t) throws Exception;
     }
+
+    public interface CheckedConsumer<T> {
+        void accept(T t) throws Exception;
+    }
 }
