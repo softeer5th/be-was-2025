@@ -1,5 +1,8 @@
 package model;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 public class Comment {
     private int id;
     private String userId;
@@ -26,7 +29,7 @@ public class Comment {
     }
 
     public String getContent() {
-        return content;
+        return URLDecoder.decode(content, StandardCharsets.UTF_8);
     }
 }
 

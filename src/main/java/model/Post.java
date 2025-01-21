@@ -1,5 +1,8 @@
 package model;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 public class Post {
     private int postId;
     private String userId;
@@ -28,10 +31,10 @@ public class Post {
     }
 
     public String getTitle() {
-        return title;
+        return URLDecoder.decode(title, StandardCharsets.UTF_8);
     }
 
     public String getContent() {
-        return content;
+        return URLDecoder.decode(content, StandardCharsets.UTF_8);
     }
 }
