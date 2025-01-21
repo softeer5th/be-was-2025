@@ -74,7 +74,7 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
      * @param articleId 찾을 게시글 번호
      * @return 게시글 번호에 해당하는 게시글. 없을 경우 빈 Optional
      */
-    public Optional<Article> findArticleById(int articleId) {
+    public Optional<Article> findArticleById(long articleId) {
         return executeQuery(rs -> {
             if (!rs.next())
                 return Optional.empty();
@@ -101,7 +101,7 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
      * @param articleId 주어진 게시글 번호
      * @return 주어진 게시글 번호보다 더 최근에 추가된 게시글 번호. 없을 경우 빈 Optional
      */
-    public Optional<Long> findNextArticleId(int articleId) {
+    public Optional<Long> findNextArticleId(long articleId) {
         return executeQuery(rs -> {
             if (!rs.next())
                 return Optional.empty();
@@ -115,7 +115,7 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
      * @param articleId 주어진 게시글 번호
      * @return 주어진 게시글 번호보다 더 예전에 추가된 게시글 번호. 없을 경우 빈 Optional
      */
-    public Optional<Long> findPreviousArticleId(int articleId) {
+    public Optional<Long> findPreviousArticleId(long articleId) {
         return executeQuery(rs -> {
             if (!rs.next())
                 return Optional.empty();
