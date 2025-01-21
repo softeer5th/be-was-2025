@@ -5,7 +5,9 @@ import enums.HttpHeader;
 import exception.ClientErrorException;
 import exception.ErrorCode;
 import manager.BoardManager;
+import manager.CommentManager;
 import manager.UserManager;
+import model.Comment;
 import model.Post;
 import model.User;
 import org.slf4j.Logger;
@@ -35,10 +37,12 @@ public class DynamicHomeHandler implements Handler {
 
     private final UserManager userManager;
     private final BoardManager boardManager;
+    private final CommentManager commentManager;
 
     public DynamicHomeHandler() {
         this.userManager = UserManager.getInstance();
         this.boardManager = BoardManager.getInstance();
+        this.commentManager = CommentManager.getInstance();
     }
 
 
@@ -70,6 +74,7 @@ public class DynamicHomeHandler implements Handler {
         StringBuilder postContent = new StringBuilder();
         final List<Post> posts = boardManager.getPosts();
         addPosts(posts, postContent, user);
+
         body = body.replace(POST_REPLACE_TARGET, postContent.toString());
 
         response.setResponse(OK, extension, body);
@@ -77,13 +82,17 @@ public class DynamicHomeHandler implements Handler {
     }
 
     private void addPosts(List<Post> posts, StringBuilder postContent, Optional<User> user) {
+        if (posts.isEmpty()) {
+            postContent.append("<h2>글이 없습니다 ㅜㅜ</h2>");
+            return;
+        }
         for (Post post : posts) {
             postContent
                     .append("""
                                <div class="wrapper">
                             <div class="post">
                               <div class="post__account">
-                                <img class="post__account__img" />
+                                <img class="post__account__img" src = "/img/img.png"/>
                                 <p class="post__account__nickname">
                             """)
                     .append(post.getAuthor())
@@ -121,7 +130,62 @@ public class DynamicHomeHandler implements Handler {
                                       </p>
                                     </div>
                             """);
+            // 댓글
+            final List<Comment> comments = commentManager.getCommentsByPostId(post.getId());
+            postContent.append("""
+                    <ul class="comment">
+                  
+                    """);
+            addComments(postContent, comments);
 
+            if (user.isEmpty())
+                postContent.append("</ul>");
+                // 로그인 시 댓글 작성칸 추가
+           else {
+                postContent.append("""
+                       
+                                  <li class = "comment-form">
+                                <h3>댓글 작성하기</h3>
+                                <form action="/comment/write/
+                                """)
+                        .append(post.getId())
+                        .append(
+                                """
+                                                     "  method="POST">
+                                                  <textarea name="comment" id="comment" placeholder="댓글을 입력하세요..." rows="4" required></textarea>
+                                                     <button  type="submit" class="btn btn_ghost btn_size_m btn btn_primary btn_size_m">댓글 작성</button>     
+                                                 </form>
+                                             </li>
+                                        </ul>
+                                        """);
+            }
+
+        }
+    }
+
+    private static void addComments(StringBuilder postContent, List<Comment> comments) {
+        for (Comment comment : comments) {
+            postContent.append("""
+                            <li class="comment__item">
+                                       <div class="comment__item__user">
+                                           <img class="comment__item__user__img"/>
+                                           <p class="comment__item__user__nickname">
+                            """)
+                    .append(comment.getAuthor())
+                    .append("""
+                            </p>
+                            """)
+                    .append(comment.getCreatedAt().format(formatter()))
+                    .append("""
+                            </div>
+                            <p class="comment__item__article">
+                            """)
+
+                    .append(comment.getContents())
+                    .append("""
+                                    </p>
+                                    </li>
+                            """);
         }
     }
 
