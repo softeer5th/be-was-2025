@@ -27,7 +27,6 @@ public enum BoardDao {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet resultSet = null;
-        boardId = Math.min(Math.max(boardId, 0), boardSize.get());
         try{
             con = getConnection();
             pstmt = con.prepareStatement(sql);
@@ -70,5 +69,9 @@ public enum BoardDao {
             close(null, pstmt, con);
         }
         return Optional.empty();
+    }
+
+    public static Long getBoardSize() {
+        return boardSize.get();
     }
 }
