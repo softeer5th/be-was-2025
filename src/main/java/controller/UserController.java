@@ -112,6 +112,12 @@ public class UserController {
         response.setLocation("/");
     }
 
+    /**
+     * 마이 페이지를 보여주는 핸들러
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @Mapping(path = "/mypage", method = HttpMethod.GET)
     public void mypage(HttpRequest request, HttpResponse response) throws IOException {
         response.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -130,6 +136,14 @@ public class UserController {
         response.setBody(readFile);
     }
 
+    /**
+     * 비밀번호를 변경하는 핸들러.
+     * 현재 프로필 이미지 수정과 결합도가 높음.
+     * 분해 예정 TODO
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @Mapping(path = "/user/edit", method = HttpMethod.POST)
     public void changePassword(HttpRequest request, HttpResponse response) throws IOException {
 

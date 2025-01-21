@@ -11,10 +11,21 @@ public class DBUtils {
     private static final String PASSWORD = "";
     private static final Logger log = LoggerFactory.getLogger(DBUtils.class);
 
+    /**
+     * 커넥션을 획득하는 메소드
+     * @return 새로 생성한 커넥션 객체
+     * @throws SQLException
+     */
     static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
 
+    /**
+     * DB 리소스를 모두 닫는 메소드
+     * @param rs ResultSet 객체
+     * @param stmt Statement 객체
+     * @param con 커넥션 객체
+     */
     static void close(ResultSet rs, Statement stmt, Connection con) {
         if(rs != null){
             try{

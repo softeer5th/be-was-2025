@@ -20,6 +20,11 @@ public enum UserDao {
         this.table = table;
     }
 
+    /**
+     * id와 매칭되는 user 를 찾아주는 메소드
+     * @param userId 찾고자 하는 user ID
+     * @return Optional 로 감싼 User 객체 반환. 해당 ID가 존재하지 않을 경우, 빈 Optional 객체 반환
+     */
     public Optional<User> findById(String userId) {
         String sql = "select * from users where user_id = ?";
         Connection con = null;
@@ -46,6 +51,11 @@ public enum UserDao {
         return Optional.empty();
     }
 
+    /**
+     * 새 회원을 저장하는 메소드
+     * @param user
+     * @return
+     */
     public Optional<User> save(User user){
         String sql = "insert into users(user_id, password, username, email) values (?, ?, ?, ?)";
         Connection con = null;
