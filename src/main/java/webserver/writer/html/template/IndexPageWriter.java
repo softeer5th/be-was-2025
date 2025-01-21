@@ -20,6 +20,17 @@ public class IndexPageWriter {
                 .build();
          return HTMLWriter.render(element);
     }
+    private static String loginOrMyPage(Optional<String> nickname) {
+        String href = nickname.isPresent() ? "/mypage" : "/login";
+        String childValue = nickname.orElse("로그인");
+        HTMLElement child = Builder.value(childValue);
+        HTMLElement element = Builder.tag(HTMLTag.A)
+                .className("btn btn_contained btn_size_s")
+                .href(href)
+                .appendChild(child)
+                .build();
+        return HTMLWriter.render(element);
+    }
 
     public static String write(Optional<String> username) {
         StringBuilder content = new StringBuilder();
@@ -29,7 +40,11 @@ public class IndexPageWriter {
         ) {
             content.append(reader.readUntil('$'));
             content.append("\n");
-            String key = reader.readBraceValue();
+            reader.readBraceValue();
+            content.append(loginOrMyPage(username));
+            content.append("\n");
+            content.append(reader.readUntil('$'));
+            reader.readBraceValue();
             content.append(postAccountName(username));
             content.append(reader.readUntil('$'));
             System.out.println(content);

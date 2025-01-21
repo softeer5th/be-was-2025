@@ -2,6 +2,7 @@ package webserver.writer.html;
 
 public enum HTMLTag {
     P("p"),
+    A("a"),
     DIV("div"),
     PLAIN("");
 
