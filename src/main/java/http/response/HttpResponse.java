@@ -16,6 +16,12 @@ public class HttpResponse {
 	private HttpStatus statusCode = HttpStatus.OK;
 	private HttpHeaders headers = new HttpHeaders();
 	private byte[] body;
+	private boolean hasToRender = false;
+
+	public boolean hasToRender() {
+		return hasToRender;
+	}
+
 
 	public void sendResponse(OutputStream out) throws IOException {
 		writeStatusLine(out);
@@ -77,5 +83,13 @@ public class HttpResponse {
 
 	public void setCookie(String name, String value, String... options) {
 		headers.setCookie(name, value, options);
+	}
+
+	public String getBodyToString() {
+		return new String(body);
+	}
+
+	public void setHasToRender(boolean hasToRender) {
+		this.hasToRender = hasToRender;
 	}
 }

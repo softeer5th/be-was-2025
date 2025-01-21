@@ -1,30 +1,25 @@
 package http;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class HttpSession {
 	private final String id;
-	private Map<String, Object> values = new HashMap<>();
+	private Map<String, Object> values;
 
-	public HttpSession(String id, String key, Object value) {
+	public HttpSession(String id, Map<String, Object> values) {
 		this.id = id;
-		values.put(key, value);
+		this.values = values;
 	}
 
 	public String getId() {
 		return id;
 	}
 
-	public void setAttribute(String name, Object value) {
-		values.put(name, value);
+	public Object getAttribute(String name) {
+		return values.get(name);
 	}
 
-	public void getAttribute(String name) {
-		values.get(name);
-	}
-
-	public void removeAttribute(String name) {
-		values.remove(name);
+	public Map<String, Object> getValues() {
+		return values;
 	}
 }

@@ -32,6 +32,10 @@ public class Cookie {
 		return name;
 	}
 
+	public String getValue() {
+		return value;
+	}
+
 	public String toMessage() {
 		StringBuilder result = new StringBuilder(name + COOKIE_DELIMITER + value);
 

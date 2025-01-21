@@ -1,6 +1,7 @@
 package http.request;
 
 import static enums.HttpHeader.*;
+import static http.HttpSessionStorage.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,7 +74,7 @@ public class HttpHeaders {
 
 	public void setHeader(String headerName, String... values) {
 		headerName = headerName.toLowerCase();
-		List<String> valueList = headers.getOrDefault(headerName, new ArrayList<>());
+		List<String> valueList = new ArrayList<>();
 
 		for (String value : values) {
 			String strippedValue = value.strip();
@@ -112,5 +113,9 @@ public class HttpHeaders {
 		}
 
 		return sb.toString();
+	}
+
+	public String getSessionId() {
+		return cookies.getCookie(SESSION_ID);
 	}
 }

@@ -36,6 +36,15 @@ public class Cookies {
 		return !cookies.isEmpty();
 	}
 
+	public String getCookie(String name) {
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(name)) {
+				return cookie.getValue();
+			}
+		}
+		return null;
+	}
+
 	public void setCookie(String name, String value, String... options) {
 		cookies.add(new Cookie(name, value, options));
 	}
