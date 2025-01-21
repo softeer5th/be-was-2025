@@ -61,7 +61,7 @@ public enum UserDao {
             pstmt.executeUpdate();
             return Optional.of(user);
         } catch (SQLException e) {
-            log.error("find 예외: ", e);
+            log.error("save 예외: ", e);
         }finally {
             close(null, pstmt, con);
         }

@@ -64,7 +64,7 @@ public enum BoardDao {
             pstmt.executeUpdate();
             return Optional.of(board);
         } catch (SQLException e) {
-            log.error("find 예외: ", e);
+            log.error("save 예외: ", e);
         }finally {
             close(null, pstmt, con);
         }
