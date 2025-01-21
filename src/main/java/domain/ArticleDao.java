@@ -25,10 +25,9 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
             LEFT JOIN users ON articles.writerId = users.userId
             WHERE articleId = ?
             """;
-    private static final String SELECT_LATEST_ARTICLE = """
-            SELECT *
+    private static final String SELECT_LATEST_ARTICLE_ID = """
+            SELECT articleId
             FROM articles
-            LEFT JOIN users ON articles.writerId = users.userId
             ORDER BY articleId DESC
             LIMIT 1
             """;
@@ -83,16 +82,16 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
     }
 
     /**
-     * 가장 최근에 추가된 게시글을 데이터베이스에서 찾는다.
+     * 가장 최근에 추가된 게시글 번호를 찾는다.
      *
-     * @return 가장 최근에 추가된 게시글. 없을 경우 빈 Optional
+     * @return 가장 최근에 추가된 게시글 번호. 없을 경우 빈 Optional
      */
-    public Optional<Article> findLatestArticle() {
+    public Optional<Long> findLatestArticleId() {
         return executeQuery(rs -> {
             if (!rs.next())
                 return Optional.empty();
-            return Optional.of(mapArticle(rs));
-        }, SELECT_LATEST_ARTICLE);
+            return Optional.of(rs.getLong(1));
+        }, SELECT_LATEST_ARTICLE_ID);
     }
 
     /**
