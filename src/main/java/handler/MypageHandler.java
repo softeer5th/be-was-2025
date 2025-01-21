@@ -50,6 +50,8 @@ public class MypageHandler implements HttpHandler {
         user.update(body.name(), body.password());
         userDao.saveUser(user);
 
+        request.getSession().set(HttpSession.USER_KEY, user);
+
         return HttpResponse.redirect(INDEX.path);
     }
 
