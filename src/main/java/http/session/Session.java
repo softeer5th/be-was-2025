@@ -7,7 +7,7 @@ import java.util.UUID;
 public class Session {
     private final String sessionId;
     private final long createdTime;
-    public static final long MAX_INACTIVE_INTERVAL = 1000 * 60 * 30;
+    // public static final long MAX_INACTIVE_INTERVAL = 1000 * 60 * 30;
 
     private Map<String, Object> attributes = new HashMap<>();
 

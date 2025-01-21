@@ -1,4 +1,4 @@
-package handler;
+package handler.request_handler;
 
 import db.Database;
 import exception.ErrorCode;
@@ -36,7 +36,7 @@ public class UserLoginRequestHandler implements RequestHandler{
 
             return new HttpResponse.Builder()
                     .httpStatus(HttpStatus.SEE_OTHER)
-                    .location("http://localhost:8080/login-home.html")
+                    .location("http://localhost:8080/")
                     .setCookie(cookie)
                     .build();
 

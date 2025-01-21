@@ -1,10 +1,9 @@
-package handler;
+package handler.request_handler;
 
 import http.cookie.Cookie;
 import http.enums.HttpStatus;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
-import http.session.Session;
 import http.session.SessionManager;
 
 public class UserLogoutRequestHandler implements RequestHandler{

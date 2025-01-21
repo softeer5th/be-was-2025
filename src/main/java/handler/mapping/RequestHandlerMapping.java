@@ -1,9 +1,9 @@
 package handler.mapping;
 
-import handler.RequestHandler;
-import handler.UserLoginRequestHandler;
-import handler.UserLogoutRequestHandler;
-import handler.UserSignUpRequestHandler;
+import handler.request_handler.RequestHandler;
+import handler.request_handler.UserLoginRequestHandler;
+import handler.request_handler.UserLogoutRequestHandler;
+import handler.request_handler.UserSignUpRequestHandler;
 import http.request.HttpRequest;
 import http.enums.HttpMethod;
 
