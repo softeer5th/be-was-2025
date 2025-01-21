@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class Database {
+public class Database implements TransactionFactory {
 
     private final String jdbcUrl;
     private final String username;
@@ -26,4 +26,8 @@ public class Database {
     }
 
 
+    @Override
+    public Transaction createTransaction() {
+        return new Transaction(getConnection());
+    }
 }
