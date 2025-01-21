@@ -1,6 +1,7 @@
 package webserver;
 
-import fixtureUtil.ExceptionRouter;
+import fixtureUtil.ClientExceptionRouter;
+import fixtureUtil.ServerExceptionRouter;
 import fixtureUtil.TestRouter;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,16 +22,18 @@ class RequestDispatcherTest {
         Socket connection = Mockito.mock(Socket.class);
         RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new TestRouter());
 
-        String httpRequest = "POST /test HTTP/1.1\r\n" +
-                "Accept: application/json\r\n" +
-                "Accept-Encoding: gzip, deflate\r\n" +
-                "Connection: keep-alive\r\n" +
-                "Content-Length: 4\r\n" +
-                "Content-Type: application/json\r\n" +
-                "Host: google.com\r\n" +
-                "User-Agent: HTTPie/0.9.3\r\n" +
-                "\r\n" +
-                "gigi\r\n";
+        String httpRequest = """
+                POST /test HTTP/1.1\r
+                Accept: application/json\r
+                Accept-Encoding: gzip, deflate\r
+                Connection: keep-alive\r
+                Content-Length: 4\r
+                Content-Type: application/json\r
+                Host: google.com\r
+                User-Agent: HTTPie/0.9.3\r
+                \r
+                gigi\r
+                """;
 
         byte[] httpRequestBytes = httpRequest.getBytes();
 
@@ -63,19 +66,21 @@ class RequestDispatcherTest {
     void run_clientException() throws IOException {
         // given
         Socket connection = Mockito.mock(Socket.class);
-        RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new ExceptionRouter());
+        RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new ClientExceptionRouter());
 
 
-        String httpRequest = "POST /test HTTP/1.1\r\n" +
-                "Accept: application/json\r\n" +
-                "Accept-Encoding: gzip, deflate\r\n" +
-                "Connection: keep-alive\r\n" +
-                "Content-Length: 4\r\n" +
-                "Content-Type: application/json\r\n" +
-                "Host: google.com\r\n" +
-                "User-Agent: HTTPie/0.9.3\r\n" +
-                "\r\n" +
-                "gigi\r\n";
+        String httpRequest = """
+                POST /test HTTP/1.1\r
+                Accept: application/json\r
+                Accept-Encoding: gzip, deflate\r
+                Connection: keep-alive\r
+                Content-Length: 4\r
+                Content-Type: application/json\r
+                Host: google.com\r
+                User-Agent: HTTPie/0.9.3\r
+                \r
+                gigi\r
+                """;
 
         byte[] httpRequestBytes = httpRequest.getBytes();
 
@@ -93,6 +98,53 @@ class RequestDispatcherTest {
                 Content-Type: text/html; charset=utf-8\r
                 \r
                 잘못된 HTTP 요청입니다.\r
+                """;
+
+        // when
+        requestDispatcher.run();
+
+        // then
+        Assertions.assertThat(mockOutputStream.toString())
+                .isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("핸들러에서 server exception을 던지면 4xx 응답을 클라이언트에 전송한다.")
+    void run_serverException() throws IOException {
+        // given
+        Socket connection = Mockito.mock(Socket.class);
+        RequestDispatcher requestDispatcher = new RequestDispatcher(connection, new ServerExceptionRouter());
+
+
+        String httpRequest = """
+                POST /test HTTP/1.1\r
+                Accept: application/json\r
+                Accept-Encoding: gzip, deflate\r
+                Connection: keep-alive\r
+                Content-Length: 4\r
+                Content-Type: application/json\r
+                Host: google.com\r
+                User-Agent: HTTPie/0.9.3\r
+                \r
+                gigi\r
+                """;
+
+        byte[] httpRequestBytes = httpRequest.getBytes();
+
+        InputStream mockInputStream = new ByteArrayInputStream(httpRequestBytes);
+        OutputStream mockOutputStream = new ByteArrayOutputStream();
+
+        when(connection.getInputStream())
+                .thenReturn(mockInputStream);
+        when(connection.getOutputStream())
+                .thenReturn(mockOutputStream);
+
+        final String expected = """
+                HTTP/1.1 500 Internal Server Error \r
+                Content-Length: 35\r
+                Content-Type: text/html; charset=utf-8\r
+                \r
+                인코딩에 실패하였습니다.\r
                 """;
 
         // when

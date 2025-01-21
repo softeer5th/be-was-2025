@@ -2,6 +2,7 @@ package webserver;
 
 import enums.FileContentType;
 import exception.ClientErrorException;
+import exception.ServerErrorException;
 import handler.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import java.net.Socket;
 
 public class RequestDispatcher implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestDispatcher.class);
-    private Socket connection;
+    private final Socket connection;
     private final Router router;
 
     public RequestDispatcher(Socket connectionSocket, Router router) {
@@ -40,6 +41,8 @@ public class RequestDispatcher implements Runnable {
                 final Handler handler = router.route(path);
                 response = handler.handle(httpRequestInfo);
             } catch (ClientErrorException e) {
+                response = new HttpResponse(e.getHttpStatus(), FileContentType.HTML_UTF_8, e.getMessage());
+            }catch (ServerErrorException e){
                 response = new HttpResponse(e.getHttpStatus(), FileContentType.HTML_UTF_8, e.getMessage());
             }
 

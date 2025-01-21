@@ -1,5 +1,6 @@
 package handler;
 
+import enums.HttpHeader;
 import enums.HttpMethod;
 import exception.ClientErrorException;
 import org.assertj.core.api.Assertions;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import static enums.HttpMethod.POST;
 import static enums.HttpStatus.SEE_OTHER;
 import static enums.HttpVersion.HTTP1_1;
-import static exception.ErrorCode.INVALID_HTTP_METHOD;
+import static exception.ErrorCode.REQUEST_NOT_ALLOWED;
 
 class HomeHandlerTest {
     private final HomeHandler homeHandler = new HomeHandler();
@@ -29,7 +30,7 @@ class HomeHandlerTest {
 
         Assertions.assertThat(response.getStatus())
                 .isEqualTo(SEE_OTHER);
-        Assertions.assertThat(response.getHeaderValue("Location"))
+        Assertions.assertThat(response.getHeaderValue(HttpHeader.LOCATION.getName()))
                 .isEqualTo(HOME_URL);
     }
 
@@ -40,7 +41,7 @@ class HomeHandlerTest {
 
         Assertions.assertThatThrownBy(() -> homeHandler.handle(requestInfo))
                 .isInstanceOf(ClientErrorException.class)
-                .hasMessage(INVALID_HTTP_METHOD.getMessage());
+                .hasMessage(REQUEST_NOT_ALLOWED.getMessage());
     }
 
 

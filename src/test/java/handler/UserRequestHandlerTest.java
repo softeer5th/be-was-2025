@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UserRequestHandlerTest {
     private final UserRequestHandler userRequestHandler = new UserRequestHandler();
+    private final Database database = Database.getInstance();
 
     private static final String VALID_REQUEST_PATH = "/user/create?userId=jueun&nickname=jueun&password=jueun&email=jueun@naver.com";
     private static final String REDIRECT_URL = "http://localhost:8080/index.html";
@@ -29,13 +30,22 @@ class UserRequestHandlerTest {
     @Test
     @DisplayName("회원가입에 성공하면 201을 반환한다.")
     void handle_createUser() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, "/user/create", HttpVersion.HTTP1_1, new HashMap<>(), "userId=jueun&nickname=jueun&password=jueun&email=jueun@naver.com");
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, "/user/create", HttpVersion.HTTP1_1, new HashMap<>(), "userId=jueun2&nickname=jueun&password=jueun&email=jueun@naver.com");
         HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
         assertThat(response.getStatus())
                 .isEqualTo(HttpStatus.FOUND);
-        assertThat(response.getHeaderValue("Location"))
+        assertThat(response.getHeaderValue(HttpHeader.LOCATION.getName()))
                 .isEqualTo(REDIRECT_URL);
+    }
+
+    @Test
+    @DisplayName("회원가입 항목 필드에 누락이 있을 경우 에러가 발생한다.")
+    void handle_createUser_missing_field() {
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, "/user/create", HttpVersion.HTTP1_1, new HashMap<>(), "userId=jueun2&nickname=jueun&password=jueun");
+        assertThatThrownBy(() -> userRequestHandler.handle(httpRequestInfo))
+                .isInstanceOf(ClientErrorException.class)
+                .hasMessage(ErrorCode.MISSING_FIELD.getMessage());
     }
 
     @Test
@@ -44,7 +54,7 @@ class UserRequestHandlerTest {
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.GET, VALID_REQUEST_PATH, HttpVersion.HTTP1_1, new HashMap<>(), null);
         assertThatThrownBy(() -> userRequestHandler.handle(httpRequestInfo))
                 .isInstanceOf(ClientErrorException.class)
-                .hasMessage(ErrorCode.METHOD_NOT_ALLOWED.getMessage());
+                .hasMessage(ErrorCode.REQUEST_NOT_ALLOWED.getMessage());
 
     }
 
@@ -60,7 +70,7 @@ class UserRequestHandlerTest {
         String name = "name";
 
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
-        Database.addUser(new User(userId, password, email, name));
+        database.addUser(new User(userId, password, email, name));
 
         final HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
@@ -93,14 +103,13 @@ class UserRequestHandlerTest {
         String email = "email";
         String name = "name";
         HttpRequestInfo login = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
-        Database.addUser(new User(userId, password, email, name));
+        database.addUser(new User(userId, password, email, name));
 
         final HttpResponse loginResponse = userRequestHandler.handle(login);
 
         final String setCookie = loginResponse.getHeaderValue(HttpHeader.SET_COOKIE.getName());
         // SID=PpbZz; Path=/
         final String sessionId = setCookie.split(";")[0].substring("SID=".length());
-        System.out.println(sessionId);
         HttpRequestInfo logout = new HttpRequestInfo(HttpMethod.GET, "/user/logout", HttpVersion.HTTP1_1, Map.of(HttpHeader.SET_COOKIE.getName(), sessionId), "");
         final HttpResponse response = userRequestHandler.handle(logout);
 

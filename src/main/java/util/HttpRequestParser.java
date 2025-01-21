@@ -1,6 +1,7 @@
 package util;
 
 import config.ServerConfig;
+import enums.HttpHeader;
 import enums.HttpMethod;
 import enums.HttpVersion;
 import exception.ClientErrorException;
@@ -67,17 +68,17 @@ public abstract class HttpRequestParser {
     private static String readLine(DataInputStream dis) throws IOException {
         StringBuilder sb = new StringBuilder();
         int ch;
-        boolean crFound = false; // \r이 발견되었는지 추적하는 변수
+        boolean hasCr = false; // \r이 발견되었는지 추적하는 변수
 
         while ((ch = dis.read()) != -1) {
             if (ch == '\r') { // \r이 발견되면
-                crFound = true; // \r을 발견
-            } else if (ch == '\n' && crFound) { // \n이 오고, 이전에 \r이 있었다면
+                hasCr = true; // \r을 발견
+            } else if (ch == '\n' && hasCr) { // \n이 오고, 이전에 \r이 있었다면
                 break; // \r\n을 찾았다면 줄 끝
             } else {
                 // \r만 있는 경우는 그냥 \r을 추가하고, 그 외 문자는 그대로 추가
                 sb.append((char) ch);
-                crFound = false; // \r이 없으면 초기화
+                hasCr = false; // \r이 없으면 초기화
             }
         }
 
@@ -90,8 +91,8 @@ public abstract class HttpRequestParser {
         String body = null;
 
         // 5.1 Content-Length가 있는 경우 본문을 해당 길이만큼 읽어온다
-        if (headers.containsKey("content-length")) {
-            int contentLength = Integer.parseInt(headers.get("content-length"));
+        if (headers.containsKey(HttpHeader.CONTENT_LENGTH.getName())) {
+            int contentLength = Integer.parseInt(headers.get(HttpHeader.CONTENT_LENGTH.getName()));
             byte[] bodyBytes = new byte[contentLength];
             dis.readFully(bodyBytes);
             body = new String(bodyBytes);

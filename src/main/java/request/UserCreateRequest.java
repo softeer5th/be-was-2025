@@ -5,7 +5,7 @@ import util.HttpRequestParser;
 
 import java.util.Map;
 
-import static exception.ErrorCode.INVALID_FORM;
+import static exception.ErrorCode.MISSING_FIELD;
 
 public record UserCreateRequest(
         String userId,
@@ -25,7 +25,7 @@ public record UserCreateRequest(
 
     private static String getOrElseThrow(Map<String, String> map, String key) {
         if (!map.containsKey(key))
-            throw new ClientErrorException(INVALID_FORM);
+            throw new ClientErrorException(MISSING_FIELD);
         return map.get(key);
     }
 }

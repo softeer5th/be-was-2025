@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static exception.ErrorCode.KEY_VALUE_SHOULD_BE_EVEN;
+import static exception.ErrorCode.KEY_VALUE_SHOULD_BE_PAIR;
 
 public class HttpResponse {
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
@@ -47,13 +47,13 @@ public class HttpResponse {
         this.status = status;
     }
 
-    public void setHeaders(String name, String value) {
+    public void setHeader(String name, String value) {
         headers.put(name, value);
     }
 
-    public void setHeaders(String... keyValues) {
+    public void setHeader(String... keyValues) {
         if (keyValues.length % 2 != 0) {
-            throw new ServerErrorException(KEY_VALUE_SHOULD_BE_EVEN);
+            throw new ServerErrorException(KEY_VALUE_SHOULD_BE_PAIR);
         }
         for (int i = 0; i < keyValues.length; i += 2) {
             String key = keyValues[i];
@@ -69,8 +69,7 @@ public class HttpResponse {
 
     public void setBody(String bodyString) {
         byte[] body = bodyString.getBytes();
-        this.body = body;
-        setContentLength(body.length);
+        setBody(body);
     }
 
     public void setContentType(FileContentType extension) {
@@ -81,7 +80,18 @@ public class HttpResponse {
         headers.put("Content-Length", String.valueOf(length));
     }
 
+    public void setResponse(HttpStatus status, FileContentType contentType) {
+        setStatus(status);
+        setContentType(contentType);
+    }
+
     public void setResponse(HttpStatus status, FileContentType contentType, String body) {
+        setStatus(status);
+        setContentType(contentType);
+        setBody(body);
+    }
+
+    public void setResponse(HttpStatus status, FileContentType contentType, byte[] body) {
         setStatus(status);
         setContentType(contentType);
         setBody(body);
@@ -96,7 +106,8 @@ public class HttpResponse {
             }
             dos.writeBytes("\r\n");
 
-            dos.write(body, 0, body.length);
+            if (body!= null && body.length > 0)
+                dos.write(body, 0, body.length);
             dos.writeBytes("\r\n");
             dos.flush();
         } catch (IOException e) {
