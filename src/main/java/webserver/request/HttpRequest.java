@@ -35,8 +35,8 @@ public class HttpRequest {
         this.pathVariables = pathVariables;
     }
 
-    public String getPathVariable(String key) {
-        return pathVariables.get(key);
+    public Optional<String> getPathVariable(String key) {
+        return Optional.ofNullable(pathVariables.get(key));
     }
 
     public HttpMethod getMethod() {
@@ -69,12 +69,12 @@ public class HttpRequest {
     @Override
     public String toString() {
         return "HttpRequest{" +
-                "httpMethod=" + httpMethod +
-                ", requestTarget=" + requestTarget +
-                ", version=" + version +
-                ", headers=" + headers +
-                ", pathVariables=" + pathVariables +
-                '}';
+               "httpMethod=" + httpMethod +
+               ", requestTarget=" + requestTarget +
+               ", version=" + version +
+               ", headers=" + headers +
+               ", pathVariables=" + pathVariables +
+               '}';
     }
 
     public HttpSession getSession() {
