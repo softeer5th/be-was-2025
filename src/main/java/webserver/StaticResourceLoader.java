@@ -22,6 +22,7 @@ public class StaticResourceLoader {
             case "/registration" -> "/registration/index.html";
             case "/user/login.html" -> "/login/index.html";
             case "/user/login_failed.html" -> "/login/login_failed.html";
+            case "/mypage" -> "/mypage/index.html";
             default -> cleanedPath;
         };
 

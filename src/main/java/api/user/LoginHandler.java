@@ -1,6 +1,7 @@
 package api.user;
 
 import api.ApiHandler;
+import com.fasterxml.jackson.core.type.TypeReference;
 import db.Database;
 import global.model.CommonResponse;
 import global.model.HttpRequest;
@@ -14,8 +15,6 @@ import webserver.SessionManager;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static global.util.JsonUtil.toJson;
-
 public class LoginHandler implements ApiHandler {
     private static final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
 
@@ -28,13 +27,20 @@ public class LoginHandler implements ApiHandler {
     @Override
     public LoadResult handle(HttpRequest httpRequest) {
         try {
-            Map<String, String> credentials = extractCredentials(httpRequest.body());
+            Map<String, String> credentials = JsonUtil.fromJson(httpRequest.body(), new TypeReference<>() {});
             String userId = credentials.get("userId");
             String password = credentials.get("password");
 
-            User user = validateUser(userId, password);
+            if (userId == null || userId.isBlank()) {
+                throw new IllegalArgumentException("아이디가 입력되지 않았습니다.");
+            }
+            if (password == null || password.isBlank()) {
+                throw new IllegalArgumentException("비밀번호가 입력되지 않았습니다.");
+            }
 
+            User user = validateUser(userId, password);
             return createSuccessResponse(user);
+
         } catch (IllegalArgumentException e) {
             logger.debug("[로그인 실패] 요청 데이터 오류: {}", e.getMessage());
             return createErrorResponse("LOGIN-FAIL", e.getMessage());
@@ -44,35 +50,14 @@ public class LoginHandler implements ApiHandler {
         }
     }
 
-    private Map<String, String> extractCredentials(String body) {
-        Map<String, String> requestData = JsonUtil.fromJson(body);
-
-        String userId = requestData.get("userId");
-        String password = requestData.get("password");
-
-        if (userId == null || userId.isBlank()) {
-            throw new IllegalArgumentException("아이디가 입력되지 않았습니다.");
-        }
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("비밀번호가 입력되지 않았습니다.");
-        }
-
-        return requestData;
-    }
-
-    /**
-     * 사용자 검증
-     */
     private User validateUser(String userId, String password) {
         User user = Database.findUserById(userId);
-
         if (user == null) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
         if (!user.getPassword().equals(password)) {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 잘못되었습니다.");
         }
-
         return user;
     }
 
@@ -80,13 +65,9 @@ public class LoginHandler implements ApiHandler {
         String sessionId = SessionManager.createSession(user);
         logger.debug("[로그인 성공] - 세션 생성 sessionId: {}", sessionId);
 
-        CommonResponse successResponse = new CommonResponse(
-                true,
-                null,
-                null,
-                null
-        );
-        String json = toJson(successResponse);
+        CommonResponse successResponse = new CommonResponse(true, null, null, null);
+        String json = JsonUtil.toJson(successResponse);
+
         String cookieValue = "SID=" + sessionId + "; Path=/";
 
         return new LoadResult(
@@ -98,13 +79,8 @@ public class LoginHandler implements ApiHandler {
     }
 
     private LoadResult createErrorResponse(String errorCode, String errorMessage) {
-        CommonResponse errorResponse = new CommonResponse(
-                false,
-                errorCode,
-                errorMessage,
-                null
-        );
-        String json = toJson(errorResponse);
+        CommonResponse errorResponse = new CommonResponse(false, errorCode, errorMessage, null);
+        String json = JsonUtil.toJson(errorResponse);
 
         return new LoadResult(
                 json.getBytes(StandardCharsets.UTF_8),

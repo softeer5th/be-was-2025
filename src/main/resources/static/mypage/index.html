@@ -1,81 +1,158 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
-        <ul class="header__menu">
-        <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <button id="logout-btn" class="btn btn_ghost btn_size_s">
-              로그아웃
-            </button>
-          </li>
-        </ul>
-      </header>
-      <div class="page">
-        <h2 class="page-title">마이페이지</h2>
-
-        <div class="profile_container">
-          <div class="profile_box">
-              <div class="profile_image">
-                <img class="profile" />
-              </div>
-              <div class="profile_frame">
-                  <div class="btn_profile">
-                        <div class="btn_container">수정</div>
-                  </div>
-                  <div class="btn_bar"></div>
-                  <div class="btn_profile">
-                      <div class="btn_container">삭제</div>
-                  </div>
-              </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="../reset.css" rel="stylesheet" />
+  <link href="../global.css" rel="stylesheet" />
+  <title>마이페이지</title>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <a href="/index.html"><img src="../img/signiture.svg" /></a>
+    <ul class="header__menu">
+      <li class="header__menu__item">
+        <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+      </li>
+      <li class="header__menu__item">
+        <button id="logout-btn" class="btn btn_ghost btn_size_s">
+          로그아웃
+        </button>
+      </li>
+    </ul>
+  </header>
+  <div class="page">
+    <h2 class="page-title">마이페이지</h2>
+    <div class="profile_container">
+      <div class="profile_box">
+        <div class="profile_image">
+          <img class="profile" />
         </div>
-          <form class="form">
-            <div class="textfield textfield_size_s input_margin">
-              <p class="title_textfield">닉네임</p>
-              <input
-                class="input_textfield"
-                placeholder="{회원 가입 시 입력했던 닉네임}"
-                autocomplete="username"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호</p>
-              <input
-                class="input_textfield"
-                placeholder="비밀번호를 변경할 경우 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호 확인</p>
-              <input
-                class="input_textfield"
-                type="password"
-                placeholder="한 번 더 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <button
-              id="registration-btn"
-              class="btn btn_contained btn_size_m input_margin"
-            
-              type="button"
-            >
-              변경사항 저장
-            </button>
-
-        </form>
+        <div class="profile_frame">
+          <div class="btn_profile">
+            <div class="btn_container">수정</div>
+          </div>
+          <div class="btn_bar"></div>
+          <div class="btn_profile">
+            <div class="btn_container">삭제</div>
+          </div>
+        </div>
       </div>
+      <form class="form" onsubmit="return false;">
+        <div class="textfield textfield_size_s input_margin">
+          <p class="title_textfield">닉네임</p>
+          <input
+                  id="nickname-input"
+                  class="input_textfield"
+                  placeholder="닉네임"
+                  autocomplete="username"
+          />
+        </div>
+        <div class="textfield textfield_size_s">
+          <p class="title_textfield">비밀번호</p>
+          <input
+                  id="password-input"
+                  class="input_textfield"
+                  placeholder="비밀번호를 변경할 경우 입력"
+                  autocomplete="current-password"
+                  type="password"
+          />
+        </div>
+        <div class="textfield textfield_size_s">
+          <p class="title_textfield">비밀번호 확인</p>
+          <input
+                  id="password-confirm-input"
+                  class="input_textfield"
+                  type="password"
+                  placeholder="한 번 더 입력"
+                  autocomplete="current-password"
+          />
+        </div>
+        <button
+                id="update-btn"
+                class="btn btn_contained btn_size_m input_margin"
+                type="button"
+        >
+          변경사항 저장
+        </button>
+      </form>
     </div>
-  </body>
+  </div>
+</div>
+
+<script>
+  window.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const response = await fetch("/api/user/validate");
+      const result = await response.json();
+
+      if (result.isSuccess) {
+        document.getElementById("nickname-input").value = result.data;
+      } else {
+        alert("로그인이 필요해요.");
+        window.location.href = "/user/login.html";
+      }
+    } catch (error) {
+      console.error("마이페이지 유저 정보 로딩 오류:", error);
+      window.location.href = "/user/login.html";
+    }
+  });
+
+  document.getElementById("update-btn").addEventListener("click", async () => {
+    const nickname = document.getElementById("nickname-input").value.trim();
+    const password = document.getElementById("password-input").value.trim();
+    const passwordConfirm = document.getElementById("password-confirm-input").value.trim();
+
+    if (!nickname) {
+      alert("닉네임을 입력해주세요.");
+      return;
+    }
+
+    // 둘 중 하나라도 입력이 있다면 -> 둘 다 있어야 하고, 같아야 함
+    if ((password || passwordConfirm)) {
+      if (!password || !passwordConfirm) {
+        alert("비밀번호와 비밀번호 확인 모두 입력해주세요.");
+        return;
+      }
+      if (password !== passwordConfirm) {
+        alert("비밀번호와 비밀번호 확인 값이 일치하지 않아요.");
+        return;
+      }
+    }
+
+    try {
+      const response = await fetch("/api/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, password })
+      });
+
+      const result = await response.json();
+      if (result.isSuccess) {
+        alert("사용자 정보가 정상적으로 변경되었습니다!");
+        window.location.href = "/index.html";
+      } else {
+        alert(`오류: ${result.message}`);
+      }
+    } catch (err) {
+      console.error("사용자 정보 수정 오류:", err);
+      alert("서버 통신 중 오류가 발생했습니다.");
+    }
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    try {
+      const response = await fetch("/api/logout", { method: "POST" });
+      const result = await response.json();
+      console.log("로그아웃 응답:", result);
+    } catch (error) {
+      console.error("로그아웃 요청 중 오류:", error);
+      window.location.href = "/index.html";
+    }
+    alert("로그아웃이 완료되었습니다!");
+    window.location.href = "/index.html";
+  });
+</script>
+</body>
 </html>

@@ -4,15 +4,13 @@ import api.ApiHandler;
 import global.model.CommonResponse;
 import global.model.HttpRequest;
 import global.model.LoadResult;
+import global.util.CookieSessionUtil;
+import global.util.JsonUtil;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.SessionManager;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
-import static global.util.JsonUtil.toJson;
 
 public class LogoutHandler implements ApiHandler {
     private static final Logger logger = LoggerFactory.getLogger(LogoutHandler.class);
@@ -26,21 +24,16 @@ public class LogoutHandler implements ApiHandler {
     @Override
     public LoadResult handle(HttpRequest httpRequest) {
         try {
-            String sid = extractSid(httpRequest);
-            if (sid == null) {
-                logger.debug("[로그아웃 실패] SID 쿠키 없음.");
-                return createResponse(false, "LOGOUT-FAIL", "SID 쿠키가 없습니다.");
-            }
-
-            User user = SessionManager.getUser(sid);
+            User user = CookieSessionUtil.getUserFromSession(httpRequest.headers());
             if (user == null) {
-                logger.debug("[로그아웃 실패] 이미 만료된 세션이거나 존재하지 않는 세션.");
-                return createResponse(false, "LOGOUT-FAIL", "유효하지 않은 세션입니다.");
+                return createResponse(false, "LOGOUT-FAIL", "SID 쿠키가 없거나 세션이 유효하지 않습니다.");
             }
 
-            SessionManager.invalidate(sid);
-            logger.debug("[로그아웃 성공] 세션 만료 처리완료. sid={}", sid);
+            // 세션 무효화
+            String sid = CookieSessionUtil.extractSid(httpRequest.headers().get("Cookie"));
+            webserver.SessionManager.invalidate(sid);
 
+            logger.debug("[로그아웃 성공] 세션 만료 처리완료. sid={}", sid);
             return createResponse(true, "LOGOUT-SUCCESS", "로그아웃 성공");
 
         } catch (Exception e) {
@@ -49,29 +42,15 @@ public class LogoutHandler implements ApiHandler {
         }
     }
 
-    private String extractSid(HttpRequest httpRequest) {
-        Map<String, String> headers = httpRequest.headers();
-        if (headers == null) return null;
-
-        String cookieHeader = headers.get("Cookie");
-        if (cookieHeader == null) return null;
-
-        String[] cookiePairs = cookieHeader.split(";");
-        for (String pair : cookiePairs) {
-            String[] kv = pair.trim().split("=", 2);
-            if (kv.length == 2 && "SID".equals(kv[0])) {
-                return kv[1];
-            }
-        }
-        return null;
-    }
-
     private LoadResult createResponse(Boolean isSuccess, String code, String message) {
         CommonResponse response = new CommonResponse(isSuccess, code, message, null);
-        String json = toJson(response);
-        return new LoadResult(json.getBytes(StandardCharsets.UTF_8),
+        String json = JsonUtil.toJson(response);
+
+        return new LoadResult(
+                json.getBytes(StandardCharsets.UTF_8),
                 "/api/logout",
                 "application/json",
-                null);
+                null
+        );
     }
 }
