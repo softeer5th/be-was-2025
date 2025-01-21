@@ -26,29 +26,12 @@ public class User {
         return userId;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
-    }
-
-    public Map<String, Object> toMap() {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("userId", userId);
-        userMap.put("password", password);
-        userMap.put("name", name);
-        userMap.put("email", email);
-        return userMap;
     }
 }

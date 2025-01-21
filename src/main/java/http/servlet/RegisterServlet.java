@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import db.Database;
+import db.UserDatabase;
 import dto.UserRequestDto;
 import enums.HttpMethod;
 import enums.HttpStatus;
@@ -45,7 +45,7 @@ public class RegisterServlet implements Servlet {
 
 		User user = userRequest.toUser();
 
-		if (Database.findUserById(user.getUserId()).isPresent()) {
+		if (UserDatabase.findUserById(user.getUserId()).isPresent()) {
 			handleUserExists(response, request, user);
 			return;
 		}
@@ -65,7 +65,7 @@ public class RegisterServlet implements Servlet {
 	}
 
 	private void registerUser(HttpResponse response, HttpRequest request, User user) {
-		Database.addUser(user);
+		UserDatabase.addUser(user);
 
 		response.setErrorResponse(response, request.getVersion(), HttpStatus.FOUND, REGISTRATION_SUCCESS_PAGE);
 		logger.debug("User: " + user + " is registered.");

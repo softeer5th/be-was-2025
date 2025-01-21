@@ -2,12 +2,11 @@ package db;
 
 import model.User;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class Database {
+public class UserDatabase {
     private static Map<String, User> users = new HashMap<>();
 
     public static void addUser(User user) {
@@ -21,9 +20,5 @@ public class Database {
 
     public static User findUserByIdOrThrow(String userId) {
         return findUserById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
-    }
-
-    public static Collection<User> findAll() {
-        return users.values();
     }
 }
