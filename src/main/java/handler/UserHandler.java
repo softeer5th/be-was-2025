@@ -1,6 +1,6 @@
 package handler;
 
-import db.Database;
+import db.UserStore;
 import db.SessionStore;
 import http.constant.HttpHeader;
 import http.HttpRequest;
@@ -33,11 +33,11 @@ public class UserHandler {
             return;
         }
 
-        Database.findUserById(userId) .ifPresentOrElse(user -> {
+        UserStore.findUserById(userId) .ifPresentOrElse(user -> {
                 response.redirect("/registration");
             }, () -> {
                 User user = new User(userId, password, username, null);
-                Database.addUser(user);
+                UserStore.addUser(user);
 
                 response.redirect("/");
             }
@@ -54,7 +54,7 @@ public class UserHandler {
             return;
         }
 
-        Database.findUserById(userId).ifPresentOrElse(user -> {
+        UserStore.findUserById(userId).ifPresentOrElse(user -> {
                 if (!user.getPassword().equals(password)) {
                     response.redirect("/login/failed.html");
                     return;

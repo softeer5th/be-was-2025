@@ -2,7 +2,7 @@ package handler;
 
 import db.ArticleStore;
 import db.CommentStore;
-import db.Database;
+import db.UserStore;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.constant.HttpStatus;
@@ -49,7 +49,7 @@ public class CommentHandler implements Handler {
             return;
         }
         Session session = SessionUtils.findSession(httpRequest);
-        User user = Database.findUserById(session.userId())
+        User user = UserStore.findUserById(session.userId())
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
         Map<String, String> data = RequestParser.parseBody(new String(httpRequest.getBody()));
 

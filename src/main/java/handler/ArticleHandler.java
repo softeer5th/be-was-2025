@@ -1,7 +1,7 @@
 package handler;
 
 import db.ArticleStore;
-import db.Database;
+import db.UserStore;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.constant.HttpStatus;
@@ -45,7 +45,7 @@ public class ArticleHandler implements Handler {
             return;
         }
         Session session = SessionUtils.findSession(httpRequest);
-        User user = Database.findUserById(session.userId())
+        User user = UserStore.findUserById(session.userId())
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
         String body = new String(httpRequest.getBody());
         Map<String, String> data = RequestParser.parseBody(body);

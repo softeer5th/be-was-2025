@@ -1,6 +1,6 @@
 package handler;
 
-import db.Database;
+import db.UserStore;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.constant.HttpStatus;
@@ -33,7 +33,7 @@ public class MypageHandler implements Handler{
 
 
         Session session = SessionUtils.findSession(httpRequest);
-        User user = Database.findUserById(session.userId())
+        User user = UserStore.findUserById(session.userId())
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
         content = DynamicHtmlEditor.edit(content, "username", user.getName());
 
