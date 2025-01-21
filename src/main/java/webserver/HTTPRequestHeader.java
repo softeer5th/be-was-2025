@@ -19,13 +19,13 @@ public class HTTPRequestHeader {
         try {
             checkValidateRequestLine(requestLine);
         } catch (HTTPExceptions.Error400 e) {
-            throw new HTTPExceptions.Error400("400 Bad Request: " + e.getMessage());
+            throw new HTTPExceptions.Error400(e.getMessage());
         } catch (HTTPExceptions.Error404 e) {
-            throw new HTTPExceptions.Error404("404 Not Found: " + e.getMessage());
+            throw new HTTPExceptions.Error404(e.getMessage());
         } catch (HTTPExceptions.Error405 e) {
-            throw new HTTPExceptions.Error405("405 Method Not Allowed: " + e.getMessage());
+            throw new HTTPExceptions.Error405(e.getMessage());
         } catch (HTTPExceptions.Error505 e) {
-            throw new HTTPExceptions.Error505("505 Method Not Allowed: " + e.getMessage());
+            throw new HTTPExceptions.Error505(e.getMessage());
         }
 
         this.method = requestLine[0];
@@ -45,7 +45,7 @@ public class HTTPRequestHeader {
             // 헤더에 colon이 없는 경우
             if (colonIndex == -1) {
                 // 400 Bad Request
-                throw new HTTPExceptions.Error400("400 Bad Request: Invalid colon in header");
+                throw new HTTPExceptions.Error400("Invalid colon in header");
             }
 
             // 헤더의 key는 대소문자를 구분하지 않는다.
@@ -61,7 +61,7 @@ public class HTTPRequestHeader {
             // header 검증
             checkValidateHeader();
         } catch (HTTPExceptions.Error400 e) {
-            throw new HTTPExceptions.Error400("400 Bad Request: " + e.getMessage());
+            throw new HTTPExceptions.Error400(e.getMessage());
         }
     }
 

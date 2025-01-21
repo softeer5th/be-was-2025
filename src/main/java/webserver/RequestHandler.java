@@ -2,28 +2,41 @@
 
     import java.io.*;
     import java.net.Socket;
-    import java.net.URLDecoder;
     import java.nio.charset.StandardCharsets;
-    import java.nio.file.Files;
     import java.util.*;
 
     import db.Database;
-    import model.User;
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
+    import webserver.request.api.LoginStatusApiHandler;
+    import webserver.request.*;
+    import webserver.request.route.*;
+    import webserver.request.service.*;
+    import webserver.request.staticResource.*;
 
     public class RequestHandler implements Runnable {
         private static final int MAX_LOGIN_SESSION_TIME = 3600;
         private static final String DEFAULT_HTTP_VERSION = "HTTP/1.1";
-
-        private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-        private static final String resourcePath = "src/main/resources/static/";
-
-        private Socket connection;
+        private final Map<String, RequestProcessor> handlerMap = Map.of(
+                // route handler
+                "/", new DefaultHandler(),
+                "/registration", new RegistrationHandler(),
+                "/login", new LoginHandler(),
+                "/mypage", new MyPageHandler(),
+                // service handler
+                "/user/create", new UserCreateHandler(),
+                "/user/login", new UserLoginHandler(),
+                "/user/logout", new UserLogoutHandler(),
+                // api handler
+                "/api/login-status", new LoginStatusApiHandler()
+        );
 
         public RequestHandler(Socket connectionSocket) {
             this.connection = connectionSocket;
         }
+        private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+
+        private Socket connection;
 
         // Todo: timeout 발생 시 처리하는 기능 구현 필요
         public void run() {
@@ -85,6 +98,7 @@
                             cookieList.add(new Cookie("SESSIONID", sessionId, Database.findSessionMaxInactiveInterval(sessionId)));
                         }
                     }
+                    // Todo: transfer-encoding 헤더 관련 기능
                     // body가 있을 경우 body 읽기
                     if (headers.containsKey("content-length")) {
                         int contentLength = Integer.parseInt(headers.get("content-length"));
@@ -112,231 +126,18 @@
                     logger.debug("path: {}, params: {}", path, queryParams);
                     logger.debug("method: {}", method);
 
-                    // Todo: 단순히 path를 if-else문으로 하면 길게 나열되는 문제 발생. 이에 대해 처리하는 방법 구상하기
                     // Todo: POST 요청에서 파싱하는 과정을 메서드로 처리할 수 있을 듯 함.
-                    // path 기준으로 탐색
-                    // default page
-                    if (path.equals("/")) {
-                        responseHeader.setStatusCode(302);
-                        responseHeader.addHeader("Location", "/index.html");
-                    }
-                    // 회원가입 요청에 대한 처리
-                    else if (path.equals("/registration")) {
-                        path = "/registration/index.html";
-                        File file = new File(resourcePath + path);
-                        if (file.exists()) {
-                            responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));
+                    RequestProcessor handler = handlerMap.getOrDefault(path, new StaticResourceHandler());
+                    HTTPResponse response = handler.handle(requestHeader, requestBody, responseHeader, cookieList);
 
-                            responseHeader.setStatusCode(200);
-                            responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(path));
-                            responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
-                        } else {
-                            logger.error("{}File not found", path);
-                            throw new HTTPExceptions.Error404("404 File not found");
-                        }
-                    }
-                    // 로그인 요청에 대한 처리
-                    else if (path.equals("/login")) {
-                        File file = new File(resourcePath + "login/index.html");
-                        if (file.exists()) {
-                            responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));
-
-                            responseHeader.setStatusCode(200);
-                            responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".html"));
-                            responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
-                        } else {
-                            logger.error("{}File not found", path);
-                            throw new HTTPExceptions.Error404("404 File not found");
-                        }
-                    }
-                    // 마이페이지 요청에 대한 처리
-                    else if (path.equals("/mypage")) {
-                        boolean isLoggedIn = false;
-                        for (Cookie cookie : cookieList) {
-                            if (cookie.getName().equals("SESSIONID")) {
-                                isLoggedIn = true;
-                                break;
-                            }
-                        }
-
-                        if (!isLoggedIn) {
-                            responseHeader.setStatusCode(302);
-                            responseHeader.addHeader("Location", "/login");
-                            return;
-                        }
-
-                        File file = new File(resourcePath + "mypage/index.html");
-                        if (!file.exists()) {
-                            logger.error("{}File not found", path);
-                            throw new HTTPExceptions.Error404("404 File not found");
-                        }
-
-                        responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));
-
-                        responseHeader.setStatusCode(200);
-                        responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".html"));
-                        responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
-                    }
-                    // 로그인 완료에 대한 처리
-                    else if (path.equals("/user/login") && method.equals("POST")) {
-                        // 지정된 Content-Type이 아닐 경우
-                        if (!headers.get("content-type").equals("application/x-www-form-urlencoded")) {
-                            throw new HTTPExceptions.Error415("415 Unsupported Media Type");
-                        }
-
-                        String[] params = requestBody.getBodyToString().split("&");
-                        Map<String, String> paramMap = new HashMap<>();
-                        for (String param : params) {
-                            String[] keyValue = param.split("=");
-                            // 키값에 등호가 있을 경우
-                            if (keyValue.length != 2) {
-                                throw new HTTPExceptions.Error400("400 Bad Request: Invalid key");
-                            }
-                            // 키값 중복
-                            if (paramMap.containsKey(keyValue[0])) {
-                                throw new HTTPExceptions.Error400("400 Bad Request: Duplicate key");
-                            }
-                            paramMap.put(keyValue[0], URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8));
-                        }
-                        // 잘못된 키값 입력
-                        if (paramMap.size() != 2) {
-                            throw new HTTPExceptions.Error400("400 Bad Request: wrong number of parameters");
-                        }
-
-                        String userId = paramMap.get("id");
-                        String userPassword = paramMap.get("password");
-
-                        if (userId == null || userId.isEmpty() || userPassword == null || userPassword.isEmpty()) {
-                            throw new HTTPExceptions.Error400("400 Bad Request: missing required parameters");
-                        }
-
-                        logger.debug("userId: {}, userPassword: {}", userId, userPassword);
-
-                        User user;
-                        if ((user = Database.findUserById(userId)) != null) {
-                            if (user.getPassword().equals(userPassword)) {
-                                Session session = new Session(userId, MAX_LOGIN_SESSION_TIME);
-                                cookieList.add(new Cookie("SESSIONID", session.getSessionId(), session.getMaxInactiveInterval()));
-
-                                Database.addSession(session);
-
-                                responseHeader.setStatusCode(302);
-                                responseHeader.addHeader("Location", "/index.html");
-                            }
-                            else {
-                                logger.error("User {} password does not match", userId);
-                                responseHeader.setStatusCode(302);
-                                responseHeader.addHeader("Location", "/user/login_failed.html");
-                            }
-                        }
-                        else {
-                            logger.error("User {} not found", userId);
-                            responseHeader.setStatusCode(302);
-                            responseHeader.addHeader("Location", "/user/login_failed.html");
-                        }
-                    }
-                    // 로그아웃 요청에 대한 처리
-                    else if (path.equals("/user/logout") && method.equals("POST")) {
-                        for (Cookie cookie : cookieList) {
-                            if (cookie.getName().equals("SESSIONID")) {
-                                Database.deleteSession(cookie.getValue());
-                            }
-                            cookie.expireCookie();
-                        }
-
-                        responseHeader.setStatusCode(302);
-                        responseHeader.addHeader("Location", "/index.html");
-                    }
-                    // 회원가입 완료에 대한 처리
-                    else if (path.equals("/user/create") && method.equals("POST")) {
-                        // 지정된 Content-Type이 아닐 경우
-                        if (!headers.get("content-type").equals("application/x-www-form-urlencoded")) {
-                            throw new HTTPExceptions.Error415("415 Unsupported Media Type");
-                        }
-
-                        String[] params = requestBody.getBodyToString().split("&");
-                        Map<String, String> paramMap = new HashMap<>();
-                        for (String param : params) {
-                            String[] keyValue = param.split("=");
-                            // 키값에 등호가 있을 경우
-                            if (keyValue.length != 2) {
-                                throw new HTTPExceptions.Error400("400 Bad Request: Invalid key");
-                            }
-                            // 키값 중복
-                            if (paramMap.containsKey(keyValue[0])) {
-                                throw new HTTPExceptions.Error400("400 Bad Request: Duplicate key");
-                            }
-                            paramMap.put(keyValue[0], URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8));
-                        }
-                        // 잘못된 키값 입력
-                        if (paramMap.size() != 3) {
-                            throw new HTTPExceptions.Error400("400 Bad Request: wrong number of parameters");
-                        }
-
-                        String userId = paramMap.get("id");
-                        String userName = paramMap.get("name");
-                        String userPassword = paramMap.get("password");
-
-                        logger.debug("Creating User");
-
-                        logger.debug("userId: {}, userName: {}, userPassword: {}", userId, userName, userPassword);
-
-                        // 중복된 id를 가진 사용자가 있을 경우
-                        if (Database.findUserById(userId) != null) {
-                            // 409 Conflict
-                            throw new HTTPExceptions.Error409("409 Conflict: User already exists");
-                        }
-
-                        // User 데이터베이스에 사용자 정보 추가
-                        User user = new User(userId, userPassword, userName);
-                        Database.addUser(user);
-
-                        responseHeader.setStatusCode(302);
-                        responseHeader.addHeader("Location", "/index.html");
-                    }
-                    else if (path.equals("/api/login-status")) {
-                       boolean isLoggedIn = false;
-                       String userName = "";
-                       for (Cookie cookie : cookieList) {
-                           if (cookie.getName().equals("SESSIONID")) {
-                               isLoggedIn = true;
-                               String sessionId = cookie.getValue();
-                               String userId = Database.findSessionById(sessionId).getUserId();
-                               userName = Database.findUserById(userId).getName();
-                               break;
-                           }
-                       }
-
-                       String jsonResponse = "{\"isLoggedIn\": " + isLoggedIn + ", \"userName\": \"" + userName +  "\"}";
-                       responseBody = new HTTPResponseBody(jsonResponse.getBytes(StandardCharsets.UTF_8));
-
-                       responseHeader.setStatusCode(200);
-                       responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(".json"));
-                    }  else {
-                        File file = new File(resourcePath + path);
-                        if (file.exists()) {
-                            responseBody = new HTTPResponseBody(Files.readAllBytes(file.toPath()));
-
-                            responseHeader.setStatusCode(200);
-                            responseHeader.addHeader("Content-Type", ContentTypeMapper.getContentType(path));
-                            responseHeader.addHeader("Content-Length", Integer.toString(responseBody.getBodyLength()));
-                        }
-                        // 유효하지 않은 path에 대한 처리
-                        else {
-                            throw new HTTPExceptions.Error404("404 Not Found");
-                        }
-                    }
+                    ResponseHandler.respond(dos, response);
                 } catch (HTTPExceptions e) {
                     logger.error(e.getMessage());
                     responseHeader.setStatusCode(e.getStatusCode());
                     responseBody = new HTTPResponseBody(HTTPExceptions.getErrorMessageToBytes(e.getMessage()));
-                } finally {
-                    for (Cookie cookie: cookieList) {
-                        responseHeader.addHeader("Set-Cookie", cookie.toString());
-                    }
-                    ResponseHandler.respond(dos, responseHeader, responseBody);
+                    HTTPResponse response = new HTTPResponse(responseHeader, responseBody);
+                    ResponseHandler.respond(dos, response);
                 }
-
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }

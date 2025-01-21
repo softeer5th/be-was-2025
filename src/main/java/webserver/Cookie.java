@@ -51,7 +51,7 @@ public class Cookie {
         for (String cookie : cookiesArray) {
             String[] cookieParts = cookie.split("=");
             if (cookieParts.length != 2) {
-                throw new HTTPExceptions.Error400("400 Bad Request: Invalid cookie format");
+                throw new HTTPExceptions.Error400("Invalid cookie format");
             }
             String name = cookieParts[0].trim();
             String value = cookieParts[1].trim();

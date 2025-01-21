@@ -41,7 +41,7 @@ public class Database {
         Session session = findSessionById(sessionId);
 
         if (session == null) {
-            throw new HTTPExceptions.Error403("403 Forbidden: session not found");
+            throw new HTTPExceptions.Error403("session not found");
         }
 
         LocalTime time = LocalTime.now();
@@ -53,7 +53,7 @@ public class Database {
         Session session = findSessionById(sessionId);
 
         if (session == null) {
-            throw new HTTPExceptions.Error403("403 Forbidden: session not found");
+            throw new HTTPExceptions.Error403("session not found");
         }
 
         return session.getMaxInactiveInterval();
