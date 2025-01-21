@@ -5,6 +5,7 @@ import webserver.handler.HttpHandler;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // Path 기반 라우팅을 위한 클래스
@@ -25,6 +26,13 @@ public class PathRouter {
 
     public PathRouter setDefaultHandler(HttpHandler handler) {
         defaultHandler = handler;
+        return this;
+    }
+
+    public PathRouter setHandler(List<String> paths, HttpHandler handler) {
+        for (String path : paths) {
+            setHandler(path, handler);
+        }
         return this;
     }
 
@@ -105,7 +113,7 @@ public class PathRouter {
     // segment가 path variable인지 확인
     private boolean isPathVariable(String segment) {
         return segment.startsWith(PATH_VARIABLE_PREFIX) &&
-                segment.endsWith(PATH_VARIABLE_SUFFIX);
+               segment.endsWith(PATH_VARIABLE_SUFFIX);
     }
 
     // path variable의 이름을 추출. ex) {id} -> id
