@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import db.ArticleStore;
+import db.CommentStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,5 +40,6 @@ public class WebServer {
 
     private static void initDb() {
         ArticleStore.initDb();
+        CommentStore.initDb();
     }
 }

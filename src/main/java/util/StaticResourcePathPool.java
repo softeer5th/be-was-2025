@@ -24,6 +24,7 @@ public class StaticResourcePathPool {
         staticResourceMap.put("/main", new MainHandler());
         staticResourceMap.put("/mypage", new MypageHandler());
         staticResourceMap.put("/article", new ArticleHandler());
+        staticResourceMap.put("/comment", new CommentHandler());
     }
 
     public Handler getHandler(String path) {

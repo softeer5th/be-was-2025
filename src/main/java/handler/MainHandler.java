@@ -60,6 +60,11 @@ public class MainHandler implements Handler{
         content = DynamicHtmlEditor.edit(content, "content", article.getContent());
         content = DynamicHtmlEditor.edit(content, "prevPage", String.valueOf(prevNum));
         content = DynamicHtmlEditor.edit(content, "nextPage", String.valueOf(nextNum));
+        content = DynamicHtmlEditor.edit(content, "articleId", article.getArticleId());
+
+        String commentElement = DynamicHtmlEditor.commentElement(article.getComments());
+
+        content = DynamicHtmlEditor.edit(content,"comment", commentElement);
 
         byte[] body = content.getBytes();
         httpResponse.writeStatusLine(HttpStatus.OK);

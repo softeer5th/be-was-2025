@@ -50,6 +50,11 @@ public class HomeHandler implements Handler {
         content = DynamicHtmlEditor.edit(content, "prevPage", String.valueOf(prevNum));
         content = DynamicHtmlEditor.edit(content, "nextPage", String.valueOf(nextNum));
 
+        String commentElement = DynamicHtmlEditor.commentElement(article.getComments());
+
+        content = DynamicHtmlEditor.edit(content,"comment", commentElement);
+
+
         byte[] body = content.getBytes();
         httpResponse.writeStatusLine(HttpStatus.OK);
         httpResponse.writeBody(body, mimeType.getMimeType());
