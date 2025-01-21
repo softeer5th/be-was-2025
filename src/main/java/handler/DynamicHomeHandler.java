@@ -92,28 +92,35 @@ public class DynamicHomeHandler implements Handler {
                             <p class="post__createdAt">""")
                     .append(post.getCreatedAt().format(formatter()))
                     .append("""
-                              </p>
-                              </div>
-                              <img class="post__img" />
-                              <div class="post__menu">
-                                <ul class="post__menu__personal">
-                                  <li>
-                                    <button class="post__menu__btn">
-                                      <img src="./img/like.svg" />
-                                    </button>
-                                  </li>
-                                  <li>
-                                    <button class="post__menu__btn">
-                                      <img src="./img/sendLink.svg" />
-                                    </button>
-                                  </li>
-                                </ul>
-                                <button class="post__menu__btn">
-                                  <img src="./img/bookMark.svg" />
-                                </button>
-                              </div>
-                              <p class="post__article">
+                            </p>
+                            </div>
+                            <img class="post__img" />
+                            <div class="post__menu">
+                              <ul class="post__menu__personal">
+                                <li>
+                               <form action="/board/like/
                             """)
+                    .append(post.getId())
+                    .append(
+                            """
+                                    " method="POST">
+                                                       <button type="submit" class="post__menu__btn">
+                                                         <img src="./img/like.svg" alt="Like" />
+                                                       </button>
+                                                     </form>
+                                          </li>
+                                          <li>
+                                            <button class="post__menu__btn">
+                                              <img src="./img/sendLink.svg" />
+                                            </button>
+                                          </li>
+                                        </ul>
+                                        <button class="post__menu__btn">
+                                          <img src="./img/bookMark.svg" />
+                                        </button>
+                                      </div>
+                                      <p class="post__article">
+                                    """)
                     .append(post.getContents())
                     .append("""
                                       </p>
