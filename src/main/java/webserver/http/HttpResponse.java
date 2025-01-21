@@ -32,6 +32,11 @@ public class HttpResponse {
         }
     }
 
+    public void sendRedirect(String location) {
+        setHeader("Location", location);
+        setStatus(HttpStatus.FOUND);
+    }
+
     public void setBody(File file) {
         try {
             readFile(file);
