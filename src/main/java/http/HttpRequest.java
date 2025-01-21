@@ -63,10 +63,10 @@ public class HttpRequest {
     }
 
     private Map<String, String> parseQuery(String queryString) {
-        if (queryString == null) {
-            return null;
-        }
         Map<String, String> query = new HashMap<>();
+        if (queryString == null) {
+            return query;
+        }
 
         String[] queryArray = resolveQuery(queryString);
         for (String s : queryArray) {
