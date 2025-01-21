@@ -38,6 +38,10 @@ public class SessionManager {
         sessions.remove(sessionID);
     }
 
+    public static void clear() {
+        sessions.clear();
+    }
+
 
     private static class SessionData {
         private final String userId;

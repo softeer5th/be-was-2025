@@ -27,6 +27,8 @@ public class FileRequestHandlerTest {
     @BeforeEach
     public void setUp() {
         handler = new FileRequestHandler();
+        Database.clear();
+        SessionManager.clear();
     }
 
     private HttpRequestInfo createTestRequest(String path) {

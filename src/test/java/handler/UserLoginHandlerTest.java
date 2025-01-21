@@ -1,6 +1,7 @@
 package handler;
 
 import db.Database;
+import db.SessionManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import http.*;
@@ -26,8 +27,9 @@ class UserLoginHandlerTest {
 
     @BeforeEach
     void setUp() {
-        Database.addUser(new User("yulee", "yulee", "1234", "yulee@example.com"));
         userLoginHandler = new UserLoginHandler();
+        Database.clear();
+        SessionManager.clear();
         Database.addUser(new User("testId", "testUser", "test1234!", "test@test.com"));
     }
 

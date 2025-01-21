@@ -1,5 +1,6 @@
 package handler;
 
+import db.Database;
 import db.SessionManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
@@ -31,6 +32,8 @@ class UserLogoutHandlerTest {
 
     @BeforeEach
     void setUp() {
+        Database.clear();
+        SessionManager.clear();
         SessionManager.saveSession("sessionId", "yulee");
     }
 
