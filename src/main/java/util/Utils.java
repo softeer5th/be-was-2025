@@ -1,30 +1,51 @@
 package util;
 
 import Response.HTTPResponse;
-import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.RequestHandler;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.security.SecureRandom;
+import java.util.*;
 
-import static webserver.RequestHandler.httpResponseHandler;
 
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static final int SESSION_ID_LENGTH = 32;
+    private static final String SID = "sid=";
     private static final Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT", "PATCH");
 
     public static String[] readInputToArray(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         List<String> lines = new ArrayList<>();
-        String line;
+        StringBuilder body = new StringBuilder();
+        int contentLength = 0;
+        boolean isBody = false;
 
-        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+
+        while (true) {
+            String line = reader.readLine();
+            if (line == null) {
+                break;
+            }
+            if (line.isEmpty()) {
+                isBody = true;
+                lines.add("");
+                break;
+            }
             lines.add(line);
+            if (line.toLowerCase().startsWith("content-length")) {
+                contentLength = Integer.parseInt(line.split(":")[1].trim());
+            }
+        }
+
+        if (isBody && contentLength > 0) {
+            char[] buffer = new char[contentLength];
+            int read = reader.read(buffer, 0, contentLength);
+            if (read > 0) {
+                body.append(buffer, 0, read);
+            }
+            lines.add(body.toString());
         }
 
         return lines.toArray(new String[0]);
@@ -89,5 +110,33 @@ public class Utils {
         }
 
         dos.flush();
+    }
+
+    public static String generateSessionID() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] randomBytes = new byte[SESSION_ID_LENGTH];
+        secureRandom.nextBytes(randomBytes); // 랜덤 바이트 생성
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    }
+
+    public static String getSessionIdInCookie(String cookie) {
+        if (cookie == null || cookie.isEmpty()) {
+            return null;
+        }
+
+        String searchKey = SID;
+        int startIndex = cookie.indexOf(searchKey);
+        if (startIndex == -1) {
+            return null;
+        }
+
+        startIndex += searchKey.length();
+        int endIndex = startIndex;
+
+        while (endIndex < cookie.length() && cookie.charAt(endIndex) != ';' && cookie.charAt(endIndex) != ',') {
+            endIndex++;
+        }
+
+        return cookie.substring(startIndex, endIndex);
     }
 }

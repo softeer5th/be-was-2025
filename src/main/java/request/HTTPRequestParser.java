@@ -61,7 +61,7 @@ public class HTTPRequestParser {
         while (i < readLine.length && !readLine[i].isEmpty()) {
             String[] headerParts = readLine[i].split(":\\s+", 2);
             if (headerParts.length == 2) {
-                headers.put(headerParts[0], headerParts[1]);
+                headers.put(headerParts[0].toLowerCase(), headerParts[1]);
             }
             i++;
         }
@@ -73,20 +73,24 @@ public class HTTPRequestParser {
         boolean isBodyStart = false;
 
         for (String line : readLine) {
-            if (isBodyStart && !line.isEmpty()) {
-                String[] keyValuePairs = line.split("&");
-                for (String pair : keyValuePairs) {
-                    String[] keyValue = pair.split("=");
-                    if (keyValue.length == 2) {
-                        bodyParameters.put(keyValue[0], keyValue[1]);
+            if (isBodyStart) {
+                if (!line.isEmpty()) {
+                    String[] keyValuePairs = line.split("&");
+                    for (String pair : keyValuePairs) {
+                        String[] keyValue = pair.split("=");
+                        if (keyValue.length == 2) {
+                            bodyParameters.put(keyValue[0], keyValue[1]);
+                        }
                     }
                 }
                 break;
             }
+
             if (line.isEmpty()) {
                 isBodyStart = true;
             }
         }
+
         request.setBodyParameters(bodyParameters);
     }
 

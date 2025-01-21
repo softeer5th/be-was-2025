@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HTTPResponse {
+    private static final String CONTENT_LENGTH = "Content-Length";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String LOCATION = "Location";
+
     private String httpVersion;
     private HTTPCode httpCode;
     private Map<String, String> headers = new HashMap<>();
@@ -53,6 +57,15 @@ public class HTTPResponse {
         return httpResponse;
     }
 
+    public static HTTPResponse createLoginRedirectResponse(String httpVersion, HTTPCode httpCode, String location, String sessionId){
+        HTTPResponse httpResponse = new HTTPResponse();
+        httpResponse.httpVersion = httpVersion;
+        httpResponse.httpCode = httpCode;
+        setLoginRedirectHeaders(httpResponse, location, sessionId);
+        return httpResponse;
+    }
+
+
     public static HTTPResponse createFailResponse(String httpVersion, HTTPCode httpCode){
         HTTPResponse httpResponse = new HTTPResponse();
         httpResponse.httpVersion = httpVersion;
@@ -63,23 +76,28 @@ public class HTTPResponse {
     }
 
     private static void setFailHeaders(HTTPResponse httpResponse, HTTPCode httpCode) {
-        httpResponse.headers.put("Content-Type", "text/html; charset=utf-8");
-        httpResponse.headers.put("Content-Length", String.valueOf(httpCode.getResponseBody().length()));
+        httpResponse.headers.put(CONTENT_TYPE, "text/html; charset=utf-8");
+        httpResponse.headers.put(CONTENT_LENGTH, String.valueOf(httpCode.getResponseBody().length()));
     }
 
     private static void setResourceHeaders(HTTPResponse httpResponse, byte[] content, String resourceName){
         String contentType = getContentType(resourceName);
-        httpResponse.headers.put("Content-Type", contentType);
-        httpResponse.headers.put("Content-Length", String.valueOf(content.length));
+        httpResponse.headers.put(CONTENT_TYPE, contentType);
+        httpResponse.headers.put(CONTENT_LENGTH, String.valueOf(content.length));
     }
 
     private static void setRedirectHeaders(HTTPResponse httpResponse, String location) {
-        httpResponse.headers.put("Location", location);
+        httpResponse.headers.put(LOCATION, location);
+    }
+
+    private static void setLoginRedirectHeaders(HTTPResponse httpResponse, String location, String sessionId) {
+        httpResponse.headers.put(LOCATION, location);
+        httpResponse.headers.put("Set-Cookie", "sid="+sessionId + "; Path=/");
     }
 
     private static void setSuccessHeaders(HTTPResponse httpResponse, HTTPCode httpCode, String body){
-        httpResponse.headers.put("Content-Type", "application/octet-stream");
-        httpResponse.headers.put("Content-Length", String.valueOf(body.length()));
+        httpResponse.headers.put(CONTENT_TYPE, "application/octet-stream");
+        httpResponse.headers.put(CONTENT_LENGTH, String.valueOf(body.length()));
     }
     private static String getContentType(String resourceName) {
         String extension = resourceName.substring(resourceName.lastIndexOf(".") + 1);

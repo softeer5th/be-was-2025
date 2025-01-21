@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.Socket;
 
 import Response.HTTPResponse;
-import Response.HTTPResponseHandler;
 import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import static util.Utils.flushResponse;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    public static final HTTPResponseHandler httpResponseHandler = new HTTPResponseHandler();
     private static final DynamicURIHandler dynamicURIHandler = new DynamicURIHandler();
     private static final StaticURIHandler staticURIHandler = new StaticURIHandler();
     private static final HTTPRequestParser httpRequestParser = HTTPRequestParser.getInstance();
