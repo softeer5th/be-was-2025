@@ -42,60 +42,33 @@
             </div>
         </my-if>
         <ul class="comment">
-            <li class="comment__item">
-                <div class="comment__item__user">
-                    <img class="comment__item__user__img"/>
-                    <p class="comment__item__user__nickname">account</p>
-                </div>
-                <p class="comment__item__article">
-                    군인 또는 군무원이 아닌 국민은 대한민국의 영역안에서는 중대한
-                    군사상 기밀·초병·초소·유독음식물공급·포로·군용물에 관한 죄중
-                    법률이 정한 경우와 비상계엄이 선포된 경우를 제외하고는 군사법원의
-                    재판을 받지 아니한다.
-                </p>
-            </li>
-            <li class="comment__item">
-                <div class="comment__item__user">
-                    <img class="comment__item__user__img"/>
-                    <p class="comment__item__user__nickname">account</p>
-                </div>
-                <p class="comment__item__article">
-                    대통령의 임기연장 또는 중임변경을 위한 헌법개정은 그 헌법개정 제안
-                    당시의 대통령에 대하여는 효력이 없다. 민주평화통일자문회의의
-                    조직·직무범위 기타 필요한 사항은 법률로 정한다.
-                </p>
-            </li>
-            <li class="comment__item">
-                <div class="comment__item__user">
-                    <img class="comment__item__user__img"/>
-                    <p class="comment__item__user__nickname">account</p>
-                </div>
-                <p class="comment__item__article">
-                    민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로
-                    정한다.
-                </p>
-            </li>
-            <li class="comment__item hidden">
-                <div class="comment__item__user">
-                    <img class="comment__item__user__img"/>
-                    <p class="comment__item__user__nickname">account</p>
-                </div>
-                <p class="comment__item__article">Comment 1</p>
-            </li>
-            <li class="comment__item hidden">
-                <div class="comment__item__user">
-                    <img class="comment__item__user__img"/>
-                    <p class="comment__item__user__nickname">account</p>
-                </div>
-                <p class="comment__item__article">Comment 2</p>
-            </li>
-            <li class="comment__item hidden">
-                <div class="comment__item__user">
-                    <img class="comment__item__user__img"/>
-                    <p class="comment__item__user__nickname">account</p>
-                </div>
-                <p class="comment__item__article">Comment 3</p>
-            </li>
+            <my-foreach index="i" item="comment" items="comments">
+                <my-text>
+                    <my-if condition="i < 3">
+                        <li class="comment__item">
+                            <div class="comment__item__user">
+                                <img class="comment__item__user__img"/>
+                                <p class="comment__item__user__nickname">${comment.writer.userId}</p>
+                            </div>
+                            <p class="comment__item__article">
+                                ${comment.content}
+                            </p>
+                        </li>
+                    </my-if>
+                    <my-if condition="i >= 3">
+                        <li class="comment__item hidden">
+                            <div class="comment__item__user">
+                                <img class="comment__item__user__img"/>
+                                <p class="comment__item__user__nickname">${comment.writer.userId}</p>
+                            </div>
+                            <p class="comment__item__article">
+                                ${comment.content}
+                            </p>
+                        </li>
+                    </my-if>
+                </my-text>
+            </my-foreach>
+
             <button class="btn btn_ghost btn_size_m" id="show-all-btn">
                 모든 댓글 보기(3개)
             </button>
@@ -161,5 +134,18 @@
         </nav>
     </div>
 </div>
+<script>
+    const showAllBtn = document.getElementById('show-all-btn');
+
+
+    showAllBtn.addEventListener('click', function showHiddenComments() {
+        const comments = document.querySelectorAll('.comment__item.hidden');
+        comments.forEach((comment) => {
+            comment.classList.remove('hidden');
+        });
+        showAllBtn.classList.add('hidden');
+        showAllBtn.removeEventListener('click', showHiddenComments);
+    });
+</script>
 </body>
 </html>

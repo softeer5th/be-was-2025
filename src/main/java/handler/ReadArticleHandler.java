@@ -38,6 +38,7 @@ public class ReadArticleHandler implements HttpHandler {
      */
     @Override
     public HttpResponse handleGet(HttpRequest request) {
+
         Long articleId = getArticleId(request);
         return createArticleResponse(articleId);
     }
@@ -57,7 +58,12 @@ public class ReadArticleHandler implements HttpHandler {
         Long nextArticleId = articleDao.findNextArticleId(articleId).orElse(null);
         Long previousArticleId = articleDao.findPreviousArticleId(articleId).orElse(null);
 
-        List<Comment> comments = commentDao.findAllByArticle(article);
+        List<Comment> comments;
+        if (article == null) {
+            comments = List.of();
+        } else {
+            comments = commentDao.findAllByArticle(article);
+        }
 
         ModelAndTemplate template = new ModelAndTemplate(TEMPLATE_NAME);
         template.addAttribute("article", article);
