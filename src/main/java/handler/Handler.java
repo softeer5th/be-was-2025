@@ -6,7 +6,7 @@ import webserver.response.Response;
 
 
 public abstract class Handler {
-    protected String sessionId;
+    protected String sessionId = null;
 
     public abstract Response handle(Request request);
 
