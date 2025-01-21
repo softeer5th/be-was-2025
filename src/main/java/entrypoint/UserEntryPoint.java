@@ -56,7 +56,7 @@ public class UserEntryPoint {
                 .redirect("/index.html");
     }
 
-    @RequestMapping(path = "/index.html", method = HTTPMethod.GET)
+    @RequestMapping(path = "/index", method = HTTPMethod.GET)
     public ResponseData<String> homePage(@Cookie(name="SID", authenticated = true) String sid) {
         Map<String, String> storage = SessionStorage.getStorage(sid);
         Optional<String> userName = Optional.empty();
@@ -67,6 +67,16 @@ public class UserEntryPoint {
         return new ResponseData.ResponseDataBuilder<String>()
                 .contentType(HTTPContentType.TEXT_HTML)
                 .ok(body);
+    }
+
+    @RequestMapping(path = "/", method = HTTPMethod.GET)
+    public ResponseData<String> index() {
+        return ResponseData.redirect("/index");
+    }
+
+    @RequestMapping(path = "/index.html", method = HTTPMethod.GET)
+    public ResponseData<String> indexPage() {
+        return ResponseData.redirect("/index");
     }
 
     @RequestMapping(path = "/mypage", method = HTTPMethod.GET)
