@@ -1,5 +1,6 @@
 package webserver.httpserver;
 
+import exception.MethodNotAllowedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -119,7 +120,7 @@ class HttpRequestFactoryTest {
 
         // when & then
         assertThatThrownBy(() -> requestFactory.getHttpRequest(bis))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(MethodNotAllowedException.class);
     }
 
     @Test
