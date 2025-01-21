@@ -57,10 +57,11 @@ public class RequestParser {
         return tokens;
     }
 
-    public static Map<String, String> parseBody(HttpRequest request) throws UnsupportedEncodingException {
+    public static Map<String, String> parseBody(String body) throws UnsupportedEncodingException {
         Map<String, String> map = new HashMap<>();
-        String body = new String(request.getBody());
+
         body = URLDecoder.decode(body, "utf-8");
+
         String[] tokens = body.split("&");
         for(String token: tokens) {
             String[] items = token.split("=");
@@ -68,6 +69,7 @@ public class RequestParser {
             String value = items.length > 1 ? items[1].trim() : null;
             map.put(key, value);
         }
+
         return map;
     }
 }

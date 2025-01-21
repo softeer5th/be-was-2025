@@ -5,11 +5,11 @@ import http.constant.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Cookie;
+import util.RequestParser;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,20 +63,13 @@ public class HttpRequest {
         return headers;
     }
 
-    private Map<String, String> parseQuery(String queryString) {
+    private Map<String, String> parseQuery(String queryString) throws UnsupportedEncodingException {
         Map<String, String> query = new HashMap<>();
         if (queryString == null) {
             return query;
         }
 
-        String[] queryArray = resolveQuery(queryString);
-        for (String s : queryArray) {
-            String[] items = s.split("=");
-            String key = items[0].trim();
-            String value = items.length > 1 ? items[1].trim() : null;
-            query.put(key, value);
-        }
-        return query;
+        return RequestParser.parseBody(queryString);
     }
 
     private byte[] extractBody(List<String> request) {
@@ -88,11 +81,7 @@ public class HttpRequest {
         logger.debug("request Body: {}", new String(result));
         return result;
     }
-
-    private String[] resolveQuery(String query) {
-        return query.split("&");
-    }
-
+    
     public HttpMethod getMethod() {
         return method;
     }
