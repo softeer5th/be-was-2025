@@ -8,8 +8,12 @@ import util.exception.InvalidRequestLineSyntaxException;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestParser {
     private static final Logger logger = LoggerFactory.getLogger(RequestParser.class);
@@ -51,5 +55,19 @@ public class RequestParser {
         }
 
         return tokens;
+    }
+
+    public static Map<String, String> parseBody(HttpRequest request) throws UnsupportedEncodingException {
+        Map<String, String> map = new HashMap<>();
+        String body = new String(request.getBody());
+        body = URLDecoder.decode(body, "utf-8");
+        String[] tokens = body.split("&");
+        for(String token: tokens) {
+            String[] items = token.split("=");
+            String key = items[0].trim();
+            String value = items.length > 1 ? items[1].trim() : null;
+            map.put(key, value);
+        }
+        return map;
     }
 }

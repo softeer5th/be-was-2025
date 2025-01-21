@@ -10,11 +10,10 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Cookie;
+import util.RequestParser;
 import util.SessionUtils;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.Map;
 
 public class UserHandler {
@@ -24,7 +23,7 @@ public class UserHandler {
     }
 
     public void createUser(HttpRequest request, HttpResponse response) throws UnsupportedEncodingException {
-        Map<String, String> data = parseBody(request);
+        Map<String, String> data = RequestParser.parseBody(request);
         String userId = data.get("userId");
         String username = data.get("username");
         String password = data.get("password");
@@ -47,7 +46,7 @@ public class UserHandler {
     }
 
     public void loginUser(HttpRequest request, HttpResponse response) throws UnsupportedEncodingException {
-        Map<String, String> data = parseBody(request);
+        Map<String, String> data = RequestParser.parseBody(request);
         String userId = data.get("userId");
         String password = data.get("password");
         if (userId == null || password == null) {
@@ -82,19 +81,5 @@ public class UserHandler {
         SessionStore.deleteBySessionId(session.sessionId());
 
         response.redirect("/");
-    }
-
-    private Map<String, String> parseBody(HttpRequest request) throws UnsupportedEncodingException {
-        Map<String, String> map = new HashMap<>();
-        String body = new String(request.getBody());
-        body = URLDecoder.decode(body, "utf-8");
-        String[] tokens = body.split("&");
-        for(String token: tokens) {
-            String[] items = token.split("=");
-            String key = items[0].trim();
-            String value = items.length > 1 ? items[1].trim() : null;
-            map.put(key, value);
-        }
-        return map;
     }
 }

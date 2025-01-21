@@ -10,18 +10,13 @@ import model.Article;
 import model.Comment;
 import model.Session;
 import model.User;
-import util.DynamicHtmlEditor;
-import util.FileUtils;
-import util.MimeType;
-import util.SessionUtils;
+import util.*;
 import util.exception.ArticleNotFoundException;
 import util.exception.UserNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.Map;
 
 public class CommentHandler implements Handler {
@@ -56,7 +51,7 @@ public class CommentHandler implements Handler {
         Session session = SessionUtils.findSession(httpRequest);
         User user = Database.findUserById(session.userId())
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자가 없습니다."));
-        Map<String, String> data = parseBody(httpRequest);
+        Map<String, String> data = RequestParser.parseBody(httpRequest);
 
         String commentContent = data.get("content");
         String articleId = data.get("article");
@@ -71,19 +66,4 @@ public class CommentHandler implements Handler {
         ArticleStore.addArticle(article);
         httpResponse.redirect("/main");
     }
-
-    private Map<String, String> parseBody(HttpRequest request) throws UnsupportedEncodingException {
-        Map<String, String> map = new HashMap<>();
-        String body = new String(request.getBody());
-        body = URLDecoder.decode(body, "utf-8");
-        String[] tokens = body.split("&");
-        for(String token: tokens) {
-            String[] items = token.split("=");
-            String key = items[0].trim();
-            String value = items.length > 1 ? items[1].trim() : null;
-            map.put(key, value);
-        }
-        return map;
-    }
-
 }
