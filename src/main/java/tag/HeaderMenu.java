@@ -37,7 +37,7 @@ public enum HeaderMenu {
                 userId + "님, 환영합니다!</a> </li>";
     }
 
-    public static String renderHeaderMenu(String sessionId, String userId, String readFile){
+    public static String renderHeaderMenu(String readFile, String sessionId, String userId){
         String usernameTag = (sessionId != null && userId != null) ?
                 getWelcomeTag(userId) : "";
         String loginWriteTag = (sessionId != null && userId != null) ? HeaderMenu.WRITE.getTag() : HeaderMenu.LOGIN.getTag();
