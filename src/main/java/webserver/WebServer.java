@@ -32,7 +32,6 @@ import webserver.view.renderer.TextTagRenderer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -82,12 +81,13 @@ public class WebServer {
         // path와 handler를 매핑한다.
         PathRouter router = new PathRouter()
                 .setDefaultHandler(new ServeStaticFileHandler(resourceManager, config.getDefaultPageFileName()))
-                .setHandler(List.of(INDEX.path, READ_ARTICLE.path), new ReadArticleHandler(articleDao))
+                .setHandler(INDEX.path, new IndexPageHandler(articleDao))
+                .setHandler(READ_ARTICLE.path, new ReadArticleHandler(articleDao))
                 .setHandler(REGISTRATION.path, new RegistrationHandler(userDao))
                 .setHandler(LOGIN.path, new LoginHandler(userDao))
                 .setHandler(LOGOUT.path, new LogoutHandler())
                 .setHandler(MYPAGE.path, new MypageHandler(userDao))
-                .setHandler(WRITE_ARTICLE.path, new ArticleHandler(articleDao));
+                .setHandler(WRITE_ARTICLE.path, new WriteArticleHandler(articleDao));
 
         SessionManager sessionManager = new MemorySessionManager();
 
