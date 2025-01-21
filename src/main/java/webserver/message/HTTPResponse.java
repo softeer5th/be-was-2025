@@ -3,9 +3,9 @@ package webserver.message;
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
 import webserver.enumeration.HTTPVersion;
+import webserver.message.record.SetCookieRecord;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class HTTPResponse {
     static public class Builder {
@@ -14,6 +14,7 @@ public class HTTPResponse {
         private HTTPContentType contentType = HTTPContentType.DEFAULT_TYPE();
         private byte[] body = new byte[0];
         private Map<String, String> headers = new LinkedHashMap<>();
+        private List<SetCookieRecord> setCookies = new ArrayList<>();
 
         public Builder version(HTTPVersion version) {
             this.version = version;
@@ -47,8 +48,13 @@ public class HTTPResponse {
             return this;
         }
 
+        public Builder setCookies(Map<String, SetCookieRecord> cookies) {
+            this.setCookies = cookies.values().stream().toList();
+            return this;
+        }
+
         public HTTPResponse build() {
-            return new HTTPResponse(version, statusCode, contentType, body, headers);
+            return new HTTPResponse(version, statusCode, contentType, body, headers, setCookies);
         }
     }
     private final HTTPVersion version;
@@ -56,14 +62,17 @@ public class HTTPResponse {
     private final HTTPContentType contentType;
     private final byte[] body;
     private final Map<String, String> headers;
+    private final List<SetCookieRecord> setCookies;
 
     private HTTPResponse(HTTPVersion version, HTTPStatusCode statusCode, HTTPContentType contentType, byte[] body,
-                         Map<String, String> headers) {
+                         Map<String, String> headers,
+                         List<SetCookieRecord> setCookies) {
         this.version = version;
         this.statusCode = statusCode;
         this.contentType = contentType;
         this.body = body;
         this.headers = headers;
+        this.setCookies = setCookies;
     }
 
     public HTTPVersion getVersion() { return this.version; }
@@ -71,4 +80,5 @@ public class HTTPResponse {
     public HTTPContentType getContentType() { return this.contentType; }
     public byte[] getBody() { return this.body; }
     public Map<String, String> getHeaders() { return this.headers; }
+    public List<SetCookieRecord> getSetCookies() { return this.setCookies; }
 }

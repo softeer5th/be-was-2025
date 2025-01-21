@@ -38,6 +38,7 @@ public class RequestMethodWrapper implements ResourceResolver {
                 for (Map.Entry<String, String> header : headers.entrySet()) {
                     response.setHeader(header.getKey(), header.getValue());
                 }
+                response.setCookies(unwrapped.getSetCookies());
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new HTTPException.Builder()
