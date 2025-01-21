@@ -16,13 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 테스트 케이스 만들어야 하는것들
- * 정상 http
- * request 생성중 IOE
- * 정적 리소스 서빙중 FileNotSupported
- * 정적 리소스 서빙중 FileNotFound
- * 정적 리소스 서빙중 IOE
- * 정적 리소스 서빙중 IllegalArgumentException
+ * 요청을 각 서블릿에 매핑하는 책임을 갖는 클래스.
+ * 각 서블릿에 대한 등록이 이곳에서 진행된다.
  */
 public class ServletManager {
     public static final String NOT_FOUND = "NOT_FOUND";

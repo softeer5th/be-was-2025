@@ -5,6 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
+/**
+ * DB 연결을 관리하는 클래스
+ * DB 연결 설정이 여기에 존재한다.
+ */
 public class DBUtils {
     private static final String URL = "jdbc:h2:tcp://localhost/~/test";
     private static final String USERNAME = "sa";

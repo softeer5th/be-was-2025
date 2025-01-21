@@ -17,6 +17,10 @@ import servlet.*;
 import webserver.httpserver.HttpRequestFactory;
 import webserver.httpserver.RequestHandler;
 
+/**
+ * main 메소드를 실행하는 클래스
+ * 포트 설정 및 컨트롤러 등록이 이곳에서 진행된다.
+ */
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
     private static final int DEFAULT_PORT = 8080;

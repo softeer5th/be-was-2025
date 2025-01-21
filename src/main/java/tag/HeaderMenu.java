@@ -37,6 +37,13 @@ public enum HeaderMenu {
                 userId + "님, 환영합니다!</a> </li>";
     }
 
+    /**
+     * 헤더의 메뉴를 렌더링하는 메소드
+     * @param readFile 현재 출력해야 하는 HTML 문자열
+     * @param sessionId 현재 세션 ID
+     * @param userId 현재 사용자 ID
+     * @return 렌더링된 문자열
+     */
     public static String renderHeaderMenu(String readFile, String sessionId, String userId){
         String usernameTag = (sessionId != null && userId != null) ?
                 getWelcomeTag(userId) : "";

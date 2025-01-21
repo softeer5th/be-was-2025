@@ -79,6 +79,10 @@ public enum BoardDao {
         return Optional.empty();
     }
 
+    /**
+     * 현재 존재하는 게시글 수를 쿼리하는 메소드
+     * @return 현재 존재하는 게시글 수
+     */
     public Long getBoardSize() {
         String sql = "select count(*) from boards";
         Connection con = null;
