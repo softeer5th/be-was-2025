@@ -23,6 +23,11 @@ public class DynamicHtmlEditor {
     public static String commentElement(List<Comment> comments) {
         StringBuilder commentBuilder = new StringBuilder();
 
+        if (comments.isEmpty()) {
+            commentBuilder.append("<p class=\"comment__item__article\"> 댓글이 없습니다. </p>");
+            return commentBuilder.toString();
+        }
+
         for (Comment comment : comments) {
             String element = getCommentElement();
             element = edit(element, "comment_user", comment.getUser().getName());

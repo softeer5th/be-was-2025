@@ -56,11 +56,12 @@ public class MainHandler implements Handler{
         int nextNum = Math.min(pageNum + 1, articleNum - 1);
 
         content = DynamicHtmlEditor.edit(content, "username", user.getName());
-        content = DynamicHtmlEditor.edit(content, "author", article.getUser().getName());
-        content = DynamicHtmlEditor.edit(content, "content", article.getContent());
         content = DynamicHtmlEditor.edit(content, "prevPage", String.valueOf(prevNum));
         content = DynamicHtmlEditor.edit(content, "nextPage", String.valueOf(nextNum));
         content = DynamicHtmlEditor.edit(content, "articleId", article.getArticleId());
+
+        content = DynamicHtmlEditor.edit(content, "author", article.getUser().getName());
+        content = DynamicHtmlEditor.edit(content, "content", article.getContent());
 
         String commentElement = DynamicHtmlEditor.commentElement(article.getComments());
 
