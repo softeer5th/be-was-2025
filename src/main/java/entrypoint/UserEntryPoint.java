@@ -12,6 +12,7 @@ import webserver.message.record.ResponseData;
 import webserver.message.record.SetCookieRecord;
 import webserver.session.SessionStorage;
 import webserver.writer.html.template.IndexPageWriter;
+import webserver.writer.html.template.MyPageWriter;
 
 import java.util.Map;
 import java.util.Optional;
@@ -66,5 +67,21 @@ public class UserEntryPoint {
         return new ResponseData.ResponseDataBuilder<String>()
                 .contentType(HTTPContentType.TEXT_HTML)
                 .ok(body);
+    }
+
+    @RequestMapping(path = "/mypage", method = HTTPMethod.GET)
+    public ResponseData<String> myPage(@Cookie(name="SID", required = false) String sid) {
+        if (sid == null || SessionStorage.getStorage(sid) == null) {
+            return ResponseData.redirect("/login");
+        }
+        String body = MyPageWriter.write(sid);
+        return new ResponseData.ResponseDataBuilder<String>()
+                .contentType(HTTPContentType.TEXT_HTML)
+                .ok(body);
+    }
+
+    @RequestMapping(path = "/mypage.html", method = HTTPMethod.GET)
+    public ResponseData<String> myPageHtml(@Cookie(name="SID", required = false) String sid) {
+        return ResponseData.redirect("/mypage");
     }
 }
