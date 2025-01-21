@@ -71,6 +71,8 @@ public class ReflectionUtil {
         return Optional.of(currentObject);
     }
 
+
+    // 객체의 필드를 설정하는 메서드.
     public static void setField(Object object, String fieldName, Object value) {
         if (object == null || fieldName == null || fieldName.isBlank())
             return;
