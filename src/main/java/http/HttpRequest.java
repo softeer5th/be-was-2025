@@ -7,16 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpRequest {
     private HttpMethod httpMethod;
     private Map<String, String> headers;
     private String body;
     private String requestPath;
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(List<String> headerLines, BufferedReader br, Logger logger) throws IOException {
+    public HttpRequest(List<String> headerLines, BufferedReader br) throws IOException {
         headers = new HashMap<>();
-        log(logger);
+        log();
         setHeader(headerLines);
         setBody(br);
     }
@@ -29,11 +31,10 @@ public class HttpRequest {
         this.body = new String(requestBody);
     }
 
-    // get -> split(";") -> for(0~length) {s.startWith("sid=") -> split("=") -> tokens[1] 이
     public String getCookieSid() {
         try {
-            String s = headers.get("Cookie");
-            String[] cookies = s.split(";");
+            String s = headers.get(HttpHeader.COOKIE.getHeaderName());
+            String[] cookies = s.split("; ");
             for (String cookie : cookies) {
                 if (cookie.startsWith("sid=")) {
                     String sid = cookie.split("=")[1];
@@ -70,7 +71,7 @@ public class HttpRequest {
 
         for (int i = 1; i < headerLines.size(); i++) {
             String[] tokens = headerLines.get(i).split(":", 2);
-            headers.put(tokens[0], tokens[1]);
+            headers.put(tokens[0].toLowerCase(), tokens[1]);
         }
     }
 
@@ -79,13 +80,13 @@ public class HttpRequest {
     }
 
     public int getContentLength() {
-        if (headers.containsKey("Content-Length")) {
-            return Integer.parseInt(headers.get("Content-Length").trim());
+        if (headers.containsKey(HttpHeader.CONTENT_LENGTH.getHeaderName())) {
+            return Integer.parseInt(headers.get(HttpHeader.CONTENT_LENGTH.getHeaderName()).trim());
         }
-        throw new ExceptionInInitializerError("Can't Find Content-Length");
+        throw new ExceptionInInitializerError("Can't Find content-length");
     }
 
-    public void log(Logger logger) {
+    public void log() {
         StringBuilder logMessageBuilder = new StringBuilder();
         logMessageBuilder.append("\nHeader : {\n");
         logMessageBuilder.append("method : " + httpMethod).append(' ').append("path : " + requestPath).append('\n');
