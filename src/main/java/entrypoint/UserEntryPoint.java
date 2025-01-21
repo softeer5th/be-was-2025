@@ -10,6 +10,7 @@ import webserver.enumeration.HTTPMethod;
 import webserver.exception.HTTPException;
 import webserver.message.record.ResponseData;
 import webserver.message.record.SetCookieRecord;
+import webserver.reader.StaticFileReader;
 import webserver.session.SessionStorage;
 import webserver.writer.html.template.IndexPageWriter;
 import webserver.writer.html.template.MyPageWriter;
@@ -93,5 +94,17 @@ public class UserEntryPoint {
     @RequestMapping(path = "/mypage.html", method = HTTPMethod.GET)
     public ResponseData<String> myPageHtml(@Cookie(name="SID", required = false) String sid) {
         return ResponseData.redirect("/mypage");
+    }
+
+    @RequestMapping(path = "/article", method = HTTPMethod.GET)
+    public ResponseData<String> getCreateArticleForm(@Cookie(name = "SID") String sid) {
+        if (sid == null || SessionStorage.getStorage(sid) == null) {
+            return ResponseData.redirect("/login");
+        }
+        String page = StaticFileReader.getStaticFile("/article/index.html")
+                .orElseThrow(() -> new HTTPException.Builder().notFound("/article"));
+        return new ResponseData.ResponseDataBuilder<String>()
+                .contentType(HTTPContentType.TEXT_HTML)
+                .ok(page);
     }
 }
