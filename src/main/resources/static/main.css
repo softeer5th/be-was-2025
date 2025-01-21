@@ -13,13 +13,15 @@
   align-items: start;
   gap: 16px;
 }
-
+/* .post__account 컨테이너에 display: flex; 사용 */
 .post__account {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: center;    /* 세로로 중앙 정렬 */
+
+  width: 100%;            /* width를 100%로 설정하여 가능한 공간을 꽉 채움 */
 }
 
+/* 프로필 이미지 */
 .post__account__img {
   width: 32px;
   height: 32px;
@@ -27,12 +29,22 @@
   border-radius: 50%;
 }
 
+/* 닉네임 스타일 */
 .post__account__nickname {
+  margin-left: 5px;
   font-weight: 700;
   font-size: 16px;
   line-height: 25.6px;
   color: #14212b;
 }
+
+/* createdAt을 오른쪽으로 정렬 */
+.post__createdAt {
+  font-size: 12px;  /* 작은 글씨 크기 */
+  color: #888;      /* 회색으로 표시 */
+  margin-left: auto; /* 왼쪽 여백을 자동으로 설정하여 오른쪽으로 밀어냄 */
+}
+
 
 .post__img {
   width: 664px;
@@ -117,7 +129,7 @@
 
 .nav {
   width: 664px;
-  padding: 16px 0px;
+  padding: 16px;
   border-top: 1px solid #ebebeb;
 }
 

@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static enums.HttpStatus.OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static util.TimeFormatter.formatter;
 
 /*
  * 로그인 여부에 따라 동적 html 파일을 반환하는 핸들러 클래스
@@ -76,13 +77,22 @@ public class DynamicHomeHandler implements Handler {
 
     private void addPosts(List<Post> posts, StringBuilder postContent) {
         for (Post post : posts) {
+
             postContent
                     .append("""
                                <div class="wrapper">
                             <div class="post">
                               <div class="post__account">
                                 <img class="post__account__img" />
-                                <p class="post__account__nickname">account</p>
+                                <p class="post__account__nickname">
+                            """)
+                    .append(post.getAuthor())
+                    .append("""
+                            </p>
+                            <p class="post__createdAt">""")
+                    .append(post.getCreatedAt().format(formatter()))
+                    .append("""
+                              </p>
                               </div>
                               <img class="post__img" />
                               <div class="post__menu">

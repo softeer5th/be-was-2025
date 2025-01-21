@@ -5,6 +5,8 @@ import model.Post;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,13 +31,14 @@ public class PostDatabase {
     }
 
     public int addPost(Post post) {
-        String query = "INSERT INTO post (content,created_at) VALUES (?,?   )";
+        String query = "INSERT INTO post (content, created_at, author) VALUES (?, ? ,?)";
 
         try (Connection conn = DBConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, post.getContents());
             pstmt.setTimestamp(2, Timestamp.from(Instant.now()));
+            pstmt.setString(3, URLDecoder.decode(post.getAuthor(), StandardCharsets.UTF_8));
 
 
             final int id = pstmt.executeUpdate();
@@ -57,7 +60,7 @@ public class PostDatabase {
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                Post post = new Post(rs.getInt("id"), rs.getString("content"),rs.getString("author"));
+                Post post = new Post(rs.getInt("id"), rs.getString("content"),rs.getString("author"),rs.getTimestamp("created_at").toLocalDateTime());
                 postList.add(post);
             }
         } catch (SQLException e) {
