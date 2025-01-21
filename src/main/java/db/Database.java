@@ -1,5 +1,6 @@
 package db;
 
+import model.Article;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 public class Database {
     private static final Logger logger = LoggerFactory.getLogger(Database.class);
-    private static final String JDBC_URL = "jdbc:h2:/Users/songhyeonseong/Desktop/SofteerW1/softeer;FILE_LOCK=NO";
+    private static final String JDBC_URL = "jdbc:h2:/Users/songhyeonseong/Desktop/SofteerW1/softeer;AUTO_SERVER=TRUE";
 
     private static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(JDBC_URL);
@@ -102,4 +103,22 @@ public class Database {
 
         return userList;
     }
+
+    public static void addArticle(Article article) {
+        String articleId = article.getId();
+        String userId = article.getUserId();
+        String content = article.getContent();
+
+        String sql = "INSERT INTO ARTICLE (id, user_id, content) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, articleId);
+            stmt.setString(2, userId);
+            stmt.setString(3, content);
+            stmt.executeUpdate();
+            logger.debug("H2: 게시글 저장됨 - ID: {} , 사용자 ID: {}, 내용: {}", articleId, userId, content);
+        } catch (SQLException e) {
+            logger.error("addArticle, Error Message = {}", e.getMessage());
+        }
+    }
+
 }
