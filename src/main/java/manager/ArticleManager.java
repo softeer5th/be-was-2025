@@ -34,11 +34,15 @@ public class ArticleManager {
 
         String content = httpRequest.getBodyParameterByKey("content");
 
-        Article article = new Article(UUID.randomUUID().toString(), user.getUserId(),content);
+        Article article = new Article(user.getUserId(),content);
 
         Database.addArticle(article);
 
         return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterCreateArticle);
+    }
+
+    public HTTPResponse getAllArticles(HTTPRequest httpRequest){
+        return HTTPResponse.createSuccessResponse(httpRequest.getHttpVersion(),HTTPCode.OK, Database.findAllArticles());
     }
 
 

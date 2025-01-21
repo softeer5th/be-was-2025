@@ -9,6 +9,18 @@
   <title>메인 페이지</title>
   <script>
     window.onload = async function () {
+      await fetchUserStatus();
+      await fetchArticleData();
+
+      document.getElementById('show-all-btn').addEventListener('click', function() {
+        document.querySelectorAll('.comment__item.hidden').forEach(item => {
+          item.classList.remove('hidden');
+        });
+        document.getElementById('show-all-btn').style.display = 'none';
+      });
+    };
+
+    async function fetchUserStatus(){
       try {
         const response = await fetch('/user/login/status', { method: 'GET', credentials: 'include' });
         const userId = response.ok ? await response.text() : null;
@@ -30,14 +42,40 @@
       } catch (error) {
         console.error('사용자 정보를 가져오지 못했습니다.', error);
       }
+    }
 
-      document.getElementById('show-all-btn').addEventListener('click', function() {
-        document.querySelectorAll('.comment__item.hidden').forEach(item => {
-          item.classList.remove('hidden');
-        });
-        document.getElementById('show-all-btn').style.display = 'none';
-      });
-    };
+    async function fetchArticleData() {
+      try {
+        const response = await fetch('/articles', { method: 'GET', credentials: 'include' });
+
+        if (response.ok) {
+          const articles = await response.json();
+          updateArticleList(articles);
+        } else {
+          console.error('게시글 데이터를 불러오지 못했습니다.');
+        }
+      } catch (error) {
+        console.error('게시글 정보를 가져오는 중 오류 발생:', error);
+      }
+    }
+
+    function updateArticleList(articles) {
+      const postArticleElement = document.querySelector('.post__article');
+      const postImageElement = document.querySelector('.post__img');
+
+      if (articles.length > 0) {
+        const latestArticle = articles[0];  // 첫 번째 게시글 사용
+
+        postArticleElement.innerText = latestArticle.content;
+
+        if(latestArticle.image_path.trim() != "") {
+          postImageElement.src = latestArticle.image_path;
+          postImageElement.alt = "게시글 이미지";
+        }
+      } else {
+        console.warn("게시글 데이터가 없습니다.");
+      }
+    }
   </script>
 </head>
 <body>
