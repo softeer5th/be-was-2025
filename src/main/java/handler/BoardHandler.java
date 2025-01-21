@@ -30,7 +30,7 @@ public class BoardHandler implements Handler {
     public HttpResponse handle(HttpRequestInfo request) {
         HttpResponse response = new HttpResponse();
         if (request.getPath().equals("/board") && request.getMethod() == POST) {
-            final String contents = HttpRequestParser.parseMultipartFormText((String) request.getBody());
+            final String contents = HttpRequestParser.parseMultipartFormText(request.getHeaderValue("content-type"),(String) request.getBody());
 
             final String cookie = request.getHeaderValue(HttpHeader.COOKIE.getName());
             final User author = userManager.getUserFromSession(CookieParser.parseCookie(cookie))

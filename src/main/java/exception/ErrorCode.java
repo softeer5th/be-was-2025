@@ -9,6 +9,7 @@ public enum ErrorCode {
     KEY_VALUE_SHOULD_BE_PAIR(INTERNAL_SERVER_ERROR,"header는 key-value 쌍으로 이루어져야 합니다."),
     ERROR_WITH_ENCODING(INTERNAL_SERVER_ERROR,"인코딩에 실패하였습니다."),
     ERROR_WITH_DATABASE(INTERNAL_SERVER_ERROR,"데이터베이스에 문제가 발생하였습니다."),
+    ERROR_WITH_PARSER(INTERNAL_SERVER_ERROR,"파싱 도중 문제가 발생하였습니다."),
 
     // <------------------- 4XX Error Code ------------------->
     INVALID_FORM(BAD_REQUEST, "요청 폼이 잘못되었습니다."),
@@ -24,6 +25,8 @@ public enum ErrorCode {
     INVALID_AUTHORITY(UNAUTHORIZED,"로그인 후 사용 가능한 기능입니다."),
     NO_SUCH_USER_ID(BAD_REQUEST,"존재하지 않는 userId입니다."),
     INCORRECT_PASSWORD(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    EXCEED_POST_LENGTH(BAD_REQUEST,"글쓰기 글자 수(500자)를 초과하였습니다."),
+    MISSING_INPUT(BAD_REQUEST,"입력값이 없습니다."),
     ALREADY_LIKE_POST(BAD_REQUEST,"이미 좋아요를 누른 게시글입니다.");
 
     private final HttpStatus httpStatus;

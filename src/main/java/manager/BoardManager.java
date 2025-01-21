@@ -7,7 +7,7 @@ import model.Post;
 
 import java.util.List;
 
-import static exception.ErrorCode.ALREADY_LIKE_POST;
+import static exception.ErrorCode.*;
 
 public class BoardManager {
     private final PostDatabase postDatabase;
@@ -28,6 +28,10 @@ public class BoardManager {
     }
 
     public void save(String content, String author) {
+        if(content.length() > 500)
+            throw new ClientErrorException(EXCEED_POST_LENGTH);
+        if(content.isEmpty())
+            throw new ClientErrorException(MISSING_INPUT);
         Post post = new Post(content, author);
         postDatabase.addPost(post);
     }
