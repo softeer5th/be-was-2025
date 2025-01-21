@@ -54,7 +54,7 @@ public enum UserDao {
     /**
      * 새 회원을 저장하는 메소드
      * @param user
-     * @return
+     * @return 생성된 회원 객체 반환
      */
     public Optional<User> save(User user){
         String sql = "insert into users(user_id, password, username, email) values (?, ?, ?, ?)";
