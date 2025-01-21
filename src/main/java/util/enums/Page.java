@@ -26,7 +26,7 @@ public enum Page {
         return path;
     }
 
-    public static boolean isRequireLogin(String path){
+    public static boolean isRequiringLogin(String path){
         return PATH_REQUIRING_LOGIN.contains(path);
     }
 }

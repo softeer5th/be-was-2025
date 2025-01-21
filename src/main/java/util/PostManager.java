@@ -21,4 +21,18 @@ public class PostManager {
     public static int getFirstPostId(String userId) {
         return Database.getFirstPostId(userId);
     }
+
+    public static String getNextPostId(String userId, int postId) {
+        if(getPost(userId, postId + 1) == null) {
+            return "?postId=" + postId;
+        }
+        return "?postId=" + (postId + 1);
+    }
+
+    public static String getPrevPostId(String userId, int postId) {
+        if(getPost(userId, postId - 1) == null) {
+            return "?postId=" + postId;
+        }
+        return "?postId=" + (postId - 1);
+    }
 }

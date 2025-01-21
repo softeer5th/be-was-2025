@@ -1,5 +1,6 @@
 package util;
 
+import model.Post;
 import model.User;
 import webserver.session.SessionManager;
 
@@ -10,16 +11,33 @@ public class HtmlContentReplacer {
     private static final String startIfString = "<my_if";
     private static final String endIfString = "</my_if>";
     private static final String isDynamicHtml = "<dynamic />";
-    private final Boolean loggedIn;
     private final Map<String, String> userProperties = new HashMap<>();
+    private final Map<String, String> postProperties = new HashMap<>();
+    private String userId = null;
+    private boolean hasPost = false;
+    private int postId = -1;
 
     public HtmlContentReplacer(String sid){
-        if(loggedIn = (sid != null)) {
+        if(sid != null) {
             User user = (User) SessionManager.getSession(sid).getUser();
-            userProperties.put("$userId", user.getUserId());
+            userId = user.getUserId();
+            userProperties.put("$userId", userId);
             userProperties.put("$userName", user.getName());
             userProperties.put("$userEmail", user.getEmail());
         }
+    }
+
+    public void setPostContent(String queryString) {
+        Parameter parameter = new Parameter(queryString);
+        postId = Integer.parseInt(parameter.getValue("postId"));
+        if(postId != -1) {
+            Post post = PostManager.getPost(userId, postId);
+            hasPost = true;
+            postProperties.put("$postTitle", post.getTitle());
+            postProperties.put("$postContent", post.getContent());
+        }
+        postProperties.put("$nextPost", PostManager.getNextPostId(userId, postId));
+        postProperties.put("$prevPost", PostManager.getPrevPostId(userId, postId));
     }
 
     public byte[] replace(byte[] body) {
@@ -45,7 +63,7 @@ public class HtmlContentReplacer {
 
             String innerContent = html.substring(closeTagIndex, endIndex).trim();
 
-            if (loggedIn == Boolean.parseBoolean(condition)) {
+            if (hasPost == Boolean.parseBoolean(condition)) {
                 html = html.replace(content, innerContent);
             } else {
                 html = html.replace(content, "");
@@ -55,6 +73,10 @@ public class HtmlContentReplacer {
         for(String property : userProperties.keySet()){
             html = html.replace(property, userProperties.get(property));
         }
+        for (String property : postProperties.keySet()) {
+            html = html.replace(property, postProperties.get(property));
+        }
+
 
         return html.getBytes();
     }

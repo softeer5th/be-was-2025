@@ -17,7 +17,7 @@ public class ReadFileHandler extends Handler {
         Response response = new Response(request);
         sessionId = SessionManager.validate(sessionId);
 
-        if(sessionId == null && Page.isRequireLogin(request.url)){
+        if(sessionId == null && Page.isRequiringLogin(request.url)){
             response.setStatusCode(HttpStatusCode.SEE_OTHER);
             response.addHeader("Location", Page.LOGIN.getPath());
             return response;
@@ -30,6 +30,10 @@ public class ReadFileHandler extends Handler {
                 body = fileFinder.readFileToBytes();
                 if(request.isHtml()){
                     HtmlContentReplacer replacer = new HtmlContentReplacer(sessionId);
+                    if(request.parameter != null){
+                        replacer.setPostContent(request.parameter);
+                    }
+
                     body = replacer.replace(body);
                 }
             }
