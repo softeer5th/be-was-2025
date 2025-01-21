@@ -23,7 +23,7 @@
         <img class="post__account__img" src="${writer_profile}" />
         <p class="post__account__nickname">${writer}</p>
       </div>
-      <img class="post__img" />
+      <img class="post__img" src="${image}"/>
       <div class="post__menu">
         <ul class="post__menu__personal">
           <li>
@@ -107,7 +107,7 @@
     <nav class="nav">
       <ul class="nav__menu">
         <li class="nav__menu__item">
-          <a class="nav__menu__item__btn" href="/board/${before}">
+          <a class="nav__menu__item__btn" href="${before}">
             <img
                     class="nav__menu__item__img"
                     src="../img/ci_chevron-left.svg"
@@ -119,7 +119,7 @@
           <a class="btn btn_ghost btn_size_m">댓글 작성</a>
         </li>
         <li class="nav__menu__item">
-          <a class="nav__menu__item__btn" href="/board/${after}">
+          <a class="nav__menu__item__btn" href="${after}">
             다음 글
             <img
                     class="nav__menu__item__img"
