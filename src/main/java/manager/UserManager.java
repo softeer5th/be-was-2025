@@ -48,16 +48,6 @@ public class UserManager {
         return sessionManager.makeAndSaveSessionId(user.getId());
     }
 
-    public Optional<Integer> getIdFromSession(String sessionId) {
-        if (sessionId == null)
-            return Optional.empty();
-        final Integer id = sessionManager.getId(sessionId);
-        if (id == null)
-            return Optional.empty();
-
-        return Optional.of(id);
-    }
-
     public Optional<User> getUserFromSession(String sessionId) {
         if (sessionId == null)
             return Optional.empty();

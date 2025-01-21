@@ -15,4 +15,9 @@ public enum HttpMethod {
             throw new ClientErrorException(INVALID_HTTP_METHOD);
         }
     }
+
+    public static void validPostMethod(HttpMethod httpMethod){
+        if(httpMethod != POST)
+            throw  new ClientErrorException(INVALID_HTTP_METHOD);
+    }
 }

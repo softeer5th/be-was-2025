@@ -7,6 +7,7 @@ import exception.ErrorCode;
 import manager.BoardManager;
 import manager.UserManager;
 import model.Post;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HttpRequestInfo;
@@ -54,13 +55,13 @@ public class DynamicHomeHandler implements Handler {
                 .orElseThrow(() -> new ClientErrorException(ErrorCode.FILE_NOT_FOUND));
 
         final String sessionId = CookieParser.parseCookie(request.getHeaderValue(HttpHeader.COOKIE.getName()));
-        final Optional<String> userName = userManager.getNameFromSession(sessionId);
+        final Optional<User> user = userManager.getUserFromSession(sessionId);
 
         StringBuilder dynamicHtmlContent = new StringBuilder();
 
         startHeaderMenu(dynamicHtmlContent);
-        userName.ifPresentOrElse(
-                name -> addUserNameToHtml(name, dynamicHtmlContent),
+        user.ifPresentOrElse(
+                (loginUser) -> addUserNameToHtml(loginUser.getName(), dynamicHtmlContent),
                 () -> addAuthLinksToHtml(dynamicHtmlContent)
         );
         endHeaderMenu(dynamicHtmlContent);
@@ -68,16 +69,15 @@ public class DynamicHomeHandler implements Handler {
         String body = html.replace(USER_REPLACE_TARGET, dynamicHtmlContent.toString());
         StringBuilder postContent = new StringBuilder();
         final List<Post> posts = boardManager.getPosts();
-        addPosts(posts, postContent);
+        addPosts(posts, postContent, user);
         body = body.replace(POST_REPLACE_TARGET, postContent.toString());
 
         response.setResponse(OK, extension, body);
         return response;
     }
 
-    private void addPosts(List<Post> posts, StringBuilder postContent) {
+    private void addPosts(List<Post> posts, StringBuilder postContent, Optional<User> user) {
         for (Post post : posts) {
-
             postContent
                     .append("""
                                <div class="wrapper">
@@ -98,29 +98,22 @@ public class DynamicHomeHandler implements Handler {
                             <div class="post__menu">
                               <ul class="post__menu__personal">
                                 <li>
-                               <form action="/board/like/
                             """)
-                    .append(post.getId())
-                    .append(
-                            """
-                                    " method="POST">
-                                                       <button type="submit" class="post__menu__btn">
-                                                         <img src="./img/like.svg" alt="Like" />
-                                                       </button>
-                                                     </form>
-                                          </li>
-                                          <li>
-                                            <button class="post__menu__btn">
-                                              <img src="./img/sendLink.svg" />
-                                            </button>
-                                          </li>
-                                        </ul>
-                                        <button class="post__menu__btn">
-                                          <img src="./img/bookMark.svg" />
-                                        </button>
-                                      </div>
-                                      <p class="post__article">
-                                    """)
+                    .append(addLikeSvg(post.getId(), user))
+                    .append("""
+                                  </li>
+                                  <li>
+                                    <button class="post__menu__btn">
+                                      <img src="./img/sendLink.svg" />
+                                    </button>
+                                  </li>
+                                </ul>
+                                <button class="post__menu__btn">
+                                  <img src="./img/bookMark.svg" />
+                                </button>
+                              </div>
+                              <p class="post__article">
+                            """)
                     .append(post.getContents())
                     .append("""
                                       </p>
@@ -128,6 +121,34 @@ public class DynamicHomeHandler implements Handler {
                             """);
 
         }
+    }
+
+    private String addLikeSvg(int postId, Optional<User> user) {
+        if (user.isEmpty())
+            return String.format("""
+                     <form action="/board/like/%s" method="POST">
+                                                                           <button type="submit" class="post__menu__btn">
+                                                                             <img src="./img/like.svg" alt="Like" />
+                                                                           </button>
+                                                                         </form>
+                    """, postId);
+
+        if (!boardManager.existsPostLike(postId, user.get().getId()))
+            return String.format("""
+                     <form action="/board/like/%s" method="POST">
+                                                                           <button type="submit" class="post__menu__btn">
+                                                                             <img src="./img/like.svg" alt="Like" />
+                                                                           </button>
+                                                                         </form>
+                    """, postId);
+
+        return String.format("""
+                <form action="/board/like/%s" method="POST">
+                                                                           <button type="submit" class="post__menu__btn">
+                                                                             <img src="./img/liked.svg" alt="Like" />
+                                                                           </button>
+                                                                         </form>
+                """, postId);
     }
 
     private void startHeaderMenu(StringBuilder dynamicHtmlContent) {

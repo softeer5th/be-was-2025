@@ -5,6 +5,7 @@ import enums.HttpHeader;
 import enums.HttpStatus;
 import exception.ClientErrorException;
 import manager.UserManager;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HttpRequestInfo;
@@ -37,11 +38,11 @@ public class DynamicFileHandler implements Handler {
         HttpResponse response = new HttpResponse();
 
         final String sessionId = CookieParser.parseCookie(request.getHeaderValue(HttpHeader.COOKIE.getName()));
-        final Optional<String> userName = userManager.getNameFromSession(sessionId);
+        final Optional<User> user = userManager.getUserFromSession(sessionId);
 
-        userName.ifPresentOrElse(
+        user.ifPresentOrElse(
                 // 값이 있을 경우 마이페이지 서빙
-                name -> serveRequestedFile(request, response),
+                (loginUser) -> serveRequestedFile(request, response),
                 // 값이 없을 경우 홈 페이지로 리다이렉트
                 () -> redirectToHomePage(response)
         );
