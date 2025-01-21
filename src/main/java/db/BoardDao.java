@@ -16,11 +16,14 @@ import static db.DBUtils.close;
 import static db.DBUtils.getConnection;
 
 public enum BoardDao {
-    BOARDS;
+    BOARDS(0);
 
-    private static AtomicLong boardSize = new AtomicLong(0);
     private static final Logger log = LoggerFactory.getLogger(BoardDao.class);
+    private final AtomicLong boardSize;
 
+    BoardDao(long initValue) {
+        this.boardSize = new AtomicLong(initValue);
+    }
 
     public Optional<Board> findById(Long boardId) {
         String sql = "select * from boards where board_id = ?";
@@ -69,7 +72,7 @@ public enum BoardDao {
         return Optional.empty();
     }
 
-    public static Long getBoardSize() {
+    public Long getBoardSize() {
         return boardSize.get();
     }
 }
