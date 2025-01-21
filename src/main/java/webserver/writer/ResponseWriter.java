@@ -1,4 +1,4 @@
-package webserver;
+package webserver.writer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,6 @@ import webserver.message.record.SetCookieRecord;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,7 +56,7 @@ public class ResponseWriter {
         }
     }
 
-    static void write(DataOutputStream out, HTTPRequest request, HTTPResponse response) {
+    static public void write(DataOutputStream out, HTTPRequest request, HTTPResponse response) {
         ResponseStringBuilder builder = new ResponseStringBuilder();
         try {
             builder.appendWithSpace(request.getVersion().toString());
