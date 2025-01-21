@@ -31,62 +31,13 @@
       </header>
       <div class="wrapper">
         <div class="post">
-          <div class="post__account">
-            <img class="post__account__img" />
-            <p class="post__account__nickname">{{ dynamic:author }}</p>
-          </div>
-          <img class="post__img" />
-          <div class="post__menu">
-            <ul class="post__menu__personal">
-              <li>
-                <button class="post__menu__btn">
-                  <img src="../img/like.svg" />
-                </button>
-              </li>
-              <li>
-                <button class="post__menu__btn">
-                  <img src="../img/sendLink.svg" />
-                </button>
-              </li>
-            </ul>
-            <button class="post__menu__btn">
-              <img src="../img/bookMark.svg" />
-            </button>
-          </div>
-          <p class="post__article">
-            {{ dynamic:content }}
-          </p>
+          {{ dynamic:article }}
         </div>
         <ul class="comment">
           {{ dynamic:comment }}
-          <button id="show-all-btn" class="btn btn_ghost btn_size_m">
-            모든 댓글 보기(3개)
-          </button>
         </ul>
         <nav class="nav">
-          <ul class="nav__menu">
-            <li class="nav__menu__item">
-              <a class="nav__menu__item__btn" href="/main?page={{ dynamic:prevPage }}">
-                <img
-                  class="nav__menu__item__img"
-                  src="../img/ci_chevron-left.svg"
-                />
-                이전 글
-              </a>
-            </li>
-            <li class="nav__menu__item">
-              <a class="btn btn_ghost btn_size_m" href="/comment?article={{ dynamic:articleId }}">댓글 작성</a>
-            </li>
-            <li class="nav__menu__item">
-              <a class="nav__menu__item__btn" href="/main?page={{ dynamic:nextPage }}">
-                다음 글
-                <img
-                  class="nav__menu__item__img"
-                  src="../img/ci_chevron-right.svg"
-                />
-              </a>
-            </li>
-          </ul>
+          {{ dynamic:navigation }}
         </nav>
       </div>
     </div>

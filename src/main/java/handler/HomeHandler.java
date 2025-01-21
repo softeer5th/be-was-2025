@@ -36,20 +36,21 @@ public class HomeHandler implements Handler {
         int articleNum = articles.size();
         int pageNum = Integer.parseInt(page);
 
-        Article article = articles.get(pageNum);
-
         int prevNum = Math.max(pageNum - 1, 0);
         int nextNum = Math.min(pageNum + 1, articleNum - 1);
 
-        content = DynamicHtmlEditor.edit(content, "author", article.getUser().getName());
-        content = DynamicHtmlEditor.edit(content, "content", article.getContent());
-        content = DynamicHtmlEditor.edit(content, "prevPage", String.valueOf(prevNum));
-        content = DynamicHtmlEditor.edit(content, "nextPage", String.valueOf(nextNum));
+        Article article = null;
+        if (!articles.isEmpty())
+            article = articles.get(pageNum);
 
-        String commentElement = DynamicHtmlEditor.commentElement(article.getComments());
+        String navigationElement = DynamicHtmlEditor.navigationElement(article, prevNum, nextNum, "/");
+        content = DynamicHtmlEditor.edit(content, "navigation", navigationElement);
 
+        String articleElement = DynamicHtmlEditor.articleElement(article);
+        content = DynamicHtmlEditor.edit(content, "article", articleElement);
+
+        String commentElement = DynamicHtmlEditor.commentElement(article);
         content = DynamicHtmlEditor.edit(content,"comment", commentElement);
-
 
         byte[] body = content.getBytes();
         httpResponse.writeStatusLine(HttpStatus.OK);

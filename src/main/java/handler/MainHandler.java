@@ -49,22 +49,23 @@ public class MainHandler implements Handler{
         int articleNum = articles.size();
         int pageNum = Integer.parseInt(page);
 
-        Article article = articles.get(pageNum);
-
-
         int prevNum = Math.max(pageNum - 1, 0);
         int nextNum = Math.min(pageNum + 1, articleNum - 1);
 
         content = DynamicHtmlEditor.edit(content, "username", user.getName());
-        content = DynamicHtmlEditor.edit(content, "prevPage", String.valueOf(prevNum));
-        content = DynamicHtmlEditor.edit(content, "nextPage", String.valueOf(nextNum));
-        content = DynamicHtmlEditor.edit(content, "articleId", article.getArticleId());
 
-        content = DynamicHtmlEditor.edit(content, "author", article.getUser().getName());
-        content = DynamicHtmlEditor.edit(content, "content", article.getContent());
+        Article article = null;
 
-        String commentElement = DynamicHtmlEditor.commentElement(article.getComments());
+        if (!articles.isEmpty())
+            article = articles.get(pageNum);
 
+        String navigationElement = DynamicHtmlEditor.navigationElement(article, prevNum, nextNum, "/main");
+        content = DynamicHtmlEditor.edit(content, "navigation", navigationElement);
+
+        String articleElement = DynamicHtmlEditor.articleElement(article);
+        content = DynamicHtmlEditor.edit(content, "article", articleElement);
+
+        String commentElement = DynamicHtmlEditor.commentElement(article);
         content = DynamicHtmlEditor.edit(content,"comment", commentElement);
 
         byte[] body = content.getBytes();
