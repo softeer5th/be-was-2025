@@ -1,5 +1,6 @@
 package db;
 
+import java.io.ByteArrayInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,7 +39,8 @@ public class ArticleDatabase {
 			    id int PRIMARY KEY,
 			    title VARCHAR(255),
 			    content TEXT,
-			    user_id VARCHAR(255)
+			    user_id VARCHAR(255),
+			    article_image BLOB
 			)
 			""";
 
@@ -53,8 +55,8 @@ public class ArticleDatabase {
 
 	public void save(Article article) {
 		String query = """
-  		INSERT INTO ARTICLE (id, title, content, user_id) 
-  		VALUES (?, ?, ?, ?);
+  		INSERT INTO ARTICLE (id, title, content, user_id, article_image) 
+  		VALUES (?, ?, ?, ?, ?);
   		""";
 
 		try {
@@ -64,8 +66,10 @@ public class ArticleDatabase {
 			statement.setString(2, null);
 			statement.setString(3, article.getContent());
 			statement.setString(4, article.getUserId());
+
+			ByteArrayInputStream imageInputStream = new ByteArrayInputStream(article.getImage());
+			statement.setBlob(5, imageInputStream);
 			statement.execute();
-			// 커밋단계
 
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
@@ -81,7 +85,7 @@ public class ArticleDatabase {
 	 */
 	public Cursor<Article> findNthArticle(Integer n) {
 		String query = """
-        SELECT id, title, content, user_id 
+        SELECT id, title, content, user_id, article_image
         FROM ARTICLE
         ORDER BY id DESC
     	LIMIT 2 OFFSET ?;
@@ -103,8 +107,8 @@ public class ArticleDatabase {
 				resultSet.getInt("id"),
 				resultSet.getString("title"),
 				resultSet.getString("content"),
-				resultSet.getString("user_id")
-			);
+				resultSet.getString("user_id"),
+				resultSet.getBytes("article_image"));
 
 			boolean hasPrevPage = n > 1;
 			boolean hasNextPage = false;
