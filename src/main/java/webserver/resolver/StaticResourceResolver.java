@@ -5,15 +5,11 @@ import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
-import webserver.exception.HTTPException;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 import webserver.message.header.records.AcceptRecord;
+import webserver.reader.StaticFileReader;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,87 +29,59 @@ public class StaticResourceResolver implements ResourceResolver {
 
     @Override
     public void resolve(HTTPRequest request, HTTPResponse.Builder response) {
-        try {
-            String staticUrl = request.getUri().replaceFirst("/", "static/");
-            Optional<byte []> optionalFile = tryFindFile(request, response, staticUrl);
-            if (optionalFile.isPresent()) {
-                response.body(optionalFile.get());
-            } else {
-                String index = staticUrl.endsWith("/") ? staticUrl + "index.html" : staticUrl + "/index.html";
-                Optional<byte []> directoryIndex = tryFindFile(request, response, index);
-                if (directoryIndex.isEmpty()) {
-                    response.statusCode(HTTPStatusCode.NOT_FOUND);
-                    return;
-                }
-                response.body(directoryIndex.get());
-            }
-            response.statusCode(HTTPStatusCode.OK);
-        } catch (IOException ioException) {
-            throw new HTTPException.Builder().causedBy(SequentialResolver.class)
-                            .internalServerError(ioException.getMessage());
+        String url = request.getUri();
+        Optional<byte[]> optionalFile = tryFindFile(request, response, url);
+        if (optionalFile.isEmpty()) {
+            String index = url.endsWith("/") ? url + "index.html" : url + "/index.html";
+            optionalFile = tryFindFile(request, response, index);
         }
+        if (optionalFile.isEmpty()) {
+            response.statusCode(HTTPStatusCode.NOT_FOUND);
+            return;
+        }
+        response.body(optionalFile.get());
+        response.statusCode(HTTPStatusCode.OK);
     }
 
-    private Optional<byte []> tryFindFile(HTTPRequest request, HTTPResponse.Builder response, String staticUrl)
-            throws IOException {
-        Optional<byte []> acceptTypedFile = tryAcceptTypedFile(request, response, staticUrl);
-        if (acceptTypedFile.isPresent()) {
-            return acceptTypedFile;
+    private Optional<byte[]> tryFindFile(HTTPRequest request, HTTPResponse.Builder response, String url) {
+        Optional<byte[]> acceptTypedFile = tryAcceptTypedFile(request, response, url);
+        if (acceptTypedFile.isEmpty()) {
+            acceptTypedFile = StaticFileReader.getStaticFileBytes(url);
+            acceptTypedFile.ifPresent(staticFile -> response.contentTypeFromUri(url));
         }
-        Optional<byte[]> namedFile = loadResourceAsBytes(staticUrl);
-        if (namedFile.isPresent()) {
-            response.contentTypeFromUri(staticUrl);
-            return namedFile;
-        }
-        return Optional.empty();
+        return acceptTypedFile;
     }
 
-    private Optional<byte []> tryAcceptTypedFile(HTTPRequest request, HTTPResponse.Builder response, String url)
-            throws IOException {
+    private Optional<byte[]> tryAcceptTypedFile(HTTPRequest request, HTTPResponse.Builder response, String url) {
         Optional<AcceptRecord[]> optionalHeader = request.getHeader("accept", AcceptRecord[].class);
         if (optionalHeader.isEmpty()) {
             return Optional.empty();
         }
         AcceptRecord[] acceptHeaders = optionalHeader.get();
         Matcher matcher = EXTENSION_PATTERN.matcher(url);
+        Optional<byte[]> optionalFile = Optional.empty();
         for (AcceptRecord acceptHeader : acceptHeaders) {
-            Optional<byte[]> filePath = tryFindAcceptType(acceptHeader.type(), matcher);
-            if (filePath.isEmpty()) {
-                continue;
+            optionalFile = tryFindAcceptType(acceptHeader.type(), matcher);
+            if (optionalFile.isPresent()) {
+                response.contentType(acceptHeader.type());
+                break;
             }
-            response.contentType(acceptHeader.type());
-            return filePath;
         }
-        return Optional.empty();
+        return optionalFile;
     }
 
-    private Optional<byte []> tryFindAcceptType(HTTPContentType contentType, Matcher matcher)
-            throws IOException {
+    private Optional<byte[]> tryFindAcceptType(HTTPContentType contentType, Matcher matcher) {
         String acceptUrl = matcher.replaceFirst("." + contentType.detail);
-        Optional<byte[]> filePath = loadResourceAsBytes(acceptUrl);
-        if (filePath.isPresent()) {
-            return filePath;
-        }
-        for (String alias : contentType.alias) {
-            acceptUrl = matcher.replaceFirst(alias);
-            filePath = loadResourceAsBytes(acceptUrl);
-            if (filePath.isPresent()) {
-                return filePath;
+        Optional<byte[]> filePath = StaticFileReader.getStaticFileBytes(acceptUrl);
+        if (filePath.isEmpty()) {
+            for (String alias : contentType.alias) {
+                acceptUrl = matcher.replaceFirst("." + alias);
+                filePath = StaticFileReader.getStaticFileBytes(acceptUrl);
+                if (filePath.isPresent()) {
+                    break;
+                }
             }
         }
-        return Optional.empty();
-    }
-
-    private static Optional<byte[]> loadResourceAsBytes(String acceptUrl) throws IOException {
-        URL resource = classLoader.getResource(acceptUrl);
-        if (resource == null) {
-            return Optional.empty();
-        }
-        String filePath = resource.getFile();
-        File file = new File(filePath);
-        if (!file.exists() || !file.isFile()) {
-            return Optional.empty();
-        }
-        return Optional.of(Files.readAllBytes(new File(filePath).toPath()));
+        return filePath;
     }
 }
