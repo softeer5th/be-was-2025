@@ -1,5 +1,6 @@
 package api;
 
+import api.article.*;
 import api.user.*;
 import global.model.HttpRequest;
 import global.model.LoadResult;
@@ -19,6 +20,8 @@ public class ApiRouter {
         handlers.add(new UpdateUserHandler());
         handlers.add(new ImageCreateHandler());
         handlers.add(new ImageDeleteHandler());
+        handlers.add(new ArticleCreateHandler());
+        handlers.add(new ArticleReadHandler());
     }
 
     public LoadResult route(HttpRequest httpRequest) throws IOException {
