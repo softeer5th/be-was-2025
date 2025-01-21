@@ -1,5 +1,6 @@
 package webserver.message.record;
 
+import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ public class ResponseData<T> {
         Map<String, String> headers = new HashMap<>();
         Map<String, SetCookieRecord> setCookies = new HashMap<>();
         HTTPStatusCode status;
+        HTTPContentType contentType = HTTPContentType.APPLICATION_JSON;
 
         public ResponseDataBuilder() {}
 
@@ -21,6 +23,10 @@ public class ResponseData<T> {
         }
         public ResponseDataBuilder<T> status(HTTPStatusCode status) {
             this.status = status;
+            return this;
+        }
+        public ResponseDataBuilder<T> contentType(HTTPContentType contentType) {
+            this.contentType = contentType;
             return this;
         }
         public ResponseDataBuilder<T> addHeader(String key, String value) {
@@ -45,7 +51,7 @@ public class ResponseData<T> {
         }
 
         public ResponseData<T> build() {
-            return new ResponseData<>(data, status, headers, setCookies);
+            return new ResponseData<>(data, status, contentType, headers, setCookies);
         }
     }
 
@@ -53,10 +59,12 @@ public class ResponseData<T> {
     final Map<String, String> headers;
     final Map<String, SetCookieRecord> setCookies;
     final HTTPStatusCode status;
+    final HTTPContentType contentType;
 
     public ResponseData(
             T data,
             HTTPStatusCode status,
+            HTTPContentType contentType,
             Map<String, String> headers,
             Map<String, SetCookieRecord> setCookies
     ) {
@@ -64,6 +72,7 @@ public class ResponseData<T> {
         this.headers = headers;
         this.setCookies = setCookies;
         this.status = status;
+        this.contentType = contentType;
     }
 
     public static <T> ResponseData<T> ok(T data) {
