@@ -1,13 +1,8 @@
 package db;
 
-import exception.ErrorCode;
-import exception.ServerErrorException;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
-import static exception.ErrorCode.ERROR_WITH_DATABASE;
 
 public class DBConnectionManager {
     private static Connection connection = null;
@@ -20,7 +15,7 @@ public class DBConnectionManager {
             try {
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
             } catch (SQLException e) {
-                throw new ServerErrorException(ERROR_WITH_DATABASE);
+                throw new SQLException("Failed to create a database connection.");
             }
         }
         return connection;
