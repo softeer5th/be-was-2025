@@ -11,11 +11,22 @@ public class Article {
 		this.userId = userId;
 	}
 
-	public int getId() {
-		return id;
+	public Article(int id, String title, String content, String userId) {
+		this.id = id;
+		this.title = title;
+		this.content = content;
+		this.userId = userId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public String getTitle() {
+		return title;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public String getContent() {
+		return content;
 	}
 }
