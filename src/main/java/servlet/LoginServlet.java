@@ -20,15 +20,13 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             if(session.isNew()) {
                 session.setAttribute("user", user);
-                response.setStatus(HttpStatus.FOUND);
-                response.setHeader("Location", "/");
+                response.sendRedirect("/");
             } else {
                 response.setStatus(HttpStatus.BAD_REQUEST);
                 response.setBody("already logged in");
             }
         } else {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("Location", "/login/failed.html");
+            response.sendRedirect("/login/failed.html");
         }
     }
 }

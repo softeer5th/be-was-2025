@@ -14,16 +14,14 @@ public class UpdateUserServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
 
         if(session == null) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/auth/failed_session_expired.html");
+            response.sendRedirect("/auth/failed_session_expired.html");
             return;
         }
 
         User user = (User) session.getAttribute("user");
 
         if(user == null) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/auth/failed_session_expired.html");
+            response.sendRedirect("/auth/failed_session_expired.html");
             return;
         }
 
@@ -32,14 +30,12 @@ public class UpdateUserServlet extends HttpServlet {
         String newPasswordConfirm = request.getParameter("newPasswordConfirm");
 
         if(newName == null) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/mypage/failed_empty_field.html");
+            response.sendRedirect("/mypage/failed_empty_field.html");
             return;
         }
 
         if(newPassword != null && !newPassword.equals(newPasswordConfirm)) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/mypage/failed_incorrect_password.html");
+            response.sendRedirect("/mypage/failed_incorrect_password.html");
             return;
         }
 
@@ -48,12 +44,11 @@ public class UpdateUserServlet extends HttpServlet {
 
         Database.saveUser(user);
 
-        response.setStatus(HttpStatus.FOUND);
         if(newPassword != null) {
-            response.setHeader("location", "/mypage/success.html");
+            response.sendRedirect("/mypage/success.html");
             session.invalidate();
         } else {
-            response.setHeader("location", "/");
+            response.sendRedirect("/");
         }
     }
 }

@@ -16,9 +16,8 @@ public class LogoutServlet extends HttpServlet {
             response.setBody("logout failed. you are not logged in.");
         } else {
             session.invalidate();
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("Location", "/");
             response.setBody("logout successful");
+            response.sendRedirect("/");
         }
     }
 }

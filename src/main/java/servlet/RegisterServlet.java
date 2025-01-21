@@ -4,7 +4,6 @@ import db.Database;
 import model.User;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
-import webserver.http.HttpStatus;
 import webserver.http.servlet.HttpServlet;
 
 public class RegisterServlet extends HttpServlet {
@@ -19,11 +18,9 @@ public class RegisterServlet extends HttpServlet {
         User user = new User(userId, password, name, email);
         if(Database.findUserById(userId) == null) {
             Database.saveUser(user);
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("Location", "/");
+            response.sendRedirect("/");
         } else {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("Location", "/registration/failed.html");
+            response.sendRedirect("/registration/failed.html");
         }
     }
 }
