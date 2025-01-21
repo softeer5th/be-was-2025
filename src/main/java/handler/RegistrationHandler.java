@@ -12,7 +12,9 @@ import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 import webserver.view.ModelAndTemplate;
 
-// 회원가입 요청 처리
+/**
+ * 회원가입 요청을 처리하는 핸들러
+ */
 public class RegistrationHandler implements HttpHandler {
     private static final String TEMPLATE_NAME = "/registration/index.html";
     private static final Logger log = LoggerFactory.getLogger(RegistrationHandler.class);
@@ -22,11 +24,17 @@ public class RegistrationHandler implements HttpHandler {
         this.userDao = userDao;
     }
 
+    /**
+     * 회원가입 페이지를 보여준다
+     */
     @Override
     public HttpResponse handleGet(HttpRequest request) {
         return HttpResponse.render(TEMPLATE_NAME);
     }
 
+    /**
+     * 회원가입 요청을 처리한다
+     */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         RegistrationRequest body = request.getBody(RegistrationRequest.class).orElseThrow(() -> new BadRequest("Invalid Request Body"));

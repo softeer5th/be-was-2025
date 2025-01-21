@@ -6,8 +6,13 @@ import webserver.response.HttpResponse;
 
 import static webserver.enums.PageMappingPath.INDEX;
 
-// 로그아웃을 담당하는 핸들러
+/**
+ * 로그아웃 요청을 처리하는 핸들러
+ */
 public class LogoutHandler implements HttpHandler {
+    /**
+     * 로그아웃 처리
+     */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         request.getSession().invalidate();

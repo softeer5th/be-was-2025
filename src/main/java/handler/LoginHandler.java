@@ -16,20 +16,35 @@ import java.util.Optional;
 
 import static webserver.enums.PageMappingPath.INDEX;
 
+/**
+ * 로그인 요청을 처리하는 핸들러
+ */
 public class LoginHandler implements HttpHandler {
     private static final String TEMPLATE_NAME = "/login/index.html";
     private static final Logger log = LoggerFactory.getLogger(LoginHandler.class);
     private final UserDao userDao;
 
+    /**
+     * 생성자
+     *
+     * @param userDao 사용자 조회 시 사용하는 UserDao 객체
+     */
     public LoginHandler(UserDao userDao) {
         this.userDao = userDao;
     }
 
+
+    /**
+     * 로그인 페이지를 보여준다
+     */
     @Override
     public HttpResponse handleGet(HttpRequest request) {
         return HttpResponse.render(TEMPLATE_NAME);
     }
 
+    /**
+     * 로그인 요청을 처리한다
+     */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         LoginRequest body = request.getBody(LoginRequest.class).orElseThrow(() -> new BadRequest("Invalid Request Body"));

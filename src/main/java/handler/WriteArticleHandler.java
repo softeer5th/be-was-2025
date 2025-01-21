@@ -11,20 +11,28 @@ import webserver.session.HttpSession;
 
 import static webserver.enums.PageMappingPath.INDEX;
 
-public class ArticleHandler implements HttpHandler {
+/**
+ * 게시글 작성을 처리하는 핸들러
+ */
+public class WriteArticleHandler implements HttpHandler {
     private static final String TEMPLATE_NAME = "/article/index.html";
     private final ArticleDao articleDao;
 
-    public ArticleHandler(ArticleDao articleDao) {
+    public WriteArticleHandler(ArticleDao articleDao) {
         this.articleDao = articleDao;
     }
 
-
+    /**
+     * 게시글 작성 페이지를 보여준다
+     */
     @Override
     public HttpResponse handleGet(HttpRequest request) {
         return HttpResponse.render(TEMPLATE_NAME);
     }
 
+    /**
+     * 게시글 작성 요청을 처리한다.
+     */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         ArticleWriteRequest body = request.getBody(ArticleWriteRequest.class)

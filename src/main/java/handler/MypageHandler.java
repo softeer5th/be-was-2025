@@ -14,6 +14,9 @@ import webserver.view.ModelAndTemplate;
 
 import static webserver.enums.PageMappingPath.INDEX;
 
+/**
+ * 마이페이지 요청을 처리하는 핸들러
+ */
 public class MypageHandler implements HttpHandler {
     private static final String TEMPLATE_NAME = "/mypage/index.html";
     private static final Logger log = LoggerFactory.getLogger(MypageHandler.class);
@@ -23,11 +26,17 @@ public class MypageHandler implements HttpHandler {
         this.userDao = userDao;
     }
 
+    /**
+     * 마이페이지를 보여준다
+     */
     @Override
     public HttpResponse handleGet(HttpRequest request) {
         return HttpResponse.render(TEMPLATE_NAME);
     }
 
+    /**
+     * 마이페이지 정보를 수정한다
+     */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         UserUpdateRequest body = request.getBody(UserUpdateRequest.class).orElseThrow(() -> new BadRequest("잘못된 요청입니다."));
