@@ -71,10 +71,21 @@ public class ReflectionUtil {
         return Optional.of(currentObject);
     }
 
+    public static void setField(Object object, String fieldName, Object value) {
+        if (object == null || fieldName == null || fieldName.isBlank())
+            return;
+
+        Class<?> clazz = object.getClass();
+        ignoreException(() -> {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(object, value);
+            return null;
+        });
+    }
+
 
     private static String toCamelCase(String prefix, String fieldName) {
         return prefix.toLowerCase() + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
     }
-
- 
 }
