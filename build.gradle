@@ -17,6 +17,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.16.1'
 
     implementation 'com.h2database:h2:2.2.224'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
 
 }
 
