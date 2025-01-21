@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import enums.HttpStatus;
-import http.HttpSession;
-import http.HttpSessionStorage;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import view.TemplateEngine;
@@ -58,14 +56,13 @@ public class FrontControllerServlet implements Servlet {
 			}
 
 			controllerMap.get(pathWithoutFileName).service(request, response);
+
+			if (response.getView() != null) {
+				TemplateEngine.render(response);
+			}
+
 		} catch (Exception e) {
 			response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, ERROR_PAGE);
-		} finally {
-			// 렌더
-			HttpSession session = HttpSessionStorage.getSession(request.getSessionId());
-
-			TemplateEngine templateEngine = new TemplateEngine();
-			templateEngine.render(response, session);
 		}
 	}
 }
