@@ -16,14 +16,10 @@ import static db.DBUtils.close;
 import static db.DBUtils.getConnection;
 
 public enum BoardDao {
-    BOARDS(0);
+    BOARDS;
 
     private static final Logger log = LoggerFactory.getLogger(BoardDao.class);
-    private final AtomicLong boardSize;
 
-    BoardDao(long initValue) {
-        this.boardSize = new AtomicLong(initValue);
-    }
     /**
      * id와 매칭되는 게시글을 찾아주는 메소드
      * @param boardId 찾고자 하는 board ID
@@ -66,7 +62,8 @@ public enum BoardDao {
         try{
             con = getConnection();
             pstmt = con.prepareStatement(sql);
-            long boardId = boardSize.incrementAndGet();
+            // 직접 계산하면 Thread Safe 하지 않음. 수정 요망 TODO
+            long boardId = getBoardSize() + 1;
             pstmt.setLong(1, boardId);
             pstmt.setString(2, board.getContents());
             pstmt.setString(3, board.getWriter());
@@ -83,6 +80,23 @@ public enum BoardDao {
     }
 
     public Long getBoardSize() {
-        return boardSize.get();
+        String sql = "select count(*) from boards";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet resultSet = null;
+        try{
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+
+            resultSet = pstmt.executeQuery();
+            if(resultSet.next()){
+                return resultSet.getLong(1);
+            }
+        } catch (SQLException e) {
+            log.error("find 예외: ", e);
+        }finally {
+            close(resultSet, pstmt, con);
+        }
+        return 0L;
     }
 }
