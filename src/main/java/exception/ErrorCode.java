@@ -8,6 +8,7 @@ public enum ErrorCode {
     // <------------------- 5XX Error Code ------------------->
     KEY_VALUE_SHOULD_BE_PAIR(INTERNAL_SERVER_ERROR,"header는 key-value 쌍으로 이루어져야 합니다."),
     ERROR_WITH_ENCODING(INTERNAL_SERVER_ERROR,"인코딩에 실패하였습니다."),
+    ERROR_WITH_DATABASE(INTERNAL_SERVER_ERROR,"데이터베이스에 문제가 발생하였습니다."),
 
     // <------------------- 4XX Error Code ------------------->
     INVALID_FORM(BAD_REQUEST, "요청 폼이 잘못되었습니다."),

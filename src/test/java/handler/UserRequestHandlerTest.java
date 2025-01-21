@@ -1,6 +1,6 @@
 package handler;
 
-import db.Database;
+import db.UserDatabase;
 import enums.HttpHeader;
 import enums.HttpMethod;
 import enums.HttpStatus;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UserRequestHandlerTest {
     private final UserRequestHandler userRequestHandler = new UserRequestHandler();
-    private final Database database = Database.getInstance();
+    private final UserDatabase userDatabase = UserDatabase.getInstance();
 
     private static final String VALID_REQUEST_PATH = "/user/create?userId=jueun&nickname=jueun&password=jueun&email=jueun@naver.com";
     private static final String REDIRECT_URL = "http://localhost:8080/index.html";
@@ -70,7 +70,7 @@ class UserRequestHandlerTest {
         String name = "name";
 
         HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
-        database.addUser(new User(userId, password, email, name));
+        userDatabase.addUser(new User(userId, password, email, name));
 
         final HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
@@ -103,7 +103,7 @@ class UserRequestHandlerTest {
         String email = "email";
         String name = "name";
         HttpRequestInfo login = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
-        database.addUser(new User(userId, password, email, name));
+        userDatabase.addUser(new User(userId, password, email, name));
 
         final HttpResponse loginResponse = userRequestHandler.handle(login);
 

@@ -1,6 +1,6 @@
 package manager;
 
-import db.Database;
+import db.UserDatabase;
 import exception.ClientErrorException;
 import exception.LoginException;
 import model.User;
@@ -14,13 +14,13 @@ import static exception.ErrorCode.*;
 
 public class UserManager {
     private final SessionManager sessionManager;
-    private final Database database;
+    private final UserDatabase userDatabase;
     private static UserManager instance;
 
 
     private UserManager() {
         sessionManager = SessionManager.getInstance();
-        database = Database.getInstance();
+        userDatabase = UserDatabase.getInstance();
     }
 
     public static UserManager getInstance() {
@@ -31,14 +31,14 @@ public class UserManager {
     }
 
     public void createUser(final UserCreateRequest request) {
-        if (database.findUserById(request.userId()) != null)
+        if (userDatabase.findUserById(request.userId()).isPresent())
             throw new ClientErrorException(ALREADY_EXIST_USERID);
 
         User user = new User(request.userId(),
                 request.password(),
                 request.nickname(),
                 request.email());
-        database.addUser(user);
+        userDatabase.addUser(user);
     }
 
     public String loginUser(final UserLoginRequest userLoginRequest) {
@@ -55,8 +55,8 @@ public class UserManager {
         if (userId == null)
             return Optional.empty();
 
-        final User user = database.findUserById(userId);
-        return Optional.of(user.getName());
+        return userDatabase.findUserById(userId)
+                .map(User::getName);
     }
 
     public void logoutUser(final String sessionId) {
@@ -69,8 +69,6 @@ public class UserManager {
     }
 
     private User getOrElseThrow(final String userId) {
-        if (database.findUserById(userId) == null)
-            throw new LoginException(NO_SUCH_USER_ID);
-        return database.findUserById(userId);
+        return userDatabase.findUserById(userId).orElseThrow(() -> new LoginException(NO_SUCH_USER_ID));
     }
 }
