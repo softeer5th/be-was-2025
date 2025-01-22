@@ -55,6 +55,10 @@ public class GetHandler {
                     return;
                 }
             } else if (request.getRequestPath().equals("/mypage/index.html")) {
+                if (!isUserLoggedIn(request)) {
+                    HttpResponse.respond302(LOGIN_PAGE, dos);
+                    return;
+                }
                 fileContent = handleMyPage(request, fileContent);
             }
 
