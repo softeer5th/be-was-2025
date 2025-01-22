@@ -1,10 +1,10 @@
 package db;
 
+import model.Article;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -106,7 +106,7 @@ public class Database {
         return users;
     }
 
-    public static void addArticle(String userId, String content, InputStream photo) {
+    public static void addArticle(String userId, String content, String photo) {
         String sql = "INSERT INTO POSTS (user_id, content, photo, created_at) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = getConnection()) {
@@ -114,7 +114,7 @@ public class Database {
             try (PreparedStatement statement = connection.prepareStatement(sql)){
                 statement.setString(1, userId);
                 statement.setString(2, content);
-                statement.setBlob(3, photo);
+                statement.setString(3, photo);
                 statement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
                 statement.executeUpdate();
 
@@ -124,6 +124,48 @@ public class Database {
                 throw new RuntimeException(e);
             }
         } catch (SQLException e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Article getArticle(int page) {
+        String sql = "SELECT * FROM POSTS ORDER BY created_at DESC LIMIT 1 OFFSET ?";
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql)){
+
+                statement.setInt(1, page);
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    return new Article(
+                            resultSet.getInt("id"),
+                            resultSet.getString("user_id"),
+                            resultSet.getString("content"),
+                            resultSet.getString("photo"),
+                            resultSet.getTimestamp("created_at").toLocalDateTime()
+                    );
+                }
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int getArticleCount() {
+        String sql = "SELECT COUNT(*) FROM POSTS";
+        int articleCount = 0;
+
+        try (Connection connection = getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                articleCount = resultSet.getInt(1);
+            }
+            return articleCount;
+        } catch (Exception e) {
             logger.error(e.getMessage());
             throw new RuntimeException(e);
         }

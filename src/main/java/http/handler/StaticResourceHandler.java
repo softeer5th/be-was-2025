@@ -7,7 +7,9 @@ import http.enums.ErrorMessage;
 import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
 import http.request.TargetInfo;
+import http.response.DynamicHtmlBuilder;
 import http.response.HttpResponse;
+import model.Article;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +75,17 @@ public class StaticResourceHandler implements Handler {
             byte[] file = FileUtil.fileToByteArray(path);
             if (file != null) {
                 body = new String(file);
+
+                Article article = Database.getArticle(0);
+                if (article != null) {
+                    DynamicHtmlBuilder htmlBuilder = new DynamicHtmlBuilder(body, request, Map.of(
+                            "username", Database.findUserById(article.getUserId()).getName(),
+                            "articlephoto", article.getPhoto(),
+                            "article", article.getContent()
+                    ));
+                    body = htmlBuilder.build();
+                }
+
                 response = builder
                         .successResponse(HttpResponseStatus.OK, type, body)
                         .build();

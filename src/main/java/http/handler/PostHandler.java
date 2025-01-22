@@ -13,14 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtil;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Iterator;
 
 public class PostHandler implements Handler {
     private static final String REDIRECT_MAIN_HTML = "/index.html";
+    private static final String PHOTO_STORAGE_PATH = "src/main/resources/images/";
 
     private static final PostHandler instance = new PostHandler();
 
@@ -72,19 +71,24 @@ public class PostHandler implements Handler {
             Iterator<String> iterator = Arrays.asList(tokens).iterator();
             StringBuilder contentBuilder = new StringBuilder();
             StringBuilder photoBuilder = new StringBuilder();
-            InputStream photo = null;
+            String filePath = null;
 
             iterator.next();
             while (iterator.hasNext()) {
                 String line = iterator.next();
                 if (line.contains("name=\"photo\"")) {
-                    String contentType = iterator.next();
-                    if (contentType.toLowerCase().startsWith("content-type: image/")) {
+                    String filename = Integer.toString(Database.getArticleCount());
+                    line = iterator.next();
+                    if (line.toLowerCase().startsWith("content-type: image/")) {
                         iterator.next();
                         while (iterator.hasNext() && !(line = iterator.next()).startsWith("--" + boundary)) {
                             photoBuilder.append(line);
                         }
-                        photo = new ByteArrayInputStream(photoBuilder.toString().getBytes());
+                        File photoFile = new File(PHOTO_STORAGE_PATH + filename + ".png");
+                        filePath = photoFile.getAbsolutePath();
+                        try (FileOutputStream fos = new FileOutputStream(photoFile)) {
+                            fos.write(photoBuilder.toString().getBytes("UTF-8"));
+                        }
                     }
                 } else if (line.contains("name=\"content\"")) {
                     iterator.next();
@@ -95,9 +99,8 @@ public class PostHandler implements Handler {
             }
 
             logger.debug("contentBuilder: {}", contentBuilder);
-            logger.debug("photoBuilder: {}", photoBuilder);
 
-            Database.addArticle(userId, contentBuilder.toString(), photo);
+            Database.addArticle(userId, contentBuilder.toString(), filePath);
 
             return builder
                     .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
