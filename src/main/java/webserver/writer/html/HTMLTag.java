@@ -4,6 +4,10 @@ public enum HTMLTag {
     P("p"),
     A("a"),
     DIV("div"),
+    IMG("img"),
+    UL("ul"),
+    LI("li"),
+    BUTTON("button"),
     PLAIN("");
 
     HTMLTag(String name) {
