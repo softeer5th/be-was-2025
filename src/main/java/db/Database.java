@@ -16,6 +16,7 @@ public class Database {
     // 데이터베이스 초기화
     private static void initializeDatabase() {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
+            logger.debug("database initialized");
             Statement stmt = connection.createStatement();
 
             // 테이블 삭제
@@ -32,8 +33,43 @@ public class Database {
 
             stmt.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("initialize error, {}", e.getMessage());
         }
+    }
+
+    public static void addPost(Post post) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
+
+            // 새로운 post 추가
+            String insertQuery = "INSERT INTO post (post_id, title, content, user_id) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
+                insertStmt.setInt(1, post.getPostId());  // 새로 생성된 post_id
+                insertStmt.setString(2, post.getTitle());
+                insertStmt.setString(3, post.getContent());
+                insertStmt.setString(4, post.getUserId());
+                insertStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            logger.error("addPost error, {}", e.getMessage());
+        }
+    }
+
+    public static int getLastPostId() {
+        String getLastPostIdQuery = "SELECT post_id FROM POST ORDER BY post_id DESC LIMIT 1";
+        int lastPostId = 0;
+
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD);
+             PreparedStatement lastPostStmt = connection.prepareStatement(getLastPostIdQuery)) {
+
+            ResultSet rs = lastPostStmt.executeQuery();
+            if (rs.next()) {
+                lastPostId = rs.getInt("post_id");
+            }
+        } catch (SQLException e) {
+            logger.error("getLastPostId error, {}", e.getMessage());
+        }
+
+        return lastPostId;
     }
 
 
@@ -50,6 +86,8 @@ public class Database {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            logger.error("addUser error, {}", e.getMessage());
+        }
         }
     }
 
@@ -94,7 +132,7 @@ public class Database {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("findAllUser error, {}", e.getMessage());
         }
         return userList;
     }
