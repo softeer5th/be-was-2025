@@ -17,17 +17,16 @@ public class Database {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
 
     static {
-        initializeDatabase();
+//        init();
     }
 
-    // 데이터베이스 초기화
-    private static void initializeDatabase() {
+    private static void init() {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
             logger.debug("database initialized");
             Statement stmt = connection.createStatement();
-
             // 테이블 삭제
             stmt.execute("DROP TABLE IF EXISTS \"user\"");
+            stmt.execute("DROP TABLE IF EXISTS post");
 
             // 테이블 생성
             String createUserTable = "CREATE TABLE \"user\" ("

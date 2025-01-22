@@ -101,7 +101,21 @@ public class RequestRouter {
 
             String fileContent = readFileAsString(file);
             String sid = request.getCookieSid();
+
+            // index.html -> index.html?postId=1 으로 리다이렉션
+            if (request.getRequestPath().equals("/index.html") && request.getQueryParameters() == null) {
+                HttpResponse.respond302(MAIN_PAGE_REDIRECT_PAGE, dos);
+                return;
+            }
+
+            // 현재 uri의 postId 꺼내서 조회. -> 없으면 404
             if (request.getRequestPath().equals("/index.html")) {
+                Post post = Database.findByPostId(Integer.parseInt(request.getQueryParameters().get("postId")));
+                if (post == null) {
+                    HttpResponse.respond404(dos);
+                    return;
+                }
+                // 로그인 되어 있는 경우
                 if (sid != null && userSessions.containsKey(sid)) {
                     fileContent = fileContent.replace("{firstButtonRequestPath}", "/mypage/index.html");
                     fileContent = fileContent.replace("{firstButtonName}", userSessions.get(sid).getName());
@@ -112,6 +126,11 @@ public class RequestRouter {
                     fileContent = fileContent.replace("{firstButtonName}", "로그인");
                     fileContent = fileContent.replace("{secondButtonInfo}", REGISTRATION_BUTTON_INFO);
                 }
+                Optional<User> optionalUser = Database.findUserById(post.getUserId());
+                User author = optionalUser.get();
+                fileContent = fileContent.replace("{title}", post.getTitle());
+                fileContent = fileContent.replace("{userName}", author.getName());
+                fileContent = fileContent.replace("{content}", post.getContent());
             }
 
             // 로그인 정보가 없는 경우 글쓰기 페이지 -> 로그인 페이지 리다이렉트
@@ -131,7 +150,7 @@ public class RequestRouter {
             httpResponse.addHeader(HttpHeader.CONTENT_TYPE.getHeaderName(), ContentTypeUtil.getContentType(fileExtension));
             httpResponse.addHeader(HttpHeader.CONTENT_LENGTH.getHeaderName(), String.valueOf(body.length));
             httpResponse.respond();
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Get Request Error, " + e.getMessage());
         }
     }
@@ -267,13 +286,16 @@ public class RequestRouter {
      * 쿠키의 sid로 로그인 여부를 판단 후 userName 반환
      */
     private void handleUserInfo(HttpRequest request, DataOutputStream dos) {
-        String sid = request.getCookieSid();
-        byte[] body;
-        if (sid != null && userSessions.containsKey(sid)) {
-            body = ("userName=" + userSessions.get(sid).getName()).getBytes();
-        } else {
-            body = ("userName=null").getBytes();
+        if (!isUserLoggedIn(request)) {
+            try {
+                HttpResponse.respond302(LOGIN_PAGE, dos);
+            } catch (IOException e) {
+                logger.error("{}, Redirection Error, {}", "handleUserInfo", e.getMessage());
+            }
+            return;
         }
+        String sid = request.getCookieSid();
+        byte[] body = ("userName=" + userSessions.get(sid).getName()).getBytes();
         HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, "text/html");
         httpResponse.addHeader(HttpHeader.CONTENT_TYPE.getHeaderName(), "text/html");
         httpResponse.addHeader(HttpHeader.CONTENT_LENGTH.getHeaderName(), String.valueOf(body.length));
@@ -296,7 +318,7 @@ public class RequestRouter {
         return user;
     }
 
-    private void creatUser(String requestBody) throws Exception {
+    private void creatUser(String requestBody) {
         QueryParameters queryParameters = new QueryParameters(requestBody);
         User.validateSignUpUserParameters(queryParameters);
         User user = new User(queryParameters.get("userId"),
@@ -307,12 +329,4 @@ public class RequestRouter {
         User.validateSignUpUserIdDuplication(user);
         Database.addUser(user);
     }
-//
-//    private byte[] readFile(File file) throws IOException {
-//        FileInputStream fileInputStream = new FileInputStream(file);
-//        byte[] fileBytes = new byte[(int) file.length()];
-//        fileInputStream.read(fileBytes);
-//        return fileBytes;
-//    }
 }
-
