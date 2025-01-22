@@ -34,6 +34,18 @@ public enum HttpMethod {
     }
 
     /**
+     * 전달된 HTTP 메서드가 GET인지 확인하고, 그렇지 않으면 예외를 발생시킵니다.
+     *
+     * @param httpMethod 확인할 {@link HttpMethod}
+     * @throws ClientErrorException HTTP 메서드가 GET가 아닌 경우 발생
+     */
+    public static void validGetMethod(HttpMethod httpMethod) {
+        if (httpMethod != GET) {
+            throw new ClientErrorException(INVALID_HTTP_METHOD);
+        }
+    }
+
+    /**
      * 전달된 HTTP 메서드가 POST인지 확인하고, 그렇지 않으면 예외를 발생시킵니다.
      *
      * @param httpMethod 확인할 {@link HttpMethod}
