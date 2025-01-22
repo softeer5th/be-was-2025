@@ -23,36 +23,54 @@
       </header>
       <div class="page">
         <h2 class="page-title">회원가입</h2>
-        <form class="form" action="/user/create" method="post">
+        <form id="registration-form" class="form" action="/user/create" method="post">
           <div class="textfield textfield_size_s">
             <p class="title_textfield">아이디</p>
             <input
-              id="userId-input"
-              name="userId"
+              name="loginId"
               class="input_textfield"
               placeholder="아이디를 입력해주세요"
               autocomplete="username"
+              required
+              minlength="5"
+              maxlength="20"
             />
           </div>
           <div class="textfield textfield_size_s">
             <p class="title_textfield">닉네임</p>
             <input
-              id="name-input"
               name="name"
               class="input_textfield"
               placeholder="닉네임을 입력해주세요"
               autocomplete="username"
+              required
+              minlength="2"
+              maxlength="12"
             />
           </div>
           <div class="textfield textfield_size_s">
             <p class="title_textfield">비밀번호</p>
             <input
-              id="password-input"
               name="password"
               class="input_textfield"
               type="password"
               placeholder="비밀번호를 입력해주세요"
               autocomplete="current-password"
+              required
+              minlength="8"
+              maxlength="20"
+            />
+          </div>
+          <div class="textfield textfield_size_s">
+            <p class="title_textfield">이메일</p>
+            <input
+              name="email"
+              class="input_textfield"
+              type="email"
+              placeholder="이메일을 입력해주세요"
+              autocomplete="current-email"
+              required
+              pattern="[a-zA-Z0-9\._\%\+\-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,}"
             />
           </div>
           <button
@@ -67,4 +85,33 @@
       </div>
     </div>
   </body>
+  <script>
+    const registrationForm = document.querySelector("#registration-form");
+
+    registrationForm.addEventListener('submit', function(event){
+      event.preventDefault();
+
+      const formData = new FormData(registrationForm);
+      const urlParams = new URLSearchParams();
+
+      formData.forEach((value, key) => {
+        urlParams.append(key, value);
+      });
+
+      fetch('/user/create', {
+        method: 'POST',
+        body: urlParams.toString(),
+
+      }).then(response => {
+        if(response.redirected){
+          window.location.href = response.url;
+        }
+        if(!response.ok){
+          return response.text().then(errorMessage =>{
+            alert('회원가입 실패:' + errorMessage);
+          })
+        }
+      })
+    })
+  </script>
 </html>
