@@ -6,15 +6,14 @@ import enums.HttpMethod;
 import enums.HttpVersion;
 import exception.ClientErrorException;
 import exception.ErrorCode;
-import exception.ServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HttpRequestInfo;
 
 import java.io.*;
-import java.util.*;
-
-import static exception.ErrorCode.ERROR_WITH_PARSER;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
@@ -121,21 +120,8 @@ public abstract class HttpRequestParser {
     public static String parseMultipartFormText(String headerValue, String body) {
         final String boundary = getBoundaryFromContentType(headerValue);
         final String[] multipart = body.split("--" + boundary);
-        BufferedReader br = new BufferedReader(new StringReader(multipart[1]));
-        try {
-            br.readLine(); // content-disposition
-            br.readLine(); // 빈 줄
-            StringBuilder builder = new StringBuilder();
-            String str;
-            while ((str = br.readLine()) != null) {
-                builder.append(str);
-
-            }
-            logger.debug("body = {}", body);
-            return builder.toString();
-        } catch (IOException e) {
-            throw new ServerErrorException(ERROR_WITH_PARSER);
-        }
+        final String[] fileData = multipart[1].split("\r\n\r\n", 2);
+        return fileData[1].trim();
     }
 
     public static String getBoundaryFromContentType(String contentType) {

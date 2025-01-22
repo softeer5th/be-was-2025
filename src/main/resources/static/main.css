@@ -60,7 +60,6 @@
 .post__account {
   display: flex;
   align-items: center;    /* 세로로 중앙 정렬 */
-
   width: 100%;            /* width를 100%로 설정하여 가능한 공간을 꽉 채움 */
 }
 
@@ -88,7 +87,6 @@
   margin-left: auto; /* 왼쪽 여백을 자동으로 설정하여 오른쪽으로 밀어냄 */
 }
 
-
 .post__img {
   width: 664px;
   height: 664px;
@@ -100,8 +98,11 @@
   width: 664px;
   font-weight: 400;
   font-size: 16px;
-  line-height: 25.6px;
+  line-height: 20px;
   color: #14212b;
+
+  word-break: break-all; /* 모든 길이가 긴 텍스트는 줄 바꿈이 가능하도록 처리 */
+  white-space: pre-line; /* 공백 및 줄 바꿈을 유지하면서 텍스트를 자동으로 줄바꿈 */
 }
 
 .post__menu {
