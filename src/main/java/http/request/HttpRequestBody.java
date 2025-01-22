@@ -107,7 +107,7 @@ public class HttpRequestBody {
 			.orElseThrow(() -> new IllegalArgumentException("Missing Content-Type header"));
 
 		// Content-Type이 multipart로 시작하지 않으면 예외 처리
-		if (!contentType.equals(MULTIPART_FORM_DATA.getMimeType())) {
+		if (!contentType.contains(MULTIPART_FORM_DATA.getMimeType())) {
 			throw new IllegalArgumentException("Content-Type is not multipart");
 		}
 
