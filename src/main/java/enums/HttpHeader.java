@@ -14,6 +14,10 @@ public enum HttpHeader {
      * HTTP Content-Length 헤더
      */
     CONTENT_LENGTH("content-length"),
+    /**
+     * HTTP Content-Type 헤더
+     */
+    CONTENT_TYPE("content-type"),
 
     /**
      * HTTP Set-Cookie 헤더
