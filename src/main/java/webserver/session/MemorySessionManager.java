@@ -11,8 +11,8 @@ public class MemorySessionManager implements SessionManager {
     private final Map<String, HttpSession> sessionMap = new ConcurrentHashMap<>();
 
     @Override
-    public void saveSession(String sessionId, HttpSession session) {
-        sessionMap.put(sessionId, session);
+    public void saveSession(HttpSession session) {
+        sessionMap.put(session.getSessionId(), session);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class MemorySessionManager implements SessionManager {
     @Override
     public HttpSession createAndSaveSession() {
         HttpSession session = new HttpSession(generateSessionId());
-        saveSession(session.getSessionId(), session);
+        saveSession(session);
         return session;
     }
 
