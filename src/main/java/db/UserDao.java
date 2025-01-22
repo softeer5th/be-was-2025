@@ -38,7 +38,8 @@ public enum UserDao {
                 String findPassword = resultSet.getString("password");
                 String findUsername = resultSet.getString("username");
                 String findEmail = resultSet.getString("email");
-                return Optional.of(new User(findUserId, findPassword, findUsername, findEmail));
+                String findProfile = resultSet.getString("profile_image");
+                return Optional.of(new User(findUserId, findPassword, findUsername, findEmail, findProfile));
             }
         } catch (SQLException e) {
             log.error("find 예외: ", e);
@@ -54,7 +55,7 @@ public enum UserDao {
      * @return 생성된 회원 객체 반환
      */
     public Optional<User> save(User user){
-        String sql = "insert into users(user_id, password, username, email) values (?, ?, ?, ?)";
+        String sql = "insert into users(user_id, password, username, email, profile_image) values (?, ?, ?, ?, ?)";
         Connection con = null;
         PreparedStatement pstmt = null;
         try{
@@ -65,6 +66,28 @@ public enum UserDao {
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
             pstmt.setString(4, user.getEmail());
+            pstmt.setString(5, user.getProfileImage());
+            pstmt.executeUpdate();
+            return Optional.of(user);
+        } catch (SQLException e) {
+            log.error("save 예외: ", e);
+        }finally {
+            close(null, pstmt, con);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<User> update(User user){
+        String sql = "update users set password=?, profile_image=? where user_id=?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        try{
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+
+            pstmt.setString(1, user.getPassword());
+            pstmt.setString(2, user.getProfileImage());
+            pstmt.setString(3, user.getUserId());
             pstmt.executeUpdate();
             return Optional.of(user);
         } catch (SQLException e) {
