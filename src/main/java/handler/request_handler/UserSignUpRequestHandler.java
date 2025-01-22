@@ -1,6 +1,8 @@
 package handler.request_handler;
 
-import db.Database;
+import db.UserDao;
+import db.transaction.Transaction;
+import db.transaction.TransactionTemplate;
 import exception.*;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
@@ -8,19 +10,23 @@ import http.enums.HttpStatus;
 import http.enums.MimeType;
 import model.User;
 
-import java.util.Collection;
 import java.util.Map;
 
-public class UserSignUpRequestHandler implements  RequestHandler{
+public class UserSignUpRequestHandler implements RequestHandler{
+    private final UserDao userDao = UserDao.getInstance();
+    private final TransactionTemplate transactionTemplate = TransactionTemplate.getInstance();
+
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
         return true;
     }
+
     @Override
     public HttpResponse handle(HttpRequest httpRequest) {
         Map<String, String> bodyMap = httpRequest.convertBodyToMap();
         try {
-            signUp(bodyMap.get("userId"), bodyMap.get("password"),bodyMap.get("name"));
+            transactionTemplate.executeWithoutResult(this::signUp, bodyMap.get("loginId"), bodyMap.get("password"), bodyMap.get("name"), bodyMap.get("email"));
+
         }catch(SignUpException e){
             byte[] errorMessageData = e.getMessage().getBytes();
 
@@ -37,20 +43,19 @@ public class UserSignUpRequestHandler implements  RequestHandler{
                 .build();
     }
 
-    private void signUp(String userId, String password, String name){
-        User user = Database.findUserById(userId);
+    public void signUp(Transaction transaction, Object[] params){
+        String loginId = (String) params[0];
+        String password = (String) params[1];
+        String name = (String) params[2];
+        String email = (String) params[3];
 
-        if(user != null){
-            throw new SignUpException(ErrorCode.ALREADY_EXIST_USER_ID);
-        }
-        Collection<User> users = Database.findAll();
-        for(User u: users){
-            if(u.getName().equals(name)){
-                throw new SignUpException(ErrorCode.ALREADY_EXIST_USER_NAME);
-            }
-        }
-        user = new User(userId, password, name, null);
-        Database.addUser(user);
+        userDao.findByLoginId(transaction, loginId)
+                .ifPresent((user) -> {throw new SignUpException(ErrorCode.ALREADY_EXIST_LOGIN_ID);});
+
+        userDao.findByName(transaction, name)
+                .ifPresent((user) -> {throw new SignUpException(ErrorCode.ALREADY_EXIST_USER_NAME);});
+
+        userDao.save(transaction, new User(null, loginId, password, name, email));
     }
 
 }
