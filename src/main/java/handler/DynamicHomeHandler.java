@@ -16,9 +16,11 @@ import request.HttpRequestInfo;
 import response.HttpResponse;
 import util.CookieParser;
 import util.FileReader;
+import util.HttpRequestParser;
 
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static enums.HttpStatus.OK;
@@ -30,10 +32,14 @@ import static util.TimeFormatter.formatter;
  */
 public class DynamicHomeHandler implements Handler {
     private static final Logger log = LoggerFactory.getLogger(DynamicHomeHandler.class);
+    private static final int DEFAULT_PAGE = 1;
 
     private static final String STATIC_FILE_PATH = System.getenv("STATIC_FILE_PATH");
     private static final String USER_REPLACE_TARGET = "<!--user-->";
     private static final String POST_REPLACE_TARGET = "<!--post-->";
+    private static final String PREV_REPLACE_TARGET = "<!--prev-->";
+    private static final String NEXT_REPLACE_TARGET = "<!--next-->";
+    private static final String NAV_TAG = "<a class=\"nav__menu__item__btn\" href=\"/index.html?page=%s\">";
 
     private final UserManager userManager;
     private final BoardManager boardManager;
@@ -49,13 +55,14 @@ public class DynamicHomeHandler implements Handler {
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         log.debug("request : {}", request);
-        String path = request.getPath();
+        String path = request.getPath(); // index.html?page=1
+        final int totalPage = boardManager.getPageSize();
+        final int page = getPage(path, totalPage);
 
-        FileContentType extension = FileContentType.getExtensionFromPath(path);
 
         HttpResponse response = new HttpResponse();
 
-        String html = FileReader.readFileAsString(STATIC_FILE_PATH + path)
+        String html = FileReader.readFileAsString(STATIC_FILE_PATH + "/index.html")
                 .orElseThrow(() -> new ClientErrorException(ErrorCode.FILE_NOT_FOUND));
 
         final String sessionId = CookieParser.parseCookie(request.getHeaderValue(HttpHeader.COOKIE.getName()));
@@ -72,95 +79,98 @@ public class DynamicHomeHandler implements Handler {
 
         String body = html.replace(USER_REPLACE_TARGET, dynamicHtmlContent.toString());
         StringBuilder postContent = new StringBuilder();
-        final List<Post> posts = boardManager.getPosts();
-        addPosts(posts, postContent, user);
+        final Post post = boardManager.getPostByPage(page);
+        addPost(post, postContent, user);
 
         body = body.replace(POST_REPLACE_TARGET, postContent.toString());
+        body = body.replace(PREV_REPLACE_TARGET, String.format(NAV_TAG, Math.max(1, page - 1)));
+        body = body.replace(NEXT_REPLACE_TARGET, String.format(NAV_TAG, Math.min(totalPage, page + 1)));
 
-        response.setResponse(OK, extension, body);
+        response.setResponse(OK, FileContentType.HTML_UTF_8, body);
         return response;
     }
 
-    private void addPosts(List<Post> posts, StringBuilder postContent, Optional<User> user) {
-        if (posts.isEmpty()) {
-            postContent.append("<h2>글이 없습니다 ㅜㅜ</h2>");
-            return;
+    private int getPage(String path, int totalPage) {
+        final String[] split = path.split("\\?");
+        if (split.length == 2) {
+            final Map<String, String> param = HttpRequestParser.parseParamString(split[1]);
+            int page = Integer.parseInt(param.get("page"));
+            page = Math.max(1, page);
+            return Math.min(page, totalPage);
         }
-        for (Post post : posts) {
-            postContent
-                    .append("""
-                               <div class="wrapper">
-                            <div class="post">
-                              <div class="post__account">
-                                <img class="post__account__img" src = "/img/img.png"/>
-                                <p class="post__account__nickname">
-                            """)
-                    .append(post.getAuthor())
-                    .append("""
-                            </p>
-                            <p class="post__createdAt">""")
-                    .append(post.getCreatedAt().format(formatter()))
-                    .append("""
-                            </p>
-                            </div>
-                            <img class="post__img" />
-                            <div class="post__menu">
-                              <ul class="post__menu__personal">
-                                <li>
-                            """)
-                    .append(addLikeSvg(post.getId(), user))
-                    .append("""
-                            </li>
+        return DEFAULT_PAGE;
+    }
+
+    private void addPost(Post post, StringBuilder postContent, Optional<User> user) {
+        postContent
+                .append("""
+                           <div class="wrapper">
+                        <div class="post">
+                          <div class="post__account">
+                            <img class="post__account__img" src = "/img/img.png"/>
+                            <p class="post__account__nickname">
+                        """)
+                .append(post.getAuthor())
+                .append("""
+                        </p>
+                        <p class="post__createdAt">""")
+                .append(post.getCreatedAt().format(formatter()))
+                .append("""
+                        </p>
+                        </div>
+                        <img class="post__img" />
+                        <div class="post__menu">
+                          <ul class="post__menu__personal">
                             <li>
-                              <a href="mailto:example@example.com">
-                              <button class="post__menu__btn">
-                                <img src="./img/sendLink.svg" alt="Send Email" />
-                              </button>
-                            </a>
-                            </li>
-                            </ul>
-                            """)
-                    .append(addBookMarkSvg(post.getId(), user))
-                    .append("""
-                            </div>
-                            <p class="post__article">
-                            """)
-                    .append(post.getContents())
-                    .append("""
-                                      </p>
-                                    </div>
-                            """);
-            // 댓글
-            final List<Comment> comments = commentManager.getCommentsByPostId(post.getId());
+                        """)
+                .append(addLikeSvg(post.getId(), user))
+                .append("""
+                        </li>
+                        <li>
+                          <a href="mailto:example@example.com">
+                          <button class="post__menu__btn">
+                            <img src="./img/sendLink.svg" alt="Send Email" />
+                          </button>
+                        </a>
+                        </li>
+                        </ul>
+                        """)
+                .append(addBookMarkSvg(post.getId(), user))
+                .append("""
+                        </div>
+                        <p class="post__article">
+                        """)
+                .append(post.getContents())
+                .append("""
+                                  </p>
+                                </div>
+                        """);
+        // 댓글
+        final List<Comment> comments = commentManager.getCommentsByPostId(post.getId());
+        postContent.append("<ul class=\"comment\">");
+        addComments(postContent, comments);
+
+        if (user.isEmpty())
+            postContent.append("</ul>");
+            // 로그인 시 댓글 작성칸 추가
+        else {
             postContent.append("""
-                    <ul class="comment">
-                  
-                    """);
-            addComments(postContent, comments);
-
-            if (user.isEmpty())
-                postContent.append("</ul>");
-                // 로그인 시 댓글 작성칸 추가
-           else {
-                postContent.append("""
-                       
-                                  <li class = "comment-form">
-                                <h3>댓글 작성하기</h3>
-                                <form action="/comment/write/
-                                """)
-                        .append(post.getId())
-                        .append(
-                                """
-                                                     "  method="POST">
-                                                  <textarea name="comment" id="comment" placeholder="댓글을 입력하세요..." rows="4" required></textarea>
-                                                     <button  type="submit" class="btn btn_ghost btn_size_m btn btn_primary btn_size_m">댓글 작성</button>     
-                                                 </form>
-                                             </li>
-                                        </ul>
-                                        """);
-            }
-
+                              <li class = "comment-form">
+                            <h3>댓글 작성하기</h3>
+                            <form action="/comment/write/
+                            """)
+                    .append(post.getId())
+                    .append(
+                            """
+                                                 "  method="POST">
+                                              <textarea name="comment" id="comment" placeholder="댓글을 입력하세요..." rows="4" required></textarea>
+                                                 <button  type="submit" class="btn btn_ghost btn_size_m btn btn_primary btn_size_m">댓글 작성</button>     
+                                             </form>
+                                         </li>
+                                    </ul>
+                                    """);
         }
+
     }
 
     private static void addComments(StringBuilder postContent, List<Comment> comments) {
@@ -207,10 +217,8 @@ public class DynamicHomeHandler implements Handler {
     private String addLikeSvg(int postId, Optional<User> user) {
         if (user.isEmpty())
             return String.format(likeSvg, postId);
-
         if (!boardManager.existsPostLike(postId, user.get().getId()))
             return String.format(likeSvg, postId);
-
 
         return String.format(likedSvg, postId);
     }
@@ -270,6 +278,5 @@ public class DynamicHomeHandler implements Handler {
                 .append("님</a>")
                 .append("<a class=\"write-article-link\" href=\"/article/index.html\"> 글쓰기 </a>")
                 .append("<a class=\"logout-link\" href=\"/user/logout\"> 로그아웃 </a>");
-
     }
 }

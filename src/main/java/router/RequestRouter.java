@@ -22,7 +22,7 @@ public class RequestRouter implements Router {
         // 루트 경로의 index.html과 mypage/ 하위의 index.html 제외
         routeMap.put(Pattern.compile("^/(?!mypage/.*index\\.html$|index\\.html$|article/index\\.html$).*\\.(html|css|js|svg|ico|png)$"), new StaticFileHandler());
         routeMap.put(Pattern.compile("^/$"), new HomeHandler());
-        routeMap.put(Pattern.compile("^/index.html$"), new DynamicHomeHandler());
+        routeMap.put(Pattern.compile("^/index\\.html(\\?page=-?\\d+)?$"), new DynamicHomeHandler());
         // 마이페이지, registration, login
         routeMap.put(Pattern.compile("^/(mypage|login|registration|article|main)$"),new RedirectHandler());
         routeMap.put(Pattern.compile("^/(mypage/index.html|article/index.html)$"), new DynamicFileHandler());

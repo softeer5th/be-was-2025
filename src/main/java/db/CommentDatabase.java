@@ -20,7 +20,6 @@ public class CommentDatabase {
     private static CommentDatabase instance;
 
     private CommentDatabase() {
-
     }
 
     public static CommentDatabase getInstance() {
@@ -53,13 +52,13 @@ public class CommentDatabase {
 
 
     public List<Comment> findAllByPostId(int postId) {
-        String query = "SELECT * FROM comment WHERE post_id = ? ORDER BY created_at DESC";
+        String query = "SELECT * FROM comment WHERE post_id = ? ORDER BY created_at";
         List<Comment> comments = new ArrayList<>();
 
         try (Connection conn = DBConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-            pstmt.setInt(1, postId); // 파라미터 바인딩
+            pstmt.setInt(1, postId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -76,8 +75,6 @@ public class CommentDatabase {
         } catch (SQLException e) {
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
-
         return comments;
     }
-
 }

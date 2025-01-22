@@ -6,8 +6,6 @@ import db.PostLikeDatabase;
 import exception.ClientErrorException;
 import model.Post;
 
-import java.util.List;
-
 import static exception.ErrorCode.*;
 
 public class BoardManager {
@@ -38,9 +36,12 @@ public class BoardManager {
         Post post = new Post(content, author);
         postDatabase.addPost(post);
     }
+    public int getPageSize(){
+        return postDatabase.getTotalPages();
+    }
 
-    public List<Post> getPosts() {
-        return postDatabase.findAll();
+    public Post getPostByPage(int page) {
+        return postDatabase.getPost(page);
     }
 
     public void likePost(int postId, int userId) {

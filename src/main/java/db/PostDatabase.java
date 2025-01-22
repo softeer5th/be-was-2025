@@ -9,18 +9,14 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import static exception.ErrorCode.ERROR_WITH_DATABASE;
 
 public class PostDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PostDatabase.class);
-
     private static PostDatabase instance;
 
     private PostDatabase() {
-
     }
 
     public static PostDatabase getInstance() {
@@ -40,7 +36,6 @@ public class PostDatabase {
             pstmt.setTimestamp(2, Timestamp.from(Instant.now()));
             pstmt.setString(3, URLDecoder.decode(post.getAuthor(), StandardCharsets.UTF_8));
 
-
             final int id = pstmt.executeUpdate();
             logger.debug("Add post" + post);
             return id;
@@ -50,23 +45,42 @@ public class PostDatabase {
         }
     }
 
+    public Post getPost(int page) {
+        if (page < 1) {
+            page = 1;
+        }
 
-    public List<Post> findAll() {
-        String query = "SELECT * FROM post order by created_at desc";
-        List<Post> postList = new ArrayList<>();
+        try (Connection conn = DBConnectionManager.getConnection()) { // DB 연결
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM post ORDER BY id desc LIMIT 1 OFFSET ?");
+
+            int offset = (page - 1);
+            pstmt.setInt(1, offset);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Post post = new Post(
+                        rs.getInt("id"),
+                        rs.getString("content"),
+                        rs.getString("author"),
+                        rs.getTimestamp("created_at").toLocalDateTime()
+                );
+                logger.debug("Get post " + post);
+                return post;
+            }
+        } catch (Exception e) {
+            throw new ServerErrorException(ERROR_WITH_DATABASE);
+        }
+    }
+
+    public int getTotalPages() {
+        String query = "SELECT COUNT(*) AS total_count FROM post";
 
         try (Connection conn = DBConnectionManager.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
-            while (rs.next()) {
-                Post post = new Post(rs.getInt("id"), rs.getString("content"),rs.getString("author"),rs.getTimestamp("created_at").toLocalDateTime());
-                postList.add(post);
-            }
+            return rs.getInt("total_count");
         } catch (SQLException e) {
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
-
-        return postList;
     }
 }
