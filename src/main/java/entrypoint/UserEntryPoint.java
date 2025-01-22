@@ -21,18 +21,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class UserEntryPoint {
+    private Database database;
+
+    public UserEntryPoint(Database database) {
+        this.database = database;
+    }
+
     @RequestMapping(path = "/user/create", method = HTTPMethod.POST)
     public ResponseData<String> signUp(
             @Body(key="userId") String userId,
             @Body(key="nickname") String nickname,
             @Body(key="password") String password
     ) {
-        if (Database.findUserById(userId) != null) {
+        if (database.findUserById(userId).isPresent()) {
             throw new HTTPException.Builder().causedBy("Sign up method")
                     .badRequest("Duplicate user id : " + userId);
         }
         User user = new User(userId, nickname, password, "mock@mock.com");
-        Database.addUser(user);
+        database.addUser(user);
         return ResponseData.redirect("/index.html");
     }
 
@@ -41,7 +47,7 @@ public class UserEntryPoint {
             @Body(key="userId") String userId,
             @Body(key="password") String password
     ) {
-        Optional<User> user = Database.findUserById(userId);
+        Optional<User> user = database.findUserById(userId);
         if (user.isEmpty() || !user.get().getPassword().equals(password)) {
             return ResponseData.redirect("/user/login_failed.html");
         }
