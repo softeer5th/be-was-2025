@@ -44,7 +44,7 @@ public class UserDao {
         try {
             Connection con = transaction.getConnection();
             PreparedStatement pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, user.getUserId());
+            pstmt.setString(1, user.getLoginId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
             pstmt.setString(4, user.getEmail());
@@ -57,7 +57,7 @@ public class UserDao {
     }
 
     public Optional<User> findById(Transaction transaction, long id){
-        String sql = "SELECT * FROM Users WHERE login_id = ?";
+        String sql = "SELECT * FROM Users WHERE id = ?";
 
         try{
            Connection con = transaction.getConnection();

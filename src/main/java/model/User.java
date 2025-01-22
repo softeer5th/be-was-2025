@@ -15,7 +15,8 @@ public class User {
         this.email = email;
     }
 
-    public String getUserId() {
+    public Long getId() {return id;}
+    public String getLoginId() {
         return loginId;
     }
 
