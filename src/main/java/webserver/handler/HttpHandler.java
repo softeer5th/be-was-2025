@@ -1,6 +1,7 @@
 package webserver.handler;
 
 import webserver.enums.HttpStatusCode;
+import webserver.exception.HttpException;
 import webserver.exception.NotImplemented;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
@@ -29,31 +30,31 @@ public interface HttpHandler {
     }
 
     default HttpResponse handleGet(HttpRequest request) {
-        return returnNotFound();
+        return throwException();
     }
 
     default HttpResponse handlePost(HttpRequest request) {
-        return returnNotFound();
+        return throwException();
     }
 
     default HttpResponse handlePut(HttpRequest request) {
-        return returnNotFound();
+        return throwException();
     }
 
     default HttpResponse handleDelete(HttpRequest request) {
-        return returnNotFound();
+        return throwException();
     }
 
     default HttpResponse handlePatch(HttpRequest request) {
-        return returnNotFound();
+        return throwException();
     }
 
 
     default HttpResponse handleHead(HttpRequest request) {
-        return returnNotFound();
+        return throwException();
     }
 
-    private HttpResponse returnNotFound() {
-        return new HttpResponse(HttpStatusCode.NOT_FOUND);
+    private HttpResponse throwException() {
+        throw new HttpException(HttpStatusCode.METHOD_NOT_ALLOWED, "Method Not Allowed");
     }
 }
