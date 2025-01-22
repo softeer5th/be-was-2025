@@ -44,6 +44,7 @@ public class HtmlContentReplacer {
     private void setPostContent() {
         boolean hasPost = (postId != -1);
         conditions.put("hasPost", hasPost);
+        conditions.put("!hasPost", !hasPost);
         if(hasPost) {
             Post post = PostManager.getPost(postId);
             properties.put("$postTitle", post.getTitle());

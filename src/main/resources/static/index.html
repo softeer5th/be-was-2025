@@ -62,27 +62,6 @@
               </p>
             </li>
           </comment_for_post>
-          <li class="comment__item hidden">
-            <div class="comment__item__user">
-              <img class="comment__item__user__img" />
-              <p class="comment__item__user__nickname">account</p>
-            </div>
-            <p class="comment__item__article">Comment 1</p>
-          </li>
-          <li class="comment__item hidden">
-            <div class="comment__item__user">
-              <img class="comment__item__user__img" />
-              <p class="comment__item__user__nickname">account</p>
-            </div>
-            <p class="comment__item__article">Comment 2</p>
-          </li>
-          <li class="comment__item hidden">
-            <div class="comment__item__user">
-              <img class="comment__item__user__img" />
-              <p class="comment__item__user__nickname">account</p>
-            </div>
-            <p class="comment__item__article">Comment 3</p>
-          </li>
           <my_if hideComment>
             <a id="show-all-btn" class="btn btn_ghost btn_size_m" type="submit" href="/main">
               모든 댓글 보기($commentAmmount개)
@@ -111,6 +90,9 @@
             </li>
           </ul>
         </nav>
+      </my_if>
+      <my_if !hasPost>
+        <p class="post__account">게시글이 없습니다.</p>
       </my_if>
       </div>
     </div>
