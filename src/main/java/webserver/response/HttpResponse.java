@@ -93,7 +93,7 @@ public class HttpResponse {
         if (string == null)
             this.body = ResponseBody.empty();
         else
-            this.body = ResponseBody.of(string);
+            this.body = ResponseBody.of(string.getBytes(), ContentType.TEXT_PLAIN);
         setContentHeaders();
     }
 

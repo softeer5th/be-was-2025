@@ -15,11 +15,6 @@ public abstract class ResponseBody {
         return EmptyBody.INSTANCE;
     }
 
-    // String 타입의 Body를 반환하는 팩토리 메서드
-    public static ResponseBody of(String body) {
-        return new StringBody(body);
-    }
-
     // File 타입의 Body를 반환하는 팩토리 메서드
     public static ResponseBody of(File body) {
         return new FileBody(body);
