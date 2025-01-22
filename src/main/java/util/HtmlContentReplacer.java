@@ -16,9 +16,9 @@ public class HtmlContentReplacer {
     private final String startCommentTag = "<comment_for_post>";
     private final Map<String, String> properties = new HashMap<>();
     private final Map<String, Boolean> conditions = new HashMap<>();
-    private int postId = -1;
+    private int postId = PostManager.getFirstPostId();
 
-    public HtmlContentReplacer(String sid){
+    public HtmlContentReplacer(String sid, String queryString){
         boolean login = (sid != null);
         conditions.put("login", login);
         conditions.put("hideComment", false);
@@ -30,14 +30,18 @@ public class HtmlContentReplacer {
             properties.put("$userName", user.getName());
             properties.put("$userEmail", user.getEmail());
         }
+
+        if(queryString!=null) {
+            Parameter parameter = new Parameter(queryString);
+            if(parameter.getValue("showAll") != null){
+                conditions.put("showAll", true);
+            }
+            postId = Integer.parseInt(parameter.getValue("postId"));
+        }
+        setPostContent();
     }
 
-    public void setPostContent(String queryString) {
-        Parameter parameter = new Parameter(queryString);
-        if(parameter.getValue("showAll") != null){
-            conditions.put("showAll", true);
-        }
-        postId = Integer.parseInt(parameter.getValue("postId"));
+    private void setPostContent() {
         boolean hasPost = (postId != -1);
         conditions.put("hasPost", hasPost);
         if(hasPost) {

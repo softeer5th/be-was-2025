@@ -29,10 +29,7 @@ public class ReadFileHandler extends Handler {
             if (fileFinder.find()) {
                 body = fileFinder.readFileToBytes();
                 if(request.isHtml()){
-                    HtmlContentReplacer replacer = new HtmlContentReplacer(sessionId);
-                    if(request.parameter != null){
-                        replacer.setPostContent(request.parameter);
-                    }
+                    HtmlContentReplacer replacer = new HtmlContentReplacer(sessionId, request.parameter);
 
                     body = replacer.replace(body);
                 }
