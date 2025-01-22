@@ -30,7 +30,7 @@ public class FrontControllerServlet implements Servlet {
 		// TODO: 해당 객체는 정적인 객체인데 서블릿를 추가해주는 위치가 바람직한가?
 		controllerMap.put(STATIC_RESOURCES, new StaticResourceServlet());
 
-		controllerMap.put("/", new HomeServlet(articleDatabase));
+		controllerMap.put("/", new HomeServlet(articleDatabase, userDatabase));
 		controllerMap.put("/registration", new StaticResourceServlet());
 		controllerMap.put("/login", new LoginServlet(userDatabase));
 		controllerMap.put("/logout", new LogoutServlet());
