@@ -46,4 +46,14 @@ public class Article {
     public String getArticleImagePath() {
         return articleImagePath;
     }
+
+    @Override
+    public String toString() {
+        return "Article{" +
+               "articleId=" + articleId +
+               ", writer=" + writer +
+               ", content='" + content + '\'' +
+               ", articleImagePath='" + articleImagePath + '\'' +
+               '}';
+    }
 }
