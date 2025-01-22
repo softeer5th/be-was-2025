@@ -15,9 +15,13 @@ import util.HttpRequestParser;
 
 import static enums.HttpMethod.POST;
 import static enums.HttpMethod.validPostMethod;
-import static exception.ErrorCode.*;
+import static exception.ErrorCode.INVALID_AUTHORITY;
+import static exception.ErrorCode.NOT_ALLOWED_PATH;
 
 public class BoardHandler implements Handler {
+    private static final String PATH_SPLIT_DELIMITER = "/";
+    private static final String HOME_PATH = "/index.html";
+
     private final BoardManager boardManager;
     private final UserManager userManager;
 
@@ -29,18 +33,18 @@ public class BoardHandler implements Handler {
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         HttpResponse response = new HttpResponse();
-        if (request.getPath().equals("/board") && request.getMethod() == POST) {
-            final String contents = HttpRequestParser.parseMultipartFormText(request.getHeaderValue("content-type"),(String) request.getBody());
+        if (request.getPath().equals(PATH.CREATE.endPoint) && request.getMethod() == POST) {
+            final String contents = HttpRequestParser.parseMultipartFormText(request.getHeaderValue("content-type"), (String) request.getBody());
 
             final String cookie = request.getHeaderValue(HttpHeader.COOKIE.getName());
             final User author = userManager.getUserFromSession(CookieParser.parseCookie(cookie))
                     .orElseThrow(() -> new ClientErrorException(INVALID_AUTHORITY));
             boardManager.save(contents, author.getName());
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
-            response.setHeader(HttpHeader.LOCATION.getName(), "/");
-        } else if (request.getPath().startsWith("/board/like")) {
+            response.setHeader(HttpHeader.LOCATION.getName(), HOME_PATH);
+        } else if (request.getPath().startsWith(PATH.LIKE.endPoint)) {
             validPostMethod(request.getMethod());
-            final String[] split = request.getPath().split("/");
+            final String[] split = request.getPath().split(PATH_SPLIT_DELIMITER);
             if (split.length != 4)
                 throw new ClientErrorException(NOT_ALLOWED_PATH);
             int postId = Integer.parseInt(split[3]);
@@ -53,10 +57,10 @@ public class BoardHandler implements Handler {
             boardManager.likePost(postId, user.getId());
 
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
-            response.setHeader(HttpHeader.LOCATION.getName(), "/");
-        }  else if (request.getPath().startsWith("/board/mark")) {
+            response.setHeader(HttpHeader.LOCATION.getName(), HOME_PATH);
+        } else if (request.getPath().startsWith(PATH.BOOKMARK.endPoint)) {
             validPostMethod(request.getMethod());
-            final String[] split = request.getPath().split("/");
+            final String[] split = request.getPath().split(PATH_SPLIT_DELIMITER);
             if (split.length != 4)
                 throw new ClientErrorException(NOT_ALLOWED_PATH);
             int postId = Integer.parseInt(split[3]);
@@ -69,10 +73,22 @@ public class BoardHandler implements Handler {
             boardManager.bookmarkPost(postId, user.getId());
 
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
-            response.setHeader(HttpHeader.LOCATION.getName(), "/");
+            response.setHeader(HttpHeader.LOCATION.getName(), HOME_PATH);
         } else {
             throw new ClientErrorException(ErrorCode.NOT_ALLOWED_PATH);
         }
         return response;
+    }
+
+    private enum PATH {
+        CREATE("/board"),
+        LIKE("/board/like"),
+        BOOKMARK("/board/mark");
+
+        PATH(String endPoint) {
+            this.endPoint = endPoint;
+        }
+
+        private final String endPoint;
     }
 }
