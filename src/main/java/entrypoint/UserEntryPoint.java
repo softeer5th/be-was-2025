@@ -121,6 +121,12 @@ public class UserEntryPoint {
         @Body(key="title") String title,
         @Body(key="body") String body
     )  {
-        return ResponseData.ok(body);
+        Map<String, String> session = SessionStorage.getStorage(sid);
+        if (session == null) {
+            return ResponseData.redirect("/login");
+        }
+        this.database.enrollPost(session.get("userId"), title, body);
+        return new ResponseData.ResponseDataBuilder<String>()
+                .redirect("/index");
     }
 }
