@@ -388,13 +388,20 @@ classDiagram
 - [ ] Ambiguous Mapping 검증
   -  /test/{id} 와 /test/hello 는 충돌해야 함
 
-# level 7 - 1
+# level 7
 
-## 현재 문제점
+## 남은 문제점
 - [ ] 리소스 생성 시 반복해서 등장하는 파일 입력 받은 후 Response 에 기록하는 코드를 제거할 방법
 - [ ] 스프링과 아키텍처가 지나치게 유사한 문제 해결
 - [ ] Ambiguous Mapping 검증
   -  /test/{id} 와 /test/hello 는 충돌해야 함
-- [ ] BoardBody 에 존재하는 비즈니스 로직
+- [ ] BoardBody, 컨트롤러에 존재하는 비즈니스 로직
   - 렌더링 로직과 비즈니스 로직이 혼재되어 있음
+  - 유지보수성이 지나치게 떨어짐
+  - 재사용 불가
+  - GRASP 컨트롤러 패턴에 위배
   - 분리해야 함
+  - 모듈화 필요
+- [ ] Content-Type 과 MimeType 클래스 이름 문제
+  - 둘이 각각 뭘 하는지 명확하지 않음
+- [ ] DAO가 지연초기화 되지 않는 단순 static 객체인 문제
