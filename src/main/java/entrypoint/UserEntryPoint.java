@@ -15,6 +15,7 @@ import webserver.session.SessionStorage;
 import webserver.writer.html.template.IndexPageWriter;
 import webserver.writer.html.template.MyPageWriter;
 
+import javax.swing.text.html.Option;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,8 +41,8 @@ public class UserEntryPoint {
             @Body(key="userId") String userId,
             @Body(key="password") String password
     ) {
-        User user = Database.findUserById(userId);
-        if (user == null || !user.getPassword().equals(password)) {
+        Optional<User> user = Database.findUserById(userId);
+        if (user.isEmpty() || !user.get().getPassword().equals(password)) {
             return ResponseData.redirect("/user/login_failed.html");
         }
         String sessionId = UUID.randomUUID().toString();
@@ -106,5 +107,14 @@ public class UserEntryPoint {
         return new ResponseData.ResponseDataBuilder<String>()
                 .contentType(HTTPContentType.TEXT_HTML)
                 .ok(page);
+    }
+
+    @RequestMapping(path="/article/create", method=HTTPMethod.POST)
+    public ResponseData<String> createArticle(
+        @Cookie(name="SID") String sid,
+        @Body(key="title") String title,
+        @Body(key="body") String body
+    )  {
+        return ResponseData.ok(body);
     }
 }
