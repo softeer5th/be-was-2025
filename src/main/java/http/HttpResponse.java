@@ -4,6 +4,7 @@ import http.constant.HttpHeader;
 import http.constant.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.DynamicHtmlEditor;
 import util.FileUtils;
 import util.MimeType;
 
@@ -13,6 +14,8 @@ import java.util.Map;
 
 public class HttpResponse {
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
+
+    private static final String ERROR_PAGE = "/error/error.html";
 
     private final DataOutputStream dos;
     private String statusLine;
@@ -83,13 +86,20 @@ public class HttpResponse {
         send();
     }
 
-    public void sendError(HttpStatus httpStatus, String message) {
-        byte[] body = httpStatus.getReasonPhrase().getBytes();
+    public void sendError(HttpStatus httpStatus, String message) throws IOException {
+        File file = FileUtils.findFile(ERROR_PAGE);
+        String content = FileUtils.convertToString(file);
+        String msg = httpStatus.getReasonPhrase();
         if (message != null && !message.isBlank()) {
-            body = message.getBytes();
+            msg = message;
         }
+        StringBuilder body = new StringBuilder();
+        body.append(httpStatus.getStatusCode());
+        body.append("\n");
+        body.append(msg);
+        content = DynamicHtmlEditor.edit(content, "error", body.toString());
         writeStatusLine(httpStatus);
-        writeBody(body, MimeType.TXT.getMimeType());
+        writeBody(content.getBytes(), MimeType.HTML.getMimeType());
         send();
     }
 }

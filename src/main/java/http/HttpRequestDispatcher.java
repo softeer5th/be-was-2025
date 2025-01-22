@@ -35,7 +35,7 @@ public class HttpRequestDispatcher {
             }
 
             if (!ApiPathPool.getInstance().isAvailable(method, path)) {
-                throw new NoSuchPathException();
+                throw new NoSuchPathException("해당 경로를 찾을 수 없습니다.");
             }
 
             Method classMethod = ApiPathPool.getInstance().getMethod(method, path);
