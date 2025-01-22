@@ -149,8 +149,8 @@
 .profile_image {
   width: 200px;
   height: 200px;
-  border-radius: 9999px;
-  background: #d9d9d9;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .profile_container {
@@ -178,6 +178,12 @@
   align-items: center; 
   gap: 10px; 
   display: flex;
+}
+
+.profile {
+  width: 100%; /* 부모 요소에 맞게 크기 조정 */
+  height: 100%; /* 부모 요소에 맞게 크기 조정 */
+  object-fit: contain; /* 비율을 유지하면서 축소 */
 }
 
 .profile_frame {

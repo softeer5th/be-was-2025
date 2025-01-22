@@ -2,6 +2,7 @@ package db;
 
 import model.User;
 
+import java.io.ByteArrayInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,7 +40,8 @@ public class UserDatabase {
 			    user_id VARCHAR(255) PRIMARY KEY,
 			    password VARCHAR(255),
 			    name VARCHAR(255),
-			    email VARCHAR(255)
+			    email VARCHAR(255),
+			    image BLOB
 			)
 			""";
 
@@ -54,8 +56,8 @@ public class UserDatabase {
 
 	public void save(User user) {
 		String query = """
-			INSERT INTO USER (user_id, password, name, email) 
-			VALUES (?, ?, ?, ?);
+			INSERT INTO USER (user_id, password, name, email, image) 
+			VALUES (?, ?, ?, ?, ?);
   		""";
 
 		try {
@@ -65,6 +67,9 @@ public class UserDatabase {
 			statement.setString(2, user.getPassword());
 			statement.setString(3, user.getName());
 			statement.setString(4, user.getEmail());
+
+			ByteArrayInputStream imageInputStream = new ByteArrayInputStream(user.getImage());
+			statement.setBlob(5, imageInputStream);
 			statement.execute();
 
 			// auto-commit 이 된다.
@@ -77,7 +82,7 @@ public class UserDatabase {
 
 	public Optional<User> findUserById(String userId) {
 		String query = """
-			SELECT user_id, password, name, email
+			SELECT user_id, password, name, email, image
 			FROM user
 			WHERE user_id = ?
   		""";
@@ -97,7 +102,8 @@ public class UserDatabase {
 				resultSet.getString("user_id"),
 				resultSet.getString("password"),
 				resultSet.getString("name"),
-				resultSet.getString("email")
+				resultSet.getString("email"),
+				resultSet.getBytes("image")
 			);
 
 			return Optional.ofNullable(user);
