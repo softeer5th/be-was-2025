@@ -131,7 +131,9 @@ public class DynamicHomeHandler implements Handler {
                 .append("""
                         </li>
                         <li>
-                          <a href="mailto:example@example.com">
+                        """)
+                .append(addSendHrefByUser(user))
+                .append("""         
                           <button class="post__menu__btn">
                             <img src="./img/sendLink.svg" alt="Send Email" />
                           </button>
@@ -175,6 +177,15 @@ public class DynamicHomeHandler implements Handler {
                                     """);
         }
 
+    }
+
+    private static final String BLANK ="";
+    private String addSendHrefByUser(Optional<User> user) {
+        if(user.isPresent())
+            return """
+                    <a href="mailto:example@example.com">
+                    """;
+        return BLANK;
     }
 
     private static void addComments(StringBuilder postContent, List<Comment> comments) {
