@@ -42,8 +42,7 @@ public class BoardManager {
     }
 
     public Post getPostByPage(int page) {
-        return postDatabase.getPost(page)
-                .orElseThrow(() -> new ClientErrorException(INVALID_PAGE));
+        return postDatabase.getPost(page);
     }
 
     public void likePost(int postId, int userId) {

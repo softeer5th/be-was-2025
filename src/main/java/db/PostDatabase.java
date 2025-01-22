@@ -9,7 +9,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
-import java.util.Optional;
 
 import static exception.ErrorCode.ERROR_WITH_DATABASE;
 
@@ -48,7 +47,7 @@ public class PostDatabase {
         }
     }
 
-    public Optional<Post> getPost(int page) {
+    public Post getPost(int page) {
         if (page < 1) {
             page = 1;
         }
@@ -69,9 +68,9 @@ public class PostDatabase {
                             rs.getTimestamp("created_at").toLocalDateTime()
                     );
                     logger.debug("Fetched post: " + post);
-                    return Optional.of(post);
+                    return post;
                 } else {
-                    return Optional.empty();
+                    return null;
                 }
             }
         } catch (SQLException e) {

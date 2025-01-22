@@ -102,6 +102,10 @@ public class DynamicHomeHandler implements Handler {
     }
 
     private void addPost(Post post, StringBuilder postContent, Optional<User> user) {
+        if(post == null) {
+            postContent.append("<h2> 글이 없어요 ㅜㅜ </h2>");
+            return;
+        }
         postContent
                 .append("""
                            <div class="wrapper">
