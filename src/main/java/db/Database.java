@@ -1,44 +1,51 @@
 package db;
 
-import model.User;
+import model.*;
 import webserver.HTTPExceptions;
 import model.Session;
 
 import java.time.LocalTime;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Database {
     private static Map<String, User> users = new ConcurrentHashMap<>();
     private static Map<String, Session> sessions = new ConcurrentHashMap<>();
+    private static ConcurrentSkipListMap<String, Article> articles = new ConcurrentSkipListMap<>();
 
     public static void addUser(User user) {
         users.put(user.getUserId(), user);
-    }
-
-    public static User findUserById(String userId) {
-        return users.get(userId);
-    }
-
-    public static Collection<User> findAllUsers() {
-        return users.values();
     }
 
     public static void addSession(Session session) {
         sessions.put(session.getSessionId(), session);
     }
 
-    public static void deleteSession(String sessionId) {
-        sessions.remove(sessionId);
+    public static void addArticle(Article article) {
+        articles.put(article.getArticleId(), article);
     }
 
-    public static Session findSessionById(String sessionId) {
+    public static User getUserById(String userId) {
+        return users.get(userId);
+    }
+
+    public static Session getSessionById(String sessionId) {
         return sessions.get(sessionId);
     }
 
+    public static int getSessionMaxInactiveInterval(String sessionId) {
+        Session session = getSessionById(sessionId);
+
+        if (session == null) {
+            throw new HTTPExceptions.Error403("session not found");
+        }
+
+        return session.getMaxInactiveInterval();
+    }
+
     public static void updateSessionLastAccessTime(String sessionId) {
-        Session session = findSessionById(sessionId);
+        Session session = getSessionById(sessionId);
 
         if (session == null) {
             throw new HTTPExceptions.Error403("session not found");
@@ -49,13 +56,7 @@ public class Database {
 
     }
 
-    public static int findSessionMaxInactiveInterval(String sessionId) {
-        Session session = findSessionById(sessionId);
-
-        if (session == null) {
-            throw new HTTPExceptions.Error403("session not found");
-        }
-
-        return session.getMaxInactiveInterval();
+    public static void deleteSession(String sessionId) {
+        sessions.remove(sessionId);
     }
 }

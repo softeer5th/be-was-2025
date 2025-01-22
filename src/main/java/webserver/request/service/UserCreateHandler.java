@@ -59,7 +59,7 @@ public class UserCreateHandler implements RequestProcessor {
             String userPassword = paramMap.get("password");
 
             // 중복된 id를 가진 사용자가 있을 경우
-            if (Database.findUserById(userId) != null) {
+            if (Database.getUserById(userId) != null) {
                 // 409 Conflict
                 throw new HTTPExceptions.Error409("User already exists");
             }

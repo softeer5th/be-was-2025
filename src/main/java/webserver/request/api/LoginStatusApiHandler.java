@@ -26,8 +26,8 @@ public class LoginStatusApiHandler implements RequestProcessor {
             if (cookie.getName().equals("SESSIONID")) {
                 isLoggedIn = true;
                 String sessionId = cookie.getValue();
-                String userId = Database.findSessionById(sessionId).getUserId();
-                userName = Database.findUserById(userId).getName();
+                String userId = Database.getSessionById(sessionId).getUserId();
+                userName = Database.getUserById(userId).getName();
                 break;
             }
         }

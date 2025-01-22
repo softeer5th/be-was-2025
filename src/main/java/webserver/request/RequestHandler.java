@@ -33,6 +33,7 @@
                 "/user/create", new UserCreateHandler(),
                 "/user/login", new UserLoginHandler(),
                 "/user/logout", new UserLogoutHandler(),
+                "/user/write", new UserWriteHandler(),
                 // api handler
                 "/api/login-status", new LoginStatusApiHandler()
         );
@@ -101,7 +102,7 @@
                             String sessionId = cookies.get("SESSIONID");
 
                             Database.updateSessionLastAccessTime(sessionId);
-                            cookieList.add(new Cookie("SESSIONID", sessionId, Database.findSessionMaxInactiveInterval(sessionId)));
+                            cookieList.add(new Cookie("SESSIONID", sessionId, Database.getSessionMaxInactiveInterval(sessionId)));
                         }
                     }
                     // Todo: transfer-encoding 헤더 관련 기능

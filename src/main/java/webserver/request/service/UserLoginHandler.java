@@ -65,7 +65,7 @@ public class UserLoginHandler implements RequestProcessor {
             }
 
             User user;
-            if ((user = Database.findUserById(userId)) != null) {
+            if ((user = Database.getUserById(userId)) != null) {
                 if (user.getPassword().equals(userPassword)) {
                     Session session = new Session(userId, MAX_LOGIN_SESSION_TIME);
                     cookieList.add(new Cookie("SESSIONID", session.getSessionId(), session.getMaxInactiveInterval()));
