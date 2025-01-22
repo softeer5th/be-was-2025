@@ -79,6 +79,22 @@
   line-height: 14px;
 }
 
+.write_article {
+  font-weight: bold;
+  font-size: 16px;
+  width: 100%;
+  max-width: 500px;
+  padding: 16px;
+  background: #4362d0;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+}
+
 .form {
   display: flex;
   flex-direction: column;
