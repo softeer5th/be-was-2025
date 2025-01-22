@@ -14,6 +14,10 @@ public class Session {
         this.attributes = new HashMap<>();
     }
 
+    public void updateUser(User user) {
+        attributes.put("USER", user);
+    }
+
     public String getId() {
         return sid;
     }

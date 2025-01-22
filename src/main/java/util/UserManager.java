@@ -28,4 +28,21 @@ public class UserManager {
         if (!user.getPassword().equals(password)) throw new IllegalArgumentException("비밀번호가 틀립니다.");
         return user;
     }
+
+    public static User updateUser(User user, String parameterString) {
+        Parameter parameter = new Parameter(parameterString);
+        String userName = parameter.getValue("name");
+        String newPassword = parameter.getValue("password");
+        String verification = parameter.getValue("password2");
+
+        if(!newPassword.equals(verification)) {throw new IllegalArgumentException("비밀번호 확인이 다릅니다.");}
+
+        if(newPassword.equals(user.getPassword())) {throw new IllegalArgumentException("기존 비밀번호와 같습니다.");}
+
+        if(!userName.equals(user.getName())) {throw new IllegalArgumentException("닉네임을 확인해주세요.");}
+
+        user.setName(userName);
+        Database.updateUserPassword(user.getUserId(), newPassword);
+        return user;
+    }
 }

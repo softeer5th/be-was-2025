@@ -82,6 +82,22 @@ public class Database {
         }
     }
 
+    public static void updateUserPassword(String userId, String newPassword) {
+        String updateQuery = "UPDATE Users SET password = ? WHERE userId = ?";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+            preparedStatement.setString(1, newPassword);
+            preparedStatement.setString(2, userId);
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            if (rowsUpdated == 0) {
+                throw new RuntimeException("No user found with userId: " + userId);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating user password", e);
+        }
+    }
+
 
 
     public static User findUserById(String userId) {
