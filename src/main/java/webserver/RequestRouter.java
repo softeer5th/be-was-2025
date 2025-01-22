@@ -48,7 +48,7 @@ public class RequestRouter {
     }
 
     private void init() {
-        this.addGetHandler(GetHandler::handleGetRequest);
+        this.addGetHandler(this::handleGetRequest);
         this.addPostHandler(SIGNUP_PATH, this::handleSignUp);
         this.addPostHandler(SIGNIN_PATH, this::handleSignIn);
         this.addPostHandler(LOGOUT_PATH, this::handleLogout);
@@ -120,8 +120,7 @@ public class RequestRouter {
                     fileContent = fileContent.replace("{firstButtonRequestPath}", "/mypage/index.html");
                     fileContent = fileContent.replace("{firstButtonName}", userSessions.get(sid).getName());
                     fileContent = fileContent.replace("{secondButtonInfo}", LOGOUT_BUTTON_INFO);
-                }
-                else {
+                } else {
                     fileContent = fileContent.replace("{firstButtonRequestPath}", "/login/index.html");
                     fileContent = fileContent.replace("{firstButtonName}", "로그인");
                     fileContent = fileContent.replace("{secondButtonInfo}", REGISTRATION_BUTTON_INFO);
@@ -139,11 +138,14 @@ public class RequestRouter {
             }
 
             // 로그인 정보가 없는 경우 마이페이지 -> 로그인 페이지 리다이렉트
-            if (request.getRequestPath().equals("/mypage/index.html") && !isUserLoggedIn(request)) {
-                HttpResponse.respond302(LOGIN_PAGE, dos);
+            if (request.getRequestPath().equals("/mypage/index.html")) {
+                if (!isUserLoggedIn(request)) {
+                    HttpResponse.respond302(LOGIN_PAGE, dos);
+                    return;
+                }
+                User user = userSessions.get(request.getCookieSid());
+                fileContent = fileContent.replace("{userName}", user.getName());
             }
-
-
 
             byte[] body = fileContent.getBytes();
             HttpResponse httpResponse = new HttpResponse(HttpStatus.OK, dos, body, ContentTypeUtil.getContentType(fileExtension));
@@ -152,6 +154,11 @@ public class RequestRouter {
             httpResponse.respond();
         } catch (Exception e) {
             logger.error("Get Request Error, " + e.getMessage());
+            try {
+                HttpResponse.respond404(dos);
+            } catch (IOException ex) {
+                logger.error("404 Response Error, {}", e.getMessage());
+            }
         }
     }
 
@@ -304,6 +311,33 @@ public class RequestRouter {
         } catch (IOException e) {
             logger.error("/user/info response error, {}", e.getMessage());
         }
+    }
+
+    private void handleUpdateUserInfo(HttpRequest request, DataOutputStream dos) {
+        try {
+            // 로그인되어 있지 않은 경우 -> 로그인페이지
+            if (!isUserLoggedIn(request)) {
+                HttpResponse.respond302(LOGIN_PAGE, dos);
+                return;
+            }
+            QueryParameters queryParameters = new QueryParameters(request.getBody());
+            String sid = request.getCookieSid();
+            User user = userSessions.get(sid);
+            user.setName(queryParameters.get("userName"));
+            user.setPassword(queryParameters.get("password"));
+            Database.updateUser(user);
+            HttpResponse.respond302(MAIN_PAGE, dos);
+        } catch (Exception e) {
+            logger.error("{}, Redirection Error, {}", "handleUpdateUserInfo", e.getMessage());
+        }
+    }
+
+    private boolean isUserLoggedIn(HttpRequest request) {
+        String sid = request.getCookieSid();
+        if (sid == null || !userSessions.containsKey(sid)) {
+            return false;
+        }
+        return true;
     }
 
     private User signIn(String userId, String password) throws AuthenticationException {

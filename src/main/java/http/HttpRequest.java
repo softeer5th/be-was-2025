@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import Entity.QueryParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ public class HttpRequest {
     private Map<String, String> headers;
     private String body;
     private String requestPath;
+    private QueryParameters queryParameters = null;
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     public HttpRequest(List<String> headerLines, BufferedReader br) throws IOException {
@@ -74,6 +76,11 @@ public class HttpRequest {
         String method = requestLineTokens[0].trim();
         requestPath = requestLineTokens[1].trim();
 
+        if (requestPath.contains("?")) {
+            requestPath = requestLineTokens[1].trim().split("\\?")[0];
+            queryParameters = new QueryParameters(requestLineTokens[1].trim().split("\\?")[1]);
+        }
+
         httpMethod = switch (method) {
             case "GET" -> HttpMethod.GET;
             case "POST" -> HttpMethod.POST;
@@ -87,6 +94,10 @@ public class HttpRequest {
             String[] tokens = headerLines.get(i).split(":", 2);
             headers.put(tokens[0].toLowerCase(), tokens[1]);
         }
+    }
+
+    public QueryParameters getQueryParameters() {
+        return queryParameters;
     }
 
     public String getBody() {

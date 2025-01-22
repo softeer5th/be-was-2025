@@ -1,83 +1,109 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/index.html"><img src="../img/signiture.svg" /></a>
-        <ul class="header__menu">
-        <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article/index.html">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <form action="/user/logout" method="POST" style="display: inline;">
-              <button type="submit" id="logout-btn" class="btn btn_ghost btn_size_s">
-                로그아웃
-              </button>
-            </form>
-          </li>
-        </ul>
-      </header>
-      <div class="page">
-        <h2 class="page-title">마이페이지</h2>
-
-        <div class="profile_container">
-          <div class="profile_box">
-              <div class="profile_image">
-                <img class="profile" />
-              </div>
-              <div class="profile_frame">
-                  <div class="btn_profile">
-                        <div class="btn_container">수정</div>
-                  </div>
-                  <div class="btn_bar"></div>
-                  <div class="btn_profile">
-                      <div class="btn_container">삭제</div>
-                  </div>
-              </div>
-        </div>
-          <form class="form">
-            <div class="textfield textfield_size_s input_margin">
-              <p class="title_textfield">닉네임</p>
-              <input
-                class="input_textfield"
-                placeholder="{회원 가입 시 입력했던 닉네임}"
-                autocomplete="username"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호</p>
-              <input
-                class="input_textfield"
-                placeholder="비밀번호를 변경할 경우 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호 확인</p>
-              <input
-                class="input_textfield"
-                type="password"
-                placeholder="한 번 더 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <button
-              id="registration-btn"
-              class="btn btn_contained btn_size_m input_margin"
-            
-              type="button"
-            >
-              변경사항 저장
-            </button>
-
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="../reset.css" rel="stylesheet" />
+  <link href="../global.css" rel="stylesheet" />
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <a href="/index.html"><img src="../img/signiture.svg" /></a>
+    <ul class="header__menu">
+      <li class="header__menu__item">
+        <a class="btn btn_contained btn_size_s" href="/article/index.html">글쓰기</a>
+      </li>
+      <li class="header__menu__item">
+        <form action="/user/logout" method="POST" style="display: inline;">
+          <button type="submit" id="logout-btn" class="btn btn_ghost btn_size_s">
+            로그아웃
+          </button>
         </form>
+      </li>
+    </ul>
+  </header>
+  <div class="page">
+    <h2 class="page-title">마이페이지</h2>
+
+    <div class="profile_container">
+      <div class="profile_box">
+        <div class="profile_image">
+          <img class="profile" />
+        </div>
+        <div class="profile_frame">
+          <div class="btn_profile">
+            <div class="btn_container">수정</div>
+          </div>
+          <div class="btn_bar"></div>
+          <div class="btn_profile">
+            <div class="btn_container">삭제</div>
+          </div>
+        </div>
       </div>
+      <form class="form" action="/user/update" method="POST" onsubmit="return validateForm()">
+        <div class="textfield textfield_size_s input_margin">
+          <p class="title_textfield">닉네임</p>
+          <input
+                  class="input_textfield"
+                  name="userName"
+                  value="{userName}"
+          />
+        </div>
+        <div class="textfield textfield_size_s">
+          <p class="title_textfield">비밀번호</p>
+          <input
+                  class="input_textfield"
+                  name="password"
+                  placeholder="비밀번호를 변경할 경우 입력해주세요"
+          />
+        </div>
+        <div class="textfield textfield_size_s">
+          <p class="title_textfield">비밀번호 확인</p>
+          <input
+                  class="input_textfield"
+                  name="passwordConfirm"
+                  type="password"
+                  placeholder="한 번 더 입력해주세요"
+          />
+        </div>
+        <button
+                id="registration-btn"
+                class="btn btn_contained btn_size_m input_margin"
+                type="submit"
+        >
+          변경사항 저장
+        </button>
+      </form>
     </div>
-  </body>
+  </div>
+</div>
+
+<script>
+  // 비밀번호 유효성 검사 함수
+  function validateForm() {
+    const password = document.querySelector('input[name="password"]').value;
+    const passwordConfirm = document.querySelector('input[name="passwordConfirm"]').value;
+
+    // 비밀번호와 비밀번호 확인 일치 여부 검사
+    if (password !== passwordConfirm) {
+      alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+      return false;
+    }
+
+    // 비밀번호에 불허용 문자가 포함되었는지 검사
+    const invalidChars = ['=', '&', ' '];  // 불허용 문자
+    for (let i = 0; i < invalidChars.length; i++) {
+      if (password.includes(invalidChars[i])) {
+        alert('비밀번호에는 "="나 "&", 공백을 포함할 수 없습니다.');
+        return false;
+      }
+    }
+
+    // 모든 검사를 통과하면 폼을 제출
+    return true;
+  }
+</script>
+
+</body>
 </html>
