@@ -1,9 +1,6 @@
 package handler.mapping;
 
-import handler.request.RequestHandler;
-import handler.request.UserLoginRequestHandler;
-import handler.request.UserLogoutRequestHandler;
-import handler.request.UserSignUpRequestHandler;
+import handler.request.*;
 import http.request.HttpRequest;
 import http.enums.HttpMethod;
 
@@ -18,6 +15,7 @@ public class RequestHandlerMapping {
         handlerMap.put(new HandlerKey("/user/create", HttpMethod.POST), new UserSignUpRequestHandler());
         handlerMap.put(new HandlerKey("/login", HttpMethod.POST), new UserLoginRequestHandler());
         handlerMap.put(new HandlerKey("/logout", HttpMethod.GET), new UserLogoutRequestHandler());
+        handlerMap.put(new HandlerKey("/next-article", HttpMethod.GET), new ArticleRequestHandler());
     }
 
     public Optional<RequestHandler> getHandler(HttpRequest httpRequest){

@@ -38,6 +38,8 @@ public class HttpRequest {
         return queryParams.get(key);
     }
 
+    public Map<String, String> getQueryParams(){return queryParams;}
+
     public String getHeader(String headerKey){
         return headers.get(headerKey);
     }
