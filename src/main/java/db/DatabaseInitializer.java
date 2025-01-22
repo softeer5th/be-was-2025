@@ -15,7 +15,8 @@ public class DatabaseInitializer {
                 userId VARCHAR(20) PRIMARY KEY,
                 name VARCHAR(20),
                 passwordHash VARCHAR(200),
-                email VARCHAR(50)
+                email VARCHAR(50),
+                profileImagePath VARCHAR(200)
             )
             """;
     private static final String CREATE_ARTICLES_TABLE = """

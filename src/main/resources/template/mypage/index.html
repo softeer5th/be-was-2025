@@ -13,11 +13,13 @@
 
         <div class="profile_container">
 
-            <form action="/mypage" class="form" enctype="application/x-www-form-urlencoded"
+            <form action="/mypage" class="form" enctype="multipart/form-data"
                   method="post">
                 <div class="profile_box">
                     <div class="profile_image">
-                        <img class="profile" id="profileImage"/>
+                        <my-text>
+                            <img class="profile" id="profileImage" src="${session.user.profileImagePath}"/>
+                        </my-text>
                     </div>
                     <div class="profile_frame">
                         <div class="btn_profile">
@@ -99,12 +101,11 @@
     </div>
 </div>
 <script>
-    const password = document.querySelector('input[name="password"]');
-    const confirmPassword = document.querySelector('input[name="confirmPassword"]');
-    password.addEventListener('input', validatePassword);
-    confirmPassword.addEventListener('input', validatePassword);
     const password = document.querySelector('#newPassword');
     const confirmPassword = document.querySelector('#confirmPassword');
+    password.addEventListener('input', validatePassword);
+    confirmPassword.addEventListener('input', validatePassword);
+
 
     function validatePassword() {
         if (password.value !== confirmPassword.value) {

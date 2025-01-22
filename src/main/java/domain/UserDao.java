@@ -15,12 +15,12 @@ import java.util.Optional;
  */
 public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
     private static final String UPSERT_USER = """
-            MERGE INTO users (userId, name, passwordHash, email)
+            MERGE INTO users (userId, name, passwordHash, email, profileImagePath)
             KEY (userId)
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             """;
     private static final String SELECT_USER_BY_ID = """
-            SELECT userId, name, passwordHash, email
+            SELECT *
             FROM users
             WHERE userId = ?
             """;
@@ -40,7 +40,8 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
                 resultSet.getString("userId"),
                 resultSet.getString("passwordHash"),
                 resultSet.getString("name"),
-                resultSet.getString("email")
+                resultSet.getString("email"),
+                resultSet.getString("profileImagePath")
         );
     }
 
@@ -52,7 +53,7 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
      * @return 저장에 성공하면 true, 실패하면 false
      */
     public boolean saveUser(User user) {
-        return executeUpdate(i -> i > 0, UPSERT_USER, user.getUserId(), user.getName(), user.getPasswordHash(), user.getEmail());
+        return executeUpdate(i -> i > 0, UPSERT_USER, user.getUserId(), user.getName(), user.getPasswordHash(), user.getEmail(), user.getProfileImagePath());
     }
 
     /**

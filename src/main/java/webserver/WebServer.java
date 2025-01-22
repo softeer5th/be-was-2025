@@ -95,7 +95,7 @@ public class WebServer {
                 .setHandler(REGISTRATION.path, new RegistrationHandler(userDao))
                 .setHandler(LOGIN.path, new LoginHandler(userDao))
                 .setHandler(LOGOUT.path, new LogoutHandler())
-                .setHandler(MYPAGE.path, new MypageHandler(userDao))
+                .setHandler(MYPAGE.path, new MypageHandler(userDao, resourceManager))
                 .setHandler(WRITE_ARTICLE.path, new WriteArticleHandler(articleDao))
                 .setHandler(WRITE_COMMENT.path, new WriteCommentHandler(database, articleDao, commentDao));
 
