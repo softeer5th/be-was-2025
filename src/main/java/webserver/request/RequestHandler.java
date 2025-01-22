@@ -101,7 +101,7 @@
                         if (cookies.containsKey("SESSIONID")) {
                             String sessionId = cookies.get("SESSIONID");
 
-                            Database.updateSessionLastAccessTime(sessionId);
+                            Database.updateSessionLastAccessTimeToNow(sessionId);
                             cookieList.add(new Cookie("SESSIONID", sessionId, Database.getSessionMaxInactiveInterval(sessionId)));
                         }
                     }

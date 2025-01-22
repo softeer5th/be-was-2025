@@ -44,7 +44,7 @@ public class Database {
         return session.getMaxInactiveInterval();
     }
 
-    public static void updateSessionLastAccessTime(String sessionId) {
+    public static void updateSessionLastAccessTimeToNow(String sessionId) {
         Session session = getSessionById(sessionId);
 
         if (session == null) {
