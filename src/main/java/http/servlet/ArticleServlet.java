@@ -3,8 +3,8 @@ package http.servlet;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import db.ArticleDatabase;
 import enums.ContentType;
@@ -32,17 +32,16 @@ public class ArticleServlet implements Servlet {
 
 	@Override
 	public void service(HttpRequest request, HttpResponse response) throws IOException {
-		if(request.getMethod().equals(HttpMethod.GET)){
+		if (request.getMethod().equals(HttpMethod.GET)) {
 			doGet(request, response);
-		}
-		else if(request.getMethod().equals(HttpMethod.POST)){
+		} else if (request.getMethod().equals(HttpMethod.POST)) {
 			doPost(request, response);
 		}
 	}
 
 	private void doGet(HttpRequest request, HttpResponse response) throws IOException {
 
-		if(HttpSessionStorage.getSession(request.getSessionId()) == null){
+		if (HttpSessionStorage.getSession(request.getSessionId()) == null) {
 			response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, LOGIN_PAGE);
 			return;
 		}
@@ -62,17 +61,18 @@ public class ArticleServlet implements Servlet {
 		response.setBody(body);
 	}
 
-	private void doPost(HttpRequest request, HttpResponse response){
-		Optional<Map<String, String>> body = request.getBodyAsMap();
-
-		if(body.isEmpty()){
-			return;
+	private void doPost(HttpRequest request, HttpResponse response) {
+		List<Map<String, String>> body = request.getBodyAsMultipart();
+		if (body.isEmpty()) {
+			throw new IllegalArgumentException("입력값이 잘못되었습니다.");
 		}
 
 		HttpSession session = HttpSessionStorage.getSession(request.getSessionId());
-
 		User user = (User)session.getAttribute("user");
-		Article article = new Article(new String(body.get().get("content").getBytes(StandardCharsets.UTF_8)) , user.getUserId());
+
+		String content = body.get(0).get("body");
+		byte[] imageBytes = body.get(1).get("body").getBytes(StandardCharsets.ISO_8859_1);
+		Article article = new Article(content, user.getUserId(), imageBytes);
 		articleDatabase.save(article);
 
 		response.setStatusCode(HttpStatus.FOUND);
