@@ -3,6 +3,7 @@ package http.request;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -65,6 +66,9 @@ public class HttpRequest {
 	}
 	public String getSessionId() {
 		return headers.getSessionId();
+	}
+	public List<Map<String, String>> getBodyAsMultipart(){
+		return body.getBodyAsMultipart(headers);
 	}
 }
 

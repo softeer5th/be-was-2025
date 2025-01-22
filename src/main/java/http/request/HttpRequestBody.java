@@ -1,5 +1,6 @@
 package http.request;
 
+import static enums.ContentType.*;
 import static enums.HttpHeader.*;
 
 import java.io.ByteArrayOutputStream;
@@ -8,6 +9,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,12 @@ import java.util.Optional;
 
 public class HttpRequestBody {
 	private final int MAX_BODY_SIZE = 100 * 1024 * 1024; // 최대 100MB로 제한
+	private static final String BOUNDARY_PREFIX = "--";
+	private static final String BOUNDARY_DELIMITER = ";";
+	private static final String HEADER_SEPARATOR = ":";
+
+	private static final String HEADER_BODY_SEPARATOR = "\r\n\r\n";
+	private static final String CRLF = "\r\n";
 	private byte[] body;
 
 	public HttpRequestBody(InputStream in, HttpHeaders headers) throws IOException {
@@ -90,4 +98,76 @@ public class HttpRequestBody {
 
 		return Optional.ofNullable(resultMap);
 	}
+
+	public List<Map<String, String>> getBodyAsMultipart(HttpHeaders headers) {
+		// Content-Type 헤더가 없으면 예외 처리
+		String contentType = headers.getHeader(CONTENT_TYPE.getValue())
+			.stream()
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Missing Content-Type header"));
+
+		// Content-Type이 multipart로 시작하지 않으면 예외 처리
+		if (!contentType.equals(MULTIPART_FORM_DATA.getMimeType())) {
+			throw new IllegalArgumentException("Content-Type is not multipart");
+		}
+
+		// Boundary 값 추출
+		String boundary = extractBoundary(contentType);
+		if (boundary == null) {
+			throw new IllegalArgumentException("Boundary parameter is missing in Content-Type");
+		}
+
+		// multipart 형식 본문을 처리
+		String bodyString = new String(body, StandardCharsets.ISO_8859_1);
+		List<Map<String, String>> parts = new ArrayList<>();
+
+		// Boundary로 본문을 나누고, 각 파트를 처리
+		String[] rawParts = bodyString.split(BOUNDARY_PREFIX + boundary);
+		for (String rawPart : rawParts) {
+			rawPart = rawPart.trim();
+			if (rawPart.isEmpty() || rawPart.equals(BOUNDARY_PREFIX)) continue;
+
+			// 파트 본문을 헤더와 본문으로 나눔
+			String[] partLines = rawPart.split(HEADER_BODY_SEPARATOR, 2);
+			if (partLines.length < 2) continue;
+
+			// 각 파트를 헤더와 본문으로 나누어 저장
+			String headersPart = partLines[0];
+			String bodyPart = partLines[1].trim();
+
+			Map<String, String> partData = new HashMap<>();
+			partData.put("headers", parseHeaders(headersPart).toString());
+			partData.put("body", bodyPart);
+
+			parts.add(partData);
+		}
+
+		return parts;
+	}
+
+	private String extractBoundary(String contentType) {
+		String[] params = contentType.split(BOUNDARY_DELIMITER);
+		for (String param : params) {
+			param = param.trim();
+			if (param.startsWith("boundary=")) {
+				return param.substring("boundary=".length()).replace("\"", "");
+			}
+		}
+		return null;
+	}
+
+	private Map<String, String> parseHeaders(String headersPart) {
+		Map<String, String> headers = new HashMap<>();
+		String[] lines = headersPart.split(CRLF);
+		for (String line : lines) {
+			int colonIndex = line.indexOf(HEADER_SEPARATOR);
+			if (colonIndex > 0) {
+				String key = line.substring(0, colonIndex).trim();
+				String value = line.substring(colonIndex + 1).trim();
+				headers.put(key, value);
+			}
+		}
+		return headers;
+	}
+
 }
