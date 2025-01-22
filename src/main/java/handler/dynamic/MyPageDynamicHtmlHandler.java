@@ -1,6 +1,8 @@
 package handler.dynamic;
 
-import db.Database;
+import db.UserDao;
+import db.transaction.Transaction;
+import db.transaction.TransactionTemplate;
 import http.cookie.Cookie;
 import http.enums.HttpStatus;
 import http.enums.MimeType;
@@ -11,6 +13,8 @@ import model.User;
 
 public class MyPageDynamicHtmlHandler implements  DynamicHtmlHandler{
     private final SessionManager sessionManager = SessionManager.getInstance();
+    private final TransactionTemplate transactionTemplate = TransactionTemplate.getInstance();
+    private final UserDao userDao = UserDao.getInstance();
     private static final String USERNAME = "<!-- USERNAME -->";
 
     @Override
@@ -26,7 +30,9 @@ public class MyPageDynamicHtmlHandler implements  DynamicHtmlHandler{
                     .build();
         }
 
-        String dynamicHtmlContent = htmlContent.replace(USERNAME, retrieveUserNameBySessionId(cookie.getValue()));
+        String username = transactionTemplate.execute(this::retrieveUserNameBySessionId, cookie.getValue());
+
+        String dynamicHtmlContent = htmlContent.replace(USERNAME, username);
 
         return new HttpResponse.Builder()
                 .httpStatus(HttpStatus.OK)
@@ -35,9 +41,11 @@ public class MyPageDynamicHtmlHandler implements  DynamicHtmlHandler{
                 .build();
     }
 
-    private String retrieveUserNameBySessionId(String sessionId){
-        String userId = (String)sessionManager.getSessionAttribute(sessionId, "userId");
-        User user = Database.findUserById(userId);
+    private String retrieveUserNameBySessionId(Transaction transaction, Object[] args){
+        String sessionId = (String) args[0];
+        Long userId = (Long) sessionManager.getSessionAttribute(sessionId, "userId");
+
+        User user = userDao.findById(transaction, userId).get();
         return user.getName();
     }
 

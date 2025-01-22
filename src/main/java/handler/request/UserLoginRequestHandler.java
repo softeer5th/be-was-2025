@@ -1,6 +1,8 @@
 package handler.request;
 
-import db.Database;
+import db.UserDao;
+import db.transaction.Transaction;
+import db.transaction.TransactionTemplate;
 import exception.ErrorCode;
 import exception.LoginException;
 import http.cookie.Cookie;
@@ -15,6 +17,8 @@ import java.util.Map;
 
 public class UserLoginRequestHandler implements RequestHandler{
     private final SessionManager sessionManager = SessionManager.getInstance();
+    private final TransactionTemplate transactionTemplate = TransactionTemplate.getInstance();
+    private final UserDao userDao = UserDao.getInstance();
 
     @Override
     public boolean canHandle(HttpRequest httpRequest) {
@@ -26,10 +30,10 @@ public class UserLoginRequestHandler implements RequestHandler{
         Map<String, String> loginData = httpRequest.convertBodyToMap();
 
         try{
-            login(loginData.get("userId"), loginData.get("password"));
+            Long userId = transactionTemplate.execute(this::login, loginData.get("loginId"), loginData.get("password"));
 
             Session session = sessionManager.createSession();
-            session.saveAttribute("userId", loginData.get("userId"));
+            session.saveAttribute("userId", userId);
 
             Cookie cookie = new Cookie("sessionId", session.getSessionId());
             cookie.setPath("/");
@@ -49,15 +53,16 @@ public class UserLoginRequestHandler implements RequestHandler{
     }
 
 
-    public void login(String userId, String password){
-        User user = Database.findUserById(userId);
+    public Long login(Transaction transaction, Object[] args){
+        String loginId = (String) args[0];
+        String password = (String) args[1];
 
-        if(user == null){
-            throw new LoginException(ErrorCode.NOT_FOUND_USER_BY_USER_ID);
-        }
+        User user = userDao.findByLoginId(transaction, loginId).orElseThrow(() -> new LoginException(ErrorCode.ALREADY_EXIST_USER_NAME));
 
         if(!user.getPassword().equals(password)){
             throw new LoginException(ErrorCode.MISMATCH_PASSWORD);
         }
+
+        return user.getId();
     }
 }
