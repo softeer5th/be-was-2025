@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import controller.BoardController;
-import controller.HomeController;
-import controller.SignUpController;
-import controller.UserController;
+import controller.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlet.*;
@@ -38,7 +35,8 @@ public class WebServer {
                 new HomeController(),
                 new SignUpController(),
                 new UserController(),
-                new BoardController()),
+                new BoardController(),
+                new CommentController()),
                 new HttpRequestFactory()
         );
 
