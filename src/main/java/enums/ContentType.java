@@ -13,7 +13,8 @@ public enum ContentType {
 	APPLICATION_JAVASCRIPT("application/javascript", "js"),
 	APPLICATION_JSON("application/json", "json"),
 	APPLICATION_XML("application/xml", "xml"),
-	APPLICATION_OCTET_STREAM("application/octet-stream", ".bin");
+	APPLICATION_OCTET_STREAM("application/octet-stream", ".bin"),
+	MULTIPART_FORM_DATA("multipart/form-data", "multipart");
 
 	private final String mimeType;
 
@@ -37,9 +38,5 @@ public enum ContentType {
 
 	public String getMimeType() {
 		return mimeType;
-	}
-
-	public String getExtention() {
-		return extention;
 	}
 }
