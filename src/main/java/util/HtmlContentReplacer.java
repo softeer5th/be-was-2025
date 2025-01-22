@@ -1,5 +1,7 @@
 package util;
 
+import db.manage.CommentManager;
+import db.manage.PostManager;
 import model.Comment;
 import model.Post;
 import model.User;

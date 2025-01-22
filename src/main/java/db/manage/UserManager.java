@@ -1,7 +1,8 @@
-package util;
+package db.manage;
 
 import db.Database;
 import model.User;
+import util.Parameter;
 
 public class UserManager {
     public static void addUser(String parameterString) {

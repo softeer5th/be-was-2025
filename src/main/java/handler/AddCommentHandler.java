@@ -1,6 +1,6 @@
 package handler;
 
-import util.CommentManager;
+import db.manage.CommentManager;
 import util.Parameter;
 import util.enums.HttpStatusCode;
 import util.enums.Page;

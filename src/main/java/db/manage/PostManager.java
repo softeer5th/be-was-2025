@@ -1,7 +1,8 @@
-package util;
+package db.manage;
 
 import db.Database;
 import model.Post;
+import util.Parameter;
 
 public class PostManager {
     public static void addPost(String userId, String parameterString) {

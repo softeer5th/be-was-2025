@@ -1,9 +1,7 @@
 package handler;
 
 import model.User;
-import util.Parameter;
-import util.PostManager;
-import util.UserManager;
+import db.manage.UserManager;
 import util.enums.CookieName;
 import util.enums.HttpStatusCode;
 import util.enums.Page;

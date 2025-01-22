@@ -1,7 +1,6 @@
 package handler;
 
-import util.Parameter;
-import util.PostManager;
+import db.manage.PostManager;
 import util.enums.HttpStatusCode;
 import util.enums.Page;
 import webserver.request.Request;

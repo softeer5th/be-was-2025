@@ -1,7 +1,8 @@
-package util;
+package db.manage;
 
 import db.Database;
 import model.Comment;
+import util.Parameter;
 
 import java.util.List;
 

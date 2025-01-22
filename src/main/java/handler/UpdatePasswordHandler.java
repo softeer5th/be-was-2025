@@ -1,7 +1,7 @@
 package handler;
 
 import model.User;
-import util.UserManager;
+import db.manage.UserManager;
 import util.enums.HttpStatusCode;
 import util.enums.Page;
 import webserver.request.Request;
