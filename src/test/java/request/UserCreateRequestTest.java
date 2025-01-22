@@ -72,8 +72,8 @@ class UserCreateRequestTest {
     @DisplayName("올바른 form으로 회원가입 요청이 온다.")
     void userCreateRequest_validForm() {
         final String userId = "id";
-        final String email = "email";
-        final String password = "password";
+        final String email = "email@domain.com";
+        final String password = "password^^pa11";
         final String nickname = "nickname";
         // 한글 URI.create
         final String validForm = String.format("userId=%s&email=%s&password=%s&nickname=%s", userId, email, password, nickname);

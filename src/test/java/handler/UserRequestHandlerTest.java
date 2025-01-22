@@ -7,7 +7,7 @@ import enums.HttpStatus;
 import enums.HttpVersion;
 import exception.ClientErrorException;
 import exception.ErrorCode;
-import model.User;
+import exception.LoginException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import request.HttpRequestInfo;
@@ -21,16 +21,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UserRequestHandlerTest {
     private final UserRequestHandler userRequestHandler = new UserRequestHandler();
-    private final UserDatabase userDatabase = UserDatabase.getInstance();
 
-    private static final String VALID_REQUEST_PATH = "/user/create?userId=jueun&nickname=jueun&password=jueun&email=jueun@naver.com";
+    private static final String VALID_REQUEST_PATH = "/user/create?userId=new&nickname=jueun&password=jueun1025^^&email=jueun@naver.com";
     private static final String REDIRECT_URL = "http://localhost:8080/index.html";
-    private static final String LOGIN_FAIL_URL = "http://localhost:8080/login/fail.html";
 
     @Test
     @DisplayName("회원가입에 성공하면 201을 반환한다.")
     void handle_createUser() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, "/user/create", HttpVersion.HTTP1_1, new HashMap<>(), "userId=jueun2&nickname=jueun&password=jueun&email=jueun@naver.com");
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, "/user/create", HttpVersion.HTTP1_1, new HashMap<>(), "userId=jueun2&nickname=jueun&password=jueun1025^^&email=jueun@naver.com");
         HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
         assertThat(response.getStatus())
@@ -58,19 +56,14 @@ class UserRequestHandlerTest {
 
     }
 
-    private final String LOGIN_BODY = "userId=jueun&password=password";
+    private final String VALID_LOGIN_BODY = "userId=test&password=test";
+    private final String INVALID_LOGIN_BODY = "userId=invalid&password=invalid";
     private final String LOGIN_PATH = "/user/login";
 
     @Test
     @DisplayName("로그인에 성공한다.")
     void handle_loginUser() {
-        String userId = "jueun";
-        String password = "password";
-        String email = "email";
-        String name = "name";
-
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
-        userDatabase.addUser(new User(userId, password, email, name));
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), VALID_LOGIN_BODY);
 
         final HttpResponse response = userRequestHandler.handle(httpRequestInfo);
 
@@ -83,27 +76,22 @@ class UserRequestHandlerTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 아이디로 로그인하면 로그인 실패 화면으로 이동한다.")
+    @DisplayName("존재하지 않는 아이디로 로그인하면 에러가 발생한다.")
     void handle_loginUser_invalid_user() {
-        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
+        HttpRequestInfo httpRequestInfo = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), INVALID_LOGIN_BODY);
 
-        final HttpResponse response = userRequestHandler.handle(httpRequestInfo);
+        assertThatThrownBy(()-> userRequestHandler.handle(httpRequestInfo))
+                .isInstanceOf(LoginException.class)
+                .hasMessage(ErrorCode.NO_SUCH_USER_ID.getMessage());
 
-        assertThat(response.getStatus())
-                .isEqualTo(HttpStatus.FOUND);
-        assertThat(response.getHeaderValue(HttpHeader.LOCATION.getName()))
-                .isEqualTo(LOGIN_FAIL_URL);
+
     }
 
     @Test
     @DisplayName("로그아웃 한다.")
     void handle_logout() {
-        String userId = "jueun";
-        String password = "password";
-        String email = "email";
-        String name = "name";
-        HttpRequestInfo login = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), LOGIN_BODY);
-        userDatabase.addUser(new User(userId, password, email, name));
+        HttpRequestInfo login = new HttpRequestInfo(HttpMethod.POST, LOGIN_PATH, HttpVersion.HTTP1_1, new HashMap<>(), VALID_LOGIN_BODY);
+
 
         final HttpResponse loginResponse = userRequestHandler.handle(login);
 
