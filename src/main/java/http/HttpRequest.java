@@ -31,6 +31,20 @@ public class HttpRequest {
         this.body = new String(requestBody);
     }
 
+    public String getWebKitFormBoundary() {
+        if (!headers.containsKey("content-type")) {
+            return null;
+        }
+        String contentType = headers.get("content-type");
+        if (contentType.contains("boundary=")) {
+            String[] parts = contentType.split("boundary=");
+            if (parts.length > 1) {
+                return parts[1].trim();
+            }
+        }
+        return null;
+    }
+
     public String getCookieSid() {
         try {
             String s = headers.get(HttpHeader.COOKIE.getHeaderName());
