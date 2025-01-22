@@ -7,6 +7,7 @@ import java.util.List;
 
 public class DynamicHtmlEditor {
     private static final String DYNAMIC_PREFIX = "dynamic";
+    private static final int DEFAULT_VISIBLE_COMMENT_SIZE = 3;
 
     public static String edit(String content, String field, String value) {
         String target = String.format("{{ %s:%s }}", DYNAMIC_PREFIX, field);
@@ -22,7 +23,7 @@ public class DynamicHtmlEditor {
         return sb.toString();
     }
 
-    public static String commentElement(Article article) {
+    public static String commentElement(Article article, boolean showAll, int page, String path) {
         if (article == null) {
             return "";
         }
@@ -35,10 +36,24 @@ public class DynamicHtmlEditor {
             return commentBuilder.toString();
         }
 
-        for (Comment comment : comments) {
-            String element = getCommentElement();
+        for (int i = 0; i < comments.size(); i++) {
+            Comment comment = comments.get(i);
+            String element;
+            if (i > DEFAULT_VISIBLE_COMMENT_SIZE - 1 && !showAll) {
+                element = getHiddenCommentElement();
+            } else {
+                element = getCommentElement();
+            }
             element = edit(element, "comment_user", comment.getUser().getName());
             element = edit(element, "comment_content", comment.getContent());
+            commentBuilder.append(element);
+        }
+
+        if (comments.size() > DEFAULT_VISIBLE_COMMENT_SIZE && !showAll) {
+            String element = getShowAllCommentsElement();
+            element = edit(element, "showAll", "all");
+            element = edit(element, "path", path);
+            element = edit(element, "page", String.valueOf(page));
             commentBuilder.append(element);
         }
         return commentBuilder.toString();
@@ -63,7 +78,7 @@ public class DynamicHtmlEditor {
 
         content = edit(content, "prevPage", String.valueOf(prevPage));
         content = edit(content, "nextPage", String.valueOf(nextPage));
-        content = edit(content, "articleId", article.getArticleId());
+        content = edit(content, "articleId", String.valueOf(article.getArticleId()));
         content = edit(content, "path", path);
 
         return content;
@@ -96,7 +111,9 @@ public class DynamicHtmlEditor {
                       </button>
                     </div>
                     <p class="post__article">
-                      {{ dynamic:content }}
+                
+                    <pre>{{ dynamic:content }}</pre>
+                
                     </p>
                 """;
     }
@@ -109,11 +126,8 @@ public class DynamicHtmlEditor {
               <p class="comment__item__user__nickname">{{ dynamic:comment_user }}</p>
             </div>
             <p class="comment__item__article">
-              {{ dynamic:comment_content }}
+              <pre>{{ dynamic:comment_content }}</pre>
             </p>
-            <button id="show-all-btn" class="btn btn_ghost btn_size_m">
-            모든 댓글 보기
-            </button>
         </li>
         """;
     }
@@ -127,6 +141,14 @@ public class DynamicHtmlEditor {
                     </div>
                     <p class="comment__item__article">{{ dynamic:comment_content }}</p>
                   </li>
+                """;
+    }
+
+    private static String getShowAllCommentsElement() {
+        return """
+                <a id="show-all-btn" class="btn btn_ghost btn_size_m" href="{{ dynamic:path }}?page={{ dynamic:page }}&comment={{ dynamic:showAll }}">
+                    모든 댓글 보기
+                </a>
                 """;
     }
 

@@ -31,6 +31,9 @@ public class HomeHandler implements Handler {
         MimeType mimeType = MimeType.valueOf(extension.toUpperCase());
 
         String page = httpRequest.getQueries().getOrDefault("page", DEFAULT_PAGE);
+        String commentQuery = httpRequest.getQueries().getOrDefault("comment", "hidden");
+
+        boolean showAll = getCommentVisible(commentQuery);
 
         List<Article> articles = ArticleStore.findAll();
         int articleNum = articles.size();
@@ -49,12 +52,16 @@ public class HomeHandler implements Handler {
         String articleElement = DynamicHtmlEditor.articleElement(article);
         content = DynamicHtmlEditor.edit(content, "article", articleElement);
 
-        String commentElement = DynamicHtmlEditor.commentElement(article);
+        String commentElement = DynamicHtmlEditor.commentElement(article, showAll, pageNum, path);
         content = DynamicHtmlEditor.edit(content,"comment", commentElement);
 
         byte[] body = content.getBytes();
         httpResponse.writeStatusLine(HttpStatus.OK);
         httpResponse.writeBody(body, mimeType.getMimeType());
         httpResponse.send();
+    }
+
+    private boolean getCommentVisible(String commentQuery) {
+        return commentQuery.equals("all");
     }
 }
