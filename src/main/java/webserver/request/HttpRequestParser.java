@@ -30,7 +30,7 @@ public class HttpRequestParser {
     }
 
     // Body 직전 헤더까지 읽기
-    public String readUntilBody(InputStream inputStream) throws IOException {
+    private String readUntilBody(InputStream inputStream) throws IOException {
         int totalReadBytes = 0;
         StringBuilder sb = new StringBuilder();
         int buf;
