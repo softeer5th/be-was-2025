@@ -1,5 +1,6 @@
 package servlet;
 
+import exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wasframework.ControllerAdaptor;
@@ -40,6 +41,9 @@ public class DispatcherServlet implements Servlet {
         try {
             controllerAdaptor.invoke(controllerMethod,request, response);
         } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof BadRequestException){
+                throw new BadRequestException("Bad Request 요청 발생");
+            }
             log.error(e.getTargetException().getMessage(), e.getTargetException());
             return false;
         }
