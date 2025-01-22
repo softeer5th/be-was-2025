@@ -1,5 +1,6 @@
 package webserver.httpserver;
 
+import exception.BadRequestException;
 import exception.FileNotSupportedException;
 
 public enum ContentType {
@@ -25,11 +26,22 @@ public enum ContentType {
         this.mimeType = mimeType;
     }
 
+
+
     public String getMimeType() {
         return mimeType;
     }
 
-    public static String guessContentType(String uri) {
+    public static ContentType getContentType(String mimeType) {
+        for (ContentType contentType : values()) {
+            if (mimeType.equals(contentType.mimeType)){
+                return contentType;
+            }
+        }
+        return OCTET_STREAM;
+    }
+
+    public static ContentType guessContentType(String uri) {
         if (uri == null) {
             throw new IllegalArgumentException("uri cannot be null");
         }
@@ -37,7 +49,7 @@ public enum ContentType {
         String lowerUri = uri.toLowerCase();
         int dotIndex = lowerUri.lastIndexOf('.');
         if (dotIndex == -1) {
-            return OCTET_STREAM.getMimeType();
+            return OCTET_STREAM;
         }
 
         String extension = lowerUri.substring(dotIndex + 1);
@@ -45,7 +57,7 @@ public enum ContentType {
         for (ContentType contentType : values()) {
             for (String ext : contentType.extensions) {
                 if (ext.equals(extension)) {
-                    return contentType.getMimeType();
+                    return contentType;
                 }
             }
         }
