@@ -33,7 +33,8 @@ public enum ErrorCode {
     EXCEED_POST_LENGTH(BAD_REQUEST, "글쓰기 글자 수(500자)를 초과하였습니다."),
     MISSING_INPUT(BAD_REQUEST, "입력값이 없습니다."),
     ALREADY_LIKE_POST(BAD_REQUEST, "이미 좋아요를 누른 게시글입니다."),
-    ALREADY_MARK_POST(BAD_REQUEST, "이미 북마크한 게시글입니다.");
+    ALREADY_MARK_POST(BAD_REQUEST, "이미 북마크한 게시글입니다."),
+    INVALID_PAGE(BAD_REQUEST,"존재하지 않는 페이지입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

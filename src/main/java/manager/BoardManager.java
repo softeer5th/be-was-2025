@@ -36,12 +36,14 @@ public class BoardManager {
         Post post = new Post(content, author);
         postDatabase.addPost(post);
     }
-    public int getPageSize(){
+
+    public int getPageSize() {
         return postDatabase.getTotalPages();
     }
 
     public Post getPostByPage(int page) {
-        return postDatabase.getPost(page);
+        return postDatabase.getPost(page)
+                .orElseThrow(() -> new ClientErrorException(INVALID_PAGE));
     }
 
     public void likePost(int postId, int userId) {

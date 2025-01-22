@@ -9,12 +9,14 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
+import java.util.Optional;
 
 import static exception.ErrorCode.ERROR_WITH_DATABASE;
 
 public class PostDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PostDatabase.class);
     private static PostDatabase instance;
+    private static final String TABLE_NAME = "post";
     private static final int PAGE_SIZE = 1;
 
     private PostDatabase() {
@@ -28,7 +30,7 @@ public class PostDatabase {
     }
 
     public int addPost(Post post) {
-        String query = "INSERT INTO post (content, created_at, author) VALUES (?, ? ,?)";
+        String query = String.format("INSERT INTO %s (content, created_at, author) VALUES (?, ? ,?)", TABLE_NAME);
 
         try (Connection conn = DBConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -46,16 +48,16 @@ public class PostDatabase {
         }
     }
 
-    public Post getPost(int page) {
+    public Optional<Post> getPost(int page) {
         if (page < 1) {
             page = 1;
         }
 
         try (Connection conn = DBConnectionManager.getConnection()) {
-            String query = "SELECT * FROM post ORDER BY id DESC LIMIT ? OFFSET ?";
+            String query = String.format("SELECT * FROM %s ORDER BY id DESC LIMIT ? OFFSET ?", TABLE_NAME);
             PreparedStatement pstmt = conn.prepareStatement(query);
 
-            pstmt.setInt(1, 1);
+            pstmt.setInt(1, PAGE_SIZE);
             pstmt.setInt(2, page - 1);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -67,9 +69,9 @@ public class PostDatabase {
                             rs.getTimestamp("created_at").toLocalDateTime()
                     );
                     logger.debug("Fetched post: " + post);
-                    return post;
+                    return Optional.of(post);
                 } else {
-                    return null;
+                    return Optional.empty();
                 }
             }
         } catch (SQLException e) {
@@ -78,7 +80,7 @@ public class PostDatabase {
     }
 
     public int getTotalPages() {
-        String query = "SELECT COUNT(*) AS total_count FROM post";
+        String query = String.format("SELECT COUNT(*) AS total_count FROM %s", TABLE_NAME);
 
         try (Connection conn = DBConnectionManager.getConnection();
              Statement stmt = conn.createStatement();
