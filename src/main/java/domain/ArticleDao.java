@@ -16,8 +16,8 @@ import java.util.Optional;
  */
 public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleDao> {
     private static final String INSERT_ARTICLE = """
-            INSERT INTO articles (writerId, content)
-            VALUES (?, ?)
+            INSERT INTO articles (writerId, content, articleImagePath)
+            VALUES (?, ?, ?)
             """;
     private static final String SELECT_ARTICLE_BY_ID = """
             SELECT *
@@ -64,7 +64,7 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
     public void insertArticle(Article article) {
         executeInsert(generatedId -> {
             ReflectionUtil.setField(article, "articleId", generatedId);
-        }, INSERT_ARTICLE, article.getWriter().getUserId(), article.getContent());
+        }, INSERT_ARTICLE, article.getWriter().getUserId(), article.getContent(), article.getArticleImagePath());
     }
 
     /**
@@ -152,7 +152,8 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
         return new Article(
                 rs.getLong("articleId"),
                 writer,
-                rs.getString("content")
+                rs.getString("content"),
+                rs.getString("articleImagePath")
         );
     }
 }

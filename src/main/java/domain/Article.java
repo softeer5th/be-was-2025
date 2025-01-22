@@ -10,10 +10,13 @@ public class Article {
 
     private String content;
 
-    Article(Long articleId, User writer, String content) {
+    private String articleImagePath;
+
+    Article(Long articleId, User writer, String content, String articleImagePath) {
         this.articleId = articleId;
         this.writer = writer;
         this.content = content;
+        this.articleImagePath = articleImagePath;
     }
 
     /**
@@ -23,8 +26,8 @@ public class Article {
      * @param content 게시글 내용
      * @return 생성된 게시글
      */
-    public static Article create(User writer, String content) {
-        return new Article(null, writer, content);
+    public static Article create(User writer, String content, String articleImagePath) {
+        return new Article(null, writer, content, articleImagePath);
     }
 
     public User getWriter() {
@@ -40,4 +43,7 @@ public class Article {
         return articleId;
     }
 
+    public String getArticleImagePath() {
+        return articleImagePath;
+    }
 }

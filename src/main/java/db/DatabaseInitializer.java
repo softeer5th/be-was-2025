@@ -24,6 +24,7 @@ public class DatabaseInitializer {
                 articleId BIGINT AUTO_INCREMENT PRIMARY KEY,
                 writerId VARCHAR(20),
                 content VARCHAR(2000)
+                articleImagePath VARCHAR(200)
             )
             """;
     private static final String CREATE_COMMENTS_TABLE = """
