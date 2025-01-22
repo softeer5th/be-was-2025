@@ -2,7 +2,6 @@ package handler;
 
 import Entity.QueryParameters;
 import db.Database;
-import exception.MissingUserInfoException;
 import http.*;
 import model.Post;
 import model.User;
@@ -24,6 +23,7 @@ public class PostHandler {
     private static final String LOGIN_PAGE = "http://localhost:8080/login/index.html";
     private static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
     private static final String MAIN_PAGE = "http://localhost:8080/index.html";
+    private static final String UPDATE_FAILED_PAGE = "http://localhost:8080/mypage/update_failed.html";
     private static final String LOCATION = "location";
 
     public static void handleSignUp(HttpRequest request, DataOutputStream dos) {
@@ -57,7 +57,7 @@ public class PostHandler {
             httpResponse.addHeader(LOCATION, MAIN_PAGE);
             httpResponse.respond();
             SessionUtil.getUserSessions().put(sessionId, user);
-        } catch (MissingUserInfoException | AuthenticationException e) {
+        } catch (Exception e) {
             // 로그인 실패
             logger.debug(e.getMessage());
             try {
@@ -139,6 +139,9 @@ public class PostHandler {
                 return;
             }
             QueryParameters queryParameters = new QueryParameters(request.getBody());
+            if (!queryParameters.get("password").equals(queryParameters.get("passwordConfirm"))) {
+                throw new IllegalArgumentException("password and passwordConfirm does not matched");
+            }
             String sid = request.getCookieSid();
             User user = SessionUtil.getUserSessions().get(sid);
             user.setName(queryParameters.get("userName"));
@@ -146,7 +149,16 @@ public class PostHandler {
             Database.updateUser(user);
             HttpResponse.respond302(MAIN_PAGE, dos);
         } catch (Exception e) {
-            logger.error("{}, Redirection Error, {}", "handleUpdateUserInfo", e.getMessage());
+            logger.debug("User info update failed, {}", e.getMessage());
+            redirectUpdateFailedPage(dos, e.getMessage());
+        }
+    }
+
+    private static void redirectUpdateFailedPage(DataOutputStream dos, String errorMessage) {
+        try {
+            HttpResponse.respond302(PostHandler.UPDATE_FAILED_PAGE, dos);
+        } catch (IOException ex) {
+            logger.error("Redirection Error: {}, {}, {}", PostHandler.UPDATE_FAILED_PAGE, errorMessage, ex.getMessage());
         }
     }
 
