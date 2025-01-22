@@ -19,7 +19,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
-// 클라이언트의 요청을 받아 HttpHandler에게 위임하는 Front-Controller
+/**
+ * 클라이언트의 요청을 받아 HttpHandler에게 위임하는 Front-Controller
+ */
 public class FrontController implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(FrontController.class);
 
@@ -32,7 +34,17 @@ public class FrontController implements Runnable {
     private final InterceptorChain interceptorChain;
     private final ExceptionFilterChain exceptionFilterChain;
 
-
+    /**
+     * FrontController 생성자
+     *
+     * @param config               서버 설정
+     * @param connectionSocket     클라이언트와 연결된 소켓
+     * @param requestParser        http request 문자열 파서
+     * @param responseWriter       http response 문자열 작성기
+     * @param router               path에 따른 handler를 매칭하는 router
+     * @param interceptorChain     interceptor chain
+     * @param exceptionFilterChain exception filter chain
+     */
     public FrontController(ServerConfig config, Socket connectionSocket, HttpRequestParser requestParser, HttpResponseWriter responseWriter, PathRouter router, InterceptorChain interceptorChain, ExceptionFilterChain exceptionFilterChain) {
         this.connection = connectionSocket;
         this.requestParser = requestParser;
@@ -43,6 +55,9 @@ public class FrontController implements Runnable {
         this.exceptionFilterChain = exceptionFilterChain;
     }
 
+    /**
+     * 클라이언트 요청을 받아 처리하는 메소드
+     */
     public void run() {
 
         try (InputStream in = new BufferedInputStream(connection.getInputStream()); OutputStream out = connection.getOutputStream()) {

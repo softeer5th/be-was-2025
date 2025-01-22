@@ -5,10 +5,12 @@ import webserver.enums.ContentType;
 import java.io.OutputStream;
 import java.util.Optional;
 
-// 빈 Body를 나타내는 클래스
+/**
+ * 빈 Body를 나타내는 ResponseBody
+ */
 class EmptyBody extends ResponseBody {
     static final EmptyBody INSTANCE = new EmptyBody();
-
+    
     @Override
     public void writeBody(OutputStream out) {
         // do nothing

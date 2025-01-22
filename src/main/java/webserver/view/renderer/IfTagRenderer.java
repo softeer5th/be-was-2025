@@ -8,13 +8,23 @@ import webserver.view.TemplateEngine;
 import java.util.Map;
 import java.util.Objects;
 
-// 조건문이 참이면 childTemplate을 렌더링하고, 거짓이면 빈 문자열을 반환하는 TagRenderer
-// 지원하는 조건문 형식은 다음과 같다.
-// 1. boolean literal : true, false
-// 2. 객체 탐색 경로 : session.user.isAdmin
-// 3. not 연산자 : !session.user.isAdmin
-// 4. 이항 연산자 : session.user.isAdmin && session.user.isLogin
-// 5. 이항 연산자 : session.user.isAdmin || session.user.isLogin
+/**
+ * <pre>
+ *  my-if 커스텀 태그를 렌더링하는 클래스
+ *  condition 속성의 조건문이 참이면 childTemplate을 렌더링하고, 거짓이면 빈 문자열을 반환한다.
+ *  지원하는 조건문 형식은 다음과 같다.
+ *  1. boolean literal : true, false
+ *  2. 객체 탐색 경로 : session.user.isAdmin
+ *  3. not 연산자 : !
+ *  4. 논리 이항 연산자 : &&, ||
+ *  5. 비교 이항 연산자 : >=, <=, >, <, ==, !=
+ *
+ *  연산자 우선순위는 다음과 같다
+ *  1. not 연산자
+ *  2. 비교 이항 연산자. 왼쪽부터 순서대로 평가된다.
+ *  3. 논리 이항 연산자. 왼쪽부터 순서대로 평가된다.
+ * </pre>
+ */
 public class IfTagRenderer extends TagRenderer {
     public static final String IF_TAG_NAME = "my-if";
     public static final String CONDITION_ATTRIBUTE_NAME = "condition";
@@ -36,7 +46,7 @@ public class IfTagRenderer extends TagRenderer {
     public void setEngine(TemplateEngine engine) {
         this.engine = engine;
     }
-
+    
     @Override
     public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
         String condition = tagAttributes.get(CONDITION_ATTRIBUTE_NAME);

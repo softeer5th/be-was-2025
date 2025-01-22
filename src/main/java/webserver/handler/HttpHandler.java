@@ -5,11 +5,17 @@ import webserver.exception.NotImplemented;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
-
-// HTTP 요청을 처리하는 핸들러 인터페이스
+/**
+ * HTTP 요청을 처리하는 핸들러 인터페이스
+ */
 public interface HttpHandler {
 
-    // HTTP 요청을 처리하고 응답을 반환.
+    /**
+     * HTTP 요청을 처리하는 메서드
+     *
+     * @param request HTTP 요청
+     * @return HTTP 응답
+     */
     default HttpResponse handle(HttpRequest request) {
         return switch (request.getMethod()) {
             case GET -> handleGet(request);
@@ -22,8 +28,6 @@ public interface HttpHandler {
         };
     }
 
-    // 필요에 맞게 handleXXX 메서드를 구현하여 사용
-    // 구현하지 않은 메서드에 대해선 NotFound 응답
     default HttpResponse handleGet(HttpRequest request) {
         return returnNotFound();
     }

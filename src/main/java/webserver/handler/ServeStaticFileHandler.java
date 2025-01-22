@@ -9,16 +9,30 @@ import webserver.response.HttpResponse;
 import java.io.File;
 import java.util.Optional;
 
-// staic 파일을 응답
+/**
+ * 정적 파일을 응답하는 핸들러
+ */
 public class ServeStaticFileHandler implements HttpHandler {
     private final String defaultPageFileName;
     private final StaticResourceManager resourceManager;
 
+    /**
+     * 정적 파일을 응답하는 핸들러를 생성한다.
+     *
+     * @param resourceManager     정적 파일을 관리하는 매니저
+     * @param defaultPageFileName 디렉토리일 경우 응답할 기본 파일 이름
+     */
     public ServeStaticFileHandler(StaticResourceManager resourceManager, String defaultPageFileName) {
         this.resourceManager = resourceManager;
         this.defaultPageFileName = defaultPageFileName;
     }
 
+    /**
+     * 정적 파일을 응답한다.
+     *
+     * @param request HTTP 요청
+     * @return 정적 파일을 담은 응답
+     */
     @Override
     public HttpResponse handleGet(HttpRequest request) {
         String requestPath = request.getRequestTarget().getPath();

@@ -1,6 +1,8 @@
 package enums;
 
-// 페이지 매핑 경로
+/**
+ * 페이지 매핑 경로를 관리하는 enum
+ */
 public enum PageMappingPath {
     INDEX("/"),
     READ_ARTICLE("/article/{articleId}"),
@@ -17,6 +19,12 @@ public enum PageMappingPath {
         this.path = path;
     }
 
+    /**
+     * 게시글 조회 경로를 반환한다.
+     *
+     * @param articleId 게시글 아이디
+     * @return 게시글 조회 경로
+     */
     public static String readArticlePath(Long articleId) {
         return READ_ARTICLE.path.replace("{articleId}", articleId.toString());
     }

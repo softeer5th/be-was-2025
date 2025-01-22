@@ -38,6 +38,13 @@ import java.util.concurrent.Executors;
 
 import static enums.PageMappingPath.*;
 
+/**
+ * <pre>
+ * 웹 서버 클래스
+ * 1. 클라이언트의 요청을 받아들이고, 응답을 보내는 역할을 한다.
+ * 2. 각 객체들을 생성하고 의존성을 연결해주는 역할을 한다.
+ * </pre>
+ */
 public class WebServer {
     private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
 

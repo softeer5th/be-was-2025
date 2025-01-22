@@ -1,5 +1,8 @@
 package domain;
 
+/**
+ * 게시글 정보를 나타내는 클래스
+ */
 public class Article {
     private Long articleId;
 
@@ -13,6 +16,13 @@ public class Article {
         this.content = content;
     }
 
+    /**
+     * 새로운 게시글을 생성한다.
+     *
+     * @param writer  게시글 작성자
+     * @param content 게시글 내용
+     * @return 생성된 게시글
+     */
     public static Article create(User writer, String content) {
         return new Article(null, writer, content);
     }

@@ -3,6 +3,7 @@ package webserver.request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Mapper;
+import webserver.enums.ContentType;
 import webserver.enums.HttpStatusCode;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
@@ -22,7 +23,9 @@ import static webserver.enums.HttpHeader.CONTENT_LENGTH;
 import static webserver.enums.HttpHeader.CONTENT_TYPE;
 import static webserver.enums.ParsingConstant.*;
 
-// Request Body InputStream 을 읽어들여 파싱하는 클래스
+/**
+ * HTTP Request Body InputStream 을 읽어들여 파싱하는 클래스
+ */
 public class RequestBody {
     private static final Logger log = LoggerFactory.getLogger(RequestBody.class);
     private final RequestHeader headers;
@@ -33,11 +36,24 @@ public class RequestBody {
     private Map<String, String> mapBodyCache;
     private String stringBodyCache;
 
+    /**
+     * RequestBody 생성자
+     *
+     * @param body    Body 를 읽어들일 InputStream
+     * @param headers Body 를 읽을 때 참고할 Request Header
+     */
     public RequestBody(InputStream body, RequestHeader headers) {
         this.headers = headers;
         this.body = body;
     }
 
+    /**
+     * body를 파싱하여 객체로 반환
+     *
+     * @param clazz body를 파싱하여 반환할 객체의 클래스. String, Map, POJO(기본 생성자 필요) 가 가능하다.
+     * @param <T>   body를 파싱하여 반환할 객체의 클래스
+     * @return body 정보가 담긴 T 타입 객체. body가 없거나 지원하지 않는 타입인 경우 Optional.empty() 반환
+     */
     public <T> Optional<T> getBody(Class<T> clazz) {
         if (clazz == String.class) {
             return (Optional<T>) getBodyAsString();

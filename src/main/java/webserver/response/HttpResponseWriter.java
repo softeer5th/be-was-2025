@@ -10,9 +10,18 @@ import java.io.OutputStream;
 import static webserver.enums.HttpHeader.SET_COOKIE;
 import static webserver.enums.ParsingConstant.CRLF;
 
-// HttpResponse 객체를 이용해 클라이언트에게 실제로 응답을 전송
+/**
+ * HttpResponse 객체를 이용해 클라이언트에게 실제로 응답을 전송
+ */
 public class HttpResponseWriter {
 
+    /**
+     * HttpResponse 객체를 이용해 클라이언트에게 응답을 전송
+     *
+     * @param version  응답의 HTTP 버전
+     * @param response 응답에 사용할 HttpResponse 객체
+     * @param out      응답을 전송할 OutputStream
+     */
     public void writeResponse(HttpVersion version, HttpResponse response, OutputStream out) {
         try {
             byte[] newLine = CRLF.value.getBytes();

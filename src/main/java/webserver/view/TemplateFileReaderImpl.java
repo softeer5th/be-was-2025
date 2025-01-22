@@ -7,9 +7,17 @@ import java.io.InputStream;
 import static util.FileUtil.getResourceAbsolutePath;
 import static util.FileUtil.joinPath;
 
+/**
+ * template 디렉터리에서 템플릿 파일을 읽어오는 클래스
+ */
 public class TemplateFileReaderImpl implements TemplateFileReader {
     private final String templateDirectory;
 
+    /**
+     * 생성자
+     *
+     * @param templateDirectory 템플릿 파일이 위치한 디렉터리 경로. resources 디렉터리 기준으로 상대경로
+     */
     public TemplateFileReaderImpl(String templateDirectory) {
         this.templateDirectory = templateDirectory;
     }

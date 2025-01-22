@@ -6,9 +6,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-// 템플릿 렌더링을 위한 구현체
-// 각 커스텀 태그를 처리하는 TagRenderer를 등록하여 사용한다.
-// 템플릿 문자열을 파싱하여 커스텀 태그를 찾고, 각 태그를 렌더링하여 최종 결과를 반환한다.
+/**
+ * 커스텀 html 태그 기반의 템플릿을 렌더링하는 엔진
+ * 각 커스텀 태그를 처리하는 TagRenderer를 등록하여 사용한다.
+ * 엔진은 템플릿 문자열을 파싱하여 커스텀 태그를 찾고, 각 태그의 렌더링은 TagRenderer에 위임하여 이를 취합하여 최종 결과를 만든다.
+ */
 public class MyTemplateEngine implements TemplateEngine {
 
     // my- 로 시작하는 여는 태그 및 닫는 태그를 찾기 위한 정규식
@@ -19,6 +21,12 @@ public class MyTemplateEngine implements TemplateEngine {
 
     private final Map<String, TagRenderer> tagHandlers = new ConcurrentHashMap<>();
 
+    /**
+     * 각 커스텀 태그를 렌더링하는 TagRenderer를 등록한다.
+     *
+     * @param tagRenderer 커스텀 태그를 렌더링하는 핸들러
+     * @return this
+     */
     public MyTemplateEngine registerTagHandler(TagRenderer tagRenderer) {
         // 태그 이름이 my-로 시작하는지 확인
         assert tagRenderer.getTagName().startsWith(TAG_NAME_PREFIX);
@@ -27,6 +35,13 @@ public class MyTemplateEngine implements TemplateEngine {
         return this;
     }
 
+    /**
+     * 템플릿 문자열을 렌더링한다.
+     *
+     * @param template 템플릿 문자열
+     * @param model    렌더링에 사용할 데이터
+     * @return 렌더링 결과 html
+     */
     // 쌍에 맞게 태그를 파싱하여 알맞는 태그 핸들러에게 전달 후 결과를 순서대로 조합하여 반환
     @Override
     public String render(String template, Map<String, Object> model) {
@@ -53,7 +68,12 @@ public class MyTemplateEngine implements TemplateEngine {
         return rendered.toString().strip();
     }
 
-
+    /**
+     * 템플릿 문자열에서 커스텀 태그 쌍을 찾아 반환한다.
+     *
+     * @param template 템플릿 문자열
+     * @return 커스텀 태그 쌍 목록
+     */
     // 매칭되는 태그 쌍 찾기
     private List<TagMatchingResult> matchTag(String template) {
         List<TagMatchingResult> matchingResults = new ArrayList<>();
@@ -101,6 +121,12 @@ public class MyTemplateEngine implements TemplateEngine {
         return matchingResults;
     }
 
+    /**
+     * 태그의 속성을 파싱하여 Map으로 반환한다.
+     *
+     * @param attributes 속성 문자열. ex) "key1="value1" key2="value2""
+     * @return 속성 이름과 값의 맵
+     */
     // 태그의 속성을 파싱하여 Map으로 반환
     private Map<String, String> parseAttributes(String attributes) {
         Map<String, String> result = new HashMap<>();
@@ -113,12 +139,20 @@ public class MyTemplateEngine implements TemplateEngine {
         return result;
     }
 
-    // 매칭된 태그 쌍을 저장하는 클래스
+    /**
+     * 매칭된 태그 쌍을 저장하는 클래스
+     *
+     * @param firstTagStart 여는 태그 시작 인덱스
+     * @param lastTagEnd    닫는 태그 끝 인덱스
+     * @param tagName       태그 이름
+     * @param tagAttributes 태그 속성 이름과 값을 담은 Map
+     * @param childTemplate 태그 안쪽의 자식 템플릿 문자열. 또 다른 커스텀 태그를 포함할 수 있음
+     */
     private record TagMatchingResult(
-            int firstTagStart, // 여는 태그 시작 인덱스
-            int lastTagEnd,  // 닫는 태그 끝 인덱스
-            String tagName, // 태그 이름
-            Map<String, String> tagAttributes, // 태그 속성
+            int firstTagStart,
+            int lastTagEnd,
+            String tagName,
+            Map<String, String> tagAttributes,
             String childTemplate
     ) {
 

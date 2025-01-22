@@ -2,11 +2,19 @@ package webserver.header;
 
 import java.util.Objects;
 
-// Cookie 헤더와 관련된 정보
+/**
+ * Cookie 헤더와 관련된 정보
+ */
 public class Cookie {
     private final String name;
     private final String value;
 
+    /**
+     * Cookie 생성자
+     *
+     * @param name  Cookie 이름
+     * @param value Cookie 값
+     */
     public Cookie(String name, String value) {
         this.name = name;
         this.value = value;

@@ -3,6 +3,9 @@ package webserver.exception;
 
 import webserver.enums.HttpStatusCode;
 
+/**
+ * HTTP 400~500 번대 에러를 나타내는 예외
+ */
 public class HttpException extends RuntimeException {
     private final int statusCode;
 

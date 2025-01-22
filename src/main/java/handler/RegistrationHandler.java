@@ -57,7 +57,7 @@ public class RegistrationHandler implements HttpHandler {
         return response;
     }
 
-    record RegistrationRequest(String userId, String password, String name, String email) {
+    private record RegistrationRequest(String userId, String password, String name, String email) {
         public User toUser() {
             return User.create(userId, password, name, email);
         }

@@ -6,16 +6,18 @@ import webserver.response.HttpResponse;
 
 import java.util.*;
 
-/* 인터셉터의 실행 순서를 관리하는 클래스.
- *  생성법
- *  var chain = InterceptorChain
- *   .inbound()
- *       .add(interceptor1)
- *       .add(interceptor2)
- *  .outbound()
- *       .add(interceptor3)
- *       .add(interceptor4)
- * .build();
+/**
+ * 인터셉터의 실행 순서를 관리하는 클래스.<br>
+ * 생성법<br>
+ * <pre>
+ * var chain = InterceptorChain<
+ *      .inbound()
+ *          .add(interceptor1)
+ *          .add(interceptor2)
+ *      .outbound()
+ *          .add(interceptor3)
+ *          .add(interceptor4)
+ *      .build();
  *
  * chain.execute(request, handler) 호출 시 실행 순서
  *      request----------------┐
@@ -25,7 +27,8 @@ import java.util.*;
  * 4. └-interceptor3.postHandle-┐
  * 5. ┌-interceptor4.postHandle-┘
  *    └----------------response
- *  */
+ * </pre>
+ */
 public class InterceptorChain {
     private final List<HandlerInterceptor> inboundOrder;
     private final List<HandlerInterceptor> outboundOrder;
@@ -40,6 +43,13 @@ public class InterceptorChain {
         return new InboundBuilder();
     }
 
+    /**
+     * 인터셉터 체인을 실행한다.
+     *
+     * @param request 처음 인터셉터의 preHandle 을 거칠 요청
+     * @param handler HTTP 요청을 처리할 핸들러
+     * @return 마지막 인터셉터의 postHandle 을 거친 응답
+     */
     public HttpResponse execute(HttpRequest request, HttpHandler handler) {
         // interceptor 가 handler 실행 전후로 공유하는 context
         Map<HandlerInterceptor, HandlerInterceptor.Context> contextMap = new HashMap<>();

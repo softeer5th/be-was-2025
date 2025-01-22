@@ -8,18 +8,30 @@ import java.util.Optional;
 
 import static util.ExceptionUtil.ignoreException;
 
-// 리플렉션 유틸 클래스
+/**
+ * 리플렉션 유틸 클래스
+ */
 public class ReflectionUtil {
     private static final String GET_METHOD = "get";
     private static final List<String> getterPrefix = List.of("get", "is");
 
-    /* 객체의 필드를 가져오는 메서드. 만약 fieldName이 email이라면
-       2. getEmail()
-       3. isEmail()
-       4. email()
-       5. get("email")
-       5. email 필드에 직접 접근
+    /* 객체의 필드를 가져오는 메서드. 만약
         순서대로 필드를 가져온다.
+     */
+
+    /**
+     * 객체의 필드를 가져오는 메서드
+     * fieldName이 email이라면<br>
+     * 1. getEmail()<br>
+     * 2. isEmail()<br>
+     * 3. email()<br>
+     * 4. get("email")<br>
+     * 5. email 필드에 직접 접근<br>
+     * 순서대로 필드를 가져온다.
+     *
+     * @param object    객체
+     * @param fieldName 필드 이름
+     * @return 필드 값
      */
     public static Optional<Object> callGetter(Object object, String fieldName) {
         if (object == null || fieldName == null || fieldName.isBlank())
@@ -55,7 +67,13 @@ public class ReflectionUtil {
         });
     }
 
-    // 객체와, 그 객체를 탐색할 수 있는 경로(예: session.user.name)를 받아서 재귀적으로 객체를 탐색하는 메서드
+    /**
+     * 객체와, 그 객체를 탐색할 수 있는 경로(예: session.user.name)를 받아서 재귀적으로 객체를 탐색하는 메서드
+     *
+     * @param object              객체
+     * @param objectTraversalPath 객체를 탐색할 수 있는 경로
+     * @return 탐색한 결과
+     */
     public static Optional<Object> recursiveCallGetter(Object object, String objectTraversalPath) {
         if (object == null || objectTraversalPath == null || objectTraversalPath.isBlank())
             return Optional.empty();
@@ -72,7 +90,13 @@ public class ReflectionUtil {
     }
 
 
-    // 객체의 필드를 설정하는 메서드.
+    /**
+     * 객체의 필드를 설정하는 메서드.
+     *
+     * @param object    객체
+     * @param fieldName 필드 이름
+     * @param value     필드 값
+     */
     public static void setField(Object object, String fieldName, Object value) {
         if (object == null || fieldName == null || fieldName.isBlank())
             return;

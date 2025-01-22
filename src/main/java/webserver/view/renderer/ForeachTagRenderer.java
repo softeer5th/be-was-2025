@@ -11,6 +11,13 @@ import java.util.Optional;
 
 import static util.ReflectionUtil.recursiveCallGetter;
 
+/**
+ * <pre>
+ * my-foreach 커스텀 태그를 렌더링하는 클래스
+ * items 속성에 Iterable이나 배열을 넣으면 childrenTemplate을 items의 갯수만큼 렌더링해준다.
+ * 각 렌더링 시 item 속성을 model에 추가하여 childTemplate에서 item을 사용할 수 있게 한다. 또한 index 속성을 추가하면 반복 index도 사용할 수 있다.
+ * </pre>
+ */
 // childrenTemplate을 items의 갯수만큼 렌더링해주는 TagRenderer.
 // 각 렌더링 시 item을 model에 추가하여 childTemplate에서 item을 사용할 수 있게 한다.
 public class ForeachTagRenderer extends TagRenderer {

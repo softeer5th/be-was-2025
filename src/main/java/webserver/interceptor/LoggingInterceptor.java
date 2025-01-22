@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
-// Request, Response 관련 로그를 기록하는 클래스
+/**
+ * Request, Response 관련 로그를 기록하는 클래스
+ */
 public class LoggingInterceptor implements HandlerInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingInterceptor.class);

@@ -21,12 +21,49 @@ import static webserver.enums.HttpHeader.COOKIE;
 import static webserver.enums.HttpHeader.HOST;
 import static webserver.enums.ParsingConstant.*;
 
-// 사용자의 요청을 파싱하여 HttpRequest 객체를 생성
+/**
+ * 사용자의 요청을 파싱하여 HttpRequest 객체를 생성
+ */
 public class HttpRequestParser {
     private final int maxHeaderSize;
 
     public HttpRequestParser(Integer maxHeaderSize) {
         this.maxHeaderSize = maxHeaderSize;
+    }
+
+    /**
+     * 클라이언트와 연결된 InputStream으로부터 HttpRequest 객체를 생성
+     * InputStream은 Header 까지만 읽고, Body는 읽지 않는다.
+     *
+     * @param in 클라이언트와 연결된 InputStream
+     * @return HttpRequest 객체
+     */
+    public HttpRequest parse(InputStream in) {
+        try {
+            // request-line + headers 문자열
+            String headerSection = readUntilBody(in);
+
+            // Request Line과 Header Lines 를 분리
+            String[] tokens = headerSection.split(HTTP_LINE_SEPARATOR.value, 2);
+            String requestLineString = tokens[0];
+            String headerLines = tokens[1];
+
+            if (!requestLineString.strip().equals(requestLineString))
+                throw new BadRequest("Request Line 앞뒤로 공백이 있습니다.");
+
+            // Request Line 문자열 파싱
+            RequestLine requestLine = parseRequestLine(requestLineString);
+            // Header Line 문자열 파싱
+            RequestHeader headers = parseHeaders(headerLines);
+
+            RequestBody bodyParser = new RequestBody(in, headers);
+
+            return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, bodyParser);
+        } catch (HttpException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BadRequest("Invalid Request", e);
+        }
     }
 
     // Body 직전 헤더까지 읽기
@@ -60,35 +97,6 @@ public class HttpRequestParser {
             }
         }
         return sb.toString();
-    }
-
-    // request input reader로부터 데이터를 읽어들여 HttpRequest 객체를 생성
-    public HttpRequest parse(InputStream in) {
-        try {
-            // request-line + headers 문자열
-            String headerSection = readUntilBody(in);
-
-            // Request Line과 Header Lines 를 분리
-            String[] tokens = headerSection.split(HTTP_LINE_SEPARATOR.value, 2);
-            String requestLineString = tokens[0];
-            String headerLines = tokens[1];
-
-            if (!requestLineString.strip().equals(requestLineString))
-                throw new BadRequest("Request Line 앞뒤로 공백이 있습니다.");
-
-            // Request Line 문자열 파싱
-            RequestLine requestLine = parseRequestLine(requestLineString);
-            // Header Line 문자열 파싱
-            RequestHeader headers = parseHeaders(headerLines);
-
-            RequestBody bodyParser = new RequestBody(in, headers);
-
-            return new HttpRequest(requestLine.method(), requestLine.requestTarget(), requestLine.version(), headers, bodyParser);
-        } catch (HttpException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BadRequest("Invalid Request", e);
-        }
     }
 
     // Request Line 문자열을 파싱하여 RequestLine 객체 생성
