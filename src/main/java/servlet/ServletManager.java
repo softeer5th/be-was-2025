@@ -98,7 +98,7 @@ public class ServletManager {
             servlets.get(FILE_NOT_SUPPORTED).handle(request, response);
         } catch (FileNotFoundException e){
             servlets.get(NOT_FOUND).handle(request, response);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | BadRequestException e) {
             servlets.get(BAD_REQUEST).handle(request, response);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
