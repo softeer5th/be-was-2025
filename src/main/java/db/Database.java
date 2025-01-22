@@ -4,6 +4,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,7 +80,7 @@ public class Database {
         }
     }
 
-    public static Collection<User> findAll() {
+    public static Collection<User> findAllUsers() {
         String sql = "SELECT * FROM USERS";
         Collection<User> users = new ArrayList<>();
 
@@ -103,5 +104,28 @@ public class Database {
         }
 
         return users;
+    }
+
+    public static void addArticle(String userId, String content, InputStream photo) {
+        String sql = "INSERT INTO POSTS (user_id, content, photo, created_at) VALUES (?, ?, ?, ?)";
+
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql)){
+                statement.setString(1, userId);
+                statement.setString(2, content);
+                statement.setBlob(3, photo);
+                statement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                statement.executeUpdate();
+
+                connection.commit();
+            } catch (Exception e) {
+                connection.rollback();
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }
