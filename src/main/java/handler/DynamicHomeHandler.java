@@ -213,7 +213,11 @@ public class DynamicHomeHandler implements Handler {
      * @param postContent 댓글 리스트를 HTML로 추가할 StringBuilder
      * @param comments 댓글 목록
      */
-    private static void addComments(StringBuilder postContent, List<Comment> comments) {
+    private void addComments(StringBuilder postContent, List<Comment> comments) {
+        if (comments.isEmpty()) {
+            postContent.append("<h2>댓글이 없습니다 ㅜㅜ</h2>");
+            return;
+        }
         for (Comment comment : comments) {
             postContent.append("""
                             <li class="comment__item">
