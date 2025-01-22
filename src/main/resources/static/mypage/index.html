@@ -41,7 +41,7 @@
           </div>
         </div>
       </div>
-      <form class="form" action="/user/update" method="POST" onsubmit="return validateForm()">
+      <form class="form" action="/user/update" method="POST">
         <div class="textfield textfield_size_s input_margin">
           <p class="title_textfield">닉네임</p>
           <input
@@ -78,32 +78,5 @@
     </div>
   </div>
 </div>
-
-<script>
-  // 비밀번호 유효성 검사 함수
-  function validateForm() {
-    const password = document.querySelector('input[name="password"]').value;
-    const passwordConfirm = document.querySelector('input[name="passwordConfirm"]').value;
-
-    // 비밀번호와 비밀번호 확인 일치 여부 검사
-    if (password !== passwordConfirm) {
-      alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
-      return false;
-    }
-
-    // 비밀번호에 불허용 문자가 포함되었는지 검사
-    const invalidChars = ['=', '&', ' '];  // 불허용 문자
-    for (let i = 0; i < invalidChars.length; i++) {
-      if (password.includes(invalidChars[i])) {
-        alert('비밀번호에는 "="나 "&", 공백을 포함할 수 없습니다.');
-        return false;
-      }
-    }
-
-    // 모든 검사를 통과하면 폼을 제출
-    return true;
-  }
-</script>
-
 </body>
 </html>
