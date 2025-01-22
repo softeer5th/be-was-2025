@@ -44,10 +44,11 @@ public class MypageHandler implements HttpHandler {
         log.debug("user update request: {}, session: {}", body, session);
 
         User user = (User) session.get(HttpSession.USER_KEY);
-        if (!body.isPasswordSame()) {
+        try {
+            user.update(body.currentPassword(), body.name(), body.newPassword());
+        } catch (IllegalArgumentException e) {
             return renderPageWithError();
         }
-        user.update(body.name(), body.password());
         userDao.saveUser(user);
 
         request.getSession().set(HttpSession.USER_KEY, user);
@@ -58,14 +59,11 @@ public class MypageHandler implements HttpHandler {
     private HttpResponse renderPageWithError() {
         HttpResponse response = new HttpResponse(HttpStatusCode.UNAUTHORIZED);
         ModelAndTemplate modelAndTemplate = new ModelAndTemplate(TEMPLATE_NAME);
-        modelAndTemplate.setError("비밀번호 확인이 다릅니다.");
+        modelAndTemplate.setError("현재 비밀번호가 다릅니다.");
         response.renderTemplate(modelAndTemplate);
         return response;
     }
 
-    private record UserUpdateRequest(String name, String password, String confirmPassword) {
-        boolean isPasswordSame() {
-            return password.equals(confirmPassword);
-        }
+    private record UserUpdateRequest(String name, String newPassword, String currentPassword) {
     }
 }

@@ -37,7 +37,6 @@
                             minlength="3"
                             name="name"
                             placeholder="회원 가입 시 입력했던 닉네임"
-                            required
                             type="text"
                     />
                 </div>
@@ -46,11 +45,11 @@
                     <input
                             autocomplete="new-password"
                             class="input_textfield"
+                            id="newPassword"
                             maxlength="20"
                             minlength="3"
-                            name="password"
+                            name="newPassword"
                             placeholder="비밀번호를 변경할 경우 입력해주세요"
-                            required
                             type="password"
                     />
                 </div>
@@ -58,10 +57,21 @@
                     <p class="title_textfield">비밀번호 확인</p>
                     <input
                             class="input_textfield"
+                            id="confirmPassword"
                             maxlength="20"
                             minlength="3"
-                            name="confirmPassword"
                             placeholder="한 번 더 입력해주세요"
+                            type="password"
+                    />
+                </div>
+                <div class="textfield textfield_size_s">
+                    <p class="title_textfield">현재 비밀번호</p>
+                    <input
+                            class="input_textfield"
+                            maxlength="20"
+                            minlength="3"
+                            name="currentPassword"
+                            placeholder="현재 비밀번호"
                             required
                             type="password"
                     />
@@ -79,8 +89,8 @@
     </div>
 </div>
 <script>
-    const password = document.querySelector('input[name="password"]');
-    const confirmPassword = document.querySelector('input[name="confirmPassword"]');
+    const password = document.querySelector('#newPassword');
+    const confirmPassword = document.querySelector('#confirmPassword');
 
     function validatePassword() {
         if (password.value !== confirmPassword.value) {

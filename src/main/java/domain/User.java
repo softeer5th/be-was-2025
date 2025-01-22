@@ -69,12 +69,22 @@ public class User {
     /**
      * 유저 정보를 업데이트한다.
      *
-     * @param name        새로운 이름
-     * @param newPassword 새로운 비밀번호
+     * @param currentPassword 현재 비밀번호
+     * @param name            새로운 이름. null이면 업데이트하지 않음
+     * @param newPassword     새로운 비밀번호. null이면 업데이트하지 않음
+     * @throws IllegalArgumentException 현재 비밀번호가 틀릴 때
      */
-    public void update(String name, String newPassword) {
-        this.name = name;
-        this.passwordHash = hashPassword(newPassword);
+    public void update(String currentPassword, String name, String newPassword) {
+        if (!isPasswordCorrect(currentPassword)) {
+            log.error("password not matched");
+            throw new IllegalArgumentException("password not matched");
+        }
+        if (name != null && !name.isEmpty()) {
+            this.name = name;
+        }
+        if (newPassword != null && !newPassword.isEmpty()) {
+            this.passwordHash = hashPassword(newPassword);
+        }
     }
 
     @Override
