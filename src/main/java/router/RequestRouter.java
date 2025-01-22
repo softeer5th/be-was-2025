@@ -23,6 +23,7 @@ public class RequestRouter implements Router {
         routeMap.put(Pattern.compile("^/users/register$"), AppConfig.getUserRegisterHandler());
         routeMap.put(Pattern.compile("^/users/login$"), AppConfig.getUserLoginHandler());
         routeMap.put(Pattern.compile("^/users/logout$"), AppConfig.getUserLogoutHandler());
+        routeMap.put(Pattern.compile("^/articles/create$"), AppConfig.getArticleHandler());
         routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg|ico|jpg|png)$"),
                 AppConfig.getFileRequestHandler());
         routeMap.put(Pattern.compile("^/[^/]+$"), AppConfig.getFileRequestHandler());
