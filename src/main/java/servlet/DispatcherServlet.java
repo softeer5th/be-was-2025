@@ -42,6 +42,7 @@ public class DispatcherServlet implements Servlet {
             controllerAdaptor.invoke(controllerMethod,request, response);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof BadRequestException){
+                log.error("bad request: ", e.getTargetException());
                 throw new BadRequestException("Bad Request 요청 발생");
             }
             log.error(e.getTargetException().getMessage(), e.getTargetException());
