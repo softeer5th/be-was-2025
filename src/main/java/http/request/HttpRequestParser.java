@@ -69,7 +69,7 @@ public class HttpRequestParser {
             String[] tokens = requestHeaders.split("\n");
             for (String token : tokens) {
                 String[] keyValue = token.split(":");
-                requestHeadersMap.put(keyValue[0], keyValue[1].trim());
+                requestHeadersMap.put(keyValue[0].toLowerCase(), keyValue[1].trim());
             }
         }
         return requestHeadersMap;
@@ -87,6 +87,8 @@ public class HttpRequestParser {
         }
         return requestBodyMap;
     }
+
+//    public static
 
     private static String getRequestBody(BufferedReader reader, int contentLength) throws IOException {
         // HTTP Request Body
