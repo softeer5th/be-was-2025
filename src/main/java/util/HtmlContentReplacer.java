@@ -10,6 +10,7 @@ import webserver.session.SessionManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class HtmlContentReplacer {
     private static final String startIfString = "<my_if";
@@ -26,6 +27,7 @@ public class HtmlContentReplacer {
         conditions.put("hideComment", false);
         conditions.put("showAll", false);
         conditions.put("hasPost", false);
+        conditions.put("differentUser", true);
         if(login) {
             User user = (User) SessionManager.getSession(sid).getUser();
             properties.put("$userId", user.getUserId());
@@ -52,6 +54,10 @@ public class HtmlContentReplacer {
             properties.put("$postTitle", post.getTitle());
             properties.put("$postContent", post.getContent());
             properties.put("$postUserId", post.getUserId());
+
+            if(Objects.equals(properties.get("$userId"), post.getUserId())) {
+                conditions.put("differentUser", false);
+            }
         }
         properties.put("$nowPost", PostManager.getNowPostId(postId));
         properties.put("$nextPost", PostManager.getNextPostId(postId));
@@ -70,13 +76,14 @@ public class HtmlContentReplacer {
             html = replaceComment(html, CommentManager.getCommentsByPost(postId));
         }
 
+        if(html.contains(startIfString)) {
+            html = replaceIfContent(html);
+        }
+
         for(String property : properties.keySet()) {
             html = html.replace(property, properties.get(property));
         }
 
-        if(html.contains(startIfString)) {
-            html = replaceIfContent(html);
-        }
 
         return html.getBytes();
     }
