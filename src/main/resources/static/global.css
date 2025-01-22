@@ -79,18 +79,6 @@
   line-height: 14px;
 }
 
-.user-name {
-  text-decoration: none;
-  color: #14212b;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 14px;
-}
-
-.user-name:visited {
-  color: #14212b;
-}
-
 .form {
   display: flex;
   flex-direction: column;
