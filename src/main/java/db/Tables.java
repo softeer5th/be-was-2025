@@ -11,7 +11,7 @@ public class Tables {
                 "    id VARCHAR(255) PRIMARY KEY," +
                 "    username VARCHAR(255) NOT NULL," +
                 "    password VARCHAR(255) NOT NULL," +
-                "    email VARCHAR(255) NOT NULL UNIQUE" +
+                "    email VARCHAR(255) NOT NULL" +
                 ");";
         try {
             Statement stmt = connection.createStatement();
@@ -25,7 +25,7 @@ public class Tables {
         String sql = "" +
                 "CREATE TABLE IF NOT EXISTS posts (" +
                 "    id INT AUTO_INCREMENT PRIMARY KEY," +
-                "    user_id INT," +
+                "    user_id VARCHAR(255) NOT NULL," +
                 "    title VARCHAR(255) NOT NULL," +
                 "    body TEXT," +
                 "    FOREIGN KEY (user_id) REFERENCES users(id)" +
