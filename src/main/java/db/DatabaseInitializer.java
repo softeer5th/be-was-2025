@@ -23,7 +23,7 @@ public class DatabaseInitializer {
             CREATE TABLE IF NOT EXISTS articles (
                 articleId BIGINT AUTO_INCREMENT PRIMARY KEY,
                 writerId VARCHAR(20),
-                content VARCHAR(2000)
+                content VARCHAR(2000),
                 articleImagePath VARCHAR(200)
             )
             """;

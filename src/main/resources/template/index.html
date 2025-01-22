@@ -25,7 +25,9 @@
                         </p>
                     </div>
                 </my-text>
-                <img class="post__img"/>
+                <my-text>
+                    <img class="post__img" src="${article.articleImagePath}"/>
+                </my-text>
                 <div class="post__menu">
                     <ul class="post__menu__personal">
                         <li>
@@ -54,7 +56,12 @@
                     <my-if condition="i < 3">
                         <li class="comment__item">
                             <div class="comment__item__user">
-                                <img class="comment__item__user__img" src="${comment.writer.profileImagePath}"/>
+                                <my-if condition="comment.writer.profileImagePath">
+                                    <img class="comment__item__user__img" src="${comment.writer.profileImagePath}"/>
+                                </my-if>
+                                <my-if condition="!comment.writer.profileImagePath">
+                                    <img class="comment__item__user__img"/>
+                                </my-if>
                                 <p class="comment__item__user__nickname">${comment.writer.userId}</p>
                             </div>
                             <p class="comment__item__article">

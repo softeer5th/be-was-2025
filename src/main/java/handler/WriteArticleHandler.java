@@ -3,9 +3,10 @@ package handler;
 import domain.Article;
 import domain.ArticleDao;
 import domain.User;
-import webserver.exception.BadRequest;
 import webserver.handler.HttpHandler;
+import webserver.request.FileUploader;
 import webserver.request.HttpRequest;
+import webserver.request.Multipart;
 import webserver.response.HttpResponse;
 import webserver.session.HttpSession;
 
@@ -17,9 +18,11 @@ import static enums.PageMappingPath.readArticlePath;
 public class WriteArticleHandler implements HttpHandler {
     private static final String TEMPLATE_NAME = "/article/index.html";
     private final ArticleDao articleDao;
+    private final FileUploader fileUploader;
 
-    public WriteArticleHandler(ArticleDao articleDao) {
+    public WriteArticleHandler(ArticleDao articleDao, FileUploader fileUploader) {
         this.articleDao = articleDao;
+        this.fileUploader = fileUploader;
     }
 
     /**
@@ -35,17 +38,23 @@ public class WriteArticleHandler implements HttpHandler {
      */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
-        ArticleWriteRequest body = request.getBody(ArticleWriteRequest.class)
-                .orElseThrow(() -> new BadRequest("잘못된 요청입니다."));
+        ArticleWriteRequest body = parseRequest(request);
         User loginUser = (User) request.getSession().get(HttpSession.USER_KEY);
 
-        Article article = Article.create(loginUser, body.content());
+        Article article = Article.create(loginUser, body.content(), body.articleImagePath());
         articleDao.insertArticle(article);
 
         return HttpResponse.redirect(readArticlePath(article.getArticleId()));
 
     }
 
-    private record ArticleWriteRequest(String content) {
+    private ArticleWriteRequest parseRequest(HttpRequest request) {
+        Multipart multipart = request.getMultipart();
+        String content = multipart.getString("content");
+        String articleImagePath = multipart.saveFile("articleImage", fileUploader);
+        return new ArticleWriteRequest(content, articleImagePath);
+    }
+
+    private record ArticleWriteRequest(String content, String articleImagePath) {
     }
 }

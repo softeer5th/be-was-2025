@@ -96,7 +96,7 @@ public class WebServer {
                 .setHandler(LOGIN.path, new LoginHandler(userDao))
                 .setHandler(LOGOUT.path, new LogoutHandler())
                 .setHandler(MYPAGE.path, new MypageHandler(userDao, resourceManager))
-                .setHandler(WRITE_ARTICLE.path, new WriteArticleHandler(articleDao))
+                .setHandler(WRITE_ARTICLE.path, new WriteArticleHandler(articleDao, resourceManager))
                 .setHandler(WRITE_COMMENT.path, new WriteCommentHandler(database, articleDao, commentDao));
 
         SessionManager sessionManager = new MemorySessionManager();
