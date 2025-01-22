@@ -3,6 +3,7 @@
     import java.io.*;
     import java.net.Socket;
     import java.nio.charset.StandardCharsets;
+    import java.time.LocalTime;
     import java.util.*;
 
     import db.Database;
@@ -101,7 +102,8 @@
                         if (cookies.containsKey("SESSIONID")) {
                             String sessionId = cookies.get("SESSIONID");
 
-                            Database.updateSessionLastAccessTimeToNow(sessionId);
+                            LocalTime time = LocalTime.now();
+                            Database.updateSessionLastAccessTime(sessionId, time);
                             cookieList.add(new Cookie("SESSIONID", sessionId, Database.getSessionMaxInactiveInterval(sessionId)));
                         }
                     }

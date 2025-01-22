@@ -44,14 +44,13 @@ public class Database {
         return session.getMaxInactiveInterval();
     }
 
-    public static void updateSessionLastAccessTimeToNow(String sessionId) {
+    public static void updateSessionLastAccessTime(String sessionId, LocalTime time) {
         Session session = getSessionById(sessionId);
 
         if (session == null) {
             throw new HTTPExceptions.Error403("session not found");
         }
 
-        LocalTime time = LocalTime.now();
         session.setLastAccessTime(time);
 
     }
