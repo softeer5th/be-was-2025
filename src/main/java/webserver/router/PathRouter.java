@@ -29,13 +29,7 @@ public class PathRouter {
         return this;
     }
 
-    public PathRouter setHandler(List<String> paths, HttpHandler handler) {
-        for (String path : paths) {
-            setHandler(path, handler);
-        }
-        return this;
-    }
-
+    
     public PathRouter setHandler(String path, HttpHandler handler) {
         for (HttpMethod method : HttpMethod.values()) {
             setHandler(method, path, handler);
