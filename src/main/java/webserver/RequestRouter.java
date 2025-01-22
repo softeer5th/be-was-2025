@@ -4,6 +4,7 @@ import Entity.QueryParameters;
 import db.Database;
 import exception.MissingUserInfoException;
 import http.*;
+import model.Post;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +12,7 @@ import util.ContentTypeUtil;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
@@ -35,10 +33,12 @@ public class RequestRouter {
     private static final String LOGIN_PAGE = "http://localhost:8080/login/index.html";
     private static final String SIGNUP_FAILED_PAGE = "http://localhost:8080/registration/registration_failed.html";
     private static final String MAIN_PAGE = "http://localhost:8080/index.html";
+    private static final String MAIN_PAGE_REDIRECT_PAGE = "http://localhost:8080/index.html?postId=1";
     private static final String SIGNIN_PATH = "/user/signIn";
     private static final String SIGNUP_PATH = "/user/create";
     private static final String LOGOUT_PATH = "/user/logout";
     private static final String USER_INFO_PATH = "/user/info";
+    private static final String CREAT_POST_PATH = "/post/create";
     private static final String LOCATION = "location";
     private static final Map<String, User> userSessions = new ConcurrentHashMap<>();
 
@@ -52,6 +52,7 @@ public class RequestRouter {
         this.addPostHandler(SIGNIN_PATH, this::handleSignIn);
         this.addPostHandler(LOGOUT_PATH, this::handleLogout);
         this.addPostHandler(USER_INFO_PATH, this::handleUserInfo);
+        this.addPostHandler(CREAT_POST_PATH, this::handleCreatePost);
     }
 
     public void route(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
@@ -88,7 +89,8 @@ public class RequestRouter {
      */
     private void handleGetRequest(HttpRequest request, DataOutputStream dos) {
         try {
-            String fileExtension = request.getRequestPath().split("\\.")[1];
+            String fileExtension = request.getRequestPath().split("\\.")[1].split("\\?")[0];
+
             File file = new File(RESOURCES_PATH + request.getRequestPath());
             if (!ContentTypeUtil.isValidExtension(fileExtension) || !file.exists()) {
                 HttpResponse.respond404(dos);
@@ -143,6 +145,55 @@ public class RequestRouter {
         return contentBuilder.toString();
     }
 
+    private void handleCreatePost(HttpRequest request, DataOutputStream dos) {
+        try {
+            if (!isUserLoggedIn(request)) {
+                HttpResponse.respond302(LOGIN_PAGE, dos);
+            }
+            String boundary = request.getWebKitFormBoundary();
+            if (boundary == null) {
+                HttpResponse.respond400(dos);
+            }
+            User user = getUserBySid(request.getCookieSid());
+            createPost(request.getBody(), boundary, user.getUserId());
+            HttpResponse.respond302(MAIN_PAGE + "?postId=" + Database.getLastPostId(), dos);
+        } catch (Exception e) {
+            logger.error("handleCreatePost error, {}", e.getMessage());
+        }
+    }
+
+    private void createPost(String body, String boundary, String userId) {
+        Map<String, String> parsedData = new HashMap<>();
+        String[] parts = body.split("--" + boundary);
+        for (String part : parts) {
+            if (part.trim().isEmpty() || part.equals("--")) continue;
+            String[] sections = part.split("\r\n\r\n", 2);
+            if (sections.length == 2) {
+                String headers = sections[0];
+                String content = sections[1].trim();
+
+                // name="~~" 추출
+                // name=" 의 시작 인덱스.
+                int nameStartIndex = headers.indexOf("name=\"") + 6;
+                if (nameStartIndex > 4) { // 'name='가 존재할 경우
+                    int nameEndIndex = headers.indexOf("\"", nameStartIndex);
+                    if (nameEndIndex > nameStartIndex) {
+                        String key = headers.substring(nameStartIndex, nameEndIndex);
+                        parsedData.put(key, content);
+                    }
+                }
+            }
+        }
+        Post post = new Post(Database.getLastPostId() + 1,
+                parsedData.get("title"),
+                parsedData.get("content"),
+                userId);
+        logger.debug("new post info : post_id = {},  title = {}, content = {}, userid = {}",
+                Database.getLastPostId(), parsedData.get("title"), parsedData.get("content"), userId);
+        Database.addPost(post);
+    }
+
+
     private void handleSignUp(HttpRequest request, DataOutputStream dos) {
         try {
             creatUser(request.getBody());
@@ -185,6 +236,10 @@ public class RequestRouter {
         } catch (IOException e) {
             logger.error("SignIn Error" + e.getMessage());
         }
+    }
+
+    private User getUserBySid(String sid) {
+        return userSessions.get(sid);
     }
 
     /*

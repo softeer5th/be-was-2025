@@ -1,5 +1,10 @@
 package db;
+
+import model.Post;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.WebServer;
 
 import java.sql.*;
 import java.util.*;
@@ -9,6 +14,8 @@ public class Database {
     // 파일 기반 H2 데이터베이스
     private static final String USER = "";
     private static final String PASSWORD = "";
+    private static final Logger logger = LoggerFactory.getLogger(WebServer.class);
+
     static {
         initializeDatabase();
     }
@@ -31,6 +38,13 @@ public class Database {
                     + ")";
             stmt.execute(createUserTable);
 
+            String createPostTable = "CREATE TABLE post ("
+                    + "post_id INTEGER PRIMARY KEY,"
+                    + "title VARCHAR(255), "
+                    + "content TEXT, "
+                    + "user_id VARCHAR(255)"
+                    + ")";
+            stmt.execute(createPostTable);
             stmt.close();
         } catch (SQLException e) {
             logger.error("initialize error, {}", e.getMessage());
@@ -85,11 +99,55 @@ public class Database {
                 stmt.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             logger.error("addUser error, {}", e.getMessage());
         }
+    }
+
+    public static void updateUser(User user) {
+        String updateQuery = "UPDATE \"user\" SET password = ?, name = ?, email = ? WHERE user_id = ?";
+
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD);
+             PreparedStatement stmt = connection.prepareStatement(updateQuery)) {
+
+            stmt.setString(1, user.getPassword());
+            stmt.setString(2, user.getName());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getUserId());
+
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                logger.debug("User with user_id {} updated successfully", user.getUserId());
+            } else {
+                logger.warn("No user found with user_id {}", user.getUserId());
+            }
+        } catch (SQLException e) {
+            logger.error("updateUser error, {}", e.getMessage());
         }
     }
+
+    public static Post findByPostId(int postId) {
+        String selectQuery = "SELECT post_id, title, content, user_id FROM post WHERE post_id = ?";
+        Post post = null;
+
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD);
+             PreparedStatement stmt = connection.prepareStatement(selectQuery)) {
+
+            stmt.setInt(1, postId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    post = new Post(rs.getInt("post_id"),
+                            rs.getString("title"),
+                            rs.getString("content"),
+                            rs.getString("user_id"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("findByPostId error, {}", e.getMessage());
+        }
+
+        return post;
+    }
+
 
     // 사용자 ID로 사용자 조회
     public static Optional<User> findUserById(String userId) {
@@ -109,13 +167,13 @@ public class Database {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("findUserById error, {}", e.getMessage());
         }
         return Optional.empty();
     }
 
     // 모든 사용자 조회
-    public static Collection<User> findAll() {
+    public static Collection<User> findAllUser() {
         Collection<User> userList = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
             String selectQuery = "SELECT * FROM \"user\"";
