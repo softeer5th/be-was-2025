@@ -14,13 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static webserver.enums.ContentType.APPLICATION_X_WWW_FORM_URLENCODED;
-import static webserver.enums.HttpHeader.CONTENT_LENGTH;
-import static webserver.enums.HttpHeader.CONTENT_TYPE;
+import static webserver.enums.HttpHeader.*;
 import static webserver.enums.ParsingConstant.*;
 
 /**
@@ -67,6 +64,23 @@ public class RequestBody {
         }
         log.error("지원하지 않는 Content-Type 입니다. Content-Type: {}", contentType);
         return Optional.empty();
+    }
+
+    public Multipart getMultipart() {
+        readBodyAsRaw();
+        return parseMultipartFormDataBody(rawBodyCache);
+    }
+
+    private Map<String, String> getAttributeMap(String contentDisposition) {
+        String[] contentDispositionTokens = contentDisposition.split(CONTENT_DISPOSITION_ATTRIBUTE_SEPARATOR.value);
+        if (!"form-data".equals(contentDispositionTokens[0]))
+            throw new IllegalArgumentException("Content-Disposition 헤더가 form-data가 아닙니다.");
+        Map<String, String> attributes = new HashMap<>();
+        for (int j = 1; j < contentDispositionTokens.length; j++) {
+            String[] keyValue = contentDispositionTokens[j].split(CONTENT_DISPOSITION_ATTRIBUTE_KEY_VALUE_SEPARATOR.value);
+            attributes.put(keyValue[0].strip(), keyValue[1].strip().replaceAll("\"", ""));
+        }
+        return attributes;
     }
 
     // body를 String으로 반환
@@ -123,6 +137,63 @@ public class RequestBody {
         return bodyMap;
     }
 
+    private Multipart parseMultipartFormDataBody(byte[] body) {
+        if (body == null || body.length == 0)
+            return null;
+        String contentType = headers.getHeader(CONTENT_TYPE.value);
+        if (!contentType.startsWith(ContentType.MULTIPART_FORM_DATA.mimeType))
+            throw new InternalServerError("Content-Type이 multipart/form-data가 아닙니다.");
+
+        byte[] boundary = ("--" + contentType.split(MULTIPART_BOUNDARY.value)[1]).getBytes();
+        byte[] crlf = "\r\n".getBytes();
+        List<Multipart.FormData> formDataList = new ArrayList<>();
+        int boundaryIndex = indexOf(body, boundary, 0);
+        while (boundaryIndex < body.length) {
+
+            int nextBoundaryIndex = indexOf(body, boundary, boundaryIndex + boundary.length);
+            if (nextBoundaryIndex == -1) break;
+
+            byte[] part = Arrays.copyOfRange(body, boundaryIndex + boundary.length + crlf.length, nextBoundaryIndex);
+            String s = new String(part);
+
+            Multipart.FormData formData = parseFormData(part);
+            formDataList.add(formData);
+            boundaryIndex = nextBoundaryIndex;
+        }
+        return new Multipart(formDataList);
+
+    }
+
+    private int indexOf(byte[] array, byte[] target, int start) {
+        outer:
+        for (int i = start; i <= array.length - target.length; i++) {
+            for (int j = 0; j < target.length; j++) {
+                if (array[i + j] != target[j])
+                    continue outer;
+            }
+            return i;
+        }
+        return -1;
+    }
+
+    private Multipart.FormData parseFormData(byte[] part) {
+        System.out.println("part =" + new String(part) + ";;");
+        // FormData 파싱 로직 구현
+        // 예: 헤더와 바디를 분리하고, 헤더에서 name과 filename을 추출
+        int i = indexOf(part, CRLFCRLF.value.getBytes(), 0);
+        String formDataHeader = new String(part, 0, i).strip();
+        Map<String, String> headers = new HashMap<>();
+        String[] headerLines = formDataHeader.split(CRLF.value);
+        for (String headerLine : headerLines) {
+            String[] keyValue = headerLine.split(HEADER_KEY_SEPARATOR.value);
+            headers.put(keyValue[0].strip(), keyValue[1].strip());
+        }
+        String contentDisposition = headers.get(CONTENT_DISPOSITION.value);
+        Map<String, String> attributes = getAttributeMap(contentDisposition);
+        byte[] body = Arrays.copyOfRange(part, i + CRLFCRLF.value.getBytes().length, part.length - CRLF.value.getBytes().length);
+        System.out.println("body=" + new String(body) + ";;");
+        return new Multipart.FormData(headers, attributes, body);
+    }
 
     // body InputStream 을 읽어서 rawBodyCache에 저장
     private void readBodyAsRaw() {
