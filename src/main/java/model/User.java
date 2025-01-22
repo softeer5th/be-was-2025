@@ -9,12 +9,22 @@ public class User {
     private String password;
     private String name;
     private String email;
+    private String profileImage;
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
+        profileImage = "/favicon.ico";
+    }
+
+    public User(String userId, String password, String name, String email, String profileImage) {
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.profileImage = profileImage;
     }
 
     public String getUserId() {
@@ -33,6 +43,10 @@ public class User {
         return email;
     }
 
+    public String getProfileImage() {
+        return profileImage;
+    }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
@@ -40,5 +54,9 @@ public class User {
 
     public void changePassword(String password) {
         this.password = password;
+    }
+
+    public void changeProfileImage(String profileImage){
+        this.profileImage = profileImage;
     }
 }
