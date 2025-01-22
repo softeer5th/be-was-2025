@@ -7,6 +7,10 @@ public class User {
     private String name;
     private String email;
 
+    public User(Long id) {
+        this.id = id;
+    }
+
     public User(Long id, String loginId, String password, String name, String email) {
         this.id = id;
         this.loginId = loginId;
