@@ -36,7 +36,7 @@ public class UserHandler {
         UserStore.findUserById(userId) .ifPresentOrElse(user -> {
                 response.redirect("/registration");
             }, () -> {
-                User user = new User(userId, password, username, null);
+                User user = new User(userId, password, username, "");
                 UserStore.addUser(user);
 
                 response.redirect("/");

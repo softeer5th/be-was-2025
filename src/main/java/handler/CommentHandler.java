@@ -56,7 +56,7 @@ public class CommentHandler implements Handler {
         String commentContent = data.get("content");
         String articleId = data.get("article");
 
-        Article article = ArticleStore.findArticleById(articleId)
+        Article article = ArticleStore.findArticleById(Integer.parseInt(articleId))
                 .orElseThrow(() -> new ArticleNotFoundException("해당 게시글이 없습니다."));
 
         Comment comment = new Comment(commentContent, user, article);
