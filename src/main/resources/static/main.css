@@ -187,6 +187,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  word-break: break-all; /* 모든 길이가 긴 텍스트는 줄 바꿈이 가능하도록 처리 */
 }
 
 .comment__item__user {
@@ -215,6 +216,7 @@
   font-size: 16px;
   line-height: 25.6px;
   color: #14212b;
+  word-break: break-all; /* 모든 길이가 긴 텍스트는 줄 바꿈이 가능하도록 처리 */
 }
 
 

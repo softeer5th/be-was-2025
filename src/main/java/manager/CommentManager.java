@@ -4,6 +4,8 @@ import db.CommentDatabase;
 import exception.ClientErrorException;
 import model.Comment;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static exception.ErrorCode.EXCEED_POST_LENGTH;
@@ -26,9 +28,9 @@ public class CommentManager {
     }
 
     public void save(int postId, String content, String author) {
-        if (content.length() > 500)
+        if (URLDecoder.decode(content, StandardCharsets.UTF_8).length() > 500)
             throw new ClientErrorException(EXCEED_POST_LENGTH);
-        if (content.isEmpty())
+        if (URLDecoder.decode(content, StandardCharsets.UTF_8).trim().isBlank())
             throw new ClientErrorException(MISSING_INPUT);
         Comment comment = new Comment(postId, content, author);
         commentDatabase.addComment(comment);
