@@ -68,12 +68,13 @@ public class Database {
         }
     }
 
-    public void enrollPost(String title, String body) {
+    public void enrollPost(String userId, String title, String body) {
         try (Connection connection = provider.getConnection()) {
-            String sql = "INSERT INTO posts (title, body) VALUES (?, ?)";
+            String sql = "INSERT INTO posts (title, body, user_id) VALUES (?, ?, ?)";
             PreparedStatement ptmt = connection.prepareStatement(sql);
             ptmt.setString(1, title);
             ptmt.setString(2, body);
+            ptmt.setString(3, userId);
             ptmt.execute();
         } catch (SQLException e) {
             throw new HTTPException.Builder()
