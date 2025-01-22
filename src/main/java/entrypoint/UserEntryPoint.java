@@ -1,10 +1,12 @@
 package entrypoint;
 
 import db.Database;
+import model.Post;
 import model.User;
 import webserver.annotation.Body;
 import webserver.annotation.Cookie;
 import webserver.annotation.RequestMapping;
+import webserver.annotation.RequestParam;
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPMethod;
 import webserver.exception.HTTPException;
@@ -65,13 +67,18 @@ public class UserEntryPoint {
     }
 
     @RequestMapping(path = "/index", method = HTTPMethod.GET)
-    public ResponseData<String> homePage(@Cookie(name="SID", authenticated = true) String sid) {
+    public ResponseData<String> homePage(
+            @Cookie(name="SID", authenticated = true) String sid,
+            @RequestParam(key = "page") Integer page
+    ) {
         Map<String, String> storage = SessionStorage.getStorage(sid);
-        Optional<String> userName = Optional.empty();
+        Optional<String> userId = Optional.empty();
         if (storage != null) {
-            userName = Optional.ofNullable(storage.get("userId"));
+            userId = Optional.ofNullable(storage.get("userId"));
         }
-        String body = IndexPageWriter.write(userName);
+        page = page == null ? 1 : page;
+        Optional<Post> post = this.database.getPost(userId.get(), page);
+        String body = IndexPageWriter.write(userId, post);
         return new ResponseData.ResponseDataBuilder<String>()
                 .contentType(HTTPContentType.TEXT_HTML)
                 .ok(body);

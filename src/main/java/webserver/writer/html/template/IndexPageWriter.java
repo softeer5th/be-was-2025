@@ -86,7 +86,7 @@ public class IndexPageWriter {
         return HTMLWriter.render(postElement);
     }
 
-    public static String write(Optional<String> username) {
+    public static String write(Optional<String> userId, Optional<Post> post) {
         StringBuilder content = new StringBuilder();
         try (
                 InputStream in = IndexPageWriter.class.getResourceAsStream(TEMPLATE_NAME);
@@ -95,14 +95,14 @@ public class IndexPageWriter {
             content.append(reader.readUntil('$'));
             content.append("\n");
             reader.readBraceValue();
-            content.append(loginOrMyPage(username));
+            content.append(loginOrMyPage(userId));
             content.append("\n");
             content.append(reader.readUntil('$'));
             reader.readBraceValue();
-            content.append((posts(Optional.of(new Post(1, "안녕", "하이\nx\nx\nx\nx\n")), username)));
+            content.append((posts(post, userId)));
             content.append(reader.readUntil('$'));
             reader.readBraceValue();
-            content.append(postAccountName(username));
+            content.append(postAccountName(userId));
             content.append(reader.readUntil('$'));
             return content.toString();
         } catch (IOException e) {
