@@ -15,11 +15,16 @@ public class HtmlContentReplacer {
     private static final String isDynamicHtml = "<dynamic />";
     private final String startCommentTag = "<comment_for_post>";
     private final Map<String, String> properties = new HashMap<>();
-    private boolean hasPost = false;
+    private final Map<String, Boolean> conditions = new HashMap<>();
     private int postId = -1;
 
     public HtmlContentReplacer(String sid){
-        if(sid != null) {
+        boolean login = (sid != null);
+        conditions.put("login", login);
+        conditions.put("hideComment", false);
+        conditions.put("showAll", false);
+        conditions.put("hasPost", false);
+        if(login) {
             User user = (User) SessionManager.getSession(sid).getUser();
             properties.put("$userId", user.getUserId());
             properties.put("$userName", user.getName());
@@ -29,10 +34,14 @@ public class HtmlContentReplacer {
 
     public void setPostContent(String queryString) {
         Parameter parameter = new Parameter(queryString);
+        if(parameter.getValue("showAll") != null){
+            conditions.put("showAll", true);
+        }
         postId = Integer.parseInt(parameter.getValue("postId"));
-        if(postId != -1) {
+        boolean hasPost = (postId != -1);
+        conditions.put("hasPost", hasPost);
+        if(hasPost) {
             Post post = PostManager.getPost(postId);
-            hasPost = true;
             properties.put("$postTitle", post.getTitle());
             properties.put("$postContent", post.getContent());
             properties.put("$postUserId", post.getUserId());
@@ -40,6 +49,7 @@ public class HtmlContentReplacer {
         properties.put("$nowPost", PostManager.getNowPostId(postId));
         properties.put("$nextPost", PostManager.getNextPostId(postId));
         properties.put("$prevPost", PostManager.getPrevPostId(postId));
+        properties.put("$showAll", "&showAll=true");
     }
 
     public byte[] replace(byte[] body) {
@@ -49,6 +59,22 @@ public class HtmlContentReplacer {
 
         html = html.replace(isDynamicHtml, "");
 
+        if(html.contains(startCommentTag)) {
+            html = replaceComment(html, CommentManager.getCommentsByPost(postId));
+        }
+
+        for(String property : properties.keySet()) {
+            html = html.replace(property, properties.get(property));
+        }
+
+        if(html.contains(startIfString)) {
+            html = replaceIfContent(html);
+        }
+
+        return html.getBytes();
+    }
+
+    private String replaceIfContent(String html) {
         int startIndex = 0;
 
         while ((startIndex = html.indexOf(startIfString, startIndex)) != -1) {
@@ -65,26 +91,24 @@ public class HtmlContentReplacer {
 
             String innerContent = html.substring(closeTagIndex, endIndex).trim();
 
-            if (hasPost == Boolean.parseBoolean(condition)) {
+            if (conditions.get(condition)) {
                 html = html.replace(content, innerContent);
             } else {
                 html = html.replace(content, "");
             }
         }
 
-        if(html.contains(startCommentTag)) {
-            html = replaceComment(html, CommentManager.getCommentsByPost(postId));
-        }
-
-        for(String property : properties.keySet()) {
-            html = html.replace(property, properties.get(property));
-        }
-
-        return html.getBytes();
+        return html;
     }
 
     private String replaceComment(String html, List<Comment> comments) {
-        properties.put("$commentAmmount", String.valueOf(comments.size()));
+        int size = comments.size();
+        properties.put("$commentAmmount", String.valueOf(size - 3));
+        boolean showAll = conditions.get("showAll");
+        if(size > 3 && !showAll) {conditions.put("hideComment", true);}
+
+        if(!showAll) {size = Math.min(size,3);}
+
         final String endCommentTag = "</comment_for_post>";
 
         int startIndex = html.indexOf(startCommentTag);
@@ -97,7 +121,8 @@ public class HtmlContentReplacer {
         String template = html.substring(startIndex + startCommentTag.length(), endIndex).trim();
 
         StringBuilder newContent = new StringBuilder();
-        for (Comment comment : comments) {
+        for (int i=0;i<size;i++) {
+            Comment comment = comments.get(i);
             String renderedComment = template
                     .replace("$commentUserId", comment.getUserId())
                     .replace("$commentContent", comment.getContent());
