@@ -1,4 +1,4 @@
-package handler.dynamic_handler;
+package handler.dynamic;
 
 import http.request.HttpRequest;
 import http.response.HttpResponse;

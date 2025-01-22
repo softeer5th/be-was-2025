@@ -1,7 +1,7 @@
 package webserver;
 
 import exception.NotFoundRequestHandlerException;
-import handler.request_handler.FileRequestHandler;
+import handler.request.FileRequestHandler;
 import handler.mapping.RequestHandlerMapping;
 import http.request.HttpRequestResolver;
 import http.response.HttpResponse;
@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class WebServlet {
     private static final Logger logger = LoggerFactory.getLogger(WebServlet.class);

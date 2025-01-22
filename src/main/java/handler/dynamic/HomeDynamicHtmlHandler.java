@@ -1,4 +1,4 @@
-package handler.dynamic_handler;
+package handler.dynamic;
 
 import db.Database;
 import http.cookie.Cookie;

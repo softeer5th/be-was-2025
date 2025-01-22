@@ -1,4 +1,4 @@
-package handler.request_handler;
+package handler.request;
 
 import db.UserDao;
 import db.transaction.Transaction;

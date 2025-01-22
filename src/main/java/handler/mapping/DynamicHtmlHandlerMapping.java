@@ -1,9 +1,9 @@
 package handler.mapping;
 
-import handler.dynamic_handler.DynamicHtmlHandler;
-import handler.dynamic_handler.HomeDynamicHtmlHandler;
-import handler.dynamic_handler.MyPageDynamicHtmlHandler;
-import handler.dynamic_handler.WriteDynamicHtmlHandler;
+import handler.dynamic.DynamicHtmlHandler;
+import handler.dynamic.HomeDynamicHtmlHandler;
+import handler.dynamic.MyPageDynamicHtmlHandler;
+import handler.dynamic.WriteDynamicHtmlHandler;
 
 import java.util.HashMap;
 import java.util.Map;
