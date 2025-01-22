@@ -12,7 +12,7 @@ public class HttpSession {
     // 세션의 상태. 이를 통해 세션이 저장되어야 하는지, 만료되어야 하는지 SessionInterceptor가 판단 가능
     private State state;
 
-    public HttpSession(String sessionId) {
+    HttpSession(String sessionId) {
         this.sessionId = sessionId;
         state = State.NEW;
     }
