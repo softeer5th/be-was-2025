@@ -1,5 +1,6 @@
 package handler.dynamic;
 
+import db.ArticleDao;
 import db.UserDao;
 import db.transaction.Transaction;
 import db.transaction.TransactionTemplate;
@@ -9,14 +10,17 @@ import http.enums.MimeType;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.session.SessionManager;
+import model.Article;
 import model.User;
 
 public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
     private final SessionManager sessionManager = SessionManager.getInstance();
     private final TransactionTemplate transactionTemplate = TransactionTemplate.getInstance();
     private final UserDao userDao = UserDao.getInstance();
+    private final ArticleDao articleDao = ArticleDao.getInstance();
     private static final String MENU = "<!-- MENU -->";
-    private static final String WRITE_BUTTON = "<!-- WRITE_BUTTON -->";
+    private static final String ACCOUNT_USERNAME = "<!-- ACCOUNT_USERNAME -->";
+    private static final String ARTICLE_CONTENT = "<!-- ARTICLE_CONTENT -->";
 
     @Override
     public HttpResponse handle(byte[] fileData, String extension, HttpRequest httpRequest) {
@@ -24,20 +28,22 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
 
         Cookie cookie = httpRequest.getCookie("sessionId");
 
-        String dynamicHtmlContent = null;
+        Article article = transactionTemplate.execute(this::retrieveArticle);
+
+        htmlContent = htmlContent.replace(ACCOUNT_USERNAME, article.getUser().getName());
+        htmlContent = htmlContent.replace(ARTICLE_CONTENT, article.getContent());
 
         if(cookie == null){
-             dynamicHtmlContent = htmlContent.replace(MENU, createMenuNotLogin());
+             htmlContent = htmlContent.replace(MENU, createMenuNotLogin());
         }else{
-
             String userName = transactionTemplate.execute(this::retrieveUserNameBySessionId, cookie.getValue());
-            dynamicHtmlContent = htmlContent.replace(MENU, String.format(createMenuAfterLogin(), userName));
+            htmlContent = htmlContent.replace(MENU, String.format(createMenuAfterLogin(), userName));
         }
 
         return new HttpResponse.Builder()
                 .httpStatus(HttpStatus.OK)
                 .contentType(MimeType.getMimeType(extension))
-                .body(dynamicHtmlContent.getBytes())
+                .body(htmlContent.getBytes())
                 .build();
     }
 
@@ -70,4 +76,10 @@ public class HomeDynamicHtmlHandler implements DynamicHtmlHandler{
         sb.append("</li>\n");
         return sb.toString();
     }
+
+    private Article retrieveArticle(Transaction transaction, Object[] args){
+        return articleDao.findArticlesWithPagination(transaction, 0, 1).get();
+    }
+
+
 }
