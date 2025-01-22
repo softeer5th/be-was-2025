@@ -47,7 +47,6 @@ public class IndexPageWriter {
             reader.readBraceValue();
             content.append(postAccountName(username));
             content.append(reader.readUntil('$'));
-            System.out.println(content);
             return content.toString();
         } catch (IOException e) {
             throw new HTTPException.Builder()
