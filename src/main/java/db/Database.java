@@ -31,7 +31,7 @@ public class Database {
 
             // 테이블 생성
             String createUserTable = "CREATE TABLE \"user\" ("
-                    + "\"userId\" VARCHAR(255) PRIMARY KEY, "
+                    + "user_id VARCHAR(255) PRIMARY KEY, "
                     + "password VARCHAR(255), "
                     + "name VARCHAR(255), "
                     + "email VARCHAR(255)"
@@ -90,7 +90,7 @@ public class Database {
     // 사용자 추가 (DB에 저장)
     public static void addUser(User user) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
-            String insertQuery = "INSERT INTO \"user\" (\"userId\", password, name, email) VALUES (?, ?, ?, ?)";
+            String insertQuery = "INSERT INTO \"user\" (user_id, password, name, email) VALUES (?, ?, ?, ?)";
             try (PreparedStatement stmt = connection.prepareStatement(insertQuery)) {
                 stmt.setString(1, user.getUserId());
                 stmt.setString(2, user.getPassword());
@@ -152,13 +152,13 @@ public class Database {
     // 사용자 ID로 사용자 조회
     public static Optional<User> findUserById(String userId) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
-            String selectQuery = "SELECT * FROM \"user\" WHERE \"userId\" = ?";
+            String selectQuery = "SELECT * FROM \"user\" WHERE user_id = ?";
             try (PreparedStatement stmt = connection.prepareStatement(selectQuery)) {
                 stmt.setString(1, userId);
                 ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
                     User user = new User(
-                            rs.getString("userId"),
+                            rs.getString("user_id"),
                             rs.getString("password"),
                             rs.getString("name"),
                             rs.getString("email")

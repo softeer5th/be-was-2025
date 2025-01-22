@@ -39,6 +39,7 @@ public class RequestRouter {
     private static final String LOGOUT_PATH = "/user/logout";
     private static final String USER_INFO_PATH = "/user/info";
     private static final String CREAT_POST_PATH = "/post/create";
+    private static final String USER_INFO_UPDATE_PATH = "/user/update";
     private static final String LOCATION = "location";
     private static final Map<String, User> userSessions = new ConcurrentHashMap<>();
 
@@ -53,6 +54,7 @@ public class RequestRouter {
         this.addPostHandler(LOGOUT_PATH, this::handleLogout);
         this.addPostHandler(USER_INFO_PATH, this::handleUserInfo);
         this.addPostHandler(CREAT_POST_PATH, this::handleCreatePost);
+        this.addPostHandler(USER_INFO_UPDATE_PATH, this::handleUpdateUserInfo);
     }
 
     public void route(HttpRequest httpRequest, DataOutputStream dos) throws IOException {
