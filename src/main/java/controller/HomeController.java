@@ -44,4 +44,8 @@ public class HomeController {
 
         response.setBody(rendered.getBytes());
     }
+    @Mapping(path = "/main", method = HttpMethod.GET)
+    public void home2(HttpRequest request, HttpResponse response) throws IOException {
+        response.setLocation("/");
+    }
 }
