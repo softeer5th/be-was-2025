@@ -17,7 +17,7 @@ public class AddPostHandler extends Handler{
 
         try {
             PostManager.addPost(userId, request.getBody());
-            response.addHeader("Location", Page.MAIN_PAGE.getPath());
+            response.addHeader("Location", Page.MAIN_LOGIN.getPath());
         } catch (IllegalArgumentException e) {
             response.setStatusCode(HttpStatusCode.SEE_OTHER);
             response.addHeader("Location", Page.ARTICLE.getPath());
