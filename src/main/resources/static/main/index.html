@@ -14,10 +14,7 @@
     <a href="/index.html"><img src="../img/signiture.svg" /></a>
     <ul class="header__menu">
       <li class="header__menu__item">
-        <button
-                id="greeting-btn"
-                class="btn btn_ghost btn_size_s"
-        >
+        <button id="greeting-btn" class="btn btn_ghost btn_size_s">
           안녕하세요 <span id="greeting-nickname"></span>님
         </button>
       </li>
@@ -40,7 +37,7 @@
         <img class="post__account__img" id="account-img" alt="" />
         <span id="nickname"></span>
       </div>
-      <img class="post__img"  id="post-img"/>
+      <img class="post__img" id="post-img"/>
       <div class="post__menu">
         <ul class="post__menu__personal">
           <li>
@@ -60,69 +57,15 @@
       </div>
       <p id="post-article" class="post__article"></p>
     </div>
-    <ul class="comment">
-      <li class="comment__item">
-        <div class="comment__item__user">
-          <img class="comment__item__user__img" />
-          <p class="comment__item__user__nickname">account</p>
-        </div>
-        <p class="comment__item__article">
-          군인 또는 군무원이 아닌 국민은 대한민국의 영역안에서는 중대한
-          군사상 기밀·초병·초소·유독음식물공급·포로·군용물에 관한 죄중
-          법률이 정한 경우와 비상계엄이 선포된 경우를 제외하고는 군사법원의
-          재판을 받지 아니한다.
-        </p>
-      </li>
-      <li class="comment__item">
-        <div class="comment__item__user">
-          <img class="comment__item__user__img" />
-          <p class="comment__item__user__nickname">account</p>
-        </div>
-        <p class="comment__item__article">
-          대통령의 임기연장 또는 중임변경을 위한 헌법개정은 그 헌법개정 제안
-          당시의 대통령에 대하여는 효력이 없다. 민주평화통일자문회의의
-          조직·직무범위 기타 필요한 사항은 법률로 정한다.
-        </p>
-      </li>
-      <li class="comment__item">
-        <div class="comment__item__user">
-          <img class="comment__item__user__img" />
-          <p class="comment__item__user__nickname">account</p>
-        </div>
-        <p class="comment__item__article">
-          민주평화통일자문회의의 조직·직무범위 기타 필요한 사항은 법률로
-          정한다.
-        </p>
-      </li>
-      <li class="comment__item hidden">
-        <div class="comment__item__user">
-          <img class="comment__item__user__img" />
-          <p class="comment__item__user__nickname">account</p>
-        </div>
-        <p class="comment__item__article">Comment 1</p>
-      </li>
-      <li class="comment__item hidden">
-        <div class="comment__item__user">
-          <img class="comment__item__user__img" />
-          <p class="comment__item__user__nickname">account</p>
-        </div>
-        <p class="comment__item__article">Comment 2</p>
-      </li>
-      <li class="comment__item hidden">
-        <div class="comment__item__user">
-          <img class="comment__item__user__img" />
-          <p class="comment__item__user__nickname">account</p>
-        </div>
-        <p class="comment__item__article">Comment 3</p>
-      </li>
-      <button id="show-all-btn" class="btn btn_ghost btn_size_m">
-        모든 댓글 보기(3개)
-      </button>
-    </ul>
+
+    <ul id="comment-list" class="comment"></ul>
+    <button id="show-all-btn" class="btn btn_ghost btn_size_m" style="display:none">
+      모든 댓글 보기
+    </button>
     <nav class="nav">
       <ul class="nav__menu">
         <li class="nav__menu__item">
-          <a class="nav__menu__item__btn" href="">
+          <a class="nav__menu__item__btn" href="#" id="prev-btn">
             <img
                     class="nav__menu__item__img"
                     src="../img/ci_chevron-left.svg"
@@ -131,10 +74,10 @@
           </a>
         </li>
         <li class="nav__menu__item">
-          <a class="btn btn_ghost btn_size_m" href="/comment">댓글 작성</a>
+          <a class="btn btn_ghost btn_size_m" id="comment-link">댓글 작성</a>
         </li>
         <li class="nav__menu__item">
-          <a class="nav__menu__item__btn" href="">
+          <a class="nav__menu__item__btn" href="#" id="next-btn">
             다음 글
             <img
                     class="nav__menu__item__img"
@@ -148,51 +91,185 @@
 </div>
 
 <script>
+  let currentPage = 1;
+  let latestArticleId = null;
+
   window.addEventListener("DOMContentLoaded", async () => {
+    await loadLoggedInUserInfo();
+    await loadArticleAndComments(currentPage);
+  });
+
+  async function loadLoggedInUserInfo() {
     try {
       const response = await fetch("/api/user/validate");
       const result = await response.json();
-
       if (result.isSuccess) {
-        const { name, base64Image } = result.data;
-
-        document.getElementById("nickname").textContent = name;
+        const { name } = result.data;
         document.getElementById("greeting-nickname").textContent = name;
-
-        if (base64Image) {
-          document.getElementById("account-img").src = `data:image/png;base64,${base64Image}`;
-        } else {
-          document.getElementById("account-img").removeAttribute("src");
-          document.getElementById("account-img").style.backgroundColor = "#ccc";
-          document.getElementById("account-img").style.width = "40px";
-          document.getElementById("account-img").style.height = "40px";
-          document.getElementById("account-img").style.borderRadius = "50%";
-        }
-      } else {
-        console.warn("로그인이 필요합니다.");
       }
     } catch (error) {
-      console.error("사용자 정보 요청 중 오류:", error);
+      console.error("로그인 사용자 정보 로딩 오류:", error);
     }
+  }
 
+  async function loadArticleAndComments(page) {
     try {
-      const articleRes = await fetch("/api/article");
+      const articleRes = await fetch(`/api/articles?page=${page}`);
       const articleData = await articleRes.json();
-      if (articleData.isSuccess) {
-        const { content, base64Image } = articleData.data;
-        document.getElementById("post-article").textContent =
-                content;
-        if (base64Image) {
-          document.getElementById("post-img").src = `data:image/png;base64,${base64Image}`;
-        } else {
-          document.getElementById("post-img").removeAttribute("src");
-        }
-      } else {
+
+      if (!articleData.isSuccess && articleData.code === "ARTICLE-01") {
         console.warn("게시글이 없거나 오류:", articleData.message);
-        document.getElementById("post-article").textContent = "\"게시글이 없어요. 새로운 글을 작성해주세요!\"";
+        document.getElementById("post-article").textContent = articleData.message || "게시글이 없습니다.";
+        document.getElementById("post-img").removeAttribute("src");
+        document.getElementById("comment-list").innerHTML = "";
+        document.getElementById("comment-link").href = "/comment";
+        latestArticleId = null;
+        return false;
       }
+
+      if (!articleData.isSuccess && articleData.code === "ARTICLE-02") {
+        console.warn("게시글이 없거나 오류:", articleData.message);
+        latestArticleId = null;
+        return false;
+      }
+
+      const data = articleData.data;
+      const {
+        articleId,
+        writerName,
+        writerBase64Image,
+        content,
+        base64Image,
+        comments
+      } = data;
+
+      latestArticleId = articleId;
+
+      document.getElementById("nickname").textContent = writerName || "Unknown";
+      const accountImg = document.getElementById("account-img");
+      if (writerBase64Image) {
+        accountImg.src = `data:image/png;base64,${writerBase64Image}`;
+        accountImg.style.removeProperty("background-color");
+        accountImg.style.width = "40px";
+        accountImg.style.height = "40px";
+        accountImg.style.borderRadius = "50%";
+      } else {
+        accountImg.removeAttribute("src");
+        accountImg.style.backgroundColor = "#ccc";
+        accountImg.style.width = "40px";
+        accountImg.style.height = "40px";
+        accountImg.style.borderRadius = "50%";
+      }
+
+      document.getElementById("post-article").textContent = content || "";
+      const postImg = document.getElementById("post-img");
+      if (base64Image) {
+        postImg.src = `data:image/png;base64,${base64Image}`;
+      } else {
+        postImg.removeAttribute("src");
+      }
+
+      renderComments(comments);
+      document.getElementById("comment-link").href = `/article/${articleId}/comment`;
+
+      return true;
     } catch (err) {
       console.error("게시글 로딩 중 오류:", err);
+      document.getElementById("post-article").textContent = "오류 발생";
+      latestArticleId = null;
+      return false;
+    }
+  }
+
+  function renderComments(comments) {
+    const commentList = document.getElementById("comment-list");
+    const showAllBtn = document.getElementById("show-all-btn");
+    showAllBtn.style.display = "none";
+    commentList.innerHTML = "";
+
+    if (!comments || comments.length === 0) {
+      return;
+    }
+
+    comments.forEach((comment, idx) => {
+      const nickname = comment.nickname || "Unknown";
+      const base64Profile = comment.base64Profile;
+
+      const li = document.createElement("li");
+      li.className = "comment__item";
+      if (idx >= 3) {
+        li.classList.add("hidden");
+      }
+
+      let profileImgHtml = "";
+      if (base64Profile) {
+        profileImgHtml = `
+          <img class="comment__item__user__img"
+               style="border-radius:50%; width:24px; height:24px;"
+               src="data:image/png;base64,${base64Profile}" />`;
+      } else {
+        profileImgHtml = `
+          <img class="comment__item__user__img"
+               style="width:24px; height:24px; border-radius:50%; background-color:#ccc;" />`;
+      }
+
+      li.innerHTML = `
+        <div class="comment__item__user">
+          ${profileImgHtml}
+          <p class="comment__item__user__nickname">${nickname}</p>
+        </div>
+        <p class="comment__item__article">${comment.content}</p>
+      `;
+      commentList.appendChild(li);
+    });
+
+    if (comments.length > 3) {
+      showAllBtn.style.display = "inline-block";
+      showAllBtn.textContent = `모든 댓글 보기(${comments.length - 3}개)`;
+      showAllBtn.onclick = () => {
+        document.querySelectorAll("#comment-list .comment__item.hidden").forEach(e => {
+          e.classList.remove("hidden");
+        });
+        showAllBtn.style.display = "none";
+      };
+    } else {
+      showAllBtn.style.display = "none";
+    }
+  }
+
+  document.getElementById("prev-btn").addEventListener("click", async (e) => {
+    e.preventDefault();
+    currentPage++;
+    const ok = await loadArticleAndComments(currentPage);
+    if (!ok) {
+      currentPage--;
+      alert("현재가 가장 마지막 글이에요!");
+    }
+  });
+
+  document.getElementById("next-btn").addEventListener("click", async (e) => {
+    e.preventDefault();
+    if (currentPage > 1) {
+      currentPage--;
+      const ok = await loadArticleAndComments(currentPage);
+    } else {
+      alert("현재가 가장 최신 글이에요!");
+    }
+  });
+
+  document.getElementById("greeting-btn").addEventListener("click", async () => {
+    try {
+      const res = await fetch("/api/user/validate");
+      const data = await res.json();
+      if (data.isSuccess) {
+        window.location.href = "/mypage";
+      } else {
+        alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/user/login.html";
+      }
+    } catch (error) {
+      console.error("greeting-btn 클릭 중 오류:", error);
+      window.location.href = "/user/login.html";
     }
   });
 
@@ -220,55 +297,34 @@
     } catch (error) {
       console.error("로그아웃 요청 중 오류:", error);
     }
-    alert("로그아웃이 완료 되었어요!")
+    alert("로그아웃이 완료 되었어요!");
     window.location.href = "/index.html";
   });
 
-  document.getElementById("account-img").addEventListener("click", async () => {
+  document.getElementById("comment-link").addEventListener("click", async (e) => {
+    e.preventDefault();
     try {
       const res = await fetch("/api/user/validate");
       const data = await res.json();
-      if (data.isSuccess) {
-        window.location.href = "/mypage";
-      } else {
+      if (!data.isSuccess) {
+        alert("로그인 후 이용할 수 있어요!");
         window.location.href = "/user/login.html";
+        return;
       }
-    } catch (error) {
-      console.error("프로필 이동 중 오류:", error);
+    } catch (err) {
+      console.error("로그인 여부 확인 중 오류:", err);
+      alert("로그인 후 이용할 수 있어요!");
       window.location.href = "/user/login.html";
+      return;
     }
-  });
 
-  document.getElementById("nickname").addEventListener("click", async () => {
-    try {
-      const res = await fetch("/api/user/validate");
-      const data = await res.json();
-      if (data.isSuccess) {
-        window.location.href = "/mypage";
-      } else {
-        alert("세션이 만료 되었어요. 다시 로그인 해주세요.")
-        window.location.href = "/user/login.html";
-      }
-    } catch (error) {
-      console.error("프로필 이동 중 오류:", error);
-      window.location.href = "/user/login.html";
+    if (!latestArticleId) {
+      alert("아직 작성된 글이 없습니다. 새로운 게시글을 작성해주세요!");
+      window.location.href = "/write.html";
+      return;
     }
-  });
 
-  document.getElementById("greeting-btn").addEventListener("click", async () => {
-    try {
-      const res = await fetch("/api/user/validate");
-      const data = await res.json();
-      if (data.isSuccess) {
-        window.location.href = "/mypage";
-      } else {
-        alert("로그인이 필요한 서비스입니다.");
-        window.location.href = "/user/login.html";
-      }
-    } catch (error) {
-      console.error("greeting-btn 클릭 중 오류:", error);
-      window.location.href = "/user/login.html";
-    }
+    window.location.href = `/article/${latestArticleId}/comment`;
   });
 </script>
 </body>
