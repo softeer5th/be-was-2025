@@ -20,7 +20,7 @@ public class FileRequestHandler implements Handler {
 
     private static final String STATIC_FILE_PATH = "src/main/resources/static";
 
-    private static final Set<String> RESTRICTED_PAGES = Set.of("/mypage");
+    private static final Set<String> RESTRICTED_PAGES = Set.of("/mypage", "/article");
 
     private final UserDataManager userDataManager;
     private final SessionDataManager sessionDataManager;
@@ -35,7 +35,7 @@ public class FileRequestHandler implements Handler {
         String path = request.getPath();
         User user = getAuthenticatedUser(request);
 
-        if (RESTRICTED_PAGES.contains(path)) {
+        if (RESTRICTED_PAGES.contains(path) && user == null) {
             logger.error("Unauthorized access to: {}", path);
             throw new BaseException(FileErrorCode.FORBIDDEN_ACCESS);
         }
