@@ -4,6 +4,14 @@ import enums.HttpStatus;
 
 import static enums.HttpStatus.*;
 
+/**
+ * 애플리케이션 내에서 발생할 수 있는 오류 코드들을 정의하는 열거형 클래스입니다.
+ * 이 클래스는 각 오류에 대해 HTTP 상태 코드와 관련된 메시지를 포함하고 있습니다.
+ * <p>
+ * 오류 코드들은 HTTP 상태 코드에 해당하는 {@link HttpStatus}와 오류 메시지를 포함하며,
+ * 클라이언트나 서버 측에서 발생할 수 있는 다양한 예외 상황에 대응합니다.
+ * </p>
+ */
 public enum ErrorCode {
     // <------------------- 5XX Error Code ------------------->
     KEY_VALUE_SHOULD_BE_PAIR(INTERNAL_SERVER_ERROR, "header는 key-value 쌍으로 이루어져야 합니다."),
@@ -39,15 +47,31 @@ public enum ErrorCode {
     private final HttpStatus httpStatus;
     private final String message;
 
+    /**
+     * ErrorCode 생성자
+     *
+     * @param httpStatus 오류에 해당하는 HTTP 상태 코드
+     * @param message 오류에 대한 설명 메시지
+     */
     ErrorCode(HttpStatus httpStatus, String message) {
         this.httpStatus = httpStatus;
         this.message = message;
     }
 
+    /**
+     * HTTP 상태 코드를 반환합니다.
+     *
+     * @return {@link HttpStatus} 상태 코드
+     */
     public HttpStatus getHttpStatus() {
         return httpStatus;
     }
 
+    /**
+     * 오류에 대한 설명 메시지를 반환합니다.
+     *
+     * @return 오류 메시지
+     */
     public String getMessage() {
         return message;
     }
