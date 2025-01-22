@@ -15,6 +15,7 @@ import static exception.ErrorCode.ERROR_WITH_DATABASE;
 public class PostDatabase {
     private static final Logger logger = LoggerFactory.getLogger(PostDatabase.class);
     private static PostDatabase instance;
+    private static final int PAGE_SIZE = 1;
 
     private PostDatabase() {
     }
@@ -50,23 +51,28 @@ public class PostDatabase {
             page = 1;
         }
 
-        try (Connection conn = DBConnectionManager.getConnection()) { // DB 연결
-            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM post ORDER BY id desc LIMIT 1 OFFSET ?");
+        try (Connection conn = DBConnectionManager.getConnection()) {
+            String query = "SELECT * FROM post ORDER BY id DESC LIMIT ? OFFSET ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
 
-            int offset = (page - 1);
-            pstmt.setInt(1, offset);
+            pstmt.setInt(1, 1);
+            pstmt.setInt(2, page - 1);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                Post post = new Post(
-                        rs.getInt("id"),
-                        rs.getString("content"),
-                        rs.getString("author"),
-                        rs.getTimestamp("created_at").toLocalDateTime()
-                );
-                logger.debug("Get post " + post);
-                return post;
+                if (rs.next()) {
+                    Post post = new Post(
+                            rs.getInt("id"),
+                            rs.getString("content"),
+                            rs.getString("author"),
+                            rs.getTimestamp("created_at").toLocalDateTime()
+                    );
+                    logger.debug("Fetched post: " + post);
+                    return post;
+                } else {
+                    return null;
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
     }
@@ -78,7 +84,11 @@ public class PostDatabase {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
-            return rs.getInt("total_count");
+            if (rs.next()) {
+                int totalCount = rs.getInt("total_count");
+                return (int) Math.ceil((double) totalCount / PAGE_SIZE);
+            }
+            return 0;
         } catch (SQLException e) {
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
