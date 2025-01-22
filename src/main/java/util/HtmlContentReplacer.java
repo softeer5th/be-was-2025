@@ -84,15 +84,33 @@ public class HtmlContentReplacer {
         while ((startIndex = html.indexOf(startIfString, startIndex)) != -1) {
             int closeTagIndex = html.indexOf(">", startIndex) + 1;
 
-            int endIndex = html.indexOf(endIfString, closeTagIndex);
-            if (endIndex == -1) {
+            int nestedCount = 1;
+            int searchIndex = closeTagIndex;
+
+            while (nestedCount > 0) {
+                int nextStartIf = html.indexOf(startIfString, searchIndex);
+                int nextEndIf = html.indexOf(endIfString, searchIndex);
+
+                if (nextEndIf == -1) {
+                    break;
+                }
+
+                if (nextStartIf != -1 && nextStartIf < nextEndIf) {
+                    nestedCount++;
+                    searchIndex = nextStartIf + startIfString.length();
+                } else {
+                    nestedCount--;
+                    searchIndex = nextEndIf + endIfString.length();
+                }
+            }
+
+            if (nestedCount > 0) {
                 break;
             }
 
-            String content = html.substring(startIndex, endIndex + endIfString.length());
-
+            int endIndex = searchIndex - endIfString.length();
+            String content = html.substring(startIndex, searchIndex);
             String condition = html.substring(startIndex + startIfString.length(), closeTagIndex - 1).trim();
-
             String innerContent = html.substring(closeTagIndex, endIndex).trim();
 
             if (conditions.get(condition)) {
@@ -100,10 +118,13 @@ public class HtmlContentReplacer {
             } else {
                 html = html.replace(content, "");
             }
+
+            startIndex = closeTagIndex;
         }
 
         return html;
     }
+
 
     private String replaceComment(String html, List<Comment> comments) {
         int size = comments.size();
