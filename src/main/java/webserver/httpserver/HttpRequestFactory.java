@@ -125,7 +125,9 @@ public class HttpRequestFactory {
                 sb.append((char) bis.read());
             }
             parseQueryParameter(sb.toString(), builder);
+            return;
         }
+        builder.body(bis.readNBytes(contentInfo.contentLength));
     }
 
     private static String readLine(BufferedInputStream bis) throws IOException {
