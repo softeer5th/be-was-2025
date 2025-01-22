@@ -13,7 +13,6 @@ import response.HttpResponse;
 import util.CookieParser;
 import util.HttpRequestParser;
 
-import static enums.HttpMethod.POST;
 import static enums.HttpMethod.validPostMethod;
 import static exception.ErrorCode.INVALID_AUTHORITY;
 import static exception.ErrorCode.NOT_ALLOWED_PATH;
@@ -33,7 +32,8 @@ public class BoardHandler implements Handler {
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         HttpResponse response = new HttpResponse();
-        if (request.getPath().equals(PATH.CREATE.endPoint) && request.getMethod() == POST) {
+        if (request.getPath().equals(PATH.CREATE.endPoint)) {
+            validPostMethod(request.getMethod());
             final String contents = HttpRequestParser.parseMultipartFormText(request.getHeaderValue("content-type"), (String) request.getBody());
 
             final String cookie = request.getHeaderValue(HttpHeader.COOKIE.getName());

@@ -2,9 +2,7 @@ package handler;
 
 import enums.FileContentType;
 import enums.HttpHeader;
-import enums.HttpMethod;
 import enums.HttpStatus;
-import exception.ClientErrorException;
 import manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +11,7 @@ import request.UserCreateRequest;
 import request.UserLoginRequest;
 import response.HttpResponse;
 
-import static enums.HttpMethod.POST;
-import static exception.ErrorCode.REQUEST_NOT_ALLOWED;
+import static enums.HttpMethod.validPostMethod;
 
 /*
  * 사용자와 관련된 기능(회원가입, 로그인, 로그아웃)을 담당하는 핸들러
@@ -44,7 +41,7 @@ public class UserRequestHandler implements Handler {
         HttpResponse response = new HttpResponse();
 
         if (path.startsWith(PATH.CREATE.endPoint)) {
-            checkPostMethod(request.getMethod());
+           validPostMethod(request.getMethod());
 
             UserCreateRequest userCreateRequest = UserCreateRequest.of((String) request.getBody());
 
@@ -53,7 +50,7 @@ public class UserRequestHandler implements Handler {
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeader(HttpHeader.LOCATION.getName(), REDIRECT_URL);
         } else if (path.startsWith(PATH.LOGIN.endPoint)) {
-            checkPostMethod(request.getMethod());
+           validPostMethod(request.getMethod());
             UserLoginRequest userLoginRequest = UserLoginRequest.of((String) request.getBody());
             final String sessionId = userManager.loginUser(userLoginRequest);
 
@@ -74,11 +71,6 @@ public class UserRequestHandler implements Handler {
         }
 
         return response;
-    }
-
-    private void checkPostMethod(final HttpMethod method) {
-        if (method != POST)
-            throw new ClientErrorException(REQUEST_NOT_ALLOWED);
     }
 
     private enum PATH {
