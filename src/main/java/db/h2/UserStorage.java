@@ -30,8 +30,11 @@ public class UserStorage {
             );
         """;
         try (var stmt = connection.createStatement()) {
+            connection.setAutoCommit(false);
             stmt.execute(createTableSQL);
+            connection.commit();
         } catch (SQLException e) {
+            connection.rollback();
             throw new RuntimeException("Failed to create table: " + createTableSQL, e);
         }
     }
@@ -45,6 +48,7 @@ public class UserStorage {
         """;
 
         try (var pstmt = connection.prepareStatement(insertUserQuery, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            connection.setAutoCommit(false);
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getName());
@@ -53,13 +57,20 @@ public class UserStorage {
             var rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
                 Long generatedId = rs.getLong(1);
+                connection.commit();
                 return new User(generatedId, user.getUserId(), user.getPassword(), user.getName(), user.getEmail());
             } else {
+                connection.rollback();
                 throw new SQLException("Creating user failed.");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save user: " + user.getUserId(), e);
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                throw new RuntimeException("Failed to save user: " + user.getUserId(), e);
+            }
         }
+        return null;
     }
 
     public void update(User user) {
@@ -68,11 +79,17 @@ public class UserStorage {
                 """;
 
         try(var pstmt = connection.prepareStatement(updateUserQuery)) {
+            connection.setAutoCommit(false);
             pstmt.setString(1, user.getName());
             pstmt.setString(2, user.getPassword());
             pstmt.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to update user: " + user, e);
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                throw new RuntimeException("Failed to update user: " + user, e);
+            }
         }
     }
 
@@ -84,7 +101,6 @@ public class UserStorage {
             var rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                Long lond = rs.getLong("id");
                 return new User(
                         rs.getLong("id"),
                         rs.getString("user_id"),
