@@ -1,5 +1,7 @@
 package webserver.request;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.FileUtil;
 import webserver.enums.ContentType;
 import webserver.enums.HttpHeader;
@@ -10,6 +12,7 @@ import java.util.Map;
 
 public class Multipart {
 
+    private static final Logger log = LoggerFactory.getLogger(Multipart.class);
     private final Map<String, FormData> formData;
 
     public Multipart(List<FormData> formData) {
@@ -59,8 +62,13 @@ public class Multipart {
     public String saveFile(String name, FileUploader fileUploader) {
         validateFile(name);
         FormData data = formData.get(name);
-
-        return fileUploader.uploadFile(data.filename, data.body);
+        String filename = data.filename;
+        if (data.contentType.fileExtension != null &&
+            !filename.endsWith(data.contentType.fileExtension)) {
+            filename += "." + data.contentType.fileExtension;
+        }
+        log.info("upload file request: filename: {}, content type: {}", data.filename, data.contentType.mimeType);
+        return fileUploader.uploadFile(filename, data.body);
     }
 
     private void validateFile(String name) {

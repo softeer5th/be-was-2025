@@ -71,7 +71,8 @@ public class StaticResourceManager implements FileUploader {
     }
 
     private String makeUniqueFilename(String filename) {
-        return UUID.randomUUID() + "_" + filename;
+        // UUID + 확장자 형태로 파일명 생성
+        return UUID.randomUUID() + "." + FileUtil.getFileExtension(filename);
     }
 
     // staic 폴더 기준의 상대경로를 절대경로로 변환하는 메서드
