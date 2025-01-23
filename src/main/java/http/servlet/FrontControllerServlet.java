@@ -34,7 +34,7 @@ public class FrontControllerServlet implements Servlet {
 		controllerMap.put("/registration", new StaticResourceServlet());
 		controllerMap.put("/login", new LoginServlet(userDatabase));
 		controllerMap.put("/logout", new LogoutServlet());
-		controllerMap.put("/mypage", new MyPageServlet());
+		controllerMap.put("/mypage", new MyPageServlet(userDatabase));
 		controllerMap.put("/article", new ArticleServlet(articleDatabase));
 		controllerMap.put("/user/create", new RegisterServlet(userDatabase));
 	}
@@ -57,7 +57,7 @@ public class FrontControllerServlet implements Servlet {
 			String pathWithoutFileName = request.getPathWithoutFileName();
 			if (!controllerMap.containsKey(pathWithoutFileName)) {
 				// TODO: 에러 페이지 이동
-				return;
+				throw new IllegalArgumentException("존재하지 않은 url 입니다.");
 			}
 
 			controllerMap.get(pathWithoutFileName).service(request, response);
