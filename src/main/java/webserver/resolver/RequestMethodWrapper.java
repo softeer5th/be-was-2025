@@ -62,7 +62,7 @@ public class RequestMethodWrapper implements ResourceResolver {
         Object[] args = new Object[parameters.length];
         int argIndex = 0;
         for (ParameterMetaInfo meta : parameters) {
-            Optional<String> parameter = meta.finder().apply(request, meta.name());
+            Optional<Object> parameter = meta.finder().apply(request, meta.name());
             if (meta.required() && parameter.isEmpty()) {
                 throw new HTTPException.Builder()
                         .causedBy(method.getName())
@@ -70,7 +70,7 @@ public class RequestMethodWrapper implements ResourceResolver {
             }
             if (parameter.isPresent()) {
                 try {
-                    Object parsed = meta.parser().parse(parameter.get());
+                    Object parsed = meta.parser().parse((String)parameter.get());
                     args[argIndex++] = parsed;
                 } catch (NumberFormatException e) {
                     throw new HTTPException.Builder()
