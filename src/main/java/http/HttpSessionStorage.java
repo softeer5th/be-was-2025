@@ -17,7 +17,7 @@ public class HttpSessionStorage {
 	}
 
 	public static HttpSession getSession(String id) {
-		return sessions.getOrDefault(id, new HttpSession(id, new HashMap<>()));
+		return sessions.get(id);
 	}
 
 	public static void removeSession(String id) {

@@ -68,6 +68,11 @@ public class ArticleServlet implements Servlet {
 		}
 
 		HttpSession session = HttpSessionStorage.getSession(request.getSessionId());
+		if(session == null){
+			response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, LOGIN_PAGE);
+			return;
+		}
+
 		User user = (User)session.getAttribute("user");
 
 		Object o = body.get(0).get("body");
