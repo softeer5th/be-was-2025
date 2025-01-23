@@ -3,12 +3,17 @@ package manager;
 import db.UserDatabase;
 import exception.ClientErrorException;
 import exception.LoginException;
+import exception.ServerErrorException;
 import model.User;
+import request.ImageRequest;
 import request.UserCreateRequest;
 import request.UserLoginRequest;
 import util.SessionManager;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 import static exception.ErrorCode.*;
 
@@ -103,7 +108,7 @@ public class UserManager {
     /**
      * 비밀번호가 일치하는지 확인합니다.
      *
-     * @param password 실제 비밀번호
+     * @param password          실제 비밀번호
      * @param requestedPassword 사용자가 입력한 비밀번호
      * @throws LoginException 비밀번호가 일치하지 않으면 예외 발생
      */
@@ -121,5 +126,30 @@ public class UserManager {
      */
     private User getOrElseThrow(final String userId) {
         return userDatabase.findUserByUserId(userId).orElseThrow(() -> new LoginException(NO_SUCH_USER_ID));
+    }
+
+    public void updateProfileImage(User user, ImageRequest request) {
+        if (request.fileData().length > 5 * 1024 * 1024)
+            throw new ClientErrorException(EXCEED_FILE_SIZE);
+        if (request.fileData().length != 2 || request.fileData()[0] != 13 || request.fileData()[1] != 10) {
+
+            final UUID uuid = UUID.randomUUID();
+            final String filePath = String.format("%s.%s", uuid, request.fileExtension());
+            String file = String.format("src/main/resources/static/img/%s", filePath);
+
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                fileOutputStream.write(request.fileData()); // byte[] 데이터 쓰기
+            } catch (IOException e) {
+                throw new ServerErrorException(ERROR_WHILE_SAVING_FILE);
+            }
+
+            userDatabase.updateProfile(user.getId(), filePath);
+            return;
+        }
+        throw new ClientErrorException(MISSING_FIELD);
+    }
+
+    public void deleteProfileImage(User user) {
+        userDatabase.deleteProfile(user.getId());
     }
 }

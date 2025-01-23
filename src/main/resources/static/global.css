@@ -152,6 +152,11 @@
   border-radius: 9999px;
   background: #d9d9d9;
 }
+.profile {
+  width: 200px;
+  height: 200px;
+  border-radius: 9999px;
+}
 
 .profile_container {
   align-self: stretch; 

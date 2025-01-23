@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.BoardRequest;
 import request.HttpRequestInfo;
+import request.ImageRequest;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -129,6 +130,20 @@ public abstract class HttpRequestParser {
 
         return new BoardRequest(
                 new String(text[1].getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8),
+                bytes,
+                extension
+        );
+    }
+
+    public static ImageRequest parseMultipartFormImage(String headerValue, String body) {
+        final String boundary = getBoundaryFromContentType(headerValue);
+        final String[] multipart = body.split("--" + boundary);
+        final String[] image = multipart[1].split("\r\n\r\n", 2);
+
+        final byte[] bytes = image[1].getBytes(StandardCharsets.ISO_8859_1);
+        final String extension = image[0].split("\r\n")[2].split(":")[1].trim().split("/")[1];
+
+        return new ImageRequest(
                 bytes,
                 extension
         );

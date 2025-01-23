@@ -84,7 +84,8 @@ public class UserDatabase {
                             rs.getString("user_id"),
                             rs.getString("password"),
                             rs.getString("nickname"),
-                            rs.getString("email")
+                            rs.getString("email"),
+                            rs.getString("profile")
                     );
                     return Optional.of(user);
                 }
@@ -115,7 +116,8 @@ public class UserDatabase {
                             rs.getString("user_id"),
                             rs.getString("password"),
                             rs.getString("nickname"),
-                            rs.getString("email")
+                            rs.getString("email"),
+                            rs.getString("profile")
                     );
                     return Optional.of(user);
                 }
@@ -124,5 +126,44 @@ public class UserDatabase {
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
         return Optional.empty();
+    }
+
+    public void updateProfile(int id, String filePath) {
+        String query = "UPDATE member SET profile = ? WHERE id = ?";
+        try (Connection conn = DBConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            // filePath를 데이터베이스에 저장 (파일 경로를 저장하는 경우)
+            stmt.setString(1, filePath);  // 파일 경로를 profile 컬럼에 설정
+            stmt.setInt(2, id);           // 사용자 ID를 WHERE 조건에 설정
+
+            // SQL 업데이트 실행
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new ServerErrorException(ERROR_WITH_DATABASE);
+            }
+
+        } catch (SQLException e) {
+            throw new ServerErrorException(ERROR_WITH_DATABASE);
+        }
+    }
+
+    public void deleteProfile(int id) {
+        String query = "update member set profile = null WHERE id = ?";
+
+        try (Connection conn = DBConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+
+            // SQL 업데이트 실행
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new ServerErrorException(ERROR_WITH_DATABASE);
+            }
+
+        } catch (SQLException e) {
+            throw new ServerErrorException(ERROR_WITH_DATABASE);
+        }
     }
 }
