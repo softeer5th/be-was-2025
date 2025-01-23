@@ -30,11 +30,18 @@ public class HtmlContentReplacer {
         conditions.put("showAll", false);
         conditions.put("hasPost", false);
         conditions.put("differentUser", true);
+        conditions.put("hasProfile", false);
         if(login) {
             User user = (User) SessionManager.getSession(sid).getUser();
             properties.put("$userId", user.getUserId());
             properties.put("$userName", user.getName());
             properties.put("$userEmail", user.getEmail());
+            if(user.getProfileImageId() != -1) {
+                conditions.put("hasProfile", true);
+                Image image = ImageManager.getImage(user.getProfileImageId());
+                properties.put("$userProfile", image.getDataString());
+                properties.put("$userImageType", image.getContentType());
+            }
         }
 
         if(queryString!=null) {
