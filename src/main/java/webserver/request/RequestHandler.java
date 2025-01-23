@@ -11,7 +11,7 @@
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
     import webserver.*;
-    import webserver.request.api.LoginStatusApiHandler;
+    import webserver.request.api.*;
     import webserver.request.route.*;
     import webserver.request.service.*;
     import webserver.request.staticResource.*;
@@ -23,20 +23,23 @@
     public class RequestHandler implements Runnable {
         private static final int MAX_LOGIN_SESSION_TIME = 3600;
         private static final String DEFAULT_HTTP_VERSION = "HTTP/1.1";
-        private final Map<String, RequestProcessor> handlerMap = Map.of(
-                // route handler
-                "/", new DefaultPageHandler(),
-                "/registration", new RegistrationPageHandler(),
-                "/login", new LoginPageHandler(),
-                "/mypage", new MyPageHandler(),
-                "/write", new WritePageHandler(),
-                // service handler
-                "/user/create", new UserCreateHandler(),
-                "/user/login", new UserLoginHandler(),
-                "/user/logout", new UserLogoutHandler(),
-                "/user/write", new UserWriteHandler(),
-                // api handler
-                "/api/login-status", new LoginStatusApiHandler()
+        private final Map<String, RequestProcessor> handlerMap = Map.ofEntries(
+                // route
+                Map.entry("/", new DefaultPageHandler()),
+                Map.entry("/registration", new RegistrationPageHandler()),
+                Map.entry("/login", new LoginPageHandler()),
+                Map.entry("/mypage", new MyPageHandler()),
+                Map.entry("/write", new WritePageHandler()),
+                // service
+                Map.entry("/user/create", new UserCreateHandler()),
+                Map.entry("/user/login", new UserLoginHandler()),
+                Map.entry("/user/logout", new UserLogoutHandler()),
+                Map.entry("/user/write", new UserWriteHandler()),
+                // api
+                Map.entry("/api/login-status", new LoginStatusApiHandler()),
+                Map.entry("/api/latest-article", new LatestArticleApiHandler()),
+                Map.entry("/api/next-article", new NextArticleApiHandler()),
+                Map.entry("/api/previous-article", new PreviousArticleApiHandler())
         );
 
         public RequestHandler(Socket connectionSocket) {
@@ -136,7 +139,7 @@
                     logger.debug("method: {}", method);
 
                     RequestProcessor handler = handlerMap.getOrDefault(path, new StaticResourceHandler());
-                    HTTPResponse response = handler.handle(requestHeader, requestBody, responseHeader, cookieList);
+                    HTTPResponse response = handler.handle(requestHeader, requestBody, queryParams, responseHeader, cookieList);
 
                     ResponseHandler.respond(dos, response);
                 } catch (HTTPExceptions e) {
