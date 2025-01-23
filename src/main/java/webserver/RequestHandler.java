@@ -3,7 +3,7 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 
-import Response.HTTPResponse;
+import response.HTTPResponse;
 import constant.HTTPCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

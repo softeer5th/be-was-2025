@@ -1,11 +1,10 @@
 package util;
 
-import Response.HTTPResponse;
+import response.HTTPResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.security.SecureRandom;
 import java.util.*;
 
 
@@ -112,11 +111,9 @@ public class Utils {
         dos.flush();
     }
 
+
     public static String generateSessionID() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] randomBytes = new byte[SESSION_ID_LENGTH];
-        secureRandom.nextBytes(randomBytes); // 랜덤 바이트 생성
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+        return UUID.randomUUID().toString();
     }
 
     public static String getSessionIdInCookie(String cookie) {

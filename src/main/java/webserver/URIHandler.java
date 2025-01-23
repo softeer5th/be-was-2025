@@ -1,6 +1,6 @@
 package webserver;
 
-import Response.HTTPResponse;
+import response.HTTPResponse;
 import request.HTTPRequest;
 
 public interface URIHandler {

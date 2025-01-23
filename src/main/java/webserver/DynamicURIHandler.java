@@ -1,6 +1,7 @@
 package webserver;
 
-import Response.HTTPResponse;
+import manager.ArticleManager;
+import response.HTTPResponse;
 import request.HTTPRequest;
 
 import constant.HTTPCode;
@@ -8,7 +9,6 @@ import manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +27,8 @@ public class DynamicURIHandler implements URIHandler {
             uriMethodMap.put("POST:/user/create", UserManager.class.getMethod("signUp", HTTPRequest.class));
             uriMethodMap.put("POST:/user/login", UserManager.class.getMethod("logIn", HTTPRequest.class));
             uriMethodMap.put("GET:/user/login/status", UserManager.class.getMethod("checkLoginStatus", HTTPRequest.class));
+            uriMethodMap.put("POST:/article", ArticleManager.class.getMethod("createArticle", HTTPRequest.class));
+            uriMethodMap.put("GET:/articles", ArticleManager.class.getMethod("getAllArticles", HTTPRequest.class));
         }
         catch(Exception e){
             logger.error(e.getMessage());

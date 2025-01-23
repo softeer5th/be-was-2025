@@ -1,15 +1,15 @@
 package manager;
 
-import Response.HTTPResponse;
+import db.UserDatabase;
+import response.HTTPResponse;
 import constant.HTTPCode;
-import db.Database;
+import db.SessionDatabase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import request.HTTPRequest;
 
-import java.security.SecureRandom;
-import java.util.Base64;
+import java.util.Optional;
 
 import static util.Utils.generateSessionID;
 import static util.Utils.getSessionIdInCookie;
@@ -24,43 +24,58 @@ public class UserManager {
 
 
     public HTTPResponse signUp(HTTPRequest httpRequest){
-        if(Database.userExists(httpRequest.getBodyParameterByKey("userId"))){
+        if(UserDatabase.userExists(httpRequest.getBodyParameter("userId"))){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(),HTTPCode.ALREADY_EXIST_USER);
         }
 
-        User user = new User(httpRequest.getBodyParameterByKey("userId")
-                ,httpRequest.getBodyParameterByKey("password")
-                ,httpRequest.getBodyParameterByKey("name")
-                ,httpRequest.getBodyParameterByKey("email"));
-        Database.addUser(user);
+        User user = new User(httpRequest.getBodyParameter("userId")
+                ,httpRequest.getBodyParameter("password")
+                ,httpRequest.getBodyParameter("name")
+                ,httpRequest.getBodyParameter("email"));
+        UserDatabase.addUser(user);
         logger.debug("signUp : " + user.getUserId());
         return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterSignUp);
 
     }
 
     public HTTPResponse logIn(HTTPRequest httpRequest){
-        if(!Database.userExists(httpRequest.getBodyParameterByKey("userId"))){
+
+        Optional<User> optionalUser = UserDatabase.findUserById(httpRequest.getBodyParameter("userId"));
+        if(optionalUser.isEmpty()){
             return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
 
-        User user = Database.findUserById(httpRequest.getBodyParameterByKey("userId"));
-        if(!user.getPassword().equals(httpRequest.getBodyParameterByKey("password"))){
+        User user = optionalUser.get();
+        if(!user.getPassword().equals(httpRequest.getBodyParameter("password"))){
             return HTTPResponse.createRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.SEE_OTHER, redirectAfterLogInFail);
         }
 
         String sessionId = generateSessionID();
-        Database.addSession(sessionId,user.getUserId());
+        SessionDatabase.addSession(sessionId,user.getUserId());
 
         return HTTPResponse.createLoginRedirectResponse(httpRequest.getHttpVersion(),HTTPCode.FOUND,redirectAfterLogIn, sessionId);
     }
 
     public HTTPResponse checkLoginStatus(HTTPRequest httpRequest){
-        String sessionId = getSessionIdInCookie(httpRequest.getHeaderByKey(COOKIE));
-        if(!Database.sessionExists(sessionId)){
+        Optional<String> cookie = httpRequest.getHeader(COOKIE);
+        if(cookie.isEmpty()){
             return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
         }
-        String userId = Database.getSession(sessionId);
-        User user = Database.findUserById(userId);
+        String sessionId = getSessionIdInCookie(cookie.get());
+
+        if(!SessionDatabase.sessionExists(sessionId)){
+            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+        }
+        Optional<String> optionalUserId = SessionDatabase.getSession(sessionId);
+        if(optionalUserId.isEmpty()){
+            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+        }
+        String userId = optionalUserId.get();
+        Optional<User> optionalUser = UserDatabase.findUserById(userId);
+        if(optionalUser.isEmpty()){
+            return HTTPResponse.createFailResponse(httpRequest.getHttpVersion(), HTTPCode.UNAUTHORIZED);
+        }
+        User user = optionalUser.get();
 
         return HTTPResponse.createSuccessResponse(httpRequest.getHttpVersion(), HTTPCode.OK, user.getName());
     }
