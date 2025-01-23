@@ -5,6 +5,8 @@ import static enums.HttpHeader.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -73,13 +75,16 @@ public class HttpRequestBody {
 		for (String pair : pairs) {
 			String[] keyValue = pair.split("=", 2); // = 기준으로 분리 (최대 2개로 분리)
 
-			if (keyValue.length == 2) {
-				String key = keyValue[0];
-				String value = keyValue[1];
-				resultMap.put(key, value);
-			} else if (keyValue.length == 1) { // value가 없는 경우 (key만 존재)
-				String key = keyValue[0];
-				resultMap.put(key, "");
+			if (keyValue.length >= 1) {
+				try {
+					String key = URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8.name());
+					String value = keyValue.length == 2 ? URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8.name()) : "";
+					resultMap.put(key, value);
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException("Failed to decode URL-encoded data: " + pair, e);
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 

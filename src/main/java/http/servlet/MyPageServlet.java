@@ -29,9 +29,6 @@ public class MyPageServlet implements Servlet {
 			throw new IllegalArgumentException("로그인이 필요합니다.");
 		}
 
-		// User foundUser = (User)getSession(sessionId).getAttribute(SESSION_ID);
-		//body = HomePageTemplate.renderHomePage(body, foundUser);
-
 		ContentType contentType = request.inferContentType();
 
 		response.setStatusCode(HttpStatus.OK);

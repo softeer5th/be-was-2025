@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import db.ArticleDatabase;
+import db.UserDatabase;
 import enums.HttpStatus;
-import http.HttpSession;
-import http.HttpSessionStorage;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import view.TemplateEngine;
@@ -24,15 +24,19 @@ public class FrontControllerServlet implements Servlet {
 	private FrontControllerServlet() {
 		controllerMap = new HashMap<>();
 
+		UserDatabase userDatabase = UserDatabase.getInstance();
+		ArticleDatabase articleDatabase = ArticleDatabase.getInstance();
+
 		// TODO: 해당 객체는 정적인 객체인데 서블릿를 추가해주는 위치가 바람직한가?
 		controllerMap.put(STATIC_RESOURCES, new StaticResourceServlet());
 
-		controllerMap.put("/", new HomeServlet());
+		controllerMap.put("/", new HomeServlet(articleDatabase));
 		controllerMap.put("/registration", new StaticResourceServlet());
-		controllerMap.put("/login", new LoginServlet());
+		controllerMap.put("/login", new LoginServlet(userDatabase));
 		controllerMap.put("/logout", new LogoutServlet());
 		controllerMap.put("/mypage", new MyPageServlet());
-		controllerMap.put("/user/create", new RegisterServlet());
+		controllerMap.put("/article", new ArticleServlet(articleDatabase));
+		controllerMap.put("/user/create", new RegisterServlet(userDatabase));
 	}
 
 	public static FrontControllerServlet getInstance() {
@@ -57,14 +61,13 @@ public class FrontControllerServlet implements Servlet {
 			}
 
 			controllerMap.get(pathWithoutFileName).service(request, response);
+
+			if (response.getView() != null) {
+				TemplateEngine.render(response);
+			}
+
 		} catch (Exception e) {
 			response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, ERROR_PAGE);
-		} finally {
-			// 렌더
-			HttpSession session = HttpSessionStorage.getSession(request.getSessionId());
-
-			TemplateEngine templateEngine = new TemplateEngine();
-			templateEngine.render(response, session);
 		}
 	}
 }

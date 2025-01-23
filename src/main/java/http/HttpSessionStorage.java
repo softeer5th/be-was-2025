@@ -1,5 +1,6 @@
 package http;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpSessionStorage {
@@ -16,7 +17,7 @@ public class HttpSessionStorage {
 	}
 
 	public static HttpSession getSession(String id) {
-		return sessions.get(id);
+		return sessions.getOrDefault(id, new HttpSession(id, new HashMap<>()));
 	}
 
 	public static void removeSession(String id) {
