@@ -1,34 +1,32 @@
-package webserver.handler;
+package handler;
 
-import db.Database;
-import handler.RegistrationHandler;
-import model.User;
+import domain.User;
+import domain.UserDao;
+import enums.PageMappingPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import webserver.enums.HttpHeader;
 import webserver.enums.HttpStatusCode;
-import webserver.enums.PageMappingPath;
-import webserver.exception.Conflict;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class RegistrationHandlerTest {
-    private Database database;
+    private UserDao userDao;
     private RegistrationHandler handler;
 
     @BeforeEach
     void setUp() {
-        database = new Database();
-        handler = new RegistrationHandler(database);
+        userDao = mock(UserDao.class);
+        handler = new RegistrationHandler(userDao);
     }
 
     @Test
@@ -36,18 +34,16 @@ class RegistrationHandlerTest {
     void handlePost_addUser() {
         // given
         var request = mock(HttpRequest.class);
-        when(request.getBodyAsMap()).thenReturn(Optional.of(Map.of(
-                "userId", "id",
-                "password", "1234",
-                "name", "name",
-                "email", "example@example.com"
-        )));
+        when(request.getBody(any())).thenReturn(Optional.of(new RegistrationHandler
+                .RegistrationRequest("id", "1234", "name", "example@example.com")));
+        var userCaptor = ArgumentCaptor.forClass(User.class);
+        when(userDao.saveUser(userCaptor.capture())).thenReturn(true);
 
         // when
         HttpResponse response = handler.handlePost(request);
 
         // then
-        User user = database.findUserById("id").get();
+        User user = userCaptor.getValue();
         assertThat(user).isNotNull();
         assertThat(user.getUserId()).isEqualTo("id");
         assertThat(user.isPasswordCorrect("1234")).isTrue();
@@ -59,20 +55,18 @@ class RegistrationHandlerTest {
     }
 
     @Test
-    @DisplayName("중복된 아이디로 회원가입 시도 시 실패")
+    @DisplayName("중복된 아이디로 회원가입 시도 시 Conflict")
     void handlePost_duplicateUser() {
         // given
         var request = mock(HttpRequest.class);
-        when(request.getBodyAsMap()).thenReturn(Optional.of(Map.of(
-                "userId", "id",
-                "password", "1234",
-                "name", "name",
-                "email", "example@example.com"
-        )));
-        database.addUser(new User("id", "123423", "John", "abc2@example2.com"));
+        when(request.getBody(any())).thenReturn(Optional.of(new RegistrationHandler
+                .RegistrationRequest("id", "1234", "name", "example@example.com")));
+        when(userDao.findUserById("id")).thenReturn(Optional.of(User.create("id", "123423", "John", "abc2@example2.com")));
 
-        // when & then
-        assertThatThrownBy(() -> handler.handlePost(request))
-                .isInstanceOf(Conflict.class);
+
+        // when
+        var response = handler.handlePost(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.CONFLICT);
     }
 }

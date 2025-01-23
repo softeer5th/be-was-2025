@@ -209,4 +209,23 @@ class MyTemplateEngineTest {
         // then
         assertThat(actual).contains("<div>alice</div><div>bob</div>");
     }
+
+    @Test
+    @DisplayName(" my-if >= 연산자 사용")
+    void test8() {
+        // given
+        TemplateEngine templateEngine = new MyTemplateEngine()
+                .registerTagHandler(new IfTagRenderer("my-if"));
+        String template = """
+                <my-if condition="i>=20">
+                    hello
+                </my-if>
+                """;
+        Map<String, Object> model = new HashMap<>();
+        model.put("i", 22);
+        // when
+        String actual = templateEngine.render(template, model);
+        // then
+        assertThat(actual).contains("hello");
+    }
 }

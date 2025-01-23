@@ -5,14 +5,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-// 서버측 메모리에 세션을 저장하는 SessionManager
+/**
+ * 서버측 메모리에 세션을 저장하는 SessionManager
+ */
 public class MemorySessionManager implements SessionManager {
     // 동시성 문제로 인해 ConcurrentHashMap 필요
     private final Map<String, HttpSession> sessionMap = new ConcurrentHashMap<>();
 
     @Override
-    public void saveSession(String sessionId, HttpSession session) {
-        sessionMap.put(sessionId, session);
+    public void saveSession(HttpSession session) {
+        sessionMap.put(session.getSessionId(), session);
     }
 
     @Override
@@ -28,7 +30,7 @@ public class MemorySessionManager implements SessionManager {
     @Override
     public HttpSession createAndSaveSession() {
         HttpSession session = new HttpSession(generateSessionId());
-        saveSession(session.getSessionId(), session);
+        saveSession(session);
         return session;
     }
 

@@ -6,7 +6,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-// Set-Cooki 헤더와 관련된 정보
+/**
+ * Set-Cookie 헤더와 관련된 정보
+ */
 public class SetCookie {
     private final Cookie cookie;
     private String domain;
@@ -17,6 +19,12 @@ public class SetCookie {
     private SameSite sameSite;
     private boolean secure;
 
+    /**
+     * 쿠키 이름과 값을 받아 쿠키를 생성
+     *
+     * @param name  쿠키 이름
+     * @param value 쿠키 값
+     */
     public SetCookie(String name, String value) {
         this.cookie = new Cookie(name, value);
         httpOnly = true;
@@ -25,7 +33,12 @@ public class SetCookie {
         path = "/";
     }
 
-    // 쿠키를 만료시키는 Set-Cookie 헤더를 만들어주는 정적 팩토리 메서드
+    /**
+     * 쿠키를 만료시키는 Set-Cookie 를 생성
+     *
+     * @param cookieName 만료시킬 쿠키 이름
+     * @return 만료시키는 Set-Cookie
+     */
     public static SetCookie expireCookie(String cookieName) {
         SetCookie setCookie = new SetCookie(cookieName, "");
         setCookie.setMaxAge(0);
@@ -33,7 +46,13 @@ public class SetCookie {
         return setCookie;
     }
 
-    // 브라우저를 끌 때 까지 유지되는 session scope 쿠키를 위한 Set-Cookie 헤더를 만들어주는 정적 팩토리 메서드
+    /**
+     * session scope 쿠키를 위한 Set-Cookie 헤더를 생성
+     *
+     * @param cookieName  쿠키 이름
+     * @param cookieValue 쿠키 값
+     * @return session scope 쿠키를 위한 Set-Cookie 헤더
+     */
     public static SetCookie createSessionCookie(String cookieName, String cookieValue) {
         SetCookie setCookie = new SetCookie(cookieName, cookieValue);
         return setCookie;
@@ -79,7 +98,11 @@ public class SetCookie {
         return secure;
     }
 
-    // Http Header 형식에 맞게 문자열로 변환
+    /**
+     * Set-Cookie를 Http Header 형식으로 변환
+     *
+     * @return Http Header 형식의 Set-Cookie
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -115,7 +138,25 @@ public class SetCookie {
         return expires.withZoneSameInstant(ZoneId.of("GMT")).format(DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
+    /**
+     * 쿠키의 SameSite 속성
+     */
     public enum SameSite {
-        LAX, STRICT, NONE
+        /**
+         * Lax<br>
+         * First-Party 쿠키 허용<br>
+         * Third-Party 쿠키는 Top-Level Navigation, 안전한 메서드 요청에만 전송
+         */
+        LAX,
+        /**
+         * Strict<br>
+         * First-Party 쿠키만 허용
+         */
+        STRICT,
+        /**
+         * None<br>
+         * 모두 허용
+         */
+        NONE
     }
 }

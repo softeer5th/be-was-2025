@@ -20,7 +20,8 @@ public enum ParsingConstant {
     FORM_URLENCODED_DEFAULT_VALUE(""),
     DEFAULT_CHARSET("UTF-8"),
     COOKIE_SEPARATOR(";"),
-    COOKIE_KEY_VALUE_SEPARATOR("=");
+    COOKIE_KEY_VALUE_SEPARATOR("="),
+    MULTIPART_BOUNDARY("boundary=");
 
     public final String value;
 

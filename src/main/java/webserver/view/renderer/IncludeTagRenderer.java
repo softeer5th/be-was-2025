@@ -5,7 +5,12 @@ import webserver.view.TemplateFileReader;
 
 import java.util.Map;
 
-// template 속성에 해당하는 파일을 읽어서 렌더링해주는 TagRenderer
+/**
+ * <pre>
+ *  my-include 태그를 렌더링하는 클래스
+ *  template 속성에 해당하는 파일을 읽어서 렌더링해준다.
+ * </pre>
+ */
 public class IncludeTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-include";
     public static final String TEMPLATE_ATTRIBUTE_NAME = "template";

@@ -2,6 +2,7 @@ package webserver.router;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import webserver.enums.HttpMethod;
 import webserver.handler.HttpHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +24,7 @@ class PathRouterTest {
                 .setDefaultHandler(handler2);
 
         //then
-        assertThat(mapping.route("/c").handler()).isEqualTo(handler2);
+        assertThat(mapping.route(HttpMethod.GET, "/c").handler()).isEqualTo(handler2);
     }
 
     @Test
@@ -40,7 +41,7 @@ class PathRouterTest {
                 .setHandler("/c/d", handler2);
 
         //then
-        assertThat(mapping.route("/c/d").handler()).isEqualTo(handler2);
+        assertThat(mapping.route(HttpMethod.GET, "/c/d").handler()).isEqualTo(handler2);
     }
 
     @Test
@@ -58,18 +59,18 @@ class PathRouterTest {
                 .setHandler("/users/{id}/post", handler2)
                 .setHandler("/users/{id}/post/{postId}/comments/{commentId}", handler3);
         //then
-        var result = mapping.route("/users/abcd");
+        var result = mapping.route(HttpMethod.GET, "/users/abcd");
         assertThat(result.handler()).isEqualTo(handler1);
         assertThat(result.pathVariables())
                 .containsEntry("id", "abcd");
 
-        result = mapping.route("/users/defg/post");
+        result = mapping.route(HttpMethod.GET, "/users/defg/post");
         assertThat(result.handler()).isEqualTo(handler2);
         assertThat(result.pathVariables())
                 .containsEntry("id", "defg");
 
 
-        result = mapping.route("/users/user1/post/post2/comments/comment3");
+        result = mapping.route(HttpMethod.GET, "/users/user1/post/post2/comments/comment3");
         assertThat(result.handler()).isEqualTo(handler3);
         assertThat(result.pathVariables())
                 .containsEntry("id", "user1")
@@ -110,7 +111,7 @@ class PathRouterTest {
                 .setHandler("/users/{id}", handler1)
                 .setHandler("/users/admin", handler2);
         //then
-        var result = mapping.route("/users/admin");
+        var result = mapping.route(HttpMethod.GET, "/users/admin");
         assertThat(result.handler()).isEqualTo(handler2);
         assertThat(result.pathVariables())
                 .hasSize(0);

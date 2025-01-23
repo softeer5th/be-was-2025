@@ -226,3 +226,13 @@
         display: none;
     }
 }
+
+.disabled-link {
+    pointer-events: none;
+    cursor: default;
+    color: gray !important;
+}
+
+.disabled-link > img {
+    filter: invert(53%) sepia(2%) saturate(7%) hue-rotate(319deg) brightness(94%) contrast(89%);
+}

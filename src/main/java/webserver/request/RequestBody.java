@@ -3,6 +3,7 @@ package webserver.request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Mapper;
+import webserver.enums.ContentType;
 import webserver.enums.HttpStatusCode;
 import webserver.exception.BadRequest;
 import webserver.exception.HttpException;
@@ -22,7 +23,9 @@ import static webserver.enums.HttpHeader.CONTENT_LENGTH;
 import static webserver.enums.HttpHeader.CONTENT_TYPE;
 import static webserver.enums.ParsingConstant.*;
 
-// Request Body InputStream 을 읽어들여 파싱하는 클래스
+/**
+ * HTTP Request Body InputStream 을 읽어들여 파싱하는 클래스
+ */
 public class RequestBody {
     private static final Logger log = LoggerFactory.getLogger(RequestBody.class);
     private final RequestHeader headers;
@@ -33,13 +36,41 @@ public class RequestBody {
     private Map<String, String> mapBodyCache;
     private String stringBodyCache;
 
+    /**
+     * RequestBody 생성자
+     *
+     * @param body    Body 를 읽어들일 InputStream
+     * @param headers Body 를 읽을 때 참고할 Request Header
+     */
     public RequestBody(InputStream body, RequestHeader headers) {
         this.headers = headers;
         this.body = body;
     }
 
+    /**
+     * body를 파싱하여 객체로 반환
+     *
+     * @param clazz body를 파싱하여 반환할 객체의 클래스. String, Map, POJO(기본 생성자 필요) 가 가능하다.
+     * @param <T>   body를 파싱하여 반환할 객체의 클래스
+     * @return body 정보가 담긴 T 타입 객체. body가 없거나 지원하지 않는 타입인 경우 Optional.empty() 반환
+     */
+    public <T> Optional<T> getBody(Class<T> clazz) {
+        if (clazz == String.class) {
+            return (Optional<T>) getBodyAsString();
+        }
+        if (clazz == Map.class) {
+            return (Optional<T>) getBodyAsMap();
+        }
+        String contentType = headers.getHeader(CONTENT_TYPE.value);
+        if (APPLICATION_X_WWW_FORM_URLENCODED.equals(contentType)) {
+            return getBodyAsMap().flatMap(map -> Mapper.mapToObject(map, clazz));
+        }
+        log.error("지원하지 않는 Content-Type 입니다. Content-Type: {}", contentType);
+        return Optional.empty();
+    }
+
     // body를 String으로 반환
-    public Optional<String> getBodyAsString() {
+    private Optional<String> getBodyAsString() {
         if (stringBodyCache != null)
             return Optional.of(stringBodyCache);
         readBodyAsRaw();
@@ -51,7 +82,7 @@ public class RequestBody {
     }
 
     // body를 Map으로 반환
-    public Optional<Map<String, String>> getBodyAsMap() {
+    private Optional<Map<String, String>> getBodyAsMap() {
         if (mapBodyCache != null)
             return Optional.of(mapBodyCache);
         readBodyAsRaw();
@@ -62,15 +93,6 @@ public class RequestBody {
             mapBodyCache = null;
         }
         return Optional.ofNullable(mapBodyCache);
-    }
-
-    public <T> Optional<T> getBody(Class<T> clazz) {
-        String contentType = headers.getHeader(CONTENT_TYPE.value);
-        if (APPLICATION_X_WWW_FORM_URLENCODED.equals(contentType)) {
-            return getBodyAsMap().flatMap(map -> Mapper.mapToObject(map, clazz));
-        }
-        log.error("지원하지 않는 Content-Type 입니다. Content-Type: {}", contentType);
-        return Optional.empty();
     }
 
     // application/x-www-form-urlencoded 형식의 body를 파싱하여 Map으로 반환

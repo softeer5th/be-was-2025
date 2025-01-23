@@ -2,7 +2,6 @@ package webserver.request;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import webserver.config.ServerConfig;
 import webserver.enums.HttpMethod;
 import webserver.enums.HttpStatusCode;
 import webserver.exception.BadRequest;
@@ -16,20 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class HttpRequestParserTest {
-
-    private HttpRequestParser createParser(int maxHeaderSize) {
-        return new HttpRequestParser(new ServerConfig() {
-            @Override
-            public Integer getMaxHeaderSize() {
-                return maxHeaderSize;
-            }
-        });
-    }
-
-    private HttpRequestParser createParser() {
-        return new HttpRequestParser(new ServerConfig());
-    }
-
 
     @Test
     @DisplayName("GET Request Parsing")
@@ -85,7 +70,7 @@ class HttpRequestParserTest {
             assertThat(request.getHeaders().getHeader("Host")).isEqualTo("localhost:8080");
             assertThat(request.getHeaders().getHeader("Content-Length")).isEqualTo("25");
             assertThat(request.getHeaders().getHeader("Content-Type")).isEqualTo("text/plain");
-            assertThat(request.getBodyAsString()).hasValue("""
+            assertThat(request.getBody(String.class)).hasValue("""
                     id=id1
                     password=password1""");
         }
@@ -262,7 +247,6 @@ class HttpRequestParserTest {
         }
     }
 
-
     @Test
     @DisplayName("header name에 공백이 있는 경우 오류가 발생해야 함")
     void parseTest11() throws IOException {
@@ -324,4 +308,11 @@ class HttpRequestParserTest {
         }
     }
 
+    private HttpRequestParser createParser() {
+        return createParser(8192);
+    }
+
+    private HttpRequestParser createParser(Integer maxHeaderSize) {
+        return new HttpRequestParser(maxHeaderSize);
+    }
 }

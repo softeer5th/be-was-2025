@@ -1,33 +1,79 @@
 package webserver.router;
 
+import webserver.enums.HttpMethod;
 import webserver.handler.HttpHandler;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-// Path 기반 라우팅을 위한 클래스
+/**
+ * Path 기반 라우팅을 위한 클래스
+ * <pre>
+ * 지정된 path 와 method에 따라 핸들러를 등록하고, 요청된 path에 대한 핸들러를 찾아 반환한다.
+ * 핸들러를 등록할 때 사용하는 path는 다음과 같은 규칙을 따른다.
+ * - path variable을 사용할 수 있다. ex) /users/{id}
+ * - path variable은 {name} 형태로 사용한다.
+ * - 하나의 segment에 서로 다른 path variable을 사용할 수 없다.
+ *  ex) /users/{id}/posts 등록 후 /users/{name}/posts 등록 불가
+ * </pre>
+ */
 public class PathRouter {
     private static final String ALL_PATH = "*";
     private static final String SEGMENT_DELIMITER = "/";
     private static final String PATH_VARIABLE_PREFIX = "{";
     private static final String PATH_VARIABLE_SUFFIX = "}";
-    private final RouterTrieNode root;
+    private final Map<HttpMethod, RouterTrieNode> rootMap;
     private HttpHandler defaultHandler;
 
     public PathRouter() {
-        this.root = new RouterTrieNode();
+        this.rootMap = new EnumMap<>(HttpMethod.class);
+        for (HttpMethod method : HttpMethod.values()) {
+            rootMap.put(method, new RouterTrieNode());
+        }
     }
 
+    /**
+     * 기본 핸들러를 설정한다.
+     *
+     * @param handler 기본 핸들러
+     * @return this
+     */
     public PathRouter setDefaultHandler(HttpHandler handler) {
         defaultHandler = handler;
         return this;
     }
 
+    /**
+     * 지정된 path에 대한 핸들러를 설정한다.
+     *
+     * @param path    path
+     * @param handler 등록할 핸들러
+     * @return this
+     */
     public PathRouter setHandler(String path, HttpHandler handler) {
+        for (HttpMethod method : HttpMethod.values()) {
+            setHandler(method, path, handler);
+        }
+        return this;
+    }
+
+    /**
+     * 지정된 method와 path에 대한 핸들러를 설정한다.
+     *
+     * @param method  HTTP method
+     * @param path    path
+     * @param handler 등록할 핸들러
+     * @return this
+     */
+    public PathRouter setHandler(HttpMethod method, String path, HttpHandler handler) {
+        if ("/".equals(path)) {
+            rootMap.get(method).handler = handler;
+        }
 
         String[] segments = pathToSegments(path);
 
-        RouterTrieNode current = root;
+        RouterTrieNode current = rootMap.get(method);
         for (String segment : segments) {
             if (isPathVariable(segment)) {
                 // segment가 path variable인 경우
@@ -47,8 +93,17 @@ public class PathRouter {
         return this;
     }
 
-
-    public RoutingResult route(String path) {
+    /**
+     * 요청 method와 path에 대해 매칭된 핸들러와 path variable 값을 반환한다.
+     *
+     * @param method 요청 method
+     * @param path   요청 path
+     * @return 매칭된 핸들러와 path variable 값을 담은 record
+     */
+    public RoutingResult route(HttpMethod method, String path) {
+        if ("/".equals(path)) {
+            return new RoutingResult(rootMap.get(method).handler, Map.of());
+        }
 
         String[] segments = pathToSegments(path);
 
@@ -56,7 +111,7 @@ public class PathRouter {
         // Map<path variable name, path variable value> 형태로 저장
         Map<String, String> pathVariables = new HashMap<>();
 
-        RouterTrieNode current = this.root;
+        RouterTrieNode current = this.rootMap.get(method);
         for (String segment : segments) {
             // 정적인 경로로 등록된 Handler를 우선순위가 높게 처리
             if (current.children.containsKey(segment)) {
@@ -87,7 +142,7 @@ public class PathRouter {
     // segment가 path variable인지 확인
     private boolean isPathVariable(String segment) {
         return segment.startsWith(PATH_VARIABLE_PREFIX) &&
-                segment.endsWith(PATH_VARIABLE_SUFFIX);
+               segment.endsWith(PATH_VARIABLE_SUFFIX);
     }
 
     // path variable의 이름을 추출. ex) {id} -> id
@@ -131,6 +186,13 @@ public class PathRouter {
     }
 
     // 매칭된 핸들러와 path variable을 저장하는 record
+
+    /**
+     * 매칭된 핸들러와 path variable을 저장하는 record
+     *
+     * @param handler       매칭된 핸들러
+     * @param pathVariables path variable의 이름, 값이 저장된 map
+     */
     public record RoutingResult(HttpHandler handler, Map<String, String> pathVariables) {
     }
 }

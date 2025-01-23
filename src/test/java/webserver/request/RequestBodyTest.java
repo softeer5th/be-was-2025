@@ -34,7 +34,7 @@ class RequestBodyTest {
         when(headers.getHeader("Content-Length")).thenReturn("9");
 
         RequestBody requestBody = new RequestBody(body, headers);
-        Optional<String> result = requestBody.getBodyAsString();
+        Optional<String> result = requestBody.getBody(String.class);
 
         assertThat(result).isPresent().hasValue("test body");
     }
@@ -46,7 +46,7 @@ class RequestBodyTest {
         when(headers.getHeader("Content-Length")).thenReturn("0");
 
         RequestBody requestBody = new RequestBody(body, headers);
-        Optional<String> result = requestBody.getBodyAsString();
+        Optional<String> result = requestBody.getBody(String.class);
 
         assertThat(result).isEmpty();
     }
@@ -59,7 +59,7 @@ class RequestBodyTest {
         when(headers.getHeader("Content-Type")).thenReturn("application/x-www-form-urlencoded");
 
         RequestBody requestBody = new RequestBody(body, headers);
-        Optional<Map<String, String>> result = requestBody.getBodyAsMap();
+        Optional<Map> result = requestBody.getBody(Map.class);
 
         assertThat(result).isPresent().hasValue(Map.of("key1", "value1", "key2", "value2"));
     }
@@ -72,7 +72,7 @@ class RequestBodyTest {
         when(headers.getHeader("Content-Type")).thenReturn("application/x-www-form-urlencoded");
 
         RequestBody requestBody = new RequestBody(body, headers);
-        Optional<Map<String, String>> result = requestBody.getBodyAsMap();
+        Optional<Map> result = requestBody.getBody(Map.class);
 
         assertThat(result).isEmpty();
     }
@@ -84,7 +84,7 @@ class RequestBodyTest {
 
         RequestBody requestBody = new RequestBody(body, headers);
 
-        assertThatThrownBy(requestBody::getBodyAsString)
+        assertThatThrownBy(() -> requestBody.getBody(String.class))
                 .isInstanceOf(HttpException.class)
                 .matches(e -> ((HttpException) e).getStatusCode() == HttpStatusCode.LENGTH_REQUIRED.statusCode);
     }
@@ -98,7 +98,7 @@ class RequestBodyTest {
 
         RequestBody requestBody = new RequestBody(body, headers);
 
-        assertThatThrownBy(requestBody::getBodyAsString)
+        assertThatThrownBy(() -> requestBody.getBody(String.class))
                 .isInstanceOf(BadRequest.class);
     }
 
@@ -110,7 +110,7 @@ class RequestBodyTest {
 
         RequestBody requestBody = new RequestBody(body, headers);
 
-        assertThatThrownBy(requestBody::getBodyAsString)
+        assertThatThrownBy(() -> requestBody.getBody(String.class))
                 .isInstanceOf(BadRequest.class);
     }
 }

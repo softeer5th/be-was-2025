@@ -1,22 +1,35 @@
 package webserver.view.renderer;
 
 import util.ReflectionUtil;
+import webserver.exception.InternalServerError;
 import webserver.view.TagRenderer;
 import webserver.view.TemplateEngine;
 
 import java.util.Map;
+import java.util.Objects;
 
-// 조건문이 참이면 childTemplate을 렌더링하고, 거짓이면 빈 문자열을 반환하는 TagRenderer
-// 지원하는 조건문 형식은 다음과 같다.
-// 1. boolean literal : true, false
-// 2. 객체 탐색 경로 : session.user.isAdmin
-// 3. not 연산자 : !session.user.isAdmin
-// 4. 이항 연산자 : session.user.isAdmin && session.user.isLogin
-// 5. 이항 연산자 : session.user.isAdmin || session.user.isLogin
+/**
+ * <pre>
+ *  my-if 커스텀 태그를 렌더링하는 클래스
+ *  condition 속성의 조건문이 참이면 childTemplate을 렌더링하고, 거짓이면 빈 문자열을 반환한다.
+ *  지원하는 조건문 형식은 다음과 같다.
+ *  1. boolean literal : true, false
+ *  2. 객체 탐색 경로 : session.user.isAdmin
+ *  3. not 연산자 : !
+ *  4. 논리 이항 연산자 : &&, ||
+ *  5. 비교 이항 연산자 : >=, <=, >, <, ==, !=
+ *
+ *  연산자 우선순위는 다음과 같다
+ *  1. not 연산자
+ *  2. 비교 이항 연산자. 왼쪽부터 순서대로 평가된다.
+ *  3. 논리 이항 연산자. 왼쪽부터 순서대로 평가된다.
+ * </pre>
+ */
 public class IfTagRenderer extends TagRenderer {
     public static final String IF_TAG_NAME = "my-if";
     public static final String CONDITION_ATTRIBUTE_NAME = "condition";
-    private static final String BINARY_OPERATOR_PATTERN = "(&&)|(\\|\\|)";
+    private static final String LOGICAL_BINARY_OPERATOR_PATTERN = "(&&)|(\\|\\|)";
+    private static final String COMPARE_BINARY_OPERATOR_PATTERN = "(>=)|(<=)|(>)|(<)|(==)|(!=)";
     private static final String NOT_OPERATOR = "!";
     private static final String EMPTY_STRING = "";
     private TemplateEngine engine;
@@ -33,7 +46,7 @@ public class IfTagRenderer extends TagRenderer {
     public void setEngine(TemplateEngine engine) {
         this.engine = engine;
     }
-
+    
     @Override
     public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
         String condition = tagAttributes.get(CONDITION_ATTRIBUTE_NAME);
@@ -47,9 +60,28 @@ public class IfTagRenderer extends TagRenderer {
     private boolean isConditionTrue(Map<String, Object> model, String condition) {
         condition = condition.strip();
         // condition을 맨 앞에 오는 이항 연산자 기준으로 나누기
-        String[] tokens = condition.split(BINARY_OPERATOR_PATTERN, 2);
+        String[] tokens = condition.split(LOGICAL_BINARY_OPERATOR_PATTERN, 2);
         if (tokens.length == 1) {
             // tokens[0] == condition 인 상황
+
+            // condition에 비교 연산자가 포함된 경우
+            String[] compareTokens = condition.split(COMPARE_BINARY_OPERATOR_PATTERN);
+            if (compareTokens.length > 2)
+                throw new InternalServerError("비교 연산자가 잘못 사용되었습니다.");
+            if (compareTokens.length == 2) {
+                String left = compareTokens[0].strip();
+                String right = compareTokens[1].strip();
+                String operator = condition.substring(left.length(), condition.length() - right.length()).strip();
+                return switch (operator) {
+                    case ">=" -> parseInt(model, left) >= parseInt(model, right);
+                    case "<=" -> parseInt(model, left) <= parseInt(model, right);
+                    case ">" -> parseInt(model, left) > parseInt(model, right);
+                    case "<" -> parseInt(model, left) < parseInt(model, right);
+                    case "==" -> Objects.equals(parseInt(model, left), parseInt(model, right));
+                    case "!=" -> !Objects.equals(parseInt(model, left), parseInt(model, right));
+                    default -> throw new InternalServerError("비교 연산자가 잘못 사용되었습니다. 연산자:" + operator);
+                };
+            }
 
             // condition에 not 연산자가 포함된 경우
             if (condition.startsWith(NOT_OPERATOR)) {
@@ -77,4 +109,18 @@ public class IfTagRenderer extends TagRenderer {
             };
         }
     }
+
+    private Integer parseInt(Map<String, Object> model, String condition) {
+        // 정수로 변환 가능한 경우 Optional로 감싸서 반환
+        try {
+            return Integer.parseInt(condition);
+        } catch (NumberFormatException ignored) {
+        }
+        // 정수로 변환할 수 없는 경우 객체 탐색 경로로 간주
+        return ReflectionUtil.recursiveCallGetter(model, condition)
+                .filter(o -> o instanceof Integer)
+                .map(o -> (Integer) o)
+                .orElseThrow(() -> new InternalServerError("정수로 변환할 수 없는 객체 탐색 경로입니다."));
+    }
+
 }

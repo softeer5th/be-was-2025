@@ -7,7 +7,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// childrenTemplate에 있는 ${}를 model에 있는 값으로 치환해주는 TagRenderer
+/**
+ * <pre>
+ *  my-text 태그를 렌더링하는 클래스
+ *  childrenTemplate에 있는 ${}를 model에 있는 값으로 치환해준다.
+ * </pre>
+ */
 public class TextTagRenderer extends TagRenderer {
     public static final String DEFAULT_TAG_NAME = "my-text";
 

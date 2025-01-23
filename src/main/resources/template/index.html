@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <my-include template="/common/css.html"></my-include>
+    <link href="/main.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+    <my-include template="/common/header.html"></my-include>
+    <div class="wrapper">
+        <my-if condition="article">
+            <div class="post">
+                <div class="post__account">
+                    <img class="post__account__img"/>
+                    <p class="post__account__nickname">
+                        <my-text>${article.writer.name}</my-text>
+                    </p>
+                </div>
+                <img class="post__img"/>
+                <div class="post__menu">
+                    <ul class="post__menu__personal">
+                        <li>
+                            <button class="post__menu__btn">
+                                <img src="/img/like.svg"/>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="post__menu__btn">
+                                <img src="/img/sendLink.svg"/>
+                            </button>
+                        </li>
+                    </ul>
+                    <button class="post__menu__btn">
+                        <img src="/img/bookMark.svg"/>
+                    </button>
+                </div>
+                <p class="post__article">
+                    <my-text>${article.content}</my-text>
+                </p>
+            </div>
+        </my-if>
+        <ul class="comment">
+            <my-foreach index="i" item="comment" items="comments">
+                <my-text>
+                    <my-if condition="i < 3">
+                        <li class="comment__item">
+                            <div class="comment__item__user">
+                                <img class="comment__item__user__img"/>
+                                <p class="comment__item__user__nickname">${comment.writer.userId}</p>
+                            </div>
+                            <p class="comment__item__article">
+                                ${comment.content}
+                            </p>
+                        </li>
+                    </my-if>
+                    <my-if condition="i >= 3">
+                        <li class="comment__item hidden">
+                            <div class="comment__item__user">
+                                <img class="comment__item__user__img"/>
+                                <p class="comment__item__user__nickname">${comment.writer.userId}</p>
+                            </div>
+                            <p class="comment__item__article">
+                                ${comment.content}
+                            </p>
+                        </li>
+                    </my-if>
+                </my-text>
+            </my-foreach>
+            <my-if condition="comments.size > 3">
+                <my-text>
+                    <button class="btn btn_ghost btn_size_m" id="show-all-btn">
+                        모든 댓글 보기(${comments.size}개)
+                    </button>
+                </my-text>
+            </my-if>
+        </ul>
+        <nav class="nav">
+            <ul class="nav__menu">
+                <my-if condition="previousArticleId">
+                    <my-text>
+                        <li class="nav__menu__item">
+                            <a class="nav__menu__item__btn" href="/article/${previousArticleId}">
+                                <img
+                                        class="nav__menu__item__img"
+                                        src="/img/ci_chevron-left.svg"
+                                />
+                                이전 글
+                            </a>
+                        </li>
+                    </my-text>
+                </my-if>
+                <my-if condition="!previousArticleId">
+                    <li class="nav__menu__item">
+                        <a class="nav__menu__item__btn disabled-link" href="">
+                            <img
+                                    class="nav__menu__item__img"
+                                    src="/img/ci_chevron-left.svg"
+                            />
+                            이전 글
+                        </a>
+                    </li>
+                </my-if>
+                <my-if condition="article">
+                    <my-text>
+                        <li class="nav__menu__item">
+                            <a class="btn btn_ghost btn_size_m" href="/article/${article.articleId}/comment">댓글 작성</a>
+                        </li>
+                    </my-text>
+                </my-if>
+                <my-if condition="nextArticleId">
+                    <my-text>
+                        <li class="nav__menu__item">
+                            <a class="nav__menu__item__btn" href="/article/${nextArticleId}">
+                                다음 글
+                                <img
+                                        class="nav__menu__item__img"
+                                        src="/img/ci_chevron-right.svg"
+                                />
+                            </a>
+                        </li>
+                    </my-text>
+                </my-if>
+                <my-if condition="!nextArticleId">
+                    <li class="nav__menu__item">
+                        <a class="nav__menu__item__btn disabled-link" href="">
+                            다음 글
+                            <img
+                                    class="nav__menu__item__img"
+                                    src="/img/ci_chevron-right.svg"
+                            />
+                        </a>
+                    </li>
+                </my-if>
+            </ul>
+        </nav>
+    </div>
+</div>
+<script>
+    const showAllBtn = document.getElementById('show-all-btn');
+
+
+    showAllBtn.addEventListener('click', function showHiddenComments() {
+        const comments = document.querySelectorAll('.comment__item.hidden');
+        comments.forEach((comment) => {
+            comment.classList.remove('hidden');
+        });
+        showAllBtn.classList.add('hidden');
+        showAllBtn.removeEventListener('click', showHiddenComments);
+    });
+</script>
+</body>
+</html>
