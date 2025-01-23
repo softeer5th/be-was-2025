@@ -121,6 +121,8 @@ public class HttpResponse {
     }
 
     private void writeBody() throws IOException {
+        if(body == null) return;
+
         dos.write(body, 0, body.length);
     }
 
