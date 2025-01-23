@@ -18,19 +18,11 @@ public class Parameter {
         }
     }
 
-    public String getId(){
-        return parameterMap.get("id");
+    public String getValue(String key) {
+        return parameterMap.get(key);
     }
 
-    public String getName(){
-        return parameterMap.get("name");
-    }
-
-    public String getPassword(){
-        return parameterMap.get("password");
-    }
-
-    public String getEmail(){
-        return parameterMap.get("email");
+    public static String setPostId(String path, int postId) {
+        return path + "?postId=" + postId;
     }
 }

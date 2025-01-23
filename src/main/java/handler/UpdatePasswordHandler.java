@@ -2,29 +2,25 @@ package handler;
 
 import model.User;
 import db.manage.UserManager;
-import util.enums.CookieName;
 import util.enums.HttpStatusCode;
 import util.enums.Page;
-import webserver.cookie.CookieManager;
 import webserver.request.Request;
 import webserver.response.Response;
 import webserver.session.Session;
 import webserver.session.SessionManager;
 
-public class LoginHandler extends Handler{
+public class UpdatePasswordHandler extends Handler {
     @Override
     public Response handle(Request request) {
         Response response = new Response(request, HttpStatusCode.FOUND);
+        Session session = SessionManager.getSession(sessionId);
         try {
-            User user = UserManager.logIn(request.getBody());
-            Session session = SessionManager.createSession(user);
-            String setCookieString = new CookieManager
-                    .SetCookie(CookieName.SESSION_COOKIE.getName(), session.getId())
-                    .path(Page.MAIN_PAGE.getPath()).build();
+            User user = UserManager.updateUser(session.getUser(), request.getBody());
+            session.updateUser(user);
             response.addHeader("Location", Page.MAIN_LOGIN.getPath());
-            response.addHeader("Set-Cookie", setCookieString);
         } catch (IllegalArgumentException e) {
-            response.addHeader("Location", Page.LOGIN.getPath());
+            response.setStatusCode(HttpStatusCode.SEE_OTHER);
+            response.addHeader("location", Page.MY_PAGE.getPath());
         }
         return response;
     }

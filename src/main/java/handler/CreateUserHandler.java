@@ -3,7 +3,7 @@ package handler;
 import util.enums.HttpStatusCode;
 import util.enums.Page;
 import webserver.request.Request;
-import util.UserManager;
+import db.manage.UserManager;
 import webserver.response.Response;
 
 public class CreateUserHandler extends Handler{

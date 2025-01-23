@@ -1,5 +1,7 @@
 package webserver.session;
 
+import model.User;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,10 @@ public class Session {
         this.attributes = new HashMap<>();
     }
 
+    public void updateUser(User user) {
+        attributes.put("USER", user);
+    }
+
     public String getId() {
         return sid;
     }
@@ -22,6 +28,10 @@ public class Session {
 
     public Object getAttribute(String key) {
         return attributes.get(key);
+    }
+
+    public User getUser() {
+        return (User) attributes.get("USER");
     }
 
     public boolean isExpired(){

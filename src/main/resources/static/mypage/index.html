@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<dynamic />
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,7 +10,7 @@
   <body>
     <div class="container">
       <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
+        <a href="/main"><img src="../img/signiture.svg" /></a>
         <ul class="header__menu">
         <li class="header__menu__item">
             <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
@@ -41,21 +42,24 @@
                   </div>
               </div>
         </div>
-          <form class="form">
+          <form class="form" action="user/update" method="post">
             <div class="textfield textfield_size_s input_margin">
               <p class="title_textfield">닉네임</p>
               <input
                 class="input_textfield"
                 placeholder="{회원 가입 시 입력했던 닉네임}"
                 autocomplete="username"
+                name="name"
               />
             </div>
             <div class="textfield textfield_size_s">
               <p class="title_textfield">비밀번호</p>
               <input
                 class="input_textfield"
+                type="password"
                 placeholder="비밀번호를 변경할 경우 입력해주세요"
                 autocomplete="current-password"
+                name="password"
               />
             </div>
             <div class="textfield textfield_size_s">
@@ -65,17 +69,17 @@
                 type="password"
                 placeholder="한 번 더 입력해주세요"
                 autocomplete="current-password"
+                name="password2"
               />
             </div>
             <button
               id="registration-btn"
               class="btn btn_contained btn_size_m input_margin"
             
-              type="button"
+              type="submit"
             >
               변경사항 저장
             </button>
-
         </form>
       </div>
     </div>
