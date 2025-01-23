@@ -8,9 +8,8 @@ import exception.ErrorCode;
 import http.enums.HttpStatus;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
-import model.Article;
 
-public class ArticleRequestHandler implements RequestHandler{
+public class SingleArticleRequestHandler implements RequestHandler{
     private final TransactionTemplate transactionTemplate = TransactionTemplate.getInstance();
     private final ArticleDao articleDao = ArticleDao.getInstance();
 
