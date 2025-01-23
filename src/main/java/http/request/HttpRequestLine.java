@@ -10,6 +10,9 @@ import enums.ContentType;
 import enums.HttpMethod;
 import util.StreamUtil;
 
+/**
+ * The type Http request line.
+ */
 public class HttpRequestLine {
 	private static final String REQUEST_LINE_SPACE = " ";
 	private static final int REQUEST_LINE_LENGTH = 3;
@@ -22,6 +25,12 @@ public class HttpRequestLine {
 	private String version;
 	private Map<String, String> queries;
 
+	/**
+	 * Instantiates a new Http request line.
+	 *
+	 * @param in the in
+	 * @throws IOException the io exception
+	 */
 	public HttpRequestLine(InputStream in) throws IOException {
 		String requestLine = StreamUtil.readUntilCRLFAsString(in);
 
@@ -68,18 +77,38 @@ public class HttpRequestLine {
 		return queryMap;
 	}
 
+	/**
+	 * Gets method.
+	 *
+	 * @return the method
+	 */
 	public HttpMethod getMethod() {
 		return method;
 	}
 
+	/**
+	 * Gets path.
+	 *
+	 * @return the path
+	 */
 	public String getPath() {
 		return path;
 	}
 
+	/**
+	 * Gets version.
+	 *
+	 * @return the version
+	 */
 	public String getVersion() {
 		return version;
 	}
 
+	/**
+	 * Infer content type content type.
+	 *
+	 * @return the content type
+	 */
 	public ContentType inferContentType(){
 		int extensionIndex = path.lastIndexOf(".");
 
@@ -91,12 +120,22 @@ public class HttpRequestLine {
 		return ContentType.from(extension);
 	}
 
+	/**
+	 * Has extension boolean.
+	 *
+	 * @return the boolean
+	 */
 	public boolean hasExtension() {
 		// TODO: 과연 이 조건만으로 정적 리소스 요청을 판단할 수 있을까?
 
 		return path.lastIndexOf('.') != -1;
 	}
 
+	/**
+	 * Gets path without file name.
+	 *
+	 * @return the path without file name
+	 */
 	public String getPathWithoutFileName() {
 		int extensionIndex = path.lastIndexOf('.');
 		if(extensionIndex == -1){
@@ -116,6 +155,12 @@ public class HttpRequestLine {
 		return path;  // '/'만 있을 경우 그대로 반환
 	}
 
+	/**
+	 * Gets parameter.
+	 *
+	 * @param parameterName the parameter name
+	 * @return the parameter
+	 */
 	public String getParameter(String parameterName) {
 		return queries.get(parameterName);
 	}

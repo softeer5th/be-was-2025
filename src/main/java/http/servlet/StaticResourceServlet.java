@@ -10,6 +10,9 @@ import http.request.HttpRequest;
 import http.response.HttpResponse;
 import util.FileUtils;
 
+/**
+ * The type Static resource servlet.
+ */
 public class StaticResourceServlet implements Servlet {
 
 	private static final String STATIC_FILES_PATH = "static";
@@ -20,6 +23,13 @@ public class StaticResourceServlet implements Servlet {
 		handleStaticResource(request, response);
 	}
 
+	/**
+	 * Handle static resource.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @throws IOException the io exception
+	 */
 	public static void handleStaticResource(HttpRequest request, HttpResponse response) throws IOException {
 		String path = Paths.get(STATIC_FILES_PATH, request.getPath()).toString();
 

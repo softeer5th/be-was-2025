@@ -5,8 +5,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * The type Stream util.
+ */
 public class StreamUtil {
 
+	/**
+	 * Read until crlf as string string.
+	 *
+	 * @param inputStream the input stream
+	 * @return the string
+	 * @throws IOException the io exception
+	 */
 	public static String readUntilCRLFAsString(InputStream inputStream) throws IOException {
 		return new String(readUntilCRLF(inputStream), StandardCharsets.UTF_8);
 	}

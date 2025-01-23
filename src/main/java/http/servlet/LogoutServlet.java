@@ -5,6 +5,9 @@ import http.HttpSessionStorage;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 
+/**
+ * The type Logout servlet.
+ */
 public class LogoutServlet implements Servlet {
 
 	private static final String LOGOUT_SUCCESS_PAGE = "/index.html";
