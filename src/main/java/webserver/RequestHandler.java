@@ -1,9 +1,9 @@
 package webserver;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.sql.Connection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +12,7 @@ import webserver.http.HttpResponse;
 import webserver.http.HttpStatus;
 import webserver.http.MimeType;
 import webserver.http.servlet.HttpServlet;
+import webserver.http.servlet.exception.ServletException;
 import webserver.http.servlet.ServletInfo;
 import webserver.http.servlet.ServletMapper;
 import webserver.support.HttpRequestParser;
@@ -22,7 +23,7 @@ public class RequestHandler implements Runnable {
     private final Socket connection;
     private final ServletMapper servletManager;
 
-    public RequestHandler(Socket connectionSocket , ServletMapper servletManager) {
+    public RequestHandler(Socket connectionSocket, ServletMapper servletManager) {
         this.connection = connectionSocket;
         this.servletManager = servletManager;
     }
@@ -74,8 +75,13 @@ public class RequestHandler implements Runnable {
             Method serviceMethod = servletClass.getSuperclass().getDeclaredMethod("service", HttpRequest.class, HttpResponse.class);
             serviceMethod.setAccessible(true);
             serviceMethod.invoke(servlet, request, response);
-        } catch (ClassNotFoundException | NoSuchMethodException |InvocationTargetException | IllegalAccessException e) {
-            logger.error(e.getMessage());
+        } catch (ServletException e) {
+            response.sendError(e.getStatus(), e.getMessage());
+        } catch (Exception e) {
+            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+        finally {
+            response.send();
         }
     }
 }
