@@ -166,4 +166,22 @@ public class UserDatabase {
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
     }
+
+    public void updateInfo(User user, String name, String password) {
+        String query = "UPDATE member SET nickname = ?, password = ? WHERE id = ?";
+        try (Connection conn = DBConnectionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(3, user.getId());
+            stmt.setString(1, name);
+            stmt.setString(2, password);
+
+            // SQL 업데이트 실행
+            int rowsUpdated = stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ServerErrorException(ERROR_WITH_DATABASE);
+        }
+    }
 }

@@ -9,6 +9,7 @@ import request.ImageRequest;
 import request.UserCreateRequest;
 import request.UserLoginRequest;
 import util.SessionManager;
+import util.UserValidator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -156,5 +157,11 @@ public class UserManager {
     public User getUserOrElseThrow(int id){
         return userDatabase.findUserById(id)
                 .orElseThrow(()-> new ClientErrorException(NO_SUCH_USER_ID));
+    }
+
+    public void updateInfo(User user, String name, String password) {
+        UserValidator.validateNickname(name);
+        UserValidator.validatePassword(password);
+        userDatabase.updateInfo(user,name,password);
     }
 }

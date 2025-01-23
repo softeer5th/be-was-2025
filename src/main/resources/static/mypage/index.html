@@ -57,18 +57,20 @@
                     </form>
                 </div>
             </div>
-            <form class="form">
+            <form class="form" action="/profile/info" method="post">
                 <div class="textfield textfield_size_s input_margin">
                     <p class="title_textfield">닉네임</p>
                     <input
+                            name="name"
                             class="input_textfield"
-                            placeholder="변경할 닉네임"
+                            placeholder="{{nickname}}"
                             autocomplete="username"
                     />
                 </div>
                 <div class="textfield textfield_size_s">
                     <p class="title_textfield">비밀번호</p>
                     <input
+                            name="password"
                             class="input_textfield"
                             placeholder="비밀번호를 변경할 경우 입력해주세요"
                             autocomplete="current-password"
@@ -77,6 +79,7 @@
                 <div class="textfield textfield_size_s">
                     <p class="title_textfield">비밀번호 확인</p>
                     <input
+                            name="password-confirm"
                             class="input_textfield"
                             type="password"
                             placeholder="한 번 더 입력해주세요"
@@ -87,7 +90,7 @@
                         id="registration-btn"
                         class="btn btn_contained btn_size_m input_margin"
 
-                        type="button"
+                        type="submit"
                 >
                     변경사항 저장
                 </button>

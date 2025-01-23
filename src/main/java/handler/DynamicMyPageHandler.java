@@ -13,9 +13,11 @@ import response.HttpResponse;
 import util.CookieParser;
 import util.FileReader;
 
+import java.net.URLDecoder;
 import java.util.Optional;
 
 import static exception.ErrorCode.FILE_NOT_FOUND;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 로그인 여부에 따라 마이페이지 서빙을 관리하는 핸들러.
@@ -103,6 +105,7 @@ public class DynamicMyPageHandler implements Handler {
         else
             profile = String.format(" <img class=\"profile\" alt=\"hmm\" src=\"../img/%s\"/>", user.getProfile());
 
-        response.setResponse(HttpStatus.OK, FileContentType.HTML_UTF_8, body.replace("<!--image-->", profile));
+        response.setResponse(HttpStatus.OK, FileContentType.HTML_UTF_8, body.replace("<!--image-->", profile)
+                .replace("{{nickname}}", URLDecoder.decode(user.getName(), UTF_8)));
     }
 }

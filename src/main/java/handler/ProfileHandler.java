@@ -14,6 +14,9 @@ import response.HttpResponse;
 import util.CookieParser;
 import util.HttpRequestParser;
 
+import java.util.Map;
+
+import static exception.ErrorCode.INCORRECT_PASSWORD;
 import static exception.ErrorCode.INVALID_AUTHORITY;
 
 public class ProfileHandler implements Handler {
@@ -54,6 +57,25 @@ public class ProfileHandler implements Handler {
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeader(HttpHeader.LOCATION.getName(), "/mypage");
 
+        } else if (request.getPath().equals(PATH.UPDATE_INFO.endPoint)) {
+            HttpMethod.validPostMethod(request.getMethod());
+            System.out.println((String) request.getBody());
+            final Map<String, String> paramMap = HttpRequestParser.parseParamString((String) request.getBody());
+            for (Map.Entry<String, String> stringStringEntry : paramMap.entrySet()) {
+                System.out.println("stringStringEntry.getValue() = " + stringStringEntry.getValue());
+            }
+            if (!paramMap.get("password").equals(paramMap.get("password-confirm"))) {
+                throw new ClientErrorException(INCORRECT_PASSWORD);
+            }
+
+            final String cookie = request.getHeaderValue(HttpHeader.COOKIE.getName());
+            final User user = userManager.getUserFromSession(CookieParser.parseCookie(cookie))
+                    .orElseThrow(() -> new ClientErrorException(INVALID_AUTHORITY));
+
+            userManager.updateInfo(user, paramMap.get("name"), paramMap.get("password"));
+
+            response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
+            response.setHeader(HttpHeader.LOCATION.getName(), "/mypage");
         } else {
             throw new ClientErrorException(ErrorCode.NOT_ALLOWED_PATH);
         }
@@ -64,7 +86,7 @@ public class ProfileHandler implements Handler {
     private enum PATH {
         UPDATE("/profile/update"),
         DELETE("/profile/delete"),
-        BOOKMARK("/board/mark");
+        UPDATE_INFO("/profile/info");
 
         private final String endPoint;
 
