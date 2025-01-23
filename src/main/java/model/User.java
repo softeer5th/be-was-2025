@@ -6,13 +6,15 @@ public class User {
     private final String password;
     private final String name;
     private final String email;
+    private String profile;
 
-    public User(int id, String userId, String password, String name, String email) {
+    public User(int id, String userId, String password, String name, String email,String profile) {
         this.id = id;
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
+        this.profile = profile;
     }
 
     public User(String userId, String password, String name, String email) {
@@ -40,6 +42,10 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getProfile() {
+        return profile;
     }
 
     @Override

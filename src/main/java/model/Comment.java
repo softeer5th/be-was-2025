@@ -6,10 +6,10 @@ public class Comment {
     private int id;
     private final int postId;
     private final String contents;
-    private final String author;
+    private final int author;
     private LocalDateTime createdAt;
 
-    public Comment(int id,int postId, String contents, String author, LocalDateTime createdAt) {
+    public Comment(int id,int postId, String contents, int author, LocalDateTime createdAt) {
         this.id = id;
         this.postId = postId;
         this.contents = contents;
@@ -17,7 +17,7 @@ public class Comment {
         this.createdAt = createdAt;
     }
 
-    public Comment(int postId, String contents, String author) {
+    public Comment(int postId, String contents, int author) {
         this.postId = postId;
         this.contents = contents;
         this.author = author;
@@ -35,7 +35,7 @@ public class Comment {
         return id;
     }
 
-    public String getAuthor() {
+    public int getAuthor() {
         return author;
     }
 

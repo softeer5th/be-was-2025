@@ -6,11 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
 
 import static exception.ErrorCode.ERROR_WITH_DATABASE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 게시물 관리와 관련된 데이터베이스 접근 객체입니다.
@@ -45,20 +45,22 @@ public class PostDatabase {
      * @throws ServerErrorException 데이터베이스 작업 중 오류 발생 시 예외를 던집니다.
      */
     public int addPost(Post post) {
-        String query = String.format("INSERT INTO %s (content, created_at, author) VALUES (?, ? ,?)", TABLE_NAME);
+        String query = String.format("INSERT INTO %s (content, file, created_at, author) VALUES (?, ?, ? ,?)", TABLE_NAME);
 
         try (Connection conn = DBConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-            pstmt.setString(1, post.getContents());
-            pstmt.setTimestamp(2, Timestamp.from(Instant.now()));
-            pstmt.setString(3, URLDecoder.decode(post.getAuthor(), StandardCharsets.UTF_8));
+            pstmt.setString(1, URLDecoder.decode(post.getContents(), UTF_8));
+            pstmt.setString(2,post.getFile());
+            pstmt.setTimestamp(3, Timestamp.from(Instant.now()));
+            pstmt.setInt(4, post.getAuthor());
 
             final int id = pstmt.executeUpdate();
             logger.debug("Add post: " + post);
             return id;
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
     }
@@ -87,7 +89,8 @@ public class PostDatabase {
                     Post post = new Post(
                             rs.getInt("id"),
                             rs.getString("content"),
-                            rs.getString("author"),
+                            rs.getString("file"),
+                            rs.getInt("author"),
                             rs.getTimestamp("created_at").toLocalDateTime()
                     );
                     logger.debug("Fetched post: " + post);
@@ -97,6 +100,7 @@ public class PostDatabase {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ServerErrorException(ERROR_WITH_DATABASE);
         }
     }

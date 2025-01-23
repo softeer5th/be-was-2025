@@ -19,6 +19,7 @@ import util.FileReader;
 import util.HttpRequestParser;
 
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,7 +107,7 @@ public class DynamicHomeHandler implements Handler {
      * 요청된 경로에서 페이지 번호를 추출하고, 해당 페이지 번호를 반환합니다.
      * 페이지 번호는 요청 파라미터에서 확인하며, 범위를 벗어난 경우 기본 페이지 번호인 1을 반환합니다.
      *
-     * @param path 요청된 경로
+     * @param path      요청된 경로
      * @param totalPage 전체 페이지 수
      * @return 요청된 페이지 번호
      */
@@ -126,24 +127,27 @@ public class DynamicHomeHandler implements Handler {
      * 게시글의 작성자, 작성일자, 본문 내용 및 댓글을 HTML로 추가합니다.
      * 로그인한 사용자에게는 좋아요, 북마크 및 댓글 작성 폼도 표시됩니다.
      *
-     * @param post 게시글 객체
+     * @param post        게시글 객체
      * @param postContent HTML 콘텐츠를 추가할 StringBuilder
-     * @param user 로그인한 사용자 정보 (없으면 비어있음)
+     * @param user        로그인한 사용자 정보 (없으면 비어있음)
      */
     private void addPost(Post post, StringBuilder postContent, Optional<User> user) {
-        if(post == null) {
+        if (post == null) {
             postContent.append("<h2> 글이 없어요 ㅜㅜ </h2>");
             return;
         }
+        final User author = userManager.getUserOrElseThrow(post.getAuthor());
         postContent
                 .append("""
                            <div class="wrapper">
                         <div class="post">
                           <div class="post__account">
-                            <img class="post__account__img" src = "/img/img.png"/>
+                        """)
+                .append(addProfileImage(author.getProfile()))
+                .append("""
                             <p class="post__account__nickname">
                         """)
-                .append(post.getAuthor())
+                .append(URLDecoder.decode(author.getName(), UTF_8))
                 .append("""
                         </p>
                         <p class="post__createdAt">""")
@@ -151,7 +155,9 @@ public class DynamicHomeHandler implements Handler {
                 .append("""
                         </p>
                         </div>
-                        <img class="post__img" />
+                        """)
+                .append(addImage(post.getFile()))
+                .append("""
                         <div class="post__menu">
                           <ul class="post__menu__personal">
                             <li>
@@ -207,11 +213,30 @@ public class DynamicHomeHandler implements Handler {
         }
     }
 
+    private String addProfileImageForComment(String file) {
+        if (file == null)
+            return "<img class = \"comment__item__user__img\" src = \"/img/default.png\" /> ";
+        return String.format("<img class = \"comment__item__user__img\" src = \"/img/%s\" />", file);
+    }
+
+
+    private String addProfileImage(String file) {
+        if (file == null)
+            return "<img class = \"post__account__img\" src = \"/img/default.png\" /> ";
+        return String.format("<img class = \"post__account__img\" src = \"/img/%s\" />", file);
+    }
+
+    private String addImage(String file) {
+        if (file == null)
+            return "<img class = \"post__img\" src = \"/img/default.png\" /> ";
+        return String.format("<img class = \"post__img\" src = \"/img/%s\" />", file);
+    }
+
     /**
      * 주어진 댓글 리스트를 HTML로 변환하여 StringBuilder에 추가합니다.
      *
      * @param postContent 댓글 리스트를 HTML로 추가할 StringBuilder
-     * @param comments 댓글 목록
+     * @param comments    댓글 목록
      */
     private void addComments(StringBuilder postContent, List<Comment> comments) {
         if (comments.isEmpty()) {
@@ -219,13 +244,16 @@ public class DynamicHomeHandler implements Handler {
             return;
         }
         for (Comment comment : comments) {
+            final User commentAuthor = userManager.getUserOrElseThrow(comment.getAuthor());
             postContent.append("""
                             <li class="comment__item">
                                        <div class="comment__item__user">
-                                           <img class="comment__item__user__img"/>
+                            """)
+                    .append(addProfileImageForComment(commentAuthor.getProfile()))
+                    .append("""
                                            <p class="comment__item__user__nickname">
                             """)
-                    .append(comment.getAuthor())
+                    .append(URLDecoder.decode(commentAuthor.getName(), UTF_8))
                     .append("""
                             </p>
                             """)
@@ -262,7 +290,7 @@ public class DynamicHomeHandler implements Handler {
      * 로그인한 사용자에 맞는 좋아요 버튼을 HTML로 반환합니다.
      *
      * @param postId 게시글 ID
-     * @param user 로그인한 사용자 정보 (없으면 비어있음)
+     * @param user   로그인한 사용자 정보 (없으면 비어있음)
      * @return 좋아요 버튼 HTML
      */
     private String addLikeSvg(int postId, Optional<User> user) {
@@ -299,7 +327,7 @@ public class DynamicHomeHandler implements Handler {
      * @return 로그인한 경우 이메일 링크 HTML, 로그인하지 않은 경우 빈 문자열
      */
     private String addMailHrefByUser(Optional<User> user) {
-        if(user.isPresent())
+        if (user.isPresent())
             return """
                     <a href="mailto:example@example.com">
                     """;
@@ -310,7 +338,7 @@ public class DynamicHomeHandler implements Handler {
      * 로그인한 사용자에 맞는 북마크 버튼을 HTML로 반환합니다.
      *
      * @param postId 게시글 ID
-     * @param user 로그인한 사용자 정보 (없으면 비어있음)
+     * @param user   로그인한 사용자 정보 (없으면 비어있음)
      * @return 북마크 버튼 HTML
      */
     private String addBookMarkSvg(int postId, Optional<User> user) {
@@ -363,7 +391,7 @@ public class DynamicHomeHandler implements Handler {
     /**
      * 로그인한 사용자의 이름을 HTML로 추가합니다.
      *
-     * @param name 사용자 이름
+     * @param name               사용자 이름
      * @param dynamicHtmlContent 동적 HTML 콘텐츠를 추가할 StringBuilder
      */
     private void addUserNameToHtml(String name, StringBuilder dynamicHtmlContent) {

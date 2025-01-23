@@ -71,7 +71,7 @@ public class CommentHandler implements Handler {
             final User author = userManager.getUserFromSession(CookieParser.parseCookie(cookie))
                     .orElseThrow(() -> new ClientErrorException(INVALID_AUTHORITY));
 
-            commentManager.save(postId, comment, author.getName());
+            commentManager.save(postId, comment, author);
 
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeader(HttpHeader.LOCATION.getName(), HOME_PATH);

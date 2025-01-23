@@ -17,6 +17,7 @@ public class RequestRouter implements Router {
 
         // 초기 경로와 핸들러 등록
         routeMap.put(Pattern.compile("^/user(/.*)?$"), new UserRequestHandler());
+        routeMap.put(Pattern.compile("^/profile(/.*)?$"), new ProfileHandler());
         routeMap.put(Pattern.compile("^/board(/.*)?$"), new BoardHandler());
         routeMap.put(Pattern.compile("^/comment(/.*)?$"), new CommentHandler());
         // 루트 경로의 index.html과 mypage/ 하위의 index.html 제외
@@ -25,7 +26,8 @@ public class RequestRouter implements Router {
         routeMap.put(Pattern.compile("^/index\\.html(\\?page=-?\\d+)?$"), new DynamicHomeHandler());
         // 마이페이지, registration, login
         routeMap.put(Pattern.compile("^/(mypage|login|registration|article|main)$"),new RedirectHandler());
-        routeMap.put(Pattern.compile("^/(mypage/index.html|article/index.html)$"), new DynamicFileHandler());
+        routeMap.put(Pattern.compile("^/article/index.html$"), new DynamicFileHandler());
+        routeMap.put(Pattern.compile("^/mypage/index.html$"), new DynamicMyPageHandler());
     }
 
     public Handler route(String path) {
