@@ -32,11 +32,12 @@ public class PostHandler {
             HttpResponse.respond302(MAIN_PAGE, dos);
         } catch (Exception e) {
             logger.debug("Signup failed, " + e.getMessage());
-            try {
-                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
-            } catch (IOException ex) {
-                logger.error("Redirection Error, " + ex.getMessage());
-            }
+            redirectSignUpFailedPage(dos, e.getMessage());
+//            try {
+//                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
+//            } catch (IOException ex) {
+//                logger.error("Redirection Error, " + ex.getMessage());
+//            }
         }
     }
 
@@ -60,11 +61,7 @@ public class PostHandler {
         } catch (Exception e) {
             // 로그인 실패
             logger.debug(e.getMessage());
-            try {
-                HttpResponse.respond302(LOGIN_FAILED_PAGE, dos);
-            } catch (IOException ex) {
-                logger.error("SignIn Redirection Error" + ex.getMessage());
-            }
+            redirectLoginPage(dos);
         }
     }
 
@@ -92,11 +89,7 @@ public class PostHandler {
      */
     public static void handleUserInfo(HttpRequest request, DataOutputStream dos) {
         if (!isUserLoggedIn(request)) {
-            try {
-                HttpResponse.respond302(LOGIN_PAGE, dos);
-            } catch (IOException e) {
-                logger.error("{}, Redirection Error, {}", "handleUserInfo", e.getMessage());
-            }
+            redirectLoginPage(dos);
             return;
         }
         String sid = request.getCookieSid();
@@ -154,9 +147,25 @@ public class PostHandler {
 
     private static void redirectUpdateFailedPage(DataOutputStream dos, String errorMessage) {
         try {
-            HttpResponse.respond302(PostHandler.UPDATE_FAILED_PAGE, dos);
+            HttpResponse.respond302(UPDATE_FAILED_PAGE, dos);
         } catch (IOException ex) {
-            logger.error("Redirection Error: {}, {}, {}", PostHandler.UPDATE_FAILED_PAGE, errorMessage, ex.getMessage());
+            logger.error("Redirection Error: {}, {}, {}", UPDATE_FAILED_PAGE, errorMessage, ex.getMessage());
+        }
+    }
+
+    private static void redirectSignUpFailedPage(DataOutputStream dos, String error) {
+        try {
+            HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
+        } catch (IOException ex) {
+            logger.error("Redirection Error, {}, {}, {}" + SIGNUP_FAILED_PAGE, error, ex.getMessage());
+        }
+    }
+
+    private static void redirectLoginPage(DataOutputStream dos) {
+        try {
+            HttpResponse.respond302(LOGIN_PAGE, dos);
+        } catch (IOException e) {
+            logger.error("Redirection Error: {}, {}", LOGIN_PAGE, e.getMessage());
         }
     }
 
