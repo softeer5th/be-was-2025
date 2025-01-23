@@ -1,7 +1,7 @@
 package db;
 
 import model.Article;
-import model.Comment; // 추가
+import model.Comment;
 import model.User;
 
 import java.sql.*;
@@ -41,7 +41,6 @@ public class Database {
                     stmt.execute(createArticleTableSql);
                 }
 
-                // 추가: comments 테이블
                 String createCommentTableSql = """
                   CREATE TABLE IF NOT EXISTS comments (
                     id IDENTITY PRIMARY KEY,

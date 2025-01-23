@@ -33,15 +33,7 @@ public class Article {
         this.id = id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public void setImage(byte[] image) {
-        this.image = image;
     }
 }

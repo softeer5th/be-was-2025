@@ -33,14 +33,6 @@ public class Comment {
         this.id = id;
     }
 
-    public void setArticleId(Long articleId) {
-        this.articleId = articleId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public void setContent(String content) {
         this.content = content;
     }
