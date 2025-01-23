@@ -35,9 +35,9 @@ public class WebServlet {
     public void process(InputStream is, OutputStream os) throws IOException {
         DataOutputStream dos = new DataOutputStream(os);
 
-        HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(is);
-
         try {
+            HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(is);
+
             HttpResponse httpResponse = apiRequestHandlerMapping.getHandler(httpRequest)
                     // api request handler가 먼저 존재하는지 확인한다
                     .map(apiRequestHandler -> apiRequestHandler.handle(httpRequest))
