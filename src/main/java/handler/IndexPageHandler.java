@@ -3,11 +3,16 @@ package handler;
 import domain.ArticleDao;
 import domain.CommentDao;
 import webserver.request.HttpRequest;
+import webserver.response.HttpResponse;
+
+import java.util.Optional;
 
 /**
  * 최신 게시글을 조회하는 핸들러
  */
 public class IndexPageHandler extends ReadArticleHandler {
+    private static final String EMPTY_ARTICLE_TEMPLATE_NAME = "/noArticle.html";
+
     /**
      * 생성자
      *
@@ -18,8 +23,11 @@ public class IndexPageHandler extends ReadArticleHandler {
     }
 
     @Override
-    protected Long getArticleId(HttpRequest request) {
-        // 최신 게시글 ID를 반환
-        return articleDao.findLatestArticleId().orElse(null);
+    public HttpResponse handleGet(HttpRequest request) {
+        Optional<Long> latestArticleId = articleDao.findLatestArticleId();
+        if (latestArticleId.isEmpty()) {
+            return HttpResponse.render(EMPTY_ARTICLE_TEMPLATE_NAME);
+        }
+        return createArticleResponse(latestArticleId.get());
     }
 }

@@ -5,7 +5,9 @@ import domain.Article;
 import domain.ArticleDao;
 import domain.Comment;
 import domain.CommentDao;
+import util.ExceptionUtil;
 import webserver.enums.HttpStatusCode;
+import webserver.exception.BadRequest;
 import webserver.exception.NotFound;
 import webserver.handler.HttpHandler;
 import webserver.request.HttpRequest;
@@ -38,32 +40,18 @@ public class ReadArticleHandler implements HttpHandler {
      */
     @Override
     public HttpResponse handleGet(HttpRequest request) {
-
         Long articleId = getArticleId(request);
         return createArticleResponse(articleId);
     }
 
+    protected HttpResponse createArticleResponse(Long articleId) {
 
-    /**
-     * 게시글 ID를 반환한다
-     */
-    protected Long getArticleId(HttpRequest request) {
-        return request.getPathVariable("articleId")
-                .map(Long::parseLong)
+
+        Article article = articleDao.findArticleById(articleId)
                 .orElseThrow(() -> new NotFound("게시글을 찾을 수 없습니다."));
-    }
-
-    private HttpResponse createArticleResponse(Long articleId) {
-        Article article = articleDao.findArticleById(articleId).orElse(null);
         Long nextArticleId = articleDao.findNextArticleId(articleId).orElse(null);
         Long previousArticleId = articleDao.findPreviousArticleId(articleId).orElse(null);
-
-        List<Comment> comments;
-        if (article == null) {
-            comments = List.of();
-        } else {
-            comments = commentDao.findAllByArticle(article);
-        }
+        List<Comment> comments = commentDao.findAllByArticle(article);
 
         ModelAndTemplate template = new ModelAndTemplate(TEMPLATE_NAME);
         template.addAttribute("article", article);
@@ -73,6 +61,15 @@ public class ReadArticleHandler implements HttpHandler {
         HttpResponse response = new HttpResponse(HttpStatusCode.OK);
         response.renderTemplate(template);
         return response;
+    }
+
+    /**
+     * 게시글 ID를 반환한다
+     */
+    private Long getArticleId(HttpRequest request) {
+        return request.getPathVariable("articleId")
+                .flatMap(id -> ExceptionUtil.ignoreException(() -> Long.parseLong(id)))
+                .orElseThrow(() -> new BadRequest("잘못된 아이디입니다."));
     }
 
 }
