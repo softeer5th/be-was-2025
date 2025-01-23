@@ -13,13 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.UUID;
 
 public class PostHandler implements Handler {
     private static final String REDIRECT_MAIN_HTML = "/index.html";
-    private static final String PHOTO_STORAGE_PATH = "src/main/resources/images/";
+    private static final String PHOTO_STORAGE_PATH = "src/main/resources/static/images/";
 
     private static final PostHandler instance = new PostHandler();
 
@@ -58,59 +60,80 @@ public class PostHandler implements Handler {
         }
 
         String boundary = HttpRequestUtil.getBoundary(request);
-        String requestBody = request.getBody();
+        byte[] requestBody = request.getBody();
         logger.info("Boundary: {}", boundary);
 
         try {
             String sid = HttpRequestUtil.getCookieValueByKey(request, "sid");
             User user = SessionDB.getUser(sid);
             String userId = user.getUserId();
-            String[] tokens = requestBody.split("\r\n");
-            logger.debug("tokens: {}", Arrays.toString(tokens));
 
-            Iterator<String> iterator = Arrays.asList(tokens).iterator();
-            StringBuilder contentBuilder = new StringBuilder();
-            StringBuilder photoBuilder = new StringBuilder();
-            String filePath = null;
+            String boundaryLine = "--" + boundary;
+            int boundaryLength = boundaryLine.length();
+            int index = 0;
 
-            iterator.next();
-            while (iterator.hasNext()) {
-                String line = iterator.next();
-                if (line.contains("name=\"photo\"")) {
-                    String filename = Integer.toString(Database.getArticleCount());
-                    line = iterator.next();
-                    if (line.toLowerCase().startsWith("content-type: image/")) {
-                        iterator.next();
-                        while (iterator.hasNext() && !(line = iterator.next()).startsWith("--" + boundary)) {
-                            photoBuilder.append(line);
-                        }
-                        File photoFile = new File(PHOTO_STORAGE_PATH + filename + ".png");
-                        filePath = photoFile.getAbsolutePath();
-                        try (FileOutputStream fos = new FileOutputStream(photoFile)) {
-                            fos.write(photoBuilder.toString().getBytes("UTF-8"));
-                        }
-                    }
-                } else if (line.contains("name=\"content\"")) {
-                    iterator.next();
-                    while (iterator.hasNext() && !(line = iterator.next()).startsWith("--" + boundary)) {
-                        contentBuilder.append(line);
-                    }
+            String content = null;
+            byte[] photoBytes = null;
+
+            while (index < requestBody.length) {
+                int boundaryStart = findBoundary(requestBody, boundaryLine.getBytes(), index);
+                if (boundaryStart == -1) break;
+                index = boundaryStart + boundaryLength;
+
+                int headersEnd = findBoundary(requestBody, "\r\n\r\n".getBytes(), index);
+                if (headersEnd == -1) break;
+                String headers = new String(requestBody, index, headersEnd - index, "UTF-8");
+                index = headersEnd + 4; // CRLF 넘기기
+
+                if (headers.contains("name=\"photo\"")) {
+                    int dataEnd = findBoundary(requestBody, boundaryLine.getBytes(), index);
+                    if (dataEnd == -1) break;
+                    photoBytes = Arrays.copyOfRange(requestBody, index, dataEnd - 2); // CRLF는 제거
+                    index = dataEnd;
+                } else if (headers.contains("name=\"content\"")) {
+                    int dataEnd = findBoundary(requestBody, boundaryLine.getBytes(), index);
+                    if (dataEnd == -1) break;
+                    content = new String(requestBody, index, dataEnd - index - 2, "UTF-8"); // CRLF는 제거
+                    index = dataEnd;
                 }
             }
 
-            logger.debug("contentBuilder: {}", contentBuilder);
+            String filePath = null;
+            String fileName = null;
+            if (photoBytes != null) {
+                fileName = UUID.randomUUID() + ".jpg";
+                File photoFile = new File(PHOTO_STORAGE_PATH + fileName);
+                filePath = photoFile.getAbsolutePath();
+                try (FileOutputStream fos = new FileOutputStream(photoFile)) {
+                    fos.write(photoBytes);
+                }
+            }
 
-            Database.addArticle(userId, contentBuilder.toString(), filePath);
+            Database.addArticle(userId, content, "images/" + fileName);
 
             return builder
                     .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
                     .build();
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("Error processing article: {}", e.getMessage());
             return builder
                     .errorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.BAD_REQUEST)
                     .build();
         }
+    }
+
+    private int findBoundary(byte[] data, byte[] boundary, int start) {
+        for (int i = start; i <= data.length - boundary.length; i++) {
+            boolean match = true;
+            for (int j = 0; j < boundary.length; j++) {
+                if (data[i + j] != boundary[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) return i;
+        }
+        return -1;
     }
 }

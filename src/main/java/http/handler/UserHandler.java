@@ -52,7 +52,7 @@ public class UserHandler implements Handler {
     }
 
     private HttpResponse handleUserCreate(HttpRequest request, HttpResponse.Builder builder) throws IOException {
-        Map<String, Object> params = HttpRequestParser.parseRequestQueryString(request.getBody());
+        Map<String, Object> params = HttpRequestParser.parseRequestQueryString(new String(request.getBody(), "UTF-8"));
 
         Optional<String> userId = getParam(params, "userId").map(Object::toString);
         Optional<String> name = getParam(params, "name").map(Object::toString);
@@ -78,7 +78,7 @@ public class UserHandler implements Handler {
     }
 
     private HttpResponse handleUserLogin(HttpRequest request, HttpResponse.Builder builder) throws IOException {
-        Map<String, Object> params = HttpRequestParser.parseRequestQueryString(request.getBody());
+        Map<String, Object> params = HttpRequestParser.parseRequestQueryString(new String(request.getBody(), "UTF-8"));
 
         Optional<String> userId = getParam(params, "userId").map(Object::toString);
         Optional<String> password = getParam(params, "password").map(Object::toString);

@@ -60,7 +60,6 @@ public class StaticResourceHandler implements Handler {
         path = HttpRequestUtil.buildPath(path);
         String type = HttpRequestUtil.getType(path); // 파일 유형 별로 Content-Type 할당
 
-        String body; // 해당 파일의 경로를 byte로 전달
         try {
             for (Map.Entry<String, String> entry : needLoginPage.entrySet()) {
                 if (path.equals(staticResourcePath + entry.getKey() + INDEX_HTML)) {
@@ -72,18 +71,18 @@ public class StaticResourceHandler implements Handler {
                 }
             }
 
-            byte[] file = FileUtil.fileToByteArray(path);
-            if (file != null) {
-                body = new String(file);
-
-                Article article = Database.getArticle(0);
-                if (article != null) {
-                    DynamicHtmlBuilder htmlBuilder = new DynamicHtmlBuilder(body, request, Map.of(
-                            "username", Database.findUserById(article.getUserId()).getName(),
-                            "articlephoto", article.getPhoto(),
-                            "article", article.getContent()
-                    ));
-                    body = htmlBuilder.build();
+            byte[] body = FileUtil.fileToByteArray(path);
+            if (body != null) {
+                if (path.endsWith(".html")) {
+                    Article article = Database.getArticle(0);
+                    if (article != null) {
+                        DynamicHtmlBuilder htmlBuilder = new DynamicHtmlBuilder(new String(body), request, Map.of(
+                                "username", Database.findUserById(article.getUserId()).getName(),
+                                "articlephoto", article.getPhoto(),
+                                "article", article.getContent()
+                        ));
+                        body = htmlBuilder.build().getBytes();
+                    }
                 }
 
                 response = builder
