@@ -33,11 +33,6 @@ public class PostHandler {
         } catch (Exception e) {
             logger.debug("Signup failed, " + e.getMessage());
             redirectSignUpFailedPage(dos, e.getMessage());
-//            try {
-//                HttpResponse.respond302(SIGNUP_FAILED_PAGE, dos);
-//            } catch (IOException ex) {
-//                logger.error("Redirection Error, " + ex.getMessage());
-//            }
         }
     }
 
