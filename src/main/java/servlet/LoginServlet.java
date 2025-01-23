@@ -1,6 +1,6 @@
 package servlet;
 
-import db.Database;
+import db.h2.UserStorage;
 import model.User;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
@@ -12,9 +12,10 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpRequest request, HttpResponse response) {
-        String userId = request.getParameter("userId");
-        String password = request.getParameter("password");
-        User user = Database.findUserById(userId);
+        java.lang.String userId = request.getParameter("userId");
+        java.lang.String password = request.getParameter("password");
+        UserStorage userStorage = UserStorage.getInstance();
+        User user = userStorage.findUserById(userId);
 
         if (user != null && user.getPassword().equals(password)) {
             HttpSession session = request.getSession();
@@ -26,7 +27,7 @@ public class LoginServlet extends HttpServlet {
                 response.setBody("already logged in");
             }
         } else {
-            response.sendRedirect("/login/failed.html");
+            response.sendRedirect("/login/failed_already_exists.html");
         }
     }
 }
