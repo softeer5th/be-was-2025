@@ -26,4 +26,12 @@ public enum HTTPStatusCode {
     public String toString() {
         return code + " " + description;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCode() {
+        return code;
+    }
 }

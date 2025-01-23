@@ -13,17 +13,20 @@ public class SequentialResolver implements ResourceResolver {
 
     @Override
     public void resolve(HTTPRequest request, HTTPResponse.Builder response) {
-        Exception lastException = null;
+        HTTPException lastException = null;
         for (ResourceResolver resolver : resolvers) {
             try {
                 resolver.resolve(request, response);
                 return;
-            } catch (Exception e) {
+            } catch (HTTPException e) {
                 lastException = e;
+                if (e.getStatusCode() == HTTPStatusCode.NOT_FOUND ||
+                    e.getStatusCode() == HTTPStatusCode.METHOD_NOT_ALLOWED) {
+                    continue;
+                }
+                throw e;
             }
         }
-        throw new HTTPException.Builder()
-                .causedBy(SequentialResolver.class)
-                .notFound(request.getUri());
+        throw lastException;
     }
 }

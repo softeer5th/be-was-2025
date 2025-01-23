@@ -19,11 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 public class MethodResolverFactory {
-    public static ResourceResolver createResolver(List<Class<?>> handlerGroups) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static ResourceResolver createResolver(List<Object> handlerGroups) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Map<String, ResourceResolver> requestMap = new HashMap<>();
 
-        for (Class<?> handlerGroupClass : handlerGroups) {
-            Object handlerGroup = handlerGroupClass.getDeclaredConstructor().newInstance();
+        for (Object handlerGroup : handlerGroups) {
             Method [] methods = handlerGroup.getClass().getDeclaredMethods();
 
             for (Method method : methods) {

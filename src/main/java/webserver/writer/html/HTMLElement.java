@@ -26,6 +26,10 @@ public class HTMLElement{
             attributes.put("href", href);
             return this;
         }
+        public Builder src(String src) {
+            attributes.put("src", src);
+            return this;
+        }
 
         public Builder appendChild(HTMLElement child) {
             this.children.add(child);

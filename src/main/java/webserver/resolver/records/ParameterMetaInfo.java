@@ -11,17 +11,22 @@ public record ParameterMetaInfo(
         boolean required,
         boolean authenticated,
         TypeParser parser,
-        BiFunction<HTTPRequest, String, Optional<String>> finder
+        BiFunction<HTTPRequest, String, Optional<Object>> finder
 ) {
-    private static BiFunction<HTTPRequest, String, Optional<String>> paramFinder = (req, name) -> {
-        return req.getParameter(name, String.class);
+    private static final BiFunction<HTTPRequest, String, Optional<Object>> paramFinder = (req, name) -> {
+        return req.getParameter(name, Object.class);
     };
 
-    private static BiFunction<HTTPRequest, String, Optional<String>> bodyFinder = (req, name) -> {
-        return req.getBody(name, String.class);
+    private static final BiFunction<HTTPRequest, String, Optional<Object>> bodyFinder = (req, name) -> {
+        return req.getBody(name, Object.class);
     };
+    private static final BiFunction<HTTPRequest, String, Optional<String>> cookieFinder = HTTPRequest::getCookie;
 
-    private static BiFunction<HTTPRequest, String, Optional<String>> cookieFinder = HTTPRequest::getCookie;
+    private static final BiFunction<HTTPRequest, String, Optional<Object>> cookieWrapper = (req, name) -> {
+      Optional<String> found = cookieFinder.apply(req, name);
+      if (found.isEmpty()) return Optional.empty();
+      return Optional.of(found.get());
+    };
 
     public static ParameterMetaInfo forBody(String name, boolean required, TypeParser parser) {
         return new ParameterMetaInfo(name, required, false, parser, bodyFinder);
@@ -32,6 +37,6 @@ public record ParameterMetaInfo(
     }
 
     public static ParameterMetaInfo forCookie(String name, boolean required, boolean authenticated, TypeParser parser) {
-        return new ParameterMetaInfo(name, required, authenticated, parser, cookieFinder);
+        return new ParameterMetaInfo(name, required, authenticated, parser, cookieWrapper);
     }
 }
