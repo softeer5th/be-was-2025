@@ -3,6 +3,9 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import api.ApiRouter;
@@ -43,15 +46,11 @@ public class RequestHandler implements Runnable {
 
     private boolean handleApiRequest(HttpRequest httpRequest, HttpResponse response) throws IOException {
         LoadResult apiResult = apiRouter.route(httpRequest);
-
         if (apiResult == null) {
             return false;
         }
 
         String contentType = apiResult.contentType();
-
-        // todo: apiResult에 content가 없을 때 404 처리
-
         if ("redirect".equals(contentType)) {
             logger.debug("리다이렉션 응답입니다.");
             response.sendRedirect(apiResult.path());
@@ -90,8 +89,14 @@ public class RequestHandler implements Runnable {
         LoadResult resourceResult = resourceLoader.load(path);
 
         if (resourceResult.content() == null) {
-            byte[] notFoundBody = "<h1>404 File Not Found</h1>".getBytes();
-            response.send404(notFoundBody);
+            Path notFoundPage = Paths.get("src/main/resources/static/404.html");
+            if (!Files.exists(notFoundPage)) {
+                byte[] notFoundBody = "<h1>404 File Not Found</h1>".getBytes();
+                response.send404(notFoundBody);
+                return;
+            }
+            byte[] body = Files.readAllBytes(notFoundPage);
+            response.send404(body);
             return;
         }
 

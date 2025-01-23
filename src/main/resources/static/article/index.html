@@ -9,10 +9,10 @@
   <body>
     <div class="container">
       <header class="header">
-        <a href="/main"><img src="../img/signiture.svg" /></a>
+        <a href="/index.html"><img src="../img/signiture.svg" /></a>
         <ul class="header__menu">
           <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+            <a class="btn btn_contained btn_size_s" href="/write.html">글쓰기</a>
           </li>
           <li class="header__menu__item">
             <button id="logout-btn" class="btn btn_ghost btn_size_s">
@@ -27,11 +27,14 @@
           <div class="textfield textfield_size_m">
             <p class="title_textfield">내용</p>
             <textarea
+              id="content-textarea"
               class="input_textfield"
               placeholder="글의 내용을 입력하세요"
               autocomplete="username"
             ></textarea>
           </div>
+          <span id="file-name"></span>
+          <button id="attach-btn" class="btn btn_size_s" type="button">사진 첨부</button>
           <button
             id="registration-btn"
             class="btn btn_contained btn_size_m"
@@ -43,5 +46,96 @@
         </form>
       </div>
     </div>
+    <script>
+      const hiddenFileInput = document.createElement("input");
+      hiddenFileInput.type = "file";
+      hiddenFileInput.accept = "image/*";
+      hiddenFileInput.style.display = "none";
+      document.body.appendChild(hiddenFileInput);
+
+      const attachBtn = document.getElementById("attach-btn");
+      const fileNameSpan = document.getElementById("file-name");
+      let selectedFileBase64 = "";
+
+      attachBtn.addEventListener("click", () => {
+        hiddenFileInput.click();
+      });
+
+      hiddenFileInput.addEventListener("change", async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        fileNameSpan.textContent = file.name;
+        selectedFileBase64 = await toBase64(file);
+      });
+
+      async function toBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const base64Data = reader.result.split(",")[1];
+            resolve(base64Data);
+          };
+          reader.onerror = (err) => reject(err);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      document.getElementById("registration-btn").addEventListener("click", async () => {
+        const content = document.getElementById("content-textarea").value.trim();
+
+        if (!content) {
+          alert("내용을 입력하세요.");
+          return;
+        }
+
+        try {
+          const resp = await fetch("/api/user/validate");
+          const userCheck = await resp.json();
+          if (!userCheck.isSuccess) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/user/login.html";
+            return;
+          }
+        } catch (err) {
+          console.error("사용자 세션 확인 중 오류:", err);
+          window.location.href = "/user/login.html";
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/article", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content: content,
+              base64Image: selectedFileBase64
+            })
+          });
+          const result = await response.json();
+          if (result.isSuccess) {
+            alert("게시글이 등록되었습니다!");
+            window.location.href = "/index.html";
+          } else {
+            alert(`등록 실패: ${result.message}`);
+          }
+        } catch (error) {
+          console.error("게시글 작성 중 오류:", error);
+          alert("게시글 작성에 실패했습니다.");
+        }
+      });
+
+      document.getElementById("logout-btn").addEventListener("click", async () => {
+        try {
+          const response = await fetch("/api/logout", { method: "POST" });
+          const result = await response.json();
+          console.log("로그아웃 응답:", result);
+          alert("로그아웃되었습니다.");
+          window.location.href = "/index.html";
+        } catch (error) {
+          console.error("로그아웃 요청 중 오류:", error);
+          window.location.href = "/index.html";
+        }
+      });
+    </script>
   </body>
 </html>

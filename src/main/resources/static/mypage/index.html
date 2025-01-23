@@ -13,7 +13,9 @@
     <a href="/index.html"><img src="../img/signiture.svg" /></a>
     <ul class="header__menu">
       <li class="header__menu__item">
-        <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+        <button class="btn btn_contained btn_size_s" id="write-btn">
+          글쓰기
+        </button>
       </li>
       <li class="header__menu__item">
         <button id="logout-btn" class="btn btn_ghost btn_size_s">
@@ -27,14 +29,14 @@
     <div class="profile_container">
       <div class="profile_box">
         <div class="profile_image">
-          <img class="profile" />
+          <img class="profile" id="profile-img" />
         </div>
         <div class="profile_frame">
-          <div class="btn_profile">
+          <div class="btn_profile" id="edit-btn">
             <div class="btn_container">수정</div>
           </div>
-          <div class="btn_bar"></div>
-          <div class="btn_profile">
+          <div class="btn_bar">|</div>
+          <div class="btn_profile" id="delete-btn">
             <div class="btn_container">삭제</div>
           </div>
         </div>
@@ -82,13 +84,27 @@
 </div>
 
 <script>
+  const hiddenFileInput = document.createElement("input");
+  hiddenFileInput.type = "file";
+  hiddenFileInput.accept = "image/*";
+  hiddenFileInput.style.display = "none";
+  document.body.appendChild(hiddenFileInput);
+
   window.addEventListener("DOMContentLoaded", async () => {
     try {
       const response = await fetch("/api/user/validate");
       const result = await response.json();
 
       if (result.isSuccess) {
-        document.getElementById("nickname-input").value = result.data;
+        if (typeof result.data === "object") {
+          const { name, base64Image } = result.data;
+          document.getElementById("nickname-input").value = name;
+          if (base64Image) {
+            document.getElementById("profile-img").src = `data:image/png;base64,${base64Image}`;
+          }
+        } else {
+          document.getElementById("nickname-input").value = result.data;
+        }
       } else {
         alert("로그인이 필요해요.");
         window.location.href = "/user/login.html";
@@ -98,6 +114,77 @@
       window.location.href = "/user/login.html";
     }
   });
+
+  document.getElementById("write-btn").addEventListener("click", async () => {
+    try {
+      const res = await fetch("/api/user/validate");
+      const data = await res.json();
+      if (data.isSuccess) {
+        window.location.href = "/write.html";
+      } else {
+        alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/user/login.html";
+      }
+    } catch (error) {
+      console.error("글쓰기 버튼 클릭 중 오류:", error);
+      window.location.href = "/user/login.html";
+    }
+  });
+
+  document.getElementById("edit-btn").addEventListener("click", () => {
+    hiddenFileInput.click();
+  });
+
+  hiddenFileInput.addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      const base64Image = await toBase64(file);
+      const resp = await fetch("/api/user/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base64Image })
+      });
+      const result = await resp.json();
+      if (result.isSuccess) {
+        alert("프로필 사진이 변경되었습니다.");
+        document.getElementById("profile-img").src = `data:image/png;base64,${base64Image}`;
+      } else {
+        alert(`이미지 업로드 실패: ${result.message}`);
+      }
+    } catch (err) {
+      console.error("이미지 업로드 중 오류:", err);
+      alert("이미지 업로드 중 오류가 발생했습니다.");
+    }
+    hiddenFileInput.value = "";
+  });
+
+  document.getElementById("delete-btn").addEventListener("click", async () => {
+    try {
+      const resp = await fetch("/api/user/image", {
+        method: "DELETE"
+      });
+      const result = await resp.json();
+      if (result.isSuccess) {
+        alert("프로필 사진이 삭제되었습니다.");
+        document.getElementById("profile-img").src = "";
+      } else {
+        alert(`이미지 삭제 실패: ${result.message}`);
+      }
+    } catch (err) {
+      console.error("이미지 삭제 중 오류:", err);
+      alert("이미지 삭제 중 오류가 발생했습니다.");
+    }
+  });
+
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
 
   document.getElementById("update-btn").addEventListener("click", async () => {
     const nickname = document.getElementById("nickname-input").value.trim();
@@ -109,7 +196,6 @@
       return;
     }
 
-    // 둘 중 하나라도 입력이 있다면 -> 둘 다 있어야 하고, 같아야 함
     if ((password || passwordConfirm)) {
       if (!password || !passwordConfirm) {
         alert("비밀번호와 비밀번호 확인 모두 입력해주세요.");

@@ -53,7 +53,7 @@ public class SignUpHandler implements ApiHandler {
             throw new UserCreationException(ErrorCode.INVALID_USER_INPUT);
         }
 
-        return new User(userId, password, name,null);
+        return new User(userId, password, name,null, null);
     }
 
     private void validateUser(User user) {

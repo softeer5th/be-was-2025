@@ -1,47 +1,137 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/main"><img src="../img/signiture.svg" /></a>
-        <ul class="header__menu">
-          <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <button id="logout-btn" class="btn btn_ghost btn_size_s">
-              로그아웃
-            </button>
-          </li>
-        </ul>
-      </header>
-      <div class="page">
-        <h2 class="page-title">댓글 작성</h2>
-        <form class="form">
-          <div class="textfield textfield_size_m">
-            <p class="title_textfield">내용</p>
-            <textarea
-              class="input_textfield"
-              placeholder="글의 내용을 입력하세요"
-              autocomplete="username"
-            ></textarea>
-          </div>
-          <button
-            id="registration-btn"
-            class="btn btn_contained btn_size_m"
-            style="margin-top: 24px"
-            type="button"
-          >
-            작성 완료
-          </button>
-        </form>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="/reset.css" rel="stylesheet" />
+  <link href="/global.css" rel="stylesheet" />
+  <title>댓글 작성</title>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <a href="/index.html"><img src="/img/signiture.svg" /></a>
+    <ul class="header__menu">
+      <li class="header__menu__item">
+        <button class="btn btn_contained btn_size_s" id="write-btn">
+          글쓰기
+        </button>
+      </li>
+      <li class="header__menu__item">
+        <button id="logout-btn" class="btn btn_ghost btn_size_s">
+          로그아웃
+        </button>
+      </li>
+    </ul>
+  </header>
+  <div class="page">
+    <h2 class="page-title">댓글 작성</h2>
+    <form class="form" onsubmit="return false;">
+      <div class="textfield textfield_size_m">
+        <p class="title_textfield">내용</p>
+        <textarea
+                id="comment-content"
+                class="input_textfield"
+                placeholder="댓글 내용을 입력하세요"
+        ></textarea>
       </div>
-    </div>
-  </body>
+      <input type="hidden" id="article-id" />
+      <button
+              id="registration-btn"
+              class="btn btn_contained btn_size_m"
+              style="margin-top: 24px"
+              type="button"
+      >
+        작성 완료
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const currentPath = window.location.pathname;
+    const parts = currentPath.split("/");
+
+    if (parts.length >= 4) {
+      const articleId = parts[2];
+      document.getElementById("article-id").value = articleId;
+    }
+  });
+
+  document.getElementById("registration-btn").addEventListener("click", async () => {
+    const content = document.getElementById("comment-content").value.trim();
+    const articleId = document.getElementById("article-id").value;
+
+    if (!content) {
+      alert("댓글 내용을 입력하세요.");
+      return;
+    }
+
+    try {
+      const resp = await fetch("/api/user/validate");
+      const data = await resp.json();
+      if (!data.isSuccess) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/user/login.html";
+        return;
+      }
+    } catch (err) {
+      console.error("세션 확인 오류:", err);
+      window.location.href = "/user/login.html";
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ articleId, content })
+      });
+      const result = await response.json();
+      if (result.isSuccess) {
+        alert("댓글 등록 성공!");
+        window.location.href = "/index.html";
+      } else {
+        alert(`댓글 등록 실패: ${result.message}`);
+        if (result.code === "UNAUTHORIZED") {
+          window.location.href = "/user/login.html";
+        }
+      }
+    } catch (error) {
+      console.error("댓글 등록 오류:", error);
+      alert("댓글 작성에 실패했습니다.");
+    }
+  });
+
+  document.getElementById("write-btn").addEventListener("click", async () => {
+    try {
+      const res = await fetch("/api/user/validate");
+      const data = await res.json();
+      if (data.isSuccess) {
+        window.location.href = "/write.html";
+      } else {
+        alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/user/login.html";
+      }
+    } catch (error) {
+      console.error("글쓰기 버튼 클릭 중 오류:", error);
+      window.location.href = "/user/login.html";
+    }
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    try {
+      const response = await fetch("/api/logout", { method: "POST" });
+      const result = await response.json();
+      console.log("로그아웃 응답:", result);
+      alert("로그아웃되었습니다.");
+      window.location.href = "/index.html";
+    } catch (error) {
+      console.error("로그아웃 요청 중 오류:", error);
+      window.location.href = "/index.html";
+    }
+  });
+</script>
+</body>
 </html>

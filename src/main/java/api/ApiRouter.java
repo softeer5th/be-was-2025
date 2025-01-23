@@ -1,5 +1,6 @@
 package api;
 
+import api.article.*;
 import api.user.*;
 import global.model.HttpRequest;
 import global.model.LoadResult;
@@ -17,6 +18,11 @@ public class ApiRouter {
         handlers.add(new LogoutHandler());
         handlers.add(new ValidateHandler());
         handlers.add(new UpdateUserHandler());
+        handlers.add(new ImageCreateHandler());
+        handlers.add(new ImageDeleteHandler());
+        handlers.add(new ArticleCreateHandler());
+        handlers.add(new ArticleWithCommentsPaginationHandler());
+        handlers.add(new CommentCreateHandler());
     }
 
     public LoadResult route(HttpRequest httpRequest) throws IOException {

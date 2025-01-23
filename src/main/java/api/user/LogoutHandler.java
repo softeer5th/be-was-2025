@@ -29,7 +29,6 @@ public class LogoutHandler implements ApiHandler {
                 return createResponse(false, "LOGOUT-FAIL", "SID 쿠키가 없거나 세션이 유효하지 않습니다.");
             }
 
-            // 세션 무효화
             String sid = CookieSessionUtil.extractSid(httpRequest.headers().get("Cookie"));
             webserver.SessionManager.invalidate(sid);
 

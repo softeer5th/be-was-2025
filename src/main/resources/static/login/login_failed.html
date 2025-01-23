@@ -1,17 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8" />
     <title>로그인 실패</title>
     <style>
-        .error-message {
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .error-msg {
             color: red;
             font-weight: bold;
+            margin: 20px 0;
+        }
+        .home-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            text-decoration: none;
+            background: #4362d0;
+            color: #fff;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
-<h2 class="error-message">로그인을 다시 시도해주세요!</h2>
-<a href="/user/login.html">로그인 화면으로 돌아가기</a>
+<h1>로그인 실패</h1>
+<p class="error-msg">로그인을 다시 시도해주세요!</p>
+<a href="/user/login.html" class="home-btn">로그인 화면으로 이동</a>
 </body>
 </html>

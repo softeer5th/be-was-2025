@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ValidateHandler implements ApiHandler {
     private static final Logger logger = LoggerFactory.getLogger(ValidateHandler.class);
@@ -29,7 +32,17 @@ public class ValidateHandler implements ApiHandler {
                 return createErrorResponse("UNAUTHORIZED", "로그인되지 않은 사용자입니다.");
             }
 
-            CommonResponse response = new CommonResponse(true, null, null, user.getName());
+            byte[] profileImage = user.getProfileImage();
+            String base64Image = null;
+            if (profileImage != null && profileImage.length > 0) {
+                base64Image = Base64.getEncoder().encodeToString(profileImage);
+            }
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("name", user.getName());
+            data.put("base64Image", base64Image);
+
+            CommonResponse response = new CommonResponse(true, null, null, data);
             String json = JsonUtil.toJson(response);
             logger.debug("내 정보 반환 JSON: {}", json);
 
@@ -39,7 +52,6 @@ public class ValidateHandler implements ApiHandler {
                     "application/json",
                     null
             );
-
         } catch (Exception e) {
             logger.error("사용자 정보 조회 중 에러:", e);
             return createErrorResponse("SERVER-ERROR", "서버 에러가 발생했습니다.");
