@@ -70,7 +70,7 @@ public class RequestMethodWrapper implements ResourceResolver {
             }
             if (parameter.isPresent()) {
                 try {
-                    Object parsed = meta.parser().parse((String)parameter.get());
+                    Object parsed = meta.parser().parse(parameter.get());
                     args[argIndex++] = parsed;
                 } catch (NumberFormatException e) {
                     throw new HTTPException.Builder()

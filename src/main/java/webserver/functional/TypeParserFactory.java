@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class TypeParserFactory {
     private static final Map<Class<?>, TypeParser> typeParsers = new HashMap<>() {{
-        put(String.class, (value -> value));
+        put(String.class, (value -> (String)value));
         put(Integer.class, (value -> Integer.parseInt((String) value)));
         put(Double.class, (value -> Double.parseDouble((String) value)));
         put(Long.class, (value -> Long.parseLong((String)value)));

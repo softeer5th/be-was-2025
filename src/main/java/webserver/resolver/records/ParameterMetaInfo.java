@@ -25,7 +25,7 @@ public record ParameterMetaInfo(
     private static final BiFunction<HTTPRequest, String, Optional<Object>> cookieWrapper = (req, name) -> {
       Optional<String> found = cookieFinder.apply(req, name);
       if (found.isEmpty()) return Optional.empty();
-      return Optional.of(found);
+      return Optional.of(found.get());
     };
 
     public static ParameterMetaInfo forBody(String name, boolean required, TypeParser parser) {
