@@ -1,6 +1,7 @@
 package db;
 
 import model.Comment;
+import model.Image;
 import model.Post;
 import model.User;
 
@@ -26,7 +27,7 @@ public class Database {
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
                     "userId VARCHAR(255) NOT NULL, " +
                     "contentType VARCHAR(255) NOT NULL, " +
-                    "data BLOB NOT NULL, " +
+                    "imageData MEDIUMBLOB NOT NULL, " +
                     "forProfile BOOLEAN NOT NULL, " +
                     "FOREIGN KEY (userId) REFERENCES Users(userId))";
             statement.execute(createImageTable);
@@ -71,12 +72,13 @@ public class Database {
     }
 
     public static void addPost(Post post) {
-        String insertQuery = "INSERT INTO Posts (userId, title, content) VALUES (?, ?, ?)";
+        String insertQuery = "INSERT INTO Posts (userId, imageId, title, content) VALUES (?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
             preparedStatement.setString(1, post.getUserId());
-            preparedStatement.setString(2, post.getTitle());
-            preparedStatement.setString(3, post.getContent());
+            preparedStatement.setInt(2, post.getImageId());
+            preparedStatement.setString(3, post.getTitle());
+            preparedStatement.setString(4, post.getContent());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error adding post", e);
@@ -97,7 +99,7 @@ public class Database {
     }
 
     public static int addImage(String userId, String contentType, byte[] data, boolean forProfile) {
-        String insertQuery = "INSERT INTO Images (userId, contentType, data, forProfile) VALUES (?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO Images (userId, contentType, imageData, forProfile) VALUES (?, ?, ?, ?)";
         String countQuery = "SELECT COUNT(*) FROM Images";
 
         try (Connection connection = DriverManager.getConnection(DB_URL)) {
@@ -179,6 +181,27 @@ public class Database {
             throw new RuntimeException("Error finding all users", e);
         }
         return users;
+    }
+
+    public static Image getImageById(int imageId) {
+        String selectQuery = "SELECT * FROM Images WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+            preparedStatement.setInt(1, imageId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Image(
+                        resultSet.getInt("id"),
+                        resultSet.getString("userId"),
+                        resultSet.getString("contentType"),
+                        resultSet.getBytes("imageData"),
+                        resultSet.getBoolean("forProfile")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return null;
     }
 
     public static Post getPostById(int postId) {

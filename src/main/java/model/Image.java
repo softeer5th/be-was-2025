@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Base64;
+
 public class Image {
     private int id;
     private String userId;
@@ -13,5 +15,13 @@ public class Image {
         this.contentType = contentType;
         this.data = data;
         this.forProfile = isForProfile;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public String getDataString() {
+        return Base64.getEncoder().encodeToString(data);
     }
 }

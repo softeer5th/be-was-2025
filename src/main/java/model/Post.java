@@ -40,4 +40,8 @@ public class Post {
     public String getContent() {
         return URLDecoder.decode(content, StandardCharsets.UTF_8);
     }
+
+    public int getImageId() {
+        return ImageId;
+    }
 }

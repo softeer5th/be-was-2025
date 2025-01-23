@@ -1,6 +1,7 @@
 package db.manage;
 
 import db.Database;
+import model.Image;
 import webserver.request.FileBody;
 
 public class ImageManager {
@@ -12,5 +13,9 @@ public class ImageManager {
         } catch (RuntimeException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
+
+    public static Image getImage(int imageId) {
+        return Database.getImageById(imageId);
     }
 }
