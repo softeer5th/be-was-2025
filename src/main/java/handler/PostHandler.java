@@ -65,8 +65,6 @@ public class PostHandler {
             } catch (IOException ex) {
                 logger.error("SignIn Redirection Error" + ex.getMessage());
             }
-        } catch (IOException e) {
-            logger.error("SignIn Error" + e.getMessage());
         }
     }
 
