@@ -235,7 +235,10 @@
 }
 
 .hidden {
-    display: none;
+    position: absolute;
+    opacity: 0;
+    left: 50%;
+    top: 50%;
 }
 
 .disabled-link {

@@ -154,15 +154,15 @@
 <script>
     const showAllBtn = document.getElementById('show-all-btn');
 
-
-    showAllBtn.addEventListener('click', function showHiddenComments() {
-        const comments = document.querySelectorAll('.comment__item.hidden');
-        comments.forEach((comment) => {
-            comment.classList.remove('hidden');
+    if (showAllBtn)
+        showAllBtn.addEventListener('click', function showHiddenComments() {
+            const comments = document.querySelectorAll('.comment__item.hidden');
+            comments.forEach((comment) => {
+                comment.classList.remove('hidden');
+            });
+            showAllBtn.classList.add('hidden');
+            showAllBtn.removeEventListener('click', showHiddenComments);
         });
-        showAllBtn.classList.add('hidden');
-        showAllBtn.removeEventListener('click', showHiddenComments);
-    });
 </script>
 </body>
 </html>
