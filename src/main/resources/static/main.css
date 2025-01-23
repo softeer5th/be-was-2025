@@ -46,6 +46,7 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 25.6px;
+  overflow-wrap: break-word;
   color: #14212b;
 }
 
@@ -74,6 +75,7 @@
 .comment {
   display: flex;
   flex-direction: column;
+  overflow-wrap: break-word;
   gap: 24px;
 }
 
