@@ -79,7 +79,7 @@ public class WebServer {
         HttpRequestParser requestParser = new HttpRequestParser(config.getMaxHeaderSize());
         HttpResponseWriter responseWriter = new HttpResponseWriter();
 
-        StaticResourceManager resourceManager = new StaticResourceManager(config.getStaticDirectory());
+        StaticResourceManager resourceManager = new StaticResourceManager(config.getStaticDirectory(), config.getUploadDirectory());
         TemplateFileReader templateFileReader = new TemplateFileReaderImpl(config.getTemplateDirectory());
         TemplateEngine templateEngine = new MyTemplateEngine()
                 .registerTagHandler(new ForeachTagRenderer())

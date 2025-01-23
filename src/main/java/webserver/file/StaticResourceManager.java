@@ -14,14 +14,16 @@ import java.util.UUID;
 public class StaticResourceManager implements FileUploader {
 
     private final String staticDirectory;
+    private final String uploadDirectory;
 
     /**
      * static 폴더 경로를 받아 생성
      *
      * @param staticDirectory static 폴더 경로
      */
-    public StaticResourceManager(String staticDirectory) {
+    public StaticResourceManager(String staticDirectory, String uploadDirectory) {
         this.staticDirectory = staticDirectory;
+        this.uploadDirectory = uploadDirectory;
     }
 
     /**
@@ -47,7 +49,7 @@ public class StaticResourceManager implements FileUploader {
 
     @Override
     public String uploadFile(String filename, byte[] body) {
-        String urlPath = FileUtil.joinPath("upload", makeUniqueFilename(filename));
+        String urlPath = FileUtil.joinPath(uploadDirectory, makeUniqueFilename(filename));
         String filePath = FileUtil.joinPath(staticDirectory, urlPath);
         File file = FileUtil.createResourceFile(filePath)
                 .orElseThrow(() -> new IllegalArgumentException("파일이 이미 존재합니다"));
