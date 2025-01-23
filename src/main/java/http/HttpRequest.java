@@ -50,8 +50,9 @@ public class HttpRequest {
     public String getCookieSid() {
         try {
             String s = headers.get(HttpHeader.COOKIE.getHeaderName());
-            String[] cookies = s.split("; ");
+            String[] cookies = s.split(";");
             for (String cookie : cookies) {
+                cookie = cookie.trim();
                 if (cookie.startsWith("sid=")) {
                     String sid = cookie.split("=")[1];
                     return sid;
