@@ -63,7 +63,7 @@
         articleImage.src = URL.createObjectURL(file);
     });
 
-    const blankPattern = /^ +$/;
+    const blankPattern = /^[\s\t\r\n\f]+$/;
     const content = document.getElementById('content');
     content.addEventListener("input", e => {
         if (blankPattern.test(content.value)) {

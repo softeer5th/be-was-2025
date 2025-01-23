@@ -39,7 +39,7 @@
     </my-text>
 </div>
 <script>
-    const blankPattern = /^ +$/;
+    const blankPattern = /^[\s\t\r\n\f]+$/;
     const content = document.getElementById('content');
     content.addEventListener("input", e => {
         if (blankPattern.test(content.value)) {
