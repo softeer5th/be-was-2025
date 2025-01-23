@@ -1,8 +1,10 @@
 package util;
 
 import db.manage.CommentManager;
+import db.manage.ImageManager;
 import db.manage.PostManager;
 import model.Comment;
+import model.Image;
 import model.Post;
 import model.User;
 import webserver.session.SessionManager;
@@ -54,6 +56,10 @@ public class HtmlContentReplacer {
             properties.put("$postTitle", post.getTitle());
             properties.put("$postContent", post.getContent());
             properties.put("$postUserId", post.getUserId());
+
+            Image image = ImageManager.getImage(post.getImageId());
+            properties.put("$imageType", image.getContentType());
+            properties.put("$postImage", image.getDataString());
 
             if(Objects.equals(properties.get("$userId"), post.getUserId())) {
                 conditions.put("differentUser", false);
