@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import Entity.QueryParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,13 +15,14 @@ public class HttpRequest {
     private Map<String, String> headers;
     private String body;
     private String requestPath;
+    private QueryParameters queryParameters = null;
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     public HttpRequest(List<String> headerLines, BufferedReader br) throws IOException {
         headers = new HashMap<>();
-        log();
         setHeader(headerLines);
         setBody(br);
+        log();
     }
 
     private void setBody(BufferedReader br) throws IOException {
@@ -31,11 +33,26 @@ public class HttpRequest {
         this.body = new String(requestBody);
     }
 
+    public String getWebKitFormBoundary() {
+        if (!headers.containsKey("content-type")) {
+            return null;
+        }
+        String contentType = headers.get("content-type");
+        if (contentType.contains("boundary=")) {
+            String[] parts = contentType.split("boundary=");
+            if (parts.length > 1) {
+                return parts[1].trim();
+            }
+        }
+        return null;
+    }
+
     public String getCookieSid() {
         try {
             String s = headers.get(HttpHeader.COOKIE.getHeaderName());
-            String[] cookies = s.split("; ");
+            String[] cookies = s.split(";");
             for (String cookie : cookies) {
+                cookie = cookie.trim();
                 if (cookie.startsWith("sid=")) {
                     String sid = cookie.split("=")[1];
                     return sid;
@@ -57,8 +74,13 @@ public class HttpRequest {
 
     private void setHeader(List<String> headerLines) {
         String[] requestLineTokens = headerLines.get(0).split(" ");
-        String method = requestLineTokens[0];
-        requestPath = requestLineTokens[1];
+        String method = requestLineTokens[0].trim();
+        requestPath = requestLineTokens[1].trim();
+
+        if (requestPath.contains("?")) {
+            requestPath = requestLineTokens[1].trim().split("\\?")[0];
+            queryParameters = new QueryParameters(requestLineTokens[1].trim().split("\\?")[1]);
+        }
 
         httpMethod = switch (method) {
             case "GET" -> HttpMethod.GET;
@@ -75,6 +97,10 @@ public class HttpRequest {
         }
     }
 
+    public QueryParameters getQueryParameters() {
+        return queryParameters;
+    }
+
     public String getBody() {
         return body;
     }
@@ -86,7 +112,7 @@ public class HttpRequest {
         throw new ExceptionInInitializerError("Can't Find content-length");
     }
 
-    public void log() {
+    private void log() {
         StringBuilder logMessageBuilder = new StringBuilder();
         logMessageBuilder.append("\nHeader : {\n");
         logMessageBuilder.append("method : " + httpMethod).append(' ').append("path : " + requestPath).append('\n');

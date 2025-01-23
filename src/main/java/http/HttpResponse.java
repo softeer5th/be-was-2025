@@ -10,6 +10,7 @@ public class HttpResponse {
     private final String contentType;
     private final StringBuilder headerBuilder;
     private static final String NOT_FOUND_PAGE = "<html><body><h1 style=\"text-align: center\">404 Not Found</h1></body></html>";
+    private static final String BAD_REQUEST_PAGE = "<html><body><h1 style=\"text-align: center\">400 Bad Request</h1></body></html>";
 
     public HttpResponse(HttpStatus httpStatus, DataOutputStream dos,
                         byte[] body, String contentType) {
@@ -31,8 +32,16 @@ public class HttpResponse {
     public static void respond404(DataOutputStream dos) throws IOException {
         byte[] body = NOT_FOUND_PAGE.getBytes();
         HttpResponse httpResponse = new HttpResponse(HttpStatus.NOT_FOUND, dos, body, "text/html");
-        httpResponse.addHeader("Content-Type", httpResponse.contentType);
-        httpResponse.addHeader("Content-Length", String.valueOf(httpResponse.body.length));
+        httpResponse.addHeader(HttpHeader.CONTENT_TYPE.getHeaderName(), httpResponse.contentType);
+        httpResponse.addHeader(HttpHeader.CONTENT_LENGTH.getHeaderName(), String.valueOf(httpResponse.body.length));
+        httpResponse.respond();
+    }
+
+    public static void respond400(DataOutputStream dos) throws IOException {
+        byte[] body = BAD_REQUEST_PAGE.getBytes();
+        HttpResponse httpResponse = new HttpResponse(HttpStatus.BAD_REQUEST, dos, body, "text/html");
+        httpResponse.addHeader(HttpHeader.CONTENT_TYPE.getHeaderName(), httpResponse.contentType);
+        httpResponse.addHeader(HttpHeader.CONTENT_LENGTH.getHeaderName(), String.valueOf(httpResponse.body.length));
         httpResponse.respond();
     }
 

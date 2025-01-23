@@ -32,13 +32,24 @@
 - [X] 로그인 시 메인페이지에 닉네임 버튼 생성
   - [X] 닉네임 버튼 클릭 시 myPage로 연결
 - [X] 로그인 시 메인페이지에 로그아웃 버튼 생성
+  <br/>
+  <br/>
+
+- [X] H2 데이터베이스 연결
+- [X] 유저 정보 DB에 저장, 조회
+- [X] 게시글 정보 DB에 저장, 조회
+  - [X] 이전 글, 다음 글 조회
+- [X] 유저 정보 수정
 
 
 ### 피드백 반영
 - [X] request header 이름 case-insensitive
 - [X] Logger static 으로 설정
-- [ ] 이중 try catch 수정할것
+- [X] 이중 try-catch 수정
 - [ ] 예외처리 한곳에서 할 것
+- [X] 로깅 메서드 HttpRequest 생성자 호출 시 수행
+- [X] Cookie 구분자 수정
+- [X] Text Block 사용하도록 수정
 
 
 ## 학습 정리
@@ -52,7 +63,3 @@
 [DAY 8](https://github.com/softeer5th/backend-page/wiki/8%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 [DAY 9](https://github.com/softeer5th/backend-page/wiki/9%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
 [DAY 10](https://github.com/softeer5th/backend-page/wiki/10%EC%9D%BC%EC%B0%A8_%EC%A0%84%EA%B2%BD%EC%84%9D)<br/>
-
-
-
- 
