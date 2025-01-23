@@ -55,7 +55,7 @@ public class UserSignUpRequestHandler implements RequestHandler{
         userDao.findByName(transaction, name)
                 .ifPresent((user) -> {throw new SignUpException(ErrorCode.ALREADY_EXIST_USER_NAME);});
 
-        userDao.save(transaction, new User(null, loginId, password, name, email));
+        userDao.save(transaction, new User(null, loginId, password, name, email, null));
     }
 
 }

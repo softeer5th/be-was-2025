@@ -24,7 +24,7 @@ import java.util.Map;
 public class FileRequestHandler implements RequestHandler{
     private final DynamicHtmlHandlerMapping dynamicHtmlHandlerMapping = DynamicHtmlHandlerMapping.getInstance();
     private final Map<String, DynamicDataProvider> dynamicDataProviderMap = new HashMap<>();
-    private final List<String> restrictedPathsForUser = Arrays.asList("/mypage");
+    private final List<String> restrictedPathsForUser = Arrays.asList("/mypage", "/write");
     private final SessionManager sessionManager = SessionManager.getInstance();
     private final TemplateEngine templateEngine = TemplateEngine.getInstance();
 
