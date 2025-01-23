@@ -25,7 +25,7 @@ public class LocalSessionDataManager implements SessionDataManager {
         logger.debug("Session created: sid={}, expires={}", sessionID, expiresAt);
     }
 
-    public String findUserBySessionID(String sessionID) {
+    public String findUserIdBySessionID(String sessionID) {
         SessionData sessionData = sessions.get(sessionID);
         if (sessionData == null) {
             return null;

@@ -73,7 +73,7 @@ public class FileRequestHandler implements Handler {
             if (sid.isEmpty()) return null;
         }
 
-        String userId = sessionDataManager.findUserBySessionID(sid);
+        String userId = sessionDataManager.findUserIdBySessionID(sid);
         if (userId == null) {
             logger.error("Login user not found");
             return null;

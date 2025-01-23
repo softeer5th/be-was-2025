@@ -1,9 +1,14 @@
 package db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public interface SessionDataManager {
+    Logger logger = LoggerFactory.getLogger(SessionDataManager.class);
+
     void saveSession(String sessionID, String userId);
 
-    String findUserBySessionID(String sessionID);
+    String findUserIdBySessionID(String sessionID);
 
     void removeSession(String sessionID);
 
