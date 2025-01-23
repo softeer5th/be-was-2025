@@ -14,19 +14,31 @@ public class Database {
     static {
         try (Connection connection = DriverManager.getConnection(DB_URL);
              Statement statement = connection.createStatement()) {
+
             String createUserTable = "CREATE TABLE IF NOT EXISTS Users (" +
                     "userId VARCHAR(255) PRIMARY KEY, " +
-                    "password VARCHAR(255), " +
-                    "name VARCHAR(255), " +
-                    "email VARCHAR(255))";
+                    "password VARCHAR(255) NOT NULL, " +
+                    "name VARCHAR(255) NOT NULL, " +
+                    "email VARCHAR(255) NOT NULL)";
             statement.execute(createUserTable);
+
+            String createImageTable = "CREATE TABLE IF NOT EXISTS Images (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "userId VARCHAR(255) NOT NULL, " +
+                    "contentType VARCHAR(255) NOT NULL, " +
+                    "data BLOB NOT NULL, " +
+                    "forProfile BOOLEAN NOT NULL, " +
+                    "FOREIGN KEY (userId) REFERENCES Users(userId))";
+            statement.execute(createImageTable);
 
             String createPostTable = "CREATE TABLE IF NOT EXISTS Posts (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "userId VARCHAR(255), " +
+                    "userId VARCHAR(255) NOT NULL, " +
+                    "imageId INT, " +
                     "title VARCHAR(255), " +
                     "content TEXT, " +
-                    "FOREIGN KEY (userId) REFERENCES Users(userId))";
+                    "FOREIGN KEY (userId) REFERENCES Users(userId), " +
+                    "FOREIGN KEY (imageId) REFERENCES Images(id))";
             statement.execute(createPostTable);
 
             String createCommentTable = "CREATE TABLE IF NOT EXISTS Comments (" +
@@ -37,10 +49,12 @@ public class Database {
                     "FOREIGN KEY (userId) REFERENCES Users(userId), " +
                     "FOREIGN KEY (postId) REFERENCES Posts(id))";
             statement.execute(createCommentTable);
+
         } catch (SQLException e) {
             throw new RuntimeException("Error initializing database", e);
         }
     }
+
 
     public static void addUser(User user) {
         String insertQuery = "INSERT INTO Users (userId, password, name, email) VALUES (?, ?, ?, ?)";
@@ -81,6 +95,33 @@ public class Database {
             throw new RuntimeException("Error adding comment", e);
         }
     }
+
+    public static int addImage(String userId, String contentType, byte[] data, boolean forProfile) {
+        String insertQuery = "INSERT INTO Images (userId, contentType, data, forProfile) VALUES (?, ?, ?, ?)";
+        String countQuery = "SELECT COUNT(*) FROM Images";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+                preparedStatement.setString(1, userId);
+                preparedStatement.setString(2, contentType);
+                preparedStatement.setBytes(3, data);
+                preparedStatement.setBoolean(4, forProfile);
+                preparedStatement.executeUpdate();
+            }
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(countQuery);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                } else {
+                    throw new SQLException("Failed to retrieve table size.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding Image or counting rows", e);
+        }
+    }
+
 
     public static void updateUserPassword(String userId, String newPassword) {
         String updateQuery = "UPDATE Users SET password = ? WHERE userId = ?";
@@ -149,6 +190,7 @@ public class Database {
             if (resultSet.next()) {
                 return new Post(
                         resultSet.getInt("id"),
+                        resultSet.getInt("imageId"),
                         resultSet.getString("userId"),
                         resultSet.getString("title"),
                         resultSet.getString("content")
