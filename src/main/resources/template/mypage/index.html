@@ -34,7 +34,8 @@
                         <div class="btn_profile">
                             <input checked class="hidden" name="deleteProfileImage" type="radio" value="false"/>
                             <label>
-                                <input class="hidden" name="deleteProfileImage" type="radio" value="true"/>
+                                <input class="hidden" name="deleteProfileImage" type="radio"
+                                       value="true"/>
                                 <div class="btn_container">삭제</div>
                             </label>
                         </div>
@@ -48,6 +49,7 @@
                             maxlength="20"
                             minlength="3"
                             name="name"
+                            pattern="^[a-zA-Z0-9]*$"
                             placeholder="회원 가입 시 입력했던 닉네임"
                             type="text"
                     />
@@ -61,6 +63,7 @@
                             maxlength="20"
                             minlength="3"
                             name="newPassword"
+                            pattern="^[a-zA-Z0-9]*$"
                             placeholder="비밀번호를 변경할 경우 입력해주세요"
                             type="password"
                     />
@@ -72,6 +75,7 @@
                             id="confirmPassword"
                             maxlength="20"
                             minlength="3"
+                            pattern="^[a-zA-Z0-9]*$"
                             placeholder="한 번 더 입력해주세요"
                             type="password"
                     />
@@ -83,6 +87,7 @@
                             maxlength="20"
                             minlength="3"
                             name="currentPassword"
+                            pattern="^[a-zA-Z0-9]*$"
                             placeholder="현재 비밀번호"
                             required
                             type="password"

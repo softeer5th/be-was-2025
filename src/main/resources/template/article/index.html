@@ -34,8 +34,8 @@
             <div class="textfield textfield_size_m">
                 <p class="title_textfield">내용</p>
                 <textarea
-                        autocomplete="username"
                         class="input_textfield"
+                        id="content"
                         maxlength="1000"
                         minlength="0"
                         name="content"
@@ -62,6 +62,16 @@
         const file = event.target.files[0];
         articleImage.src = URL.createObjectURL(file);
     });
+
+    const blankPattern = /^ +$/;
+    const content = document.getElementById('content');
+    content.addEventListener("input", e => {
+        if (blankPattern.test(content.value)) {
+            content.setCustomValidity("영어와 숫자만 입력해주세요");
+        } else {
+            content.setCustomValidity("");
+        }
+    })
 </script>
 </body>
 </html>
