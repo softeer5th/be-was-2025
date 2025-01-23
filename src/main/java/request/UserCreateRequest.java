@@ -1,11 +1,12 @@
 package request;
 
 import exception.ClientErrorException;
+import util.UserValidator;
 import util.HttpRequestParser;
 
 import java.util.Map;
 
-import static exception.ErrorCode.MISSING_FIELD;
+import static exception.ErrorCode.*;
 
 public record UserCreateRequest(
         String userId,
@@ -15,11 +16,18 @@ public record UserCreateRequest(
 ) {
     public static UserCreateRequest of(String paramString) {
         Map<String, String> paramMap = HttpRequestParser.parseParamString(paramString);
+        final String userId = getOrElseThrow(paramMap, "userId");
+        final String email = getOrElseThrow(paramMap, "email");
+        final String nickname = getOrElseThrow(paramMap, "nickname");
+        final String password = getOrElseThrow(paramMap, "password");
+
+        UserValidator.validateUser(userId, nickname, password, email);
+
         return new UserCreateRequest(
-                getOrElseThrow(paramMap, "userId"),
-                getOrElseThrow(paramMap, "nickname"),
-                getOrElseThrow(paramMap, "password"),
-                getOrElseThrow(paramMap, "email")
+                userId,
+                nickname,
+                password,
+                email
         );
     }
 

@@ -33,7 +33,7 @@ class RequestRouterTest {
         String path = "/mypage/index.html";
         final Handler handler = router.route(path);
         Assertions.assertThat(handler)
-                .isInstanceOf(MyPageHandler.class);
+                .isInstanceOf(DynamicFileHandler.class);
     }
 
     @Test

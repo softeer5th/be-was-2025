@@ -1,11 +1,9 @@
 package handler;
 
-import db.Database;
 import enums.HttpHeader;
 import enums.HttpMethod;
 import enums.HttpStatus;
 import enums.HttpVersion;
-import model.User;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,17 +19,17 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MyPageHandlerTest {
+class DynamicFileHandlerTest {
 
-    private final MyPageHandler myPageHandler = new MyPageHandler();
-    private final Database database = Database.getInstance();
+    private final DynamicFileHandler dynamicFileHandler = new DynamicFileHandler();
+    private final static int USER_ID= 21;
 
     @Test
     @DisplayName("로그인하지 않은 사용자가 마이페이지를 요청하면 로그인화면으로 리다이렉트 된다.")
     void handle_guest() {
         final HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/mypage/index.html", HttpVersion.HTTP1_1, new HashMap<>(), "");
 
-        final HttpResponse response = myPageHandler.handle(request);
+        final HttpResponse response = dynamicFileHandler.handle(request);
 
         Assertions.assertThat(response.getStatus())
                 .isEqualTo(HttpStatus.FOUND);
@@ -45,12 +43,12 @@ class MyPageHandlerTest {
     @DisplayName("로그인한 사용자가 마이페이지를 요청하면 마이페이지 정적 파일을 응답한다.")
     void handle_loginUser() throws IOException {
         SessionManager sessionManager = SessionManager.getInstance();
-        database.addUser(new User("test", "test", "test", "test"));
-        final String sessionId = sessionManager.makeAndSaveSessionId("test");
+
+        final String sessionId = sessionManager.makeAndSaveSessionId(USER_ID);
         final HttpRequestInfo request = new HttpRequestInfo(HttpMethod.GET, "/mypage/index.html", HttpVersion.HTTP1_1, Map.of(HttpHeader.COOKIE.getName(), String.format("SID=%s; Path=/", sessionId)), "");
         byte[] expected = Files.readAllBytes(new File(STATIC_MYPAGE_HTML).toPath());
 
-        final HttpResponse response = myPageHandler.handle(request);
+        final HttpResponse response = dynamicFileHandler.handle(request);
 
         assertThat(response.getBody())
                 .isEqualTo(expected);

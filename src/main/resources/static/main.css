@@ -6,20 +6,64 @@
   padding: 40px 113px;
   gap: 32px;
 }
+.my-page-link {
+  /* '내 페이지' 링크 스타일 */
+  font-size: 16px;
+  color: #333;
+  padding: 10px;
+  text-decoration: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 
+.my-page-link:hover {
+  color: #fff;
+  background-color: #007bff;
+}
+
+.write-article-link {
+  /* '글쓰기' 링크 스타일 */
+  font-size: 16px;
+  color: #28a745;
+  padding: 10px;
+  text-decoration: none;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+}
+
+.write-article-link:hover {
+  color: #fff;
+  background-color: #28a745;
+}
+
+.logout-link {
+  /* '로그아웃' 링크 스타일 */
+  font-size: 16px;
+  color: #dc3545;
+  padding: 10px;
+  text-decoration: none;
+  border: 1px solid #dc3545;
+  border-radius: 4px;
+}
+
+.logout-link:hover {
+  color: #fff;
+  background-color: #dc3545;
+}
 .post {
   display: flex;
   flex-direction: column;
   align-items: start;
   gap: 16px;
 }
-
+/* .post__account 컨테이너에 display: flex; 사용 */
 .post__account {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: center;    /* 세로로 중앙 정렬 */
+  width: 100%;            /* width를 100%로 설정하여 가능한 공간을 꽉 채움 */
 }
 
+/* 프로필 이미지 */
 .post__account__img {
   width: 32px;
   height: 32px;
@@ -27,11 +71,20 @@
   border-radius: 50%;
 }
 
+/* 닉네임 스타일 */
 .post__account__nickname {
+  margin-left: 5px;
   font-weight: 700;
   font-size: 16px;
   line-height: 25.6px;
   color: #14212b;
+}
+
+/* createdAt을 오른쪽으로 정렬 */
+.post__createdAt {
+  font-size: 12px;  /* 작은 글씨 크기 */
+  color: #888;      /* 회색으로 표시 */
+  margin-left: auto; /* 왼쪽 여백을 자동으로 설정하여 오른쪽으로 밀어냄 */
 }
 
 .post__img {
@@ -45,8 +98,11 @@
   width: 664px;
   font-weight: 400;
   font-size: 16px;
-  line-height: 25.6px;
+  line-height: 20px;
   color: #14212b;
+
+  word-break: break-all; /* 모든 길이가 긴 텍스트는 줄 바꿈이 가능하도록 처리 */
+  white-space: pre-line; /* 공백 및 줄 바꿈을 유지하면서 텍스트를 자동으로 줄바꿈 */
 }
 
 .post__menu {
@@ -70,21 +126,68 @@
   border: 0;
   background: transparent;
 }
+/* 댓글 작성 섹션 스타일 */
+.comment-form {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  width: 664px; /* 너비를 고정 값으로 설정 */
+  box-sizing: border-box; /* 패딩과 보더를 포함해 너비가 664px로 설정 */
+}
+
+.comment-form h3 {
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.comment-form textarea {
+  width: 600px; /* 너비를 고정 값으로 설정 */
+  height: 50px; /* 세로 길이를 줄임 */
+  font-size: 14px;
+  border-radius: 6px;
+  resize: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.comment-form textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.comment-form button {
+  width: 600px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-sizing: border-box; /* 패딩을 포함해 너비가 664px로 설정 */
+}
+
+.comment-form button:hover {
+  background-color: #0056b3;
+}
+
+.comment-form button:active {
+  background-color: #004085;
+}
 
 .comment {
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.comment__item {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.comment__item.hidden {
-  display: none;
+  word-break: break-all; /* 모든 길이가 긴 텍스트는 줄 바꿈이 가능하도록 처리 */
 }
 
 .comment__item__user {
@@ -108,16 +211,18 @@
 }
 
 .comment__item__article {
-  width: 664px;
+  width: 664px; /* 너비를 고정 값으로 설정 */
   font-weight: 400;
   font-size: 16px;
   line-height: 25.6px;
   color: #14212b;
+  word-break: break-all; /* 모든 길이가 긴 텍스트는 줄 바꿈이 가능하도록 처리 */
 }
+
 
 .nav {
   width: 664px;
-  padding: 16px 0px;
+  padding: 16px;
   border-top: 1px solid #ebebeb;
 }
 

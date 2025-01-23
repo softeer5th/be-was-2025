@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import request.HttpRequestInfo;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class HttpRequestParser {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestParser.class);
@@ -113,6 +115,25 @@ public abstract class HttpRequestParser {
             paramMap.put(nameAnyKey[0], nameAnyKey[1]);
         }
         return paramMap;
+    }
+
+    public static String parseMultipartFormText(String headerValue, String body) {
+        final String boundary = getBoundaryFromContentType(headerValue);
+        final String[] multipart = body.split("--" + boundary);
+        final String[] fileData = multipart[1].split("\r\n\r\n", 2);
+        return fileData[1].trim();
+    }
+
+    public static String getBoundaryFromContentType(String contentType) {
+        if (contentType != null && contentType.startsWith("multipart/form-data")) {
+            String[] parts = contentType.split(";");
+            for (String part : parts) {
+                if (part.trim().startsWith("boundary=")) {
+                    return part.split("=")[1].trim();
+                }
+            }
+        }
+        return null;
     }
 }
 

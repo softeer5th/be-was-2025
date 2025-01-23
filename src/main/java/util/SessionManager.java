@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SessionManager {
-    private final Map<String, String> sessionMap;
+    private final Map<String, Integer> sessionMap;
     private static SessionManager instance;
 
     private SessionManager() {
@@ -19,10 +19,10 @@ public class SessionManager {
         return instance;
     }
 
-    public String makeAndSaveSessionId(final String userId) {
+    public String makeAndSaveSessionId(final int id) {
         final String sessionId = UUID.randomUUID().toString();
 
-        sessionMap.put(sessionId, userId);
+        sessionMap.put(sessionId, id);
         return sessionId;
     }
 
@@ -30,7 +30,7 @@ public class SessionManager {
         sessionMap.remove(sessionId);
     }
 
-    public String getUserId(String sessionId) {
+    public Integer getId(String sessionId) {
         return sessionMap.get(sessionId);
     }
 }
