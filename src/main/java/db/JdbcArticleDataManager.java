@@ -3,7 +3,6 @@ package db;
 import exception.BaseException;
 import exception.DBErrorCode;
 import model.Article;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.JdbcUtil;
@@ -13,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class JdbcArticleDataManager implements ArticleDataManger {
@@ -41,7 +39,7 @@ public class JdbcArticleDataManager implements ArticleDataManger {
     }
 
     @Override
-    public Collection<Article> findArticlesByUserId(String userId) {
+    public List<Article> findArticlesByUserId(String userId) {
         logger.info("Find Articles by User SQL");
         String sql = "SELECT * FROM Articles WHERE user_id = ?";
 

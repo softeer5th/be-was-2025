@@ -12,7 +12,7 @@ public class AppConfig {
     private static final UserLoginHandler userLoginHandler = new UserLoginHandler(userDataManager, sessionDataManager);
     private static final UserLogoutHandler userLogoutHandler = new UserLogoutHandler(sessionDataManager);
     private static final ArticleCreateHandler articleCreateHandler = new ArticleCreateHandler(articleDataManger, sessionDataManager);
-    private static final FileRequestHandler fileRequestHandler = new FileRequestHandler(userDataManager, sessionDataManager);
+    private static final FileRequestHandler fileRequestHandler = new FileRequestHandler(userDataManager, sessionDataManager, articleDataManger);
 
     public static UserRegisterHandler getUserRegisterHandler() {
         return userRegisterHandler;

@@ -1,11 +1,13 @@
 package handler;
 
+import db.ArticleDataManger;
 import db.SessionDataManager;
 import db.UserDataManager;
 import exception.BaseException;
 import exception.FileErrorCode;
 import http.HttpRequestInfo;
 import http.HttpStatus;
+import model.Article;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import util.FileUtil;
 import http.HttpResponse;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Set;
 
 public class FileRequestHandler implements Handler {
@@ -24,10 +27,12 @@ public class FileRequestHandler implements Handler {
 
     private final UserDataManager userDataManager;
     private final SessionDataManager sessionDataManager;
+    private final ArticleDataManger articleDataManger;
 
-    public FileRequestHandler(UserDataManager userDataManager, SessionDataManager sessionDataManager) {
+    public FileRequestHandler(UserDataManager userDataManager, SessionDataManager sessionDataManager, ArticleDataManger articleDataManger) {
         this.userDataManager = userDataManager;
         this.sessionDataManager = sessionDataManager;
+        this.articleDataManger = articleDataManger;
     }
 
     @Override
@@ -52,6 +57,9 @@ public class FileRequestHandler implements Handler {
         if (user != null) {
             logger.debug("User logged in: {}", user);
             content = content.replace("<!--header_menu-->", generateLoggedInUserHeader(user.getNickname()));
+
+            List<Article> articles = articleDataManger.findArticlesByUserId(user.getUserId());
+            content = content.replace("<!--article-->", generateArticlesHtml(user, articles));
         } else {
             content = content.replace("<!--header_menu-->", generateGuestUserMenu());
         }
@@ -115,4 +123,23 @@ public class FileRequestHandler implements Handler {
         return sb;
     }
 
+    private String generateArticlesHtml(User user, List<Article> articles) {
+        if (articles.isEmpty()) {
+            logger.error("Articles list is empty");
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<div class='post'>");
+        for (Article article : articles) {
+            sb.append("<div class='post__account'>")
+                    .append("<img class='post__account__img' src='").append("./img/basic_profileImage.svg'").append("' />")
+                    .append("<p class='post__account__nickname'>").append(user.getNickname()).append("</p>")
+                    .append("</div>")
+                    .append("<img class='post__img' src='").append("./img/basic_profileImage.svg'").append("' />")
+                    .append("<p class='post__article'>").append(article.getContent()).append("</p>");
+        }
+        sb.append("</div>");
+        return sb.toString();
+    }
 }

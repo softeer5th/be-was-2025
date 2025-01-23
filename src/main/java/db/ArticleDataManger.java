@@ -2,11 +2,11 @@ package db;
 
 import model.Article;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface ArticleDataManger {
     void addArticle(Article article);
 
-    Collection<Article> findArticlesByUserId(String userId);
+    List<Article> findArticlesByUserId(String userId);
 
 }
