@@ -61,7 +61,7 @@ public class PostHandler {
         } catch (Exception e) {
             // 로그인 실패
             logger.debug(e.getMessage());
-            redirectLoginPage(dos);
+            redirectLoginFailedPage(dos);
         }
     }
 
@@ -166,6 +166,14 @@ public class PostHandler {
             HttpResponse.respond302(LOGIN_PAGE, dos);
         } catch (IOException e) {
             logger.error("Redirection Error: {}, {}", LOGIN_PAGE, e.getMessage());
+        }
+    }
+
+    private static void redirectLoginFailedPage(DataOutputStream dos) {
+        try {
+            HttpResponse.respond302(LOGIN_FAILED_PAGE, dos);
+        } catch (IOException e) {
+            logger.error("Redirection Error: {}, {}", LOGIN_FAILED_PAGE, e.getMessage());
         }
     }
 
