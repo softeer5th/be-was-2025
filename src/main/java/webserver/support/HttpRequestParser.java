@@ -87,7 +87,6 @@ public class HttpRequestParser {
             String[] header = lines[i].split(":", 2);
             if (header.length == 2) {
                 if(header[0].trim().equalsIgnoreCase("cookie")) parseCookie(request, header[1].trim());
-                else if(header[0].trim().equalsIgnoreCase("content-type")) parseContentType(request, header[1].trim());
 
                 request.setHeader(header[0].trim().toLowerCase(), header[1].trim());
             }
