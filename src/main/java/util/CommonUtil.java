@@ -19,4 +19,12 @@ public class CommonUtil {
             }
         }
     }
+
+    public static boolean isBlank(String str) {
+        return str == null || str.isBlank();
+    }
+
+    public static boolean hasLength(String str, int min, int max) {
+        return str != null && str.length() >= min && str.length() <= max;
+    }
 }

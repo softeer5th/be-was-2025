@@ -30,7 +30,6 @@ public class ExceptionUtil {
      * @param <R>      supplier의 반환 타입
      * @return supplier의 실행 결과를 Optional로 감싼 값 . 예외가 발생하면 Optional.empty()를 반환한다.
      */
-    // 예외가 발생하면 Optional.empty()를 반환하는 메서드
     public static <R> Optional<R> ignoreException(ExceptionUtil.CheckedSupplier<R> supplier) {
         try {
             return Optional.ofNullable(supplier.get());

@@ -15,12 +15,12 @@ import java.util.Optional;
  */
 public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
     private static final String UPSERT_USER = """
-            MERGE INTO users (userId, name, passwordHash, email)
+            MERGE INTO users (userId, name, passwordHash, email, profileImagePath)
             KEY (userId)
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             """;
     private static final String SELECT_USER_BY_ID = """
-            SELECT userId, name, passwordHash, email
+            SELECT *
             FROM users
             WHERE userId = ?
             """;
@@ -35,12 +35,20 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
         this.database = database;
     }
 
+    /**
+     * ResultSet에서 사용자 정보를 읽어와 User 객체로 변환한다.
+     *
+     * @param resultSet 사용자 정보가 저장된 ResultSet
+     * @return User 객체
+     * @throws SQLException ResultSet에서 정보를 읽어오는데 실패한 경우
+     */
     static User mapUser(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getString("userId"),
                 resultSet.getString("passwordHash"),
                 resultSet.getString("name"),
-                resultSet.getString("email")
+                resultSet.getString("email"),
+                resultSet.getString("profileImagePath")
         );
     }
 
@@ -52,7 +60,7 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
      * @return 저장에 성공하면 true, 실패하면 false
      */
     public boolean saveUser(User user) {
-        return executeUpdate(i -> i > 0, UPSERT_USER, user.getUserId(), user.getName(), user.getPasswordHash(), user.getEmail());
+        return executeUpdate(i -> i > 0, UPSERT_USER, user.getUserId(), user.getName(), user.getPasswordHash(), user.getEmail(), user.getProfileImagePath());
     }
 
     /**

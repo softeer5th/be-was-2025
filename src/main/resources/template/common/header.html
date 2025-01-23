@@ -7,6 +7,13 @@
     </my-if>
     <ul class="header__menu">
         <my-if condition="session.user">
+            <my-if condition="session.user.profileImagePath">
+                <li class="header__menu__item">
+                    <my-text>
+                        <img class="header__menu__item__img" src="${session.user.profileImagePath}"/>
+                    </my-text>
+                </li>
+            </my-if>
             <li class="header__menu__item">
                 <my-text>
                     <a class="btn btn_ghost btn_size_s" href="/mypage">안녕하세요, ${session.user.name}님!</a>

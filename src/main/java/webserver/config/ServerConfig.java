@@ -38,6 +38,8 @@ public class ServerConfig {
     private final String username;
     // jdbc password
     private final String password;
+    // 파일 업로드 폴더
+    private final String uploadDirectory;
 
     /**
      * 기본 설정 파일을 읽어와 설정을 초기화한다
@@ -60,6 +62,7 @@ public class ServerConfig {
             port = Integer.parseInt(props.getProperty("port"));
             threadPoolSize = Integer.parseInt(props.getProperty("threadPoolSize"));
             staticDirectory = props.getProperty("staticDirectory");
+            uploadDirectory = props.getProperty("uploadDirectory");
             templateDirectory = props.getProperty("templateDirectory");
             defaultPageFileName = props.getProperty("defaultPageFileName");
             maxHeaderSize = Integer.parseInt(props.getProperty("maxHeaderSize"));
@@ -159,5 +162,9 @@ public class ServerConfig {
      */
     public String getPassword() {
         return password;
+    }
+
+    public String getUploadDirectory() {
+        return uploadDirectory;
     }
 }

@@ -12,6 +12,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 댓글 정보를 데이터베이스에 저장하거나 조회하는 클래스
+ */
 public class CommentDao extends AbstractDao implements TransactionalDao<CommentDao> {
     private static final String INSERT_COMMENT = """
             INSERT INTO comments (content, writerId, articleId)
@@ -27,6 +30,11 @@ public class CommentDao extends AbstractDao implements TransactionalDao<CommentD
 
     private final Database database;
 
+    /**
+     * CommentDao 를 생성한다
+     *
+     * @param database 사용할 데이터베이스
+     */
     public CommentDao(Database database) {
         this.database = database;
     }
@@ -47,6 +55,12 @@ public class CommentDao extends AbstractDao implements TransactionalDao<CommentD
         }, INSERT_COMMENT, comment.getContent(), comment.getWriter().getUserId(), comment.getArticle().getArticleId());
     }
 
+    /**
+     * 게시글에 달린 댓글을 조회한다.
+     *
+     * @param article 댓글을 조회할 게시글
+     * @return 게시글에 달린 댓글 목록
+     */
     public List<Comment> findAllByArticle(Article article) {
         return executeQuery(rs -> {
             List<Comment> list = new ArrayList<>();

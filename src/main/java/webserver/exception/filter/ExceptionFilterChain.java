@@ -1,6 +1,6 @@
 package webserver.exception.filter;
 
-import webserver.enums.HttpStatusCode;
+import webserver.exception.InternalServerError;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
@@ -25,6 +25,7 @@ public class ExceptionFilterChain {
         return this;
     }
 
+
     /**
      * exception을 처리할 수 있는 filter를 찾아서 처리한다.
      * chain of responsibility pattern
@@ -39,10 +40,13 @@ public class ExceptionFilterChain {
                 return filter.catchException(e, request);
             }
         }
-        return defaultResponse();
+        // 예외를 처리할 수 있는 filter가 없다면 500 Internal Server Error 로 바꿔서 시도
+        for (ExceptionFilter filter : filters) {
+            if (filter.canHandle(new InternalServerError("Internal Server Error", e))) {
+                return filter.catchException(e, request);
+            }
+        }
+        throw new IllegalStateException("No ExceptionFilter can handle this exception");
     }
 
-    private HttpResponse defaultResponse() {
-        return new HttpResponse(HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
 }

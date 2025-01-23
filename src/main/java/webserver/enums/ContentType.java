@@ -36,7 +36,7 @@ public enum ContentType {
      * @param extension 파일 확장자
      * @return Content Type. 없다면 binary 파일로 처리
      */
-    public static ContentType of(String extension) {
+    public static ContentType fromExtension(String extension) {
         for (ContentType contentType : values()) {
             if (contentType.fileExtension != null &&
                 contentType.fileExtension.equals(extension)) {
@@ -44,6 +44,15 @@ public enum ContentType {
             }
         }
         // 기본적으로 binary 파일로 처리
+        return APPLICATION_OCTET_STREAM;
+    }
+
+    public static ContentType fromMimeType(String mimeType) {
+        for (ContentType contentType : values()) {
+            if (contentType.mimeType.equals(mimeType)) {
+                return contentType;
+            }
+        }
         return APPLICATION_OCTET_STREAM;
     }
 

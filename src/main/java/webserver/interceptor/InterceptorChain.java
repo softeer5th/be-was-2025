@@ -10,7 +10,7 @@ import java.util.*;
  * 인터셉터의 실행 순서를 관리하는 클래스.<br>
  * 생성법<br>
  * <pre>
- * var chain = InterceptorChain<
+ * var chain = InterceptorChain
  *      .inbound()
  *          .add(interceptor1)
  *          .add(interceptor2)
@@ -23,7 +23,7 @@ import java.util.*;
  *      request----------------┐
  * 1. ┌-interceptor1.preHandle-┘
  * 2. └-interceptor2.preHandle-┐
- * 3. ┌----handler.handle <----┘
+ * 3. ┌----handler.handle------┘
  * 4. └-interceptor3.postHandle-┐
  * 5. ┌-interceptor4.postHandle-┘
  *    └----------------response

@@ -4,21 +4,40 @@
     <meta charset="UTF-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <my-include template="/common/css.html"></my-include>
+    <style>
+        .post__img {
+            overflow: hidden;
+            width: 680px;
+            height: 664px;
+            border-radius: 8px;
+            background-size: 10%;
+            background: #d9d9d9 url("./img/addPicture.svg") no-repeat center center;
+            padding: 8px 16px;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
     <my-include template="/common/header.html"></my-include>
     <div class="page">
         <h2 class="page-title">게시글 작성</h2>
-        <form action="/article" class="form" enctype="application/x-www-form-urlencoded"
+        <form action="/article" class="form" enctype="multipart/form-data"
               method="post">
+            <div class="post__account">
+                <label>
+                    <img class="post__img" id="articleImage"/>
+                    <input accept=".png,.jpg,.jpeg" class="hidden" id="articleImageInput"
+                           name="articleImage" required
+                           type="file">
+                </label>
+            </div>
             <div class="textfield textfield_size_m">
                 <p class="title_textfield">내용</p>
                 <textarea
-                        autocomplete="username"
                         class="input_textfield"
+                        id="content"
                         maxlength="1000"
-                        minlength="0"
+                        minlength="1"
                         name="content"
                         placeholder="글의 내용을 입력하세요"
                         required
@@ -35,5 +54,24 @@
         </form>
     </div>
 </div>
+<script>
+    const articleImageInput = document.getElementById('articleImageInput');
+    const articleImage = document.getElementById('articleImage');
+
+    articleImageInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        articleImage.src = URL.createObjectURL(file);
+    });
+
+    const blankPattern = /^[\s\t\r\n\f]+$/;
+    const content = document.getElementById('content');
+    content.addEventListener("input", e => {
+        if (blankPattern.test(content.value)) {
+            content.setCustomValidity("내용을 입력해주세요.");
+        } else {
+            content.setCustomValidity("");
+        }
+    })
+</script>
 </body>
 </html>

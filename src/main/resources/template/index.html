@@ -12,13 +12,22 @@
     <div class="wrapper">
         <my-if condition="article">
             <div class="post">
-                <div class="post__account">
-                    <img class="post__account__img"/>
-                    <p class="post__account__nickname">
-                        <my-text>${article.writer.name}</my-text>
-                    </p>
-                </div>
-                <img class="post__img"/>
+                <my-text>
+                    <div class="post__account">
+                        <my-if condition="article.writer.profileImagePath">
+                            <img class="post__account__img" src="${article.writer.profileImagePath}"/>
+                        </my-if>
+                        <my-if condition="!article.writer.profileImagePath">
+                            <img class="post__account__img"/>
+                        </my-if>
+                        <p class="post__account__nickname">
+                            ${article.writer.name}
+                        </p>
+                    </div>
+                </my-text>
+                <my-text>
+                    <img class="post__img" src="${article.articleImagePath}"/>
+                </my-text>
                 <div class="post__menu">
                     <ul class="post__menu__personal">
                         <li>
@@ -47,7 +56,12 @@
                     <my-if condition="i < 3">
                         <li class="comment__item">
                             <div class="comment__item__user">
-                                <img class="comment__item__user__img"/>
+                                <my-if condition="comment.writer.profileImagePath">
+                                    <img class="comment__item__user__img" src="${comment.writer.profileImagePath}"/>
+                                </my-if>
+                                <my-if condition="!comment.writer.profileImagePath">
+                                    <img class="comment__item__user__img"/>
+                                </my-if>
                                 <p class="comment__item__user__nickname">${comment.writer.userId}</p>
                             </div>
                             <p class="comment__item__article">
@@ -140,14 +154,23 @@
 <script>
     const showAllBtn = document.getElementById('show-all-btn');
 
-
-    showAllBtn.addEventListener('click', function showHiddenComments() {
-        const comments = document.querySelectorAll('.comment__item.hidden');
-        comments.forEach((comment) => {
-            comment.classList.remove('hidden');
+    if (showAllBtn)
+        showAllBtn.addEventListener('click', function showHiddenComments() {
+            const comments = document.querySelectorAll('.comment__item.hidden');
+            comments.forEach((comment) => {
+                comment.classList.remove('hidden');
+            });
+            showAllBtn.classList.add('hidden');
+            showAllBtn.removeEventListener('click', showHiddenComments);
         });
-        showAllBtn.classList.add('hidden');
-        showAllBtn.removeEventListener('click', showHiddenComments);
+
+    function deleteSrc(e) {
+        e.target.removeAttribute('src')
+        e.target.classList.add('broken-img')
+    }
+
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', deleteSrc)
     });
 </script>
 </body>

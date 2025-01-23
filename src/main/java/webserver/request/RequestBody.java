@@ -12,15 +12,12 @@ import webserver.header.RequestHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import static webserver.enums.ContentType.APPLICATION_X_WWW_FORM_URLENCODED;
-import static webserver.enums.HttpHeader.CONTENT_LENGTH;
-import static webserver.enums.HttpHeader.CONTENT_TYPE;
+import static webserver.enums.HttpHeader.*;
 import static webserver.enums.ParsingConstant.*;
 
 /**
@@ -69,6 +66,23 @@ public class RequestBody {
         return Optional.empty();
     }
 
+    public Multipart getMultipart() {
+        readBodyAsRaw();
+        return parseMultipartFormDataBody(rawBodyCache);
+    }
+
+    private Map<String, String> getAttributeMap(String contentDisposition) {
+        String[] contentDispositionTokens = contentDisposition.split(CONTENT_DISPOSITION_ATTRIBUTE_SEPARATOR.value);
+        if (!"form-data".equals(contentDispositionTokens[0]))
+            throw new IllegalArgumentException("Content-Disposition 헤더가 form-data가 아닙니다.");
+        Map<String, String> attributes = new HashMap<>();
+        for (int j = 1; j < contentDispositionTokens.length; j++) {
+            String[] keyValue = contentDispositionTokens[j].split(CONTENT_DISPOSITION_ATTRIBUTE_KEY_VALUE_SEPARATOR.value);
+            attributes.put(keyValue[0].strip(), keyValue[1].strip().replaceAll("\"", ""));
+        }
+        return attributes;
+    }
+
     // body를 String으로 반환
     private Optional<String> getBodyAsString() {
         if (stringBodyCache != null)
@@ -100,11 +114,7 @@ public class RequestBody {
         if (body == null || body.length == 0)
             return null;
         String bodyString;
-        try {
-            bodyString = URLDecoder.decode(new String(body), DEFAULT_CHARSET.value);
-        } catch (UnsupportedEncodingException e) {
-            throw new BadRequest("Invalid Body Encoding");
-        }
+        bodyString = URLDecoder.decode(new String(body, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
         Map<String, String> bodyMap = new HashMap<>();
 
         String[] tokens = bodyString.split(FORM_URLENCODED_SEPARATOR.value);
@@ -112,17 +122,86 @@ public class RequestBody {
             if (token.isBlank())
                 continue;
             if (token.startsWith(FORM_URLENCODED_KEY_VALUE_SEPARATOR.value)) {
-                bodyMap.put(FORM_URLENCODED_DEFAULT_KEY.value, token.substring(1).strip());
+                bodyMap.put(FORM_URLENCODED_DEFAULT_KEY.value, token.substring(1).replaceAll("\r\n", "\n"));
             } else if (token.endsWith(FORM_URLENCODED_KEY_VALUE_SEPARATOR.value)) {
                 bodyMap.put(token.substring(0, token.length() - 1).strip(), FORM_URLENCODED_DEFAULT_VALUE.value);
             } else {
                 String[] keyValue = token.split(FORM_URLENCODED_KEY_VALUE_SEPARATOR.value, 2);
-                bodyMap.put(keyValue[0].strip(), keyValue[1].strip());
+                bodyMap.put(keyValue[0].strip(), keyValue[1].replaceAll("\r\n", "\n"));
             }
         }
         return bodyMap;
     }
 
+    private Multipart parseMultipartFormDataBody(byte[] body) {
+        if (body == null || body.length == 0)
+            return null;
+        String contentType = headers.getHeader(CONTENT_TYPE.value);
+        if (!contentType.startsWith(ContentType.MULTIPART_FORM_DATA.mimeType))
+            throw new InternalServerError("Content-Type이 multipart/form-data가 아닙니다.");
+
+        // boundary 찾기
+        byte[] boundary = ("--" + contentType.split(MULTIPART_BOUNDARY.value)[1]).getBytes();
+        byte[] crlf = "\r\n".getBytes();
+        List<Multipart.FormData> formDataList = new ArrayList<>();
+
+        // 현재 boundary의 시작 index
+        int boundaryIndex = indexOf(body, boundary, 0);
+        while (boundaryIndex < body.length) {
+            // 다음 boundary의 시작 index
+            int nextBoundaryIndex = indexOf(body, boundary, boundaryIndex + boundary.length);
+            if (nextBoundaryIndex == -1) break;
+
+            // 현재 boundary와 다음 boundary 사이의 데이터를 part로 저장
+            byte[] part = Arrays.copyOfRange(body, boundaryIndex + boundary.length + crlf.length, nextBoundaryIndex);
+
+            // part를 파싱하여 FormData로 변환
+            Multipart.FormData formData = parseFormData(part);
+            if (formData != null)
+                formDataList.add(formData);
+            boundaryIndex = nextBoundaryIndex;
+        }
+        return new Multipart(formDataList);
+
+    }
+
+    // array에서 target의 시작 index를 반환
+    private int indexOf(byte[] array, byte[] target, int start) {
+        outer:
+        for (int i = start; i <= array.length - target.length; i++) {
+            for (int j = 0; j < target.length; j++) {
+                if (array[i + j] != target[j])
+                    continue outer;
+            }
+            return i;
+        }
+        return -1;
+    }
+
+    private Multipart.FormData parseFormData(byte[] part) {
+
+        // header의 끝 구분자인 CRLFCRLF의 index를 찾음
+        int i = indexOf(part, CRLFCRLF.value.getBytes(), 0);
+
+        // header를 분리
+        String formDataHeader = new String(part, 0, i).strip();
+
+        Map<String, String> headers = new HashMap<>();
+        // header를 라인별로 분리하여 헤더 이름, 값을 Map에 저장
+        String[] headerLines = formDataHeader.split(CRLF.value);
+        for (String headerLine : headerLines) {
+            String[] keyValue = headerLine.split(HEADER_KEY_SEPARATOR.value);
+            headers.put(keyValue[0].strip(), keyValue[1].strip());
+        }
+        String contentDisposition = headers.get(CONTENT_DISPOSITION.value);
+        // Content-Disposition 의 atturiubte를 파싱하여 Map으로 저장
+        Map<String, String> attributes = getAttributeMap(contentDisposition);
+        // body를 추출
+        byte[] body = Arrays.copyOfRange(part, i + CRLFCRLF.value.getBytes().length, part.length - CRLF.value.getBytes().length);
+        if (body.length == 0)
+            return null;
+        return new Multipart.FormData(headers, attributes, body);
+    }
 
     // body InputStream 을 읽어서 rawBodyCache에 저장
     private void readBodyAsRaw() {

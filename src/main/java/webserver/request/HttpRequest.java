@@ -70,6 +70,10 @@ public class HttpRequest {
         return bodyParser.getBody(clazz);
     }
 
+    public Multipart getMultipart() {
+        return bodyParser.getMultipart();
+    }
+
     /**
      * 요청 헤더에 있는 HTTP 버전이 지원하는 버전인지 확인한다.
      *

@@ -1,6 +1,7 @@
 package util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class ReflectionUtil {
         candidateMethods.add(fieldName);
         Optional<Object> result;
         for (String method : candidateMethods) {
-            result = ignoreException(() -> clazz.getDeclaredMethod(method).invoke(object));
+            result = findMethod(clazz, method).flatMap(m -> ignoreException(() -> m.invoke(object)));
             if (result.isPresent())
                 return result;
 
@@ -110,6 +111,18 @@ public class ReflectionUtil {
         });
     }
 
+    private static Optional<Method> findMethod(Class<?> clazz, String methodName) {
+        while (clazz != null) {
+            try {
+                Method method = clazz.getDeclaredMethod(methodName);
+                return Optional.of(method);
+            } catch (NoSuchMethodException e) {
+                // 현재 클래스에 메서드가 없으면 슈퍼클래스로 이동
+                clazz = clazz.getSuperclass();
+            }
+        }
+        return Optional.empty();
+    }
 
     private static String toCamelCase(String prefix, String fieldName) {
         return prefix.toLowerCase() + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);

@@ -2,6 +2,7 @@ package webserver.handler;
 
 import util.FileUtil;
 import webserver.enums.HttpStatusCode;
+import webserver.exception.NotFound;
 import webserver.file.StaticResourceManager;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
@@ -47,8 +48,7 @@ public class ServeStaticFileHandler implements HttpHandler {
                     response.setBody(file);
                     return response;
                 })
-                .orElseGet(() ->
-                        new HttpResponse(HttpStatusCode.NOT_FOUND));
+                .orElseThrow(() -> new NotFound("File not found"));
     }
 
 }
