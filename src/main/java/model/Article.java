@@ -13,6 +13,17 @@ public class Article {
         this.imgUrl = imgUrl;
     }
 
+    public Article(String userId, String content, String imgUrl) {
+        this.id = 0;
+        this.userId = userId;
+        this.content = content;
+        this.imgUrl = imgUrl;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
     public String getContent() {
         return content;
     }
