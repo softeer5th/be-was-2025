@@ -1,7 +1,7 @@
 package http.request;
 
 public enum HttpHeader {
-    CONTENT_LENGTH("content-length"), COOKIE("cookie");
+    CONTENT_TYPE("content-type"), CONTENT_LENGTH("content-length"), COOKIE("cookie");
 
     String name;
 

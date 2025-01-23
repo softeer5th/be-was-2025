@@ -14,10 +14,12 @@ public class HttpRequest {
     private HttpMethod method;
     private String path;
     private String protocol;
+    private String boundary;
     private final Map<String, String> queryParams = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
     private final Map<String, Cookie> cookies = new HashMap<>();
 
+    private final Map<String, MultipartPart> multipartParts = new HashMap<>();
     private byte[] body;
 
     public HttpRequest(){}
@@ -77,6 +79,22 @@ public class HttpRequest {
 
     public void addCookie(Cookie cookie){
         cookies.put(cookie.getName().toLowerCase(), cookie);
+    }
+
+    public void setBoundary(String boundary){
+        this.boundary = boundary;
+    }
+
+    public String getBoundary(){
+        return this.boundary;
+    }
+
+    public void addMultipartPart(String name, MultipartPart part){
+        this.multipartParts.put(name, part);
+    }
+
+    public MultipartPart getMultipartPart(String name){
+        return this.multipartParts.get(name);
     }
 
     public Map<String, String> convertBodyToMap(){
