@@ -1,6 +1,5 @@
 package handler.request;
 
-import handler.mapping.DynamicHtmlHandlerMapping;
 import http.cookie.Cookie;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 public class FileRequestHandler implements RequestHandler{
-    private final DynamicHtmlHandlerMapping dynamicHtmlHandlerMapping = DynamicHtmlHandlerMapping.getInstance();
     private final Map<String, DynamicDataProvider> dynamicDataProviderMap = new HashMap<>();
     private final List<String> restrictedPathsForUser = Arrays.asList("/mypage", "/write");
     private final SessionManager sessionManager = SessionManager.getInstance();
