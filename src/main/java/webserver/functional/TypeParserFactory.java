@@ -1,6 +1,7 @@
 package webserver.functional;
 
 import webserver.exception.HTTPException;
+import webserver.message.record.FileRecord;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,20 +9,23 @@ import java.util.Map;
 public class TypeParserFactory {
     private static final Map<Class<?>, TypeParser> typeParsers = new HashMap<>() {{
         put(String.class, (value -> value));
-        put(Integer.class, (Integer::parseInt));
-        put(Double.class, (Double::parseDouble));
-        put(Long.class, (Long::parseLong));
-        put(Boolean.class, (Boolean::parseBoolean));
-        put(Float.class, (Float::parseFloat));
-        put(Byte.class, (Byte::parseByte));
-        put(Short.class, (Short::parseShort));
+        put(Integer.class, (value -> Integer.parseInt((String) value)));
+        put(Double.class, (value -> Double.parseDouble((String) value)));
+        put(Long.class, (value -> Long.parseLong((String)value)));
+        put(Boolean.class,(value -> Boolean.parseBoolean((String) value)));
+        put(Float.class, ((value) -> Float.parseFloat((String)value)));
+        put(Byte.class, ((v) -> Byte.parseByte((String)v)));
+        put(Short.class, ((v) -> Short.parseShort((String)v)));
 
-        put(int.class, (Integer::parseInt));
-        put(double.class, (Double::parseDouble));
-        put(long.class, (Long::parseLong));
-        put(boolean.class, (Boolean::parseBoolean));
-        put(float.class, (Float::parseFloat));
-        put(byte.class, (Byte::parseByte));
+        put(int.class, (value -> Integer.parseInt((String) value)));
+        put(double.class, (value -> Double.parseDouble((String) value)));
+        put(long.class,  (value -> Long.parseLong((String)value)));
+        put(boolean.class, (value -> Boolean.parseBoolean((String) value)));
+        put(float.class, ((value) -> Float.parseFloat((String)value)));
+        put(byte.class, ((v) -> Byte.parseByte((String)v)));
+        put(short.class, ((v) -> Short.parseShort((String)v)));
+
+        put(FileRecord.class, (value -> (FileRecord)value));
     }};
 
     public static TypeParser getTypeParser(Class<?> targetType) {
