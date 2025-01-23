@@ -22,7 +22,7 @@ public class JdbcArticleDataManager implements ArticleDataManger {
     @Override
     public void addArticle(Article article) {
         logger.info("Add Article SQL");
-        String sql = "INSERT INTO Articles (userId, content) VALUES (?, ?)";
+        String sql = "INSERT INTO Articles (user_id, content) VALUES (?, ?)";
 
         try (Connection conn = JdbcUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -42,7 +42,7 @@ public class JdbcArticleDataManager implements ArticleDataManger {
 
     @Override
     public Collection<Article> findArticleByUser(User user) {
-        String sql = "SELECT * FROM Articles WHERE userId = ?";
+        String sql = "SELECT * FROM Articles WHERE user_id = ?";
 
         List<Article> articles = new ArrayList<>();
         try (Connection conn = JdbcUtil.getConnection();
