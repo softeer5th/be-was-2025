@@ -62,7 +62,7 @@ public class ArticleServlet implements Servlet {
 	}
 
 	private void doPost(HttpRequest request, HttpResponse response) {
-		List<Map<String, String>> body = request.getBodyAsMultipart();
+		List<Map<String, Object>> body = request.getBodyAsMultipart();
 		if (body.isEmpty()) {
 			throw new IllegalArgumentException("입력값이 잘못되었습니다.");
 		}
@@ -70,9 +70,10 @@ public class ArticleServlet implements Servlet {
 		HttpSession session = HttpSessionStorage.getSession(request.getSessionId());
 		User user = (User)session.getAttribute("user");
 
-		String content = body.get(0).get("body");
-		byte[] imageBytes = body.get(1).get("body").getBytes(StandardCharsets.ISO_8859_1);
-		Article article = new Article(content, user.getUserId(), imageBytes);
+		Object o = body.get(0).get("body");
+		String content = (String)o;
+		byte[] image = (byte[]) body.get(1).get("body");
+		Article article = new Article(content, user.getUserId(), image);
 		articleDatabase.save(article);
 
 		response.setStatusCode(HttpStatus.FOUND);

@@ -67,7 +67,7 @@ public class HttpRequest {
 	public String getSessionId() {
 		return headers.getSessionId();
 	}
-	public List<Map<String, String>> getBodyAsMultipart(){
+	public List<Map<String, Object>> getBodyAsMultipart(){
 		return body.getBodyAsMultipart(headers);
 	}
 }

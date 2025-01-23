@@ -99,50 +99,111 @@ public class HttpRequestBody {
 		return Optional.ofNullable(resultMap);
 	}
 
-	public List<Map<String, String>> getBodyAsMultipart(HttpHeaders headers) {
-		// Content-Type 헤더가 없으면 예외 처리
+	public List<Map<String, Object>> getBodyAsMultipart(HttpHeaders headers) {
+		// Content-Type 헤더에서 boundary 추출
 		String contentType = headers.getHeader(CONTENT_TYPE.getValue())
 			.stream()
 			.findFirst()
 			.orElseThrow(() -> new IllegalArgumentException("Missing Content-Type header"));
 
-		// Content-Type이 multipart로 시작하지 않으면 예외 처리
 		if (!contentType.contains(MULTIPART_FORM_DATA.getMimeType())) {
 			throw new IllegalArgumentException("Content-Type is not multipart");
 		}
 
-		// Boundary 값 추출
 		String boundary = extractBoundary(contentType);
 		if (boundary == null) {
 			throw new IllegalArgumentException("Boundary parameter is missing in Content-Type");
 		}
 
-		// multipart 형식 본문을 처리
-		String bodyString = new String(body, StandardCharsets.ISO_8859_1);
-		List<Map<String, String>> parts = new ArrayList<>();
+		// boundary로 본문을 나누기
+		List<Map<String, Object>> parts = new ArrayList<>();
+		byte[] boundaryBytes = (BOUNDARY_PREFIX + boundary).getBytes(StandardCharsets.ISO_8859_1);
+		byte[] bodyCopy = this.body; // 원본 유지
 
-		// Boundary로 본문을 나누고, 각 파트를 처리
-		String[] rawParts = bodyString.split(BOUNDARY_PREFIX + boundary);
-		for (String rawPart : rawParts) {
-			rawPart = rawPart.trim();
-			if (rawPart.isEmpty() || rawPart.equals(BOUNDARY_PREFIX)) continue;
+		int start = 0;
+		while (start < bodyCopy.length) {
+			int boundaryIndex = findBoundary(bodyCopy, start, boundaryBytes);
+			if (boundaryIndex == -1) break;
 
-			// 파트 본문을 헤더와 본문으로 나눔
-			String[] partLines = rawPart.split(HEADER_BODY_SEPARATOR, 2);
-			if (partLines.length < 2) continue;
+			// boundary 사이의 파트를 추출
+			int nextPartIndex = findBoundary(bodyCopy, boundaryIndex + boundaryBytes.length, boundaryBytes);
+			if (nextPartIndex == -1) break;
 
-			// 각 파트를 헤더와 본문으로 나누어 저장
-			String headersPart = partLines[0];
-			String bodyPart = partLines[1].trim();
+			byte[] partBytes = extractBytes(bodyCopy, boundaryIndex + boundaryBytes.length, nextPartIndex);
+			Map<String, Object> part = parseMultipartPart(partBytes);
+			if (!part.isEmpty()) {
+				parts.add(part);
+			}
 
-			Map<String, String> partData = new HashMap<>();
-			partData.put("headers", parseHeaders(headersPart).toString());
-			partData.put("body", bodyPart);
-
-			parts.add(partData);
+			start = nextPartIndex;
 		}
 
 		return parts;
+	}
+
+	// boundary 위치 찾기
+	private int findBoundary(byte[] body, int start, byte[] boundary) {
+		for (int i = start; i <= body.length - boundary.length; i++) {
+			boolean match = true;
+			for (int j = 0; j < boundary.length; j++) {
+				if (body[i + j] != boundary[j]) {
+					match = false;
+					break;
+				}
+			}
+			if (match) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	// 배열의 부분 추출
+	private byte[] extractBytes(byte[] body, int start, int end) {
+		byte[] result = new byte[end - start];
+		System.arraycopy(body, start, result, 0, result.length);
+		return result;
+	}
+
+	// 파트의 헤더와 바디 분리 및 처리
+	private Map<String, Object> parseMultipartPart(byte[] partBytes) {
+		Map<String, Object> part = new HashMap<>();
+		int headerEndIndex = findHeaderBodySeparator(partBytes);
+		if (headerEndIndex == -1) return part;
+
+		byte[] headerBytes = extractBytes(partBytes, 0, headerEndIndex);
+		byte[] bodyBytes = extractBytes(partBytes, headerEndIndex + HEADER_BODY_SEPARATOR.length(), partBytes.length);
+
+		Map<String, String> headers = parseHeaders(new String(headerBytes, StandardCharsets.ISO_8859_1));
+		part.put("headers", headers);
+
+		if (headers.containsKey("Content-Disposition") && headers.get("Content-Disposition").contains("filename=")) {
+			// 파일 데이터로 저장
+			part.put("body", bodyBytes);
+		} else {
+			// 일반 텍스트로 처리
+			part.put("body", new String(bodyBytes, StandardCharsets.UTF_8));
+		}
+
+		return part;
+	}
+
+	// 헤더와 본문 구분자 찾기
+	private int findHeaderBodySeparator(byte[] partBytes) {
+		byte[] separatorBytes = HEADER_BODY_SEPARATOR.getBytes(StandardCharsets.ISO_8859_1);
+		for (int i = 0; i <= partBytes.length - separatorBytes.length; i++) {
+			boolean match = true;
+			for (int j = 0; j < separatorBytes.length; j++) {
+				if (partBytes[i + j] != separatorBytes[j]) {
+					match = false;
+					break;
+				}
+			}
+			if (match) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	private String extractBoundary(String contentType) {
