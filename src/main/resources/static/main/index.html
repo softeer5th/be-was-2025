@@ -87,6 +87,10 @@
         </li>
       </ul>
     </nav>
+
+    <div style="text-align: center; margin-top: 24px;">
+      <a class="btn btn_contained btn_size_s" id="write-btn2" href="#">글쓰기</a>
+    </div>
   </div>
 </div>
 
@@ -155,6 +159,7 @@
         accountImg.style.borderRadius = "50%";
       } else {
         accountImg.removeAttribute("src");
+        accountImg.removeAttribute("alt");
         accountImg.style.backgroundColor = "#ccc";
         accountImg.style.width = "40px";
         accountImg.style.height = "40px";
@@ -167,6 +172,7 @@
         postImg.src = `data:image/png;base64,${base64Image}`;
       } else {
         postImg.removeAttribute("src");
+        postImg.removeAttribute("alt");
       }
 
       renderComments(comments);
@@ -281,6 +287,22 @@
         window.location.href = "/write.html";
       } else {
         alert("로그인이 필요한 서비스입니다.");
+        window.location.href = "/user/login.html";
+      }
+    } catch (error) {
+      console.error("글쓰기 버튼 클릭 중 오류:", error);
+      window.location.href = "/user/login.html";
+    }
+  });
+
+  document.getElementById("write-btn2").addEventListener("click", async () => {
+    try {
+      const res = await fetch("/api/user/validate");
+      const data = await res.json();
+      if (data.isSuccess) {
+        window.location.href = "/write.html";
+      } else {
+        alert("로그인 후 이용할 수 있어요!");
         window.location.href = "/user/login.html";
       }
     } catch (error) {
