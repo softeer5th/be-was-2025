@@ -21,6 +21,7 @@ public class ResponseBuilder {
             "/post/add", new AddPostHandler(),
             "/comment/add", new AddCommentHandler(),
             "/user/profile/modify", new ModifyProfileImageHandler(),
+            "/user/profile/reset", new ResetProfileImageHandler(),
             "default", new Page404Handler()
     );
 
