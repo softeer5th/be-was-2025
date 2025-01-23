@@ -6,10 +6,10 @@ public class Post {
     private int id;
     private final String contents;
     private final String file;
-    private final String author;
+    private final int author;
     private LocalDateTime createdAt;
 
-    public Post(int id, String contents,String file, String author, LocalDateTime createdAt) {
+    public Post(int id, String contents,String file, int author, LocalDateTime createdAt) {
         this.id = id;
         this.contents = contents;
         this.file = file;
@@ -17,7 +17,7 @@ public class Post {
         this.createdAt = createdAt;
     }
 
-    public Post(String contents,String file, String author) {
+    public Post(String contents,String file, int author) {
         this.contents = contents;
         this.file = file;
         this.author = author;
@@ -35,7 +35,7 @@ public class Post {
         return id;
     }
 
-    public String getAuthor() {
+    public int getAuthor() {
         return author;
     }
 

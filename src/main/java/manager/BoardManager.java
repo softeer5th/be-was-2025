@@ -6,6 +6,7 @@ import db.PostLikeDatabase;
 import exception.ClientErrorException;
 import exception.ServerErrorException;
 import model.Post;
+import model.User;
 import request.BoardRequest;
 
 import java.io.FileOutputStream;
@@ -55,7 +56,7 @@ public class BoardManager {
      * @param author  게시글 작성자
      * @throws ClientErrorException 내용이 비어있거나 너무 긴 경우 예외 발생
      */
-    public void save(BoardRequest request, String author) {
+    public void save(BoardRequest request, User author) {
 
         if (request.content().length() > 500)
             throw new ClientErrorException(EXCEED_POST_LENGTH);
@@ -77,10 +78,10 @@ public class BoardManager {
             } catch (IOException e) {
                 throw new ServerErrorException(ERROR_WHILE_SAVING_FILE);
             }
-            post = new Post(request.content(), filePath, author);
+            post = new Post(request.content(), filePath, author.getId());
         }
         // 파일 없을 경우..
-        else post = new Post(request.content(), null, author);
+        else post = new Post(request.content(), null, author.getId());
 
         postDatabase.addPost(post);
     }

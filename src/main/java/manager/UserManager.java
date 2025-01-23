@@ -152,4 +152,9 @@ public class UserManager {
     public void deleteProfileImage(User user) {
         userDatabase.deleteProfile(user.getId());
     }
+
+    public User getUserOrElseThrow(int id){
+        return userDatabase.findUserById(id)
+                .orElseThrow(()-> new ClientErrorException(NO_SUCH_USER_ID));
+    }
 }

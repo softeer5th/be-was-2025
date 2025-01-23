@@ -75,7 +75,7 @@ public class BoardHandler implements Handler {
             final String cookie = request.getHeaderValue(HttpHeader.COOKIE.getName());
             final User author = userManager.getUserFromSession(CookieParser.parseCookie(cookie))
                     .orElseThrow(() -> new ClientErrorException(INVALID_AUTHORITY));
-            boardManager.save(boardRequest, author.getName());
+            boardManager.save(boardRequest, author);
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeader(HttpHeader.LOCATION.getName(), HOME_PATH);
 

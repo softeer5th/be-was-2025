@@ -6,11 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
 
 import static exception.ErrorCode.ERROR_WITH_DATABASE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 게시물 관리와 관련된 데이터베이스 접근 객체입니다.
@@ -50,10 +50,10 @@ public class PostDatabase {
         try (Connection conn = DBConnectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-            pstmt.setString(1, post.getContents());
+            pstmt.setString(1, URLDecoder.decode(post.getContents(), UTF_8));
             pstmt.setString(2,post.getFile());
             pstmt.setTimestamp(3, Timestamp.from(Instant.now()));
-            pstmt.setString(4, URLDecoder.decode(post.getAuthor(), StandardCharsets.UTF_8));
+            pstmt.setInt(4, post.getAuthor());
 
             final int id = pstmt.executeUpdate();
             logger.debug("Add post: " + post);
@@ -90,7 +90,7 @@ public class PostDatabase {
                             rs.getInt("id"),
                             rs.getString("content"),
                             rs.getString("file"),
-                            rs.getString("author"),
+                            rs.getInt("author"),
                             rs.getTimestamp("created_at").toLocalDateTime()
                     );
                     logger.debug("Fetched post: " + post);

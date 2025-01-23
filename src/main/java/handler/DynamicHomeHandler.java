@@ -135,15 +135,18 @@ public class DynamicHomeHandler implements Handler {
             postContent.append("<h2> 글이 없어요 ㅜㅜ </h2>");
             return;
         }
+        final User author = userManager.getUserOrElseThrow(post.getAuthor());
         postContent
                 .append("""
                            <div class="wrapper">
                         <div class="post">
                           <div class="post__account">
-                            <img class="post__account__img" src = "/img/img.png"/>
+                          """)
+                .append(addProfileImage(author.getProfile()))
+                .append("""
                             <p class="post__account__nickname">
                         """)
-                .append(post.getAuthor())
+                .append(URLDecoder.decode(author.getName(), UTF_8))
                 .append("""
                         </p>
                         <p class="post__createdAt">""")
@@ -152,7 +155,7 @@ public class DynamicHomeHandler implements Handler {
                         </p>
                         </div>
                         """)
-                .append(addPostImage(post.getFile()))
+                .append(addImage(post.getFile()))
                 .append("""
                         <div class="post__menu">
                           <ul class="post__menu__personal">
@@ -209,7 +212,13 @@ public class DynamicHomeHandler implements Handler {
         }
     }
 
-    private String addPostImage(String file) {
+    private String addProfileImage(String file) {
+        if (file == null)
+            return "<img class = \"post__account__img\" src = \"/img/default.png\" /> ";
+        return String.format("<img class = \"post__account__img\" src = \"/img/%s\" />", file);
+    }
+
+    private String addImage(String file) {
         if (file == null)
             return "<img class = \"post__img\" src = \"/img/default.png\" /> ";
         return String.format("<img class = \"post__img\" src = \"/img/%s\" />", file);
