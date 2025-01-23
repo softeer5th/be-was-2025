@@ -95,7 +95,7 @@ public class UserDatabase {
 			ResultSet resultSet = statement.executeQuery();
 
 			if (!resultSet.next()) {
-				throw new IllegalArgumentException("N is out of bounds");
+				return Optional.empty();
 			}
 
 			User user = new User(
@@ -116,4 +116,43 @@ public class UserDatabase {
 	public User findUserByIdOrThrow(String userId) {
 		return findUserById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
 	}
+
+	public void updateUser(User user) {
+		String query = """
+        UPDATE user
+        SET password = ?, name = ?, email = ?, image = ?
+        WHERE user_id = ?
+    """;
+
+		try (Connection connection = dataSource.getConnection();
+			 PreparedStatement statement = connection.prepareStatement(query)) {
+
+			// 업데이트할 값들 설정
+			statement.setString(1, user.getPassword());
+			statement.setString(2, user.getName());
+			statement.setString(3, user.getEmail());
+
+			// 이미지가 null이 아닌 경우에만 설정 (null일 수 있음)
+			if (user.getImage() != null) {
+				ByteArrayInputStream imageInputStream = new ByteArrayInputStream(user.getImage());
+				statement.setBlob(4, imageInputStream);
+			} else {
+				statement.setNull(4, java.sql.Types.BLOB);  // 이미지가 없으면 null로 설정
+			}
+
+			// user_id 설정
+			statement.setString(5, user.getUserId());
+
+			// 실행
+			int rowsUpdated = statement.executeUpdate();
+
+			if (rowsUpdated == 0) {
+				throw new IllegalArgumentException("No user found with ID: " + user.getUserId());
+			}
+
+		} catch (SQLException e) {
+			throw new RuntimeException("Error updating user", e);
+		}
+	}
+
 }

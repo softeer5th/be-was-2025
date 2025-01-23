@@ -21,6 +21,20 @@ public class User {
         }
     }
 
+    public void updateUser(String name, byte[] image, String password, String passwordConfirm){
+
+        if(!this.password.equals(password)){
+            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+        }
+
+        if(!password.equals(passwordConfirm)){
+            throw new IllegalArgumentException("입력 비밀번호가 서로 다릅니다.");
+        }
+
+        this.name = name;
+        this.image = image;
+    }
+
     public String getUserId() {
         return userId;
     }
