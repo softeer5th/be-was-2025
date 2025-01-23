@@ -1,47 +1,59 @@
 package db;
 
+import DAO.ArticleDAO;
+import DAO.SessionDAO;
+import DAO.UserDAO;
 import model.*;
 import webserver.HTTPExceptions;
 import model.Session;
 
 import java.time.LocalTime;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Database {
-    private static Map<String, User> users = new ConcurrentHashMap<>();
-    private static Map<String, Session> sessions = new ConcurrentHashMap<>();
-    private static ConcurrentSkipListMap<String, Article> articles = new ConcurrentSkipListMap<>();
+    private static UserDAO userDAO = new UserDAO();
+    private static SessionDAO sessionDAO = new SessionDAO();
+    private static ArticleDAO articleDAO = new ArticleDAO();
 
     public static void addUser(User user) {
-        users.put(user.getUserId(), user);
+        userDAO.addUser(user);
     }
 
     public static void addSession(Session session) {
-        sessions.put(session.getSessionId(), session);
+        sessionDAO.addSession(session);
     }
 
     public static void addArticle(Article article) {
-        articles.put(article.getArticleId(), article);
+        articleDAO.addArticle(article);
     }
 
     public static User getUserById(String userId) {
-        return users.get(userId);
+        return userDAO.getUserById(userId);
     }
 
     public static Session getSessionById(String sessionId) {
-        return sessions.get(sessionId);
+        return sessionDAO.getSessionById(sessionId);
     }
 
     public static int getSessionMaxInactiveInterval(String sessionId) {
-        Session session = getSessionById(sessionId);
+        int maxInactiveInterval = sessionDAO.getSessionMaxInactiveInterval(sessionId);
 
-        if (session == null) {
+        if (maxInactiveInterval == -1) {
             throw new HTTPExceptions.Error403("session not found");
         }
 
-        return session.getMaxInactiveInterval();
+        return maxInactiveInterval;
+    }
+
+    public static Article getLatestArticle() {
+        return articleDAO.getLatestArticle();
+    }
+
+    public static Article getNextArticle(int articleId) {
+        return articleDAO.getNextArticle(articleId);
+    }
+
+    public static Article getPreviousArticle(int articleId) {
+        return articleDAO.getPreviousArticle(articleId);
     }
 
     public static void updateSessionLastAccessTime(String sessionId, LocalTime time) {
@@ -51,11 +63,10 @@ public class Database {
             throw new HTTPExceptions.Error403("session not found");
         }
 
-        session.setLastAccessTime(time);
-
+        sessionDAO.updateSessionLastAccessTime(sessionId, time);
     }
 
     public static void deleteSession(String sessionId) {
-        sessions.remove(sessionId);
+        sessionDAO.deleteSession(sessionId);
     }
 }
