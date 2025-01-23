@@ -20,9 +20,9 @@ public class HttpRequest {
 
     public HttpRequest(List<String> headerLines, BufferedReader br) throws IOException {
         headers = new HashMap<>();
-        log();
         setHeader(headerLines);
         setBody(br);
+        log();
     }
 
     private void setBody(BufferedReader br) throws IOException {
@@ -111,7 +111,7 @@ public class HttpRequest {
         throw new ExceptionInInitializerError("Can't Find content-length");
     }
 
-    public void log() {
+    private void log() {
         StringBuilder logMessageBuilder = new StringBuilder();
         logMessageBuilder.append("\nHeader : {\n");
         logMessageBuilder.append("method : " + httpMethod).append(' ').append("path : " + requestPath).append('\n');
