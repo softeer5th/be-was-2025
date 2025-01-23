@@ -3,7 +3,7 @@ package handler;
 import db.SessionDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
-import exception.UserErrorCode;
+import exception.SessionErrorCode;
 import http.Cookie;
 import http.HttpRequestInfo;
 import http.HttpResponse;
@@ -54,18 +54,18 @@ public class UserLogoutHandler implements Handler {
 
         if (sessionCookie == null) {
             logger.error("No session cookie found in request");
-            throw new BaseException(UserErrorCode.MISSING_SESSION);
+            throw new BaseException(SessionErrorCode.MISSING_SESSION);
         }
 
         String sessionId = sessionCookie.getValue();
         if (sessionId.isEmpty()) {
             logger.error("Session cookie is empty");
-            throw new BaseException(UserErrorCode.INVALID_SESSION);
+            throw new BaseException(SessionErrorCode.INVALID_SESSION);
         }
 
-        if (sessionDataManager.findUserBySessionID(sessionId) == null) {
+        if (sessionDataManager.findUserIdBySessionID(sessionId) == null) {
             logger.error("Invalid session ID: sid={}", sessionId);
-            throw new BaseException(UserErrorCode.USER_NOT_FOUND_FOR_SESSION);
+            throw new BaseException(SessionErrorCode.USER_NOT_FOUND_FOR_SESSION);
         }
 
         return sessionId;

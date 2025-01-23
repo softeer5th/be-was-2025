@@ -9,9 +9,7 @@ public enum UserErrorCode implements ErrorCode {
     INVALID_NICKNAME(HttpStatus.BAD_REQUEST, "잘못된 닉네임 형식입니다. (한글, 영문, 숫자 2~10자)"),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호는 8~20자이며, 영문, 숫자, 특수문자를 포함해야 합니다."),
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, "잘못된 이메일 형식입니다."),
-    DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 아이디입니다."),
-    MISSING_SESSION(HttpStatus.UNAUTHORIZED, "세션 정보가 없습니다."),
-    INVALID_SESSION(HttpStatus.UNAUTHORIZED, "유효하지 않은 세션입니다.");
+    DUPLICATE_USER_ID(HttpStatus.CONFLICT, "이미 존재하는 아이디입니다.");
 
     private final HttpStatus status;
     private final String message;
