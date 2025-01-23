@@ -22,6 +22,16 @@ public class Multipart {
         }
     }
 
+    private static boolean isJpg(byte[] header) {
+        return header[0] == (byte) 0xFF && header[1] == (byte) 0xD8;
+    }
+
+    private static boolean isPng(byte[] header) {
+        return header[0] == (byte) 0x89 && header[1] == (byte) 0x50 &&
+               header[2] == (byte) 0x4E && header[3] == (byte) 0x47 &&
+               header[4] == (byte) 0x0D && header[5] == (byte) 0x0A &&
+               header[6] == (byte) 0x1A && header[7] == (byte) 0x0A;
+    }
 
     /**
      * multipart/form-data로 전송된 데이터를 문자열로 반환한다.
@@ -60,15 +70,18 @@ public class Multipart {
     }
 
     public String saveFile(String name, FileUploader fileUploader) {
+        log.debug("saveFile formadata: {}", formData.get(name).toString());
         validateFile(name);
         FormData data = formData.get(name);
         String filename = data.filename;
-        if (data.contentType.fileExtension != null &&
-            !filename.endsWith(data.contentType.fileExtension)) {
-            filename += "." + data.contentType.fileExtension;
+        String extension = "";
+        if (isJpg(data.body)) {
+            extension = ".jpg";
+        } else if (isPng(data.body)) {
+            extension = ".png";
         }
-        log.info("upload file request: filename: {}, content type: {}", data.filename, data.contentType.mimeType);
-        return fileUploader.uploadFile(filename, data.body);
+
+        return fileUploader.uploadFile(filename + extension, data.body);
     }
 
     private void validateFile(String name) {
@@ -100,6 +113,17 @@ public class Multipart {
 
         public boolean isFile() {
             return filename != null;
+        }
+
+        @Override
+        public String toString() {
+            return "FormData{" +
+                   "name='" + name + '\'' +
+                   ", filename='" + filename + '\'' +
+                   ", contentType=" + contentType +
+                   " body length=" + body.length +
+                   ", body=" + new String(body) +
+                   '}';
         }
     }
 

@@ -39,7 +39,15 @@ public class MypageHandler implements HttpHandler {
     }
 
     /**
-     * 마이페이지 정보를 수정한다
+     * <pre>
+     * 마이페이지 정보를 수정한다.
+     * body 형식
+     * String currentPassword: 현재 비밀번호
+     * String name: 변경할 이름
+     * String newPassword: 변경할 비밀번호
+     * Boolean deleteProfileImage: 프로필 이미지 삭제 여부
+     * File profileImage: 변경할 프로필 이미지
+     * </pre>
      */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
@@ -81,7 +89,7 @@ public class MypageHandler implements HttpHandler {
         if (deleteProfileImage == null)
             deleteProfileImage = false;
         String profileImagePath = null;
-        if (!deleteProfileImage)
+        if (!deleteProfileImage && multipart.has("profileImage"))
             profileImagePath = multipart.saveFile("profileImage", uploader);
         return new UserUpdateRequest(name, newPassword, currentPassword, deleteProfileImage, profileImagePath);
     }

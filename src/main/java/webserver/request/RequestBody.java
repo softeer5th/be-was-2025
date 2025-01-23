@@ -157,7 +157,8 @@ public class RequestBody {
             String s = new String(part);
 
             Multipart.FormData formData = parseFormData(part);
-            formDataList.add(formData);
+            if (formData != null)
+                formDataList.add(formData);
             boundaryIndex = nextBoundaryIndex;
         }
         return new Multipart(formDataList);
@@ -192,6 +193,8 @@ public class RequestBody {
         Map<String, String> attributes = getAttributeMap(contentDisposition);
         byte[] body = Arrays.copyOfRange(part, i + CRLFCRLF.value.getBytes().length, part.length - CRLF.value.getBytes().length);
         System.out.println("body=" + new String(body) + ";;");
+        if (body.length == 0)
+            return null;
         return new Multipart.FormData(headers, attributes, body);
     }
 
