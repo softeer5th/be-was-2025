@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DefaultPageHandler implements RequestProcessor {
     @Override
-    public HTTPResponse handle(HTTPRequestHeader requestHeader, HTTPRequestBody requestBody, HTTPResponseHeader responseHeader, List<Cookie> cookieList) throws IOException {
+    public HTTPResponse handle(HTTPRequestHeader requestHeader, HTTPRequestBody requestBody, String queryParams, HTTPResponseHeader responseHeader, List<Cookie> cookieList) throws IOException {
         HTTPResponseBody responseBody = null;
 
         try {

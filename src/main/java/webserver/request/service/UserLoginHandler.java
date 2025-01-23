@@ -23,7 +23,7 @@ public class UserLoginHandler implements RequestProcessor {
     static final int MAX_LOGIN_SESSION_TIME = 3600;
 
     @Override
-    public HTTPResponse handle(HTTPRequestHeader requestHeader, HTTPRequestBody requestBody, HTTPResponseHeader responseHeader, List<Cookie> cookieList) throws IOException {
+    public HTTPResponse handle(HTTPRequestHeader requestHeader, HTTPRequestBody requestBody, String queryParams, HTTPResponseHeader responseHeader, List<Cookie> cookieList) throws IOException {
         HTTPResponseBody responseBody = null;
 
         try {
