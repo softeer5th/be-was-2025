@@ -16,6 +16,6 @@ public class ArticleInitializer {
 
     }
     private void addArticle(Transaction transaction, Object[] args){
-        articleDao.save(transaction, 1L, new Article(null, (String)args[0], new User(1L)));
+        articleDao.save(transaction, 1L, new Article(null, (String)args[0], null, new User(1L)));
     }
 }

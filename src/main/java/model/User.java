@@ -6,17 +6,19 @@ public class User {
     private String password;
     private String name;
     private String email;
+    private byte[] profileImage;
 
     public User(Long id) {
         this.id = id;
     }
 
-    public User(Long id, String loginId, String password, String name, String email) {
+    public User(Long id, String loginId, String password, String name, String email, byte[] profileImage) {
         this.id = id;
         this.loginId = loginId;
         this.password = password;
         this.name = name;
         this.email = email;
+        this.profileImage = profileImage;
     }
 
     public Long getId() {return id;}
@@ -35,4 +37,6 @@ public class User {
     public String getEmail() {
         return email;
     }
+
+    public byte[] getProfileImage(){ return profileImage; }
 }

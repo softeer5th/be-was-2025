@@ -13,6 +13,6 @@ public class UserInitializer {
     }
 
     private void addUser(Transaction transaction, Object[] args){
-        userDao.save(transaction, new User(null, "aaaaaa", "12341234", "softeer", "softer@naver.com"));
+        userDao.save(transaction, new User(null, "aaaaaa", "12341234", "softeer", "softer@naver.com", null));
     }
 }
