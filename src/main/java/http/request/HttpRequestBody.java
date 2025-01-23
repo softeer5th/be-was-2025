@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * The type Http request body.
+ */
 public class HttpRequestBody {
 	private final int MAX_BODY_SIZE = 100 * 1024 * 1024; // 최대 100MB로 제한
 	private static final String BOUNDARY_PREFIX = "--";
@@ -25,6 +28,13 @@ public class HttpRequestBody {
 	private static final String CRLF = "\r\n";
 	private byte[] body;
 
+	/**
+	 * Instantiates a new Http request body.
+	 *
+	 * @param in the in
+	 * @param headers the headers
+	 * @throws IOException the io exception
+	 */
 	public HttpRequestBody(InputStream in, HttpHeaders headers) throws IOException {
 		if (headers.containsHeader(CONTENT_LENGTH.getValue().toLowerCase())) {
 			List<String> contentLengthValue = headers.getHeader(CONTENT_LENGTH.getValue());
@@ -64,14 +74,29 @@ public class HttpRequestBody {
 		return outputStream.toByteArray();
 	}
 
+	/**
+	 * Get body as byte array byte [ ].
+	 *
+	 * @return the byte [ ]
+	 */
 	public byte[] getBodyAsByteArray() {
 		return body;
 	}
 
+	/**
+	 * Gets body as string.
+	 *
+	 * @return the body as string
+	 */
 	public String getBodyAsString() {
 		return new String(body, StandardCharsets.UTF_8);
 	}
 
+	/**
+	 * Gets body as map.
+	 *
+	 * @return the body as map
+	 */
 	public Optional<Map<String, String>> getBodyAsMap() {
 		String body = new String(this.body, StandardCharsets.UTF_8);
 
@@ -99,6 +124,12 @@ public class HttpRequestBody {
 		return Optional.ofNullable(resultMap);
 	}
 
+	/**
+	 * Gets body as multipart.
+	 *
+	 * @param headers the headers
+	 * @return the body as multipart
+	 */
 	public List<Map<String, Object>> getBodyAsMultipart(HttpHeaders headers) {
 		// Content-Type 헤더에서 boundary 추출
 		String contentType = headers.getHeader(CONTENT_TYPE.getValue())

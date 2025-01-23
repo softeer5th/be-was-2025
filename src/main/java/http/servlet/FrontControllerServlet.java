@@ -16,6 +16,9 @@ import util.FileUtils;
 import view.TemplateEngine;
 import view.View;
 
+/**
+ * The type Front controller servlet.
+ */
 public class FrontControllerServlet implements Servlet {
 
 	// 싱글톤 보장해주기 위함.
@@ -42,6 +45,11 @@ public class FrontControllerServlet implements Servlet {
 		controllerMap.put("/user/create", new RegisterServlet(userDatabase));
 	}
 
+	/**
+	 * Gets instance.
+	 *
+	 * @return the instance
+	 */
 	public static FrontControllerServlet getInstance() {
 		return INSTANCE;
 	}

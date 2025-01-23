@@ -13,10 +13,18 @@ import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.servlet.FrontControllerServlet;
 
+/**
+ * The type Request handler.
+ */
 public class RequestHandler implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 	private final Socket connection;
 
+	/**
+	 * Instantiates a new Request handler.
+	 *
+	 * @param connectionSocket the connection socket
+	 */
 	public RequestHandler(final Socket connectionSocket) {
 		this.connection = connectionSocket;
 	}

@@ -25,6 +25,12 @@ public enum ContentType {
 		this.extention = extention;
 	}
 
+	/**
+	 * From content type.
+	 *
+	 * @param extention the extention
+	 * @return the content type
+	 */
 	public static ContentType from(String extention){
 
 		for(ContentType contentType : ContentType.values()){
@@ -36,6 +42,11 @@ public enum ContentType {
 		return APPLICATION_OCTET_STREAM;
 	}
 
+	/**
+	 * Gets mime type.
+	 *
+	 * @return the mime type
+	 */
 	public String getMimeType() {
 		return mimeType;
 	}

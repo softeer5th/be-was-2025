@@ -10,6 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 
+/**
+ * The type User database.
+ */
 public class UserDatabase {
 	private static final DataSource dataSource = DataSource.getInstance();
 
@@ -21,6 +24,11 @@ public class UserDatabase {
 		createTable();
 	}
 
+	/**
+	 * Gets instance.
+	 *
+	 * @return the instance
+	 */
 	public static UserDatabase getInstance() {
 		if (INSTANCE == null) {
 			synchronized (UserDatabase.class) {
@@ -54,6 +62,11 @@ public class UserDatabase {
 		}
 	}
 
+	/**
+	 * Save.
+	 *
+	 * @param user the user
+	 */
 	public void save(User user) {
 		String query = """
 			INSERT INTO USER (user_id, password, name, email, image) 
@@ -80,6 +93,12 @@ public class UserDatabase {
 
 	}
 
+	/**
+	 * Find user by id optional.
+	 *
+	 * @param userId the user id
+	 * @return the optional
+	 */
 	public Optional<User> findUserById(String userId) {
 		String query = """
 			SELECT user_id, password, name, email, image
@@ -113,10 +132,21 @@ public class UserDatabase {
 		}
 	}
 
+	/**
+	 * Find user by id or throw user.
+	 *
+	 * @param userId the user id
+	 * @return the user
+	 */
 	public User findUserByIdOrThrow(String userId) {
 		return findUserById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
 	}
 
+	/**
+	 * Update user.
+	 *
+	 * @param user the user
+	 */
 	public void updateUser(User user) {
 		String query = """
         UPDATE user

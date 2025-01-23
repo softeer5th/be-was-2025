@@ -8,11 +8,21 @@ import java.util.stream.Collectors;
 
 import enums.CookieType;
 
+/**
+ * The type Cookie.
+ */
 public class Cookie {
 	private String name;
 	private String value;
 	private Map<CookieType, String> attributeValues;
 
+	/**
+	 * Instantiates a new Cookie.
+	 *
+	 * @param name the name
+	 * @param value the value
+	 * @param options the options
+	 */
 	public Cookie(String name, String value, String... options) {
 		this.name = name;
 		this.value = value;
@@ -28,14 +38,29 @@ public class Cookie {
 		}
 	}
 
+	/**
+	 * Gets name.
+	 *
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Gets value.
+	 *
+	 * @return the value
+	 */
 	public String getValue() {
 		return value;
 	}
 
+	/**
+	 * To message string.
+	 *
+	 * @return the string
+	 */
 	public String toMessage() {
 		StringBuilder result = new StringBuilder(name + COOKIE_DELIMITER + value);
 

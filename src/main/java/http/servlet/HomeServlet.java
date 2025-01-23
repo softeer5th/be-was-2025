@@ -20,12 +20,21 @@ import model.User;
 import util.FileUtils;
 import view.View;
 
+/**
+ * The type Home servlet.
+ */
 public class HomeServlet implements Servlet {
 	private static final String STATIC_FILES_PATH = "static";
 	private static final String DEFAULT_HTML_FILE = "/index.html";
 	private final ArticleDatabase articleDatabase;
 	private final UserDatabase userDatabase;
 
+	/**
+	 * Instantiates a new Home servlet.
+	 *
+	 * @param articleDatabase the article database
+	 * @param userDatabase the user database
+	 */
 	public HomeServlet(ArticleDatabase articleDatabase, UserDatabase userDatabase) {
 		this.articleDatabase = articleDatabase;
 		this.userDatabase = userDatabase;

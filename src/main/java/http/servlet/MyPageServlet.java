@@ -19,6 +19,9 @@ import model.User;
 import util.FileUtils;
 import view.View;
 
+/**
+ * The type My page servlet.
+ */
 public class MyPageServlet implements Servlet {
 	private static final String STATIC_FILES_PATH = "static";
 	private static final String DEFAULT_HTML_FILE = "/index.html";
@@ -26,6 +29,11 @@ public class MyPageServlet implements Servlet {
 
 	private final UserDatabase userDatabase;
 
+	/**
+	 * Instantiates a new My page servlet.
+	 *
+	 * @param userDatabase the user database
+	 */
 	public MyPageServlet(UserDatabase userDatabase) {
 		this.userDatabase = userDatabase;
 	}

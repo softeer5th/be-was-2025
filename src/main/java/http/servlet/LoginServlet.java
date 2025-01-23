@@ -18,6 +18,9 @@ import http.request.HttpRequest;
 import http.response.HttpResponse;
 import model.User;
 
+/**
+ * The type Login servlet.
+ */
 public class LoginServlet implements Servlet {
 
 	private static final String LOGIN_SUCCESS_PAGE = "/index.html";
@@ -25,6 +28,11 @@ public class LoginServlet implements Servlet {
 
 	private final UserDatabase userDatabase;
 
+	/**
+	 * Instantiates a new Login servlet.
+	 *
+	 * @param userDatabase the user database
+	 */
 	public LoginServlet(UserDatabase userDatabase) {
 		this.userDatabase = userDatabase;
 	}
@@ -39,6 +47,12 @@ public class LoginServlet implements Servlet {
 		}
 	}
 
+	/**
+	 * Do post.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 */
 	public void doPost(HttpRequest request, HttpResponse response){
 		Optional<Map<String, String>> body = request.getBodyAsMap();
 

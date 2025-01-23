@@ -16,6 +16,9 @@ import http.response.HttpResponse;
 import model.User;
 import util.FileUtils;
 
+/**
+ * The type Register servlet.
+ */
 public class RegisterServlet implements Servlet {
 	private static final Logger logger = LoggerFactory.getLogger(RegisterServlet.class);
 	private static final String REGISTRATION_SUCCESS_PAGE = "/registration/registration-success.html";
@@ -23,6 +26,11 @@ public class RegisterServlet implements Servlet {
 	private static final String INVALID_REQUEST_MESSAGE = "Invalid request parameters.";
 	private final UserDatabase userDatabase;
 
+	/**
+	 * Instantiates a new Register servlet.
+	 *
+	 * @param userDatabase the user database
+	 */
 	public RegisterServlet(UserDatabase userDatabase) {
 		this.userDatabase = userDatabase;
 	}

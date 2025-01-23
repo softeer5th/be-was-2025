@@ -19,6 +19,9 @@ import model.Article;
 import model.User;
 import util.FileUtils;
 
+/**
+ * The type Article servlet.
+ */
 public class ArticleServlet implements Servlet {
 	private static final String STATIC_FILES_PATH = "static";
 	private static final String DEFAULT_HTML_FILE = "/index.html";
@@ -26,6 +29,11 @@ public class ArticleServlet implements Servlet {
 
 	private final ArticleDatabase articleDatabase;
 
+	/**
+	 * Instantiates a new Article servlet.
+	 *
+	 * @param articleDatabase the article database
+	 */
 	public ArticleServlet(ArticleDatabase articleDatabase) {
 		this.articleDatabase = articleDatabase;
 	}

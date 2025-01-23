@@ -12,6 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import dto.Cursor;
 import model.Article;
 
+/**
+ * The type Article database.
+ */
 public class ArticleDatabase {
 	private static final DataSource dataSource = DataSource.getInstance();
 	private static final AtomicInteger index = new AtomicInteger(1);
@@ -21,6 +24,11 @@ public class ArticleDatabase {
 		createTable();
 	}
 
+	/**
+	 * Gets instance.
+	 *
+	 * @return the instance
+	 */
 	public static ArticleDatabase getInstance() {
 		if (INSTANCE == null) {
 			synchronized (ArticleDatabase.class) {
@@ -53,6 +61,11 @@ public class ArticleDatabase {
 		}
 	}
 
+	/**
+	 * Save.
+	 *
+	 * @param article the article
+	 */
 	public void save(Article article) {
 		String query = """
   		INSERT INTO ARTICLE (id, title, content, user_id, article_image) 

@@ -8,8 +8,16 @@ import java.util.regex.Pattern;
 
 import http.response.HttpResponse;
 
+/**
+ * The type Template engine.
+ */
 public class TemplateEngine {
 
+	/**
+	 * Render.
+	 *
+	 * @param response the response
+	 */
 	public static void render(HttpResponse response) {
 		if (response.getView() == null) {
 			return;
