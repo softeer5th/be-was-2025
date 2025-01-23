@@ -34,5 +34,26 @@
         <method>GET</method>
         <class>servlet.ArticleServlet</class>
     </servlet>
+    <servlet>
+        <url>/api/articles</url>
+        <method>POST</method>
+        <class>servlet.CreateArticleServlet</class>
+    </servlet>
+    <servlet>
+        <url>/comments</url>
+        <method>GET</method>
+        <class>servlet.CommentPageServlet</class>
+    </servlet>
+    <servlet>
+        <url>/api/comments</url>
+        <method>POST</method>
+        <class>servlet.CreateCommentServlet</class>
+    </servlet>
+    <error-page>
+        <error-page>
+            <error-code>404</error-code>
+            <location>/error/404.html</location>
+        </error-page>
+    </error-page>
 </web-app>
 
