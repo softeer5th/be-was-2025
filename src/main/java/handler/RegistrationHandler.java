@@ -73,16 +73,16 @@ public class RegistrationHandler implements HttpHandler {
         }
 
         void validate() {
-            if (hasLength(userId, 3, 20)) {
+            if (!hasLength(userId, 3, 20)) {
                 throw new BadRequest("아이디는 3자 이상 20자 이하로 입력해주세요.");
             }
-            if (hasLength(password, 3, 20)) {
+            if (!hasLength(password, 3, 20)) {
                 throw new BadRequest("비밀번호는 3자 이상 20자 이하로 입력해주세요.");
             }
-            if (hasLength(name, 3, 20)) {
+            if (!hasLength(name, 3, 20)) {
                 throw new BadRequest("이름은 1자 이상 20자 이하로 입력해주세요.");
             }
-            if (hasLength(email, 3, 20)) {
+            if (!hasLength(email, 3, 20)) {
                 throw new BadRequest("이메일은 3자 이상 20자 이하로 입력해주세요.");
             }
         }

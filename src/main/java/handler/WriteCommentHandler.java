@@ -12,6 +12,8 @@ import webserver.session.HttpSession;
 import webserver.view.ModelAndTemplate;
 
 import static enums.PageMappingPath.readArticlePath;
+import static util.CommonUtil.hasLength;
+import static util.CommonUtil.isBlank;
 import static util.ExceptionUtil.ignoreException;
 
 /**
@@ -62,6 +64,7 @@ public class WriteCommentHandler implements HttpHandler {
 
             CommentWriteRequest body = request.getBody(CommentWriteRequest.class)
                     .orElseThrow(() -> new BadRequest("잘못된 요청입니다."));
+            body.validate();
 
             Article article = articleDao.findArticleById(articleId)
                     .orElseThrow(() -> new BadRequest("잘못된 요청입니다."));
@@ -77,5 +80,10 @@ public class WriteCommentHandler implements HttpHandler {
 
 
     private record CommentWriteRequest(String content) {
+        void validate() {
+            if (isBlank(content) || !hasLength(content, 1, 300)) {
+                throw new BadRequest("댓글은 1자 이상 300자 이하여야 합니다.");
+            }
+        }
     }
 }

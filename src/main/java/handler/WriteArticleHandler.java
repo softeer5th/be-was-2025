@@ -3,6 +3,7 @@ package handler;
 import domain.Article;
 import domain.ArticleDao;
 import domain.User;
+import webserver.exception.BadRequest;
 import webserver.handler.HttpHandler;
 import webserver.request.FileUploader;
 import webserver.request.HttpRequest;
@@ -11,6 +12,8 @@ import webserver.response.HttpResponse;
 import webserver.session.HttpSession;
 
 import static enums.PageMappingPath.readArticlePath;
+import static util.CommonUtil.hasLength;
+import static util.CommonUtil.isBlank;
 
 /**
  * 게시글 작성을 처리하는 핸들러
@@ -44,6 +47,7 @@ public class WriteArticleHandler implements HttpHandler {
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         ArticleWriteRequest body = parseRequest(request);
+        body.validate();
         User loginUser = (User) request.getSession().get(HttpSession.USER_KEY);
 
         Article article = Article.create(loginUser, body.content(), body.articleImagePath());
@@ -61,5 +65,10 @@ public class WriteArticleHandler implements HttpHandler {
     }
 
     private record ArticleWriteRequest(String content, String articleImagePath) {
+        void validate() {
+            if (isBlank(content) || !hasLength(content, 1, 1000)) {
+                throw new BadRequest("게시글 내용은 1자 이상 1000자 이하로 입력해주세요.");
+            }
+        }
     }
 }

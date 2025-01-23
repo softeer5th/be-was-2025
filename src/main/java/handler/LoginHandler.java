@@ -74,12 +74,12 @@ public class LoginHandler implements HttpHandler {
         return response;
     }
 
-    private record LoginRequest(String userId, String password) {
+    record LoginRequest(String userId, String password) {
         void validate() {
-            if (hasLength(userId, 3, 20)) {
+            if (!hasLength(userId, 3, 20)) {
                 throw new BadRequest("아이디는 3자 이상 20자 이하여야 합니다.");
             }
-            if (hasLength(password, 3, 20)) {
+            if (!hasLength(password, 3, 20)) {
                 throw new BadRequest("비밀번호는 3자 이상 20자 이하여야 합니다.");
             }
         }
