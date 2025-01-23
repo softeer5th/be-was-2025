@@ -1,7 +1,6 @@
 package http.servlet;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +66,7 @@ public class MyPageServlet implements Servlet {
 		response.setView(new View(model, path));
 	}
 
-	private void doPost(HttpRequest request, HttpResponse response) {
+	private void doPost(HttpRequest request, HttpResponse response) throws IOException {
 		String path = Paths.get(STATIC_FILES_PATH, request.getPath()).toString();
 
 		if (!request.hasExtension()) {
@@ -84,6 +83,10 @@ public class MyPageServlet implements Servlet {
 		HttpSession session = HttpSessionStorage.getSession(sessionId);
 		User user = (User)session.getAttribute("user");
 		byte[] image = (byte[]) body.get(0).get("body");
+
+		if(image.length < 1){
+			image = FileUtils.getFileAsByteArray("static/default.png");
+		}
 
 		user.updateUser((String)body.get(1).get("body"), image, (String)body.get(2).get("body"), (String)body.get(3).get("body"));
 

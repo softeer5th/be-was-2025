@@ -81,7 +81,7 @@ public class RegisterServlet implements Servlet {
 	}
 
 	private UserRequestDto createUserRequestDto(Map<String, String> body) throws IOException {
-		byte[] defaultImage = FileUtils.getFileAsByteArray("default.png");
+		byte[] defaultImage = FileUtils.getFileAsByteArray("static/default.png");
 		return new UserRequestDto(
 			body.get("userId"),
 			body.get("password"),

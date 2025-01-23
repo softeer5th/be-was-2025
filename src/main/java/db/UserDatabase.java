@@ -133,7 +133,7 @@ public class UserDatabase {
 			statement.setString(3, user.getEmail());
 
 			// 이미지가 null이 아닌 경우에만 설정 (null일 수 있음)
-			if (user.getImage() != null) {
+			if (user.getImage() != null && user.getImage().length > 1) {
 				ByteArrayInputStream imageInputStream = new ByteArrayInputStream(user.getImage());
 				statement.setBlob(4, imageInputStream);
 			} else {

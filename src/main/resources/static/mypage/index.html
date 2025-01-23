@@ -22,16 +22,60 @@
       }
     }
 
+    function enableNicknameEdit() {
+      const nicknameInput = document.getElementById('nickname-input');
+      const hiddenNicknameInput = document.getElementById('hidden-nickname-input');
+
+      // 입력란 활성화
+      nicknameInput.disabled = false;
+
+      // 숨겨진 필드 제거
+      if (hiddenNicknameInput) {
+        hiddenNicknameInput.remove();
+      }
+    }
+
+    function updateHiddenNickname() {
+      const nicknameInput = document.getElementById('nickname-input');
+      const hiddenNicknameInput = document.getElementById('hidden-nickname-input');
+      if (hiddenNicknameInput) {
+        hiddenNicknameInput.value = nicknameInput.value;
+      }
+    }
+
     function resetImage() {
       // 이미지 초기화
       const output = document.getElementById('profile-img-preview');
-      output.src = "";  // 기본 이미지로 초기화 (필요시 다른 기본 이미지를 지정)
+      output.src = "http://localhost:8080/default.png";  // 기본 이미지로 초기화 (필요시 다른 기본 이미지를 지정)
 
       // 이미지 파일 삭제
       const fileInput = document.getElementById('profile-img-input');
       fileInput.value = "";  // 파일 삭제
     }
   </script>
+  <style>
+    /* 기본 스타일 */
+    .input_textfield {
+      background-color: #f9f9f9;
+      color: #333;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    /* 비활성화 상태일 때의 스타일 */
+    .input_textfield:disabled {
+      background-color: #e0e0e0; /* 배경색 더 어둡게 */
+      color: #555; /* 글자색 더 선명하게 */
+      border: 1px solid #aaa; /* 테두리도 강조 */
+    }
+
+    /* 활성화 상태 */
+    .input_textfield:not(:disabled) {
+      background-color: #fff;
+      color: #000;
+    }
+  </style>
 </head>
 <body>
 <div class="container">
@@ -42,9 +86,11 @@
         <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
       </li>
       <li class="header__menu__item">
-        <button id="logout-btn" class="btn btn_ghost btn_size_s">
-          로그아웃
-        </button>
+        <form action="/logout" method="post" style="display: inline;">
+          <button id="logout-btn" class="btn btn_ghost btn_size_s" type="submit">
+            로그아웃
+          </button>
+        </form>
       </li>
     </ul>
   </header>
@@ -75,40 +121,56 @@
 
         <div class="textfield textfield_size_s input_margin">
           <p class="title_textfield">닉네임</p>
-          <input
-                  class="input_textfield"
-                  value="{user.name}"
-                  placeholder="{닉네임}"
-                  autocomplete="username"
-                  type="text"
-                  name="nickname"
-          />
+          <div class="nickname-container">
+            <input
+                    id="nickname-input"
+                    class="input_textfield"
+                    value="{user.name}"
+                    placeholder="{닉네임}"
+                    autocomplete="username"
+                    type="text"
+                    name="nickname"
+                    required
+                    disabled
+                    oninput="updateHiddenNickname()"
+            />
+            <input
+                    id="hidden-nickname-input"
+                    type="hidden"
+                    name="nickname"
+                    value="{user.name}"
+            />
+            <button type="button" class="btn-edit-nickname" onclick="enableNicknameEdit()">수정</button>
+          </div>
         </div>
 
 
+        <div class="section password-section">
+          <h3 class="section-title">닉네임 또는 사진 변경을 원할 경우 입력해주세요</h3>
+          <div class="textfield textfield_size_s">
+            <p class="title_textfield">비밀번호</p>
+            <input
+                    class="input_textfield"
+                    placeholder="비밀번호를 입력해주세요"
+                    autocomplete="current-password"
+                    type="password"
+                    name="password"
+                    required
+            />
+          </div>
 
-        <div class="textfield textfield_size_s">
-          <p class="title_textfield">비밀번호</p>
-          <input
-                  class="input_textfield"
-                  placeholder="비밀번호를 변경할 경우 입력해주세요"
-                  autocomplete="current-password"
-                  type="password"
-                  name="password"
-          />
+          <div class="textfield textfield_size_s">
+            <p class="title_textfield">비밀번호 확인</p>
+            <input
+                    class="input_textfield"
+                    type="password"
+                    placeholder="한 번 더 입력해주세요"
+                    autocomplete="current-password"
+                    name="passwordConfirm"
+                    required
+            />
+          </div>
         </div>
-
-        <div class="textfield textfield_size_s">
-          <p class="title_textfield">비밀번호 확인</p>
-          <input
-                  class="input_textfield"
-                  type="password"
-                  placeholder="한 번 더 입력해주세요"
-                  autocomplete="current-password"
-                  name="passwordConfirm"
-          />
-        </div>
-
         <button
                 id="registration-btn"
                 class="btn btn_contained btn_size_m input_margin"
