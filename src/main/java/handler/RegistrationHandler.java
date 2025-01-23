@@ -12,6 +12,8 @@ import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 import webserver.view.ModelAndTemplate;
 
+import static util.CommonUtil.hasLength;
+
 /**
  * 회원가입 요청을 처리하는 핸들러
  */
@@ -45,6 +47,7 @@ public class RegistrationHandler implements HttpHandler {
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         RegistrationRequest body = request.getBody(RegistrationRequest.class).orElseThrow(() -> new BadRequest("Invalid Request Body"));
+        body.validate();
         User user = body.toUser();
         log.debug("registration request: {}", user);
         // 중복 사용자 검사
@@ -64,9 +67,24 @@ public class RegistrationHandler implements HttpHandler {
         return response;
     }
 
-    private record RegistrationRequest(String userId, String password, String name, String email) {
+    record RegistrationRequest(String userId, String password, String name, String email) {
         public User toUser() {
             return User.create(userId, password, name, email);
+        }
+
+        void validate() {
+            if (hasLength(userId, 3, 20)) {
+                throw new BadRequest("아이디는 3자 이상 20자 이하로 입력해주세요.");
+            }
+            if (hasLength(password, 3, 20)) {
+                throw new BadRequest("비밀번호는 3자 이상 20자 이하로 입력해주세요.");
+            }
+            if (hasLength(name, 3, 20)) {
+                throw new BadRequest("이름은 1자 이상 20자 이하로 입력해주세요.");
+            }
+            if (hasLength(email, 3, 20)) {
+                throw new BadRequest("이메일은 3자 이상 20자 이하로 입력해주세요.");
+            }
         }
     }
 }

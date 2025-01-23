@@ -20,6 +20,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 
+import static util.CommonUtil.close;
+
 /**
  * 클라이언트의 요청을 받아 HttpHandler에게 위임하는 Front-Controller
  */
@@ -81,7 +83,7 @@ public class FrontController implements Runnable {
                 HttpResponse response = interceptorChain.execute(request, handler);
 
                 responseWriter.writeResponse(request.getVersion(), response, out);
-
+                
             } catch (Exception e) {
                 if (!(e instanceof HttpException))
                     logger.debug("에러 발생", e);
@@ -92,7 +94,7 @@ public class FrontController implements Runnable {
             }
 
         } catch (Exception e) {
-            logger.error("unhandled exception occurred", e);
+            close(connection);
         }
     }
 

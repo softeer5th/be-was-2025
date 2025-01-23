@@ -14,6 +14,7 @@ import webserver.session.HttpSession;
 import webserver.view.ModelAndTemplate;
 
 import static enums.PageMappingPath.INDEX;
+import static util.CommonUtil.isBlank;
 
 /**
  * 마이페이지 요청을 처리하는 핸들러
@@ -52,6 +53,7 @@ public class MypageHandler implements HttpHandler {
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         UserUpdateRequest body = parseRequest(request);
+        body.validate();
         HttpSession session = request.getSession();
         log.debug("user update request: {}, session: {}", body, session);
 
@@ -96,5 +98,12 @@ public class MypageHandler implements HttpHandler {
 
     private record UserUpdateRequest(String name, String newPassword, String currentPassword,
                                      Boolean deleteProfileImage, String profileImagePath) {
+
+        void validate() {
+            if (isBlank(currentPassword))
+                throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
+
+            
+        }
     }
 }

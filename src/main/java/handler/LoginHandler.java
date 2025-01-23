@@ -15,6 +15,7 @@ import webserver.view.ModelAndTemplate;
 import java.util.Optional;
 
 import static enums.PageMappingPath.INDEX;
+import static util.CommonUtil.hasLength;
 
 /**
  * 로그인 요청을 처리하는 핸들러
@@ -54,6 +55,7 @@ public class LoginHandler implements HttpHandler {
     public HttpResponse handlePost(HttpRequest request) {
         LoginRequest body = request.getBody(LoginRequest.class).orElseThrow(() -> new BadRequest("Invalid Request Body"));
         log.debug("login request: {}", body);
+        body.validate();
         Optional<User> user = userDao.findUserById(body.userId());
         if (user.filter(u ->
                 u.isPasswordCorrect(body.password())).isEmpty()) {
@@ -73,5 +75,13 @@ public class LoginHandler implements HttpHandler {
     }
 
     private record LoginRequest(String userId, String password) {
+        void validate() {
+            if (hasLength(userId, 3, 20)) {
+                throw new BadRequest("아이디는 3자 이상 20자 이하여야 합니다.");
+            }
+            if (hasLength(password, 3, 20)) {
+                throw new BadRequest("비밀번호는 3자 이상 20자 이하여야 합니다.");
+            }
+        }
     }
 }
