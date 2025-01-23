@@ -15,7 +15,7 @@ public class JdbcSessionDataManager implements SessionDataManager {
     @Override
     public void saveSession(String sessionID, String userId) {
         String checkSql = "SELECT session_id FROM sessions WHERE user_id = ? AND expires_at > ?";
-        String updateSql = "UPDATE sessions SET expires_at = ? WHERE session_id = ?";
+        String updateSql = "UPDATE sessions SET session_id = ?, expires_at = ? WHERE user_id = ?";
         String insertSql = "INSERT INTO sessions (session_id, user_id, expires_at) VALUES (?, ?, ?)";
 
         try (Connection conn = JdbcUtil.getConnection()) {
@@ -34,11 +34,12 @@ public class JdbcSessionDataManager implements SessionDataManager {
                 }
             }
 
-            // 기존 활성 세션이 있으면 만료 시간만 업데이트
+            // 기존 활성 세션이 있으면 세션과 만료시간 업데이트
             if (existingSessionID != null) {
                 try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                    updateStmt.setTimestamp(1, newExpiresAt);
-                    updateStmt.setString(2, existingSessionID);
+                    updateStmt.setString(1, sessionID);
+                    updateStmt.setTimestamp(2, newExpiresAt);
+                    updateStmt.setString(3, userId);
                     updateStmt.executeUpdate();
                     logger.debug("Updated session expiry: sid={}, new expires={}", existingSessionID, newExpiresAt);
                 }
