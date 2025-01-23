@@ -68,4 +68,11 @@ public enum HTTPContentType {
     public static boolean isSupported(String accept) {
         return fromFullType(accept) != DEFAULT_TYPE();
     }
+
+    public static boolean isImage(HTTPContentType contentType) {
+        return switch (contentType) {
+            case IMAGE, IMAGE_PNG, IMAGE_JPEG, IMAGE_GIF, IMAGE_ICON, IMAGE_SVG, IMAGE_WEBP -> true;
+            default -> false;
+        };
+    }
 }

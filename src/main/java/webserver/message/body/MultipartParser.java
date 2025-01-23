@@ -4,10 +4,12 @@ import util.HeterogeneousContainer;
 import webserver.enumeration.HTTPContentType;
 import webserver.exception.HTTPException;
 import webserver.message.header.records.ContentTypeRecord;
+import webserver.message.record.FileRecord;
 import webserver.reader.ByteStreamReader;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -103,7 +105,7 @@ public class MultipartParser implements BodyParser {
                 // multiform 본문 내부 파트 헤더
                 HTTPContentType dataContentType = HTTPContentType.TEXT_PLAIN;
                 String contentDispositionLine = lineReader.readLine();
-                Map<String, String> contentDisposition = parseDisposition(contentDispositionLine);
+                Map<String, String> disposition = parseDisposition(contentDispositionLine);
                 String contentTypeLine = lineReader.readLine();
                 if (!contentTypeLine.isEmpty()) {
                     dataContentType = HTTPContentType.fromFullType(contentTypeLine);
@@ -111,11 +113,20 @@ public class MultipartParser implements BodyParser {
                 }
                 ByteArrayOutputStream bodyContent = boundaryReader.readUntilBoundary();
 
+                String name = disposition.get("name");
                 if (dataContentType == HTTPContentType.TEXT_PLAIN) {
-                    body.put(contentDisposition.get("name"), bodyContent.toString(StandardCharsets.UTF_8));
-                    System.out.println("name: " + contentDisposition.get("name"));
+                    body.put(disposition.get("name"), bodyContent.toString(StandardCharsets.UTF_8));
+                    System.out.println("name: " + disposition.get("name"));
                     System.out.println("body: " + bodyContent.toString(StandardCharsets.UTF_8));
                     continue;
+                }
+                if (HTTPContentType.isImage(dataContentType)) {
+                    FileRecord record = new FileRecord(
+                            bodyContent.toByteArray(),
+                            dataContentType,
+                            disposition.getOrDefault("filename","")
+                    );
+                    body.put(name, record, FileRecord.class);
                 }
             }
             return body;
