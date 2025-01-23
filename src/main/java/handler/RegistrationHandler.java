@@ -33,7 +33,14 @@ public class RegistrationHandler implements HttpHandler {
     }
 
     /**
+     * <pre>
      * 회원가입 요청을 처리한다
+     * body 형식
+     * String userId: 사용자 아이디
+     * String password: 사용자 비밀번호
+     * String name: 사용자 이름
+     * String email: 사용자 이메일
+     * </pre>
      */
     @Override
     public HttpResponse handlePost(HttpRequest request) {

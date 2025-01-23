@@ -43,7 +43,12 @@ public class LoginHandler implements HttpHandler {
     }
 
     /**
+     * <pre>
      * 로그인 요청을 처리한다
+     * body 형식
+     * String userId: 사용자 아이디
+     * String password: 사용자 비밀번호
+     * </pre>
      */
     @Override
     public HttpResponse handlePost(HttpRequest request) {

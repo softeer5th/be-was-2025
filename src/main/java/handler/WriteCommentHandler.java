@@ -48,9 +48,12 @@ public class WriteCommentHandler implements HttpHandler {
     }
 
     /**
+     * <pre>
      * 댓글 작성 요청을 처리한다.
+     * body 형식
+     * String content: 댓글 내용
+     * </pre>
      */
-
     @Override
     public HttpResponse handlePost(HttpRequest request) {
         return factory.runInTransaction(articleDao, commentDao, (articleDao, commentDao) -> {

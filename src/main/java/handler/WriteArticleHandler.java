@@ -34,7 +34,12 @@ public class WriteArticleHandler implements HttpHandler {
     }
 
     /**
+     * <pre>
      * 게시글 작성 요청을 처리한다.
+     * body 형식
+     * String content: 게시글 내용
+     * File articleImage: 게시글 이미지
+     * </pre>
      */
     @Override
     public HttpResponse handlePost(HttpRequest request) {
