@@ -5,18 +5,23 @@ import org.slf4j.LoggerFactory;
 import util.FileUtil;
 import webserver.enums.ContentType;
 import webserver.enums.HttpHeader;
+import webserver.exception.BadRequest;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * multipart/form-data로 전송된 데이터를 다루는 클래스
+ */
 public class Multipart {
 
     private static final Logger log = LoggerFactory.getLogger(Multipart.class);
     private final Map<String, FormData> formData;
 
-    public Multipart(List<FormData> formData) {
+
+    Multipart(List<FormData> formData) {
         this.formData = new HashMap<>();
         for (FormData data : formData) {
             this.formData.put(data.name, data);
@@ -70,16 +75,28 @@ public class Multipart {
         return formData.containsKey(name);
     }
 
+    /**
+     * multipart/form-data로 전송된 파일을 저장한다.
+     *
+     * @param name         form data name
+     * @param fileUploader 파일 업로드를 담당하는 객체
+     * @return 업로드된 파일의 url path
+     */
     public String saveFile(String name, FileUploader fileUploader) {
         log.debug("saveFile formadata: {}", formData.get(name).toString());
         validateFile(name);
         FormData data = formData.get(name);
         String filename = data.filename;
         String extension = "";
+        // 파일 확장자를 내용 기반으로 확인
+        // jpg 파일인지 확인
         if (isJpg(data.body)) {
             extension = ".jpg";
+            // png 파일인지 확인
         } else if (isPng(data.body)) {
             extension = ".png";
+        } else {
+            throw new BadRequest("지원하지 않는 파일 형식입니다.");
         }
 
         return fileUploader.uploadFile(filename + extension, data.body);
