@@ -3,6 +3,7 @@ package manager;
 import db.CommentDatabase;
 import exception.ClientErrorException;
 import model.Comment;
+import model.User;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +50,7 @@ public class CommentManager {
      * @param author 댓글 작성자
      * @throws ClientErrorException 댓글 내용이 비어있거나 너무 긴 경우 예외 발생
      */
-    public void save(int postId, String content, String author) {
+    public void save(int postId, String content, User author) {
         String decodedContent = URLDecoder.decode(content, StandardCharsets.UTF_8);
 
         if (decodedContent.length() > 500)
@@ -57,7 +58,7 @@ public class CommentManager {
         if (decodedContent.trim().isBlank())
             throw new ClientErrorException(MISSING_INPUT);
 
-        Comment comment = new Comment(postId, decodedContent, author);
+        Comment comment = new Comment(postId, decodedContent, author.getId());
         commentDatabase.addComment(comment);
     }
 

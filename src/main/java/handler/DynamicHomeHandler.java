@@ -19,6 +19,7 @@ import util.FileReader;
 import util.HttpRequestParser;
 
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -141,7 +142,7 @@ public class DynamicHomeHandler implements Handler {
                            <div class="wrapper">
                         <div class="post">
                           <div class="post__account">
-                          """)
+                        """)
                 .append(addProfileImage(author.getProfile()))
                 .append("""
                             <p class="post__account__nickname">
@@ -212,6 +213,13 @@ public class DynamicHomeHandler implements Handler {
         }
     }
 
+    private String addProfileImageForComment(String file) {
+        if (file == null)
+            return "<img class = \"comment__item__user__img\" src = \"/img/default.png\" /> ";
+        return String.format("<img class = \"comment__item__user__img\" src = \"/img/%s\" />", file);
+    }
+
+
     private String addProfileImage(String file) {
         if (file == null)
             return "<img class = \"post__account__img\" src = \"/img/default.png\" /> ";
@@ -236,13 +244,16 @@ public class DynamicHomeHandler implements Handler {
             return;
         }
         for (Comment comment : comments) {
+            final User commentAuthor = userManager.getUserOrElseThrow(comment.getAuthor());
             postContent.append("""
                             <li class="comment__item">
                                        <div class="comment__item__user">
-                                           <img class="comment__item__user__img"/>
+                            """)
+                    .append(addProfileImageForComment(commentAuthor.getProfile()))
+                    .append("""
                                            <p class="comment__item__user__nickname">
                             """)
-                    .append(comment.getAuthor())
+                    .append(URLDecoder.decode(commentAuthor.getName(), UTF_8))
                     .append("""
                             </p>
                             """)
