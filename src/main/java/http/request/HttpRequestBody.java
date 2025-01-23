@@ -172,7 +172,7 @@ public class HttpRequestBody {
 		if (headerEndIndex == -1) return part;
 
 		byte[] headerBytes = extractBytes(partBytes, 0, headerEndIndex);
-		byte[] bodyBytes = extractBytes(partBytes, headerEndIndex + HEADER_BODY_SEPARATOR.length(), partBytes.length);
+		byte[] bodyBytes = extractBytes(partBytes, headerEndIndex + HEADER_BODY_SEPARATOR.length(), partBytes.length - CRLF.length());
 
 		Map<String, String> headers = parseHeaders(new String(headerBytes, StandardCharsets.ISO_8859_1));
 		part.put("headers", headers);
