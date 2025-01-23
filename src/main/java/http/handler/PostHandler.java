@@ -6,6 +6,7 @@ import http.enums.ErrorMessage;
 import http.enums.HttpMethod;
 import http.enums.HttpResponseStatus;
 import http.request.HttpRequest;
+import http.request.HttpRequestParser;
 import http.request.TargetInfo;
 import http.response.HttpResponse;
 import model.User;
@@ -17,6 +18,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PostHandler implements Handler {
@@ -41,6 +44,8 @@ public class PostHandler implements Handler {
 
         if (path.equals("/post/article")) {
             return handleAddArticle(request, builder);
+        } else if (path.equals("/post/comment")) {
+            return handleAddComment(request, builder);
         } else {
             builder.errorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.BAD_REQUEST);
         }
@@ -123,6 +128,36 @@ public class PostHandler implements Handler {
         }
     }
 
+    private HttpResponse handleAddComment(HttpRequest request, HttpResponse.Builder builder) throws IOException {
+        if (!checkValidHttpMethod(HttpMethod.POST, request)) {
+            return builder
+                    .errorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.BAD_REQUEST)
+                    .build();
+        }
+
+        String sid = HttpRequestUtil.getCookieValueByKey(request, "sid");
+        User user = SessionDB.getUser(sid);
+        Map<String, Object> params = HttpRequestParser.parseRequestBody(new String(request.getBody(), "UTF-8"));
+        String articleId = getParam(params, "articleId").map(Object::toString).orElse(null);
+        String content = getParam(params, "content").map(Object::toString).orElse(null);
+        String userId = user.getUserId();
+
+        logger.debug("ArticleId: {}, User ID: {}, Content: {}", articleId, userId, content);
+
+        if (articleId == null || articleId.isEmpty() || userId == null || userId.isEmpty()) {
+            return builder
+                    .errorResponse(HttpResponseStatus.BAD_REQUEST, ErrorMessage.INVALID_PARAMETER)
+                    .build();
+        }
+
+        Database.addComment(userId, Integer.parseInt(articleId), content);
+
+
+        return builder
+                .redirectResponse(HttpResponseStatus.FOUND, REDIRECT_MAIN_HTML)
+                .build();
+    }
+
     private int findBoundary(byte[] data, byte[] boundary, int start) {
         for (int i = start; i <= data.length - boundary.length; i++) {
             boolean match = true;
@@ -135,5 +170,9 @@ public class PostHandler implements Handler {
             if (match) return i;
         }
         return -1;
+    }
+
+    private Optional<Object> getParam(Map<String, Object> params, String key) {
+        return Optional.ofNullable(params.get(key));
     }
 }

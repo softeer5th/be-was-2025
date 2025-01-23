@@ -10,6 +10,7 @@ import http.request.TargetInfo;
 import http.response.DynamicHtmlBuilder;
 import http.response.HttpResponse;
 import model.Article;
+import model.Comment;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import util.HttpRequestUtil;
 import util.JwtUtil;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class StaticResourceHandler implements Handler {
@@ -76,10 +78,13 @@ public class StaticResourceHandler implements Handler {
                 if (path.endsWith(".html")) {
                     Article article = Database.getArticle(0);
                     if (article != null) {
+                        List<Comment> comments = Database.getComments(article.getId());
                         DynamicHtmlBuilder htmlBuilder = new DynamicHtmlBuilder(new String(body), request, Map.of(
                                 "username", Database.findUserById(article.getUserId()).getName(),
                                 "articlephoto", article.getPhoto(),
-                                "article", article.getContent()
+                                "article", article.getContent(),
+                                "articleId", Integer.toString(article.getId()),
+                                "comments", comments
                         ));
                         body = htmlBuilder.build().getBytes();
                     }

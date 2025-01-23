@@ -37,10 +37,11 @@ public class DynamicHtmlBuilder {
         return htmlBuilder.toString();
     }
 
-    public String replaceTag(String line, String tag, String content) {
+    public String replaceTag(String line, String tag, Object content) {
         return switch (tag.toLowerCase()) {
-            case "username", "article" -> replaceText(line, tag, content);
-            case "articlephoto" -> replaceArticlePhoto(line, content);
+            case "username", "article", "articleid" -> replaceText(line, tag, content.toString());
+            case "articlephoto" -> replaceArticlePhoto(line, content.toString());
+            case "comments" -> replaceComments(line, (List<Comment>) content);
             default -> "Unknown";
         };
     }
@@ -50,8 +51,29 @@ public class DynamicHtmlBuilder {
     }
 
     public String replaceArticlePhoto(String line, String photo) {
-//        byte[] photoBytes = photo.getBytes();
-//        String encodedPhoto = Base64.getEncoder().encodeToString(photoBytes);
+        logger.debug("Photo: {} ", photo);
         return line.replace("{{articlephoto}}", "src=\""+photo+"\"");
+    }
+
+    public String replaceComments(String line, List<Comment> content) {
+        StringBuilder commentBuilder = new StringBuilder();
+        for (Comment comment : content) {
+            commentBuilder
+                    .append("""
+                              <li class="comment__item">
+                               <div class="comment__item__user">
+                                 <img class="comment__item__user__img" />
+                                 <p class="comment__item__user__nickname">""")
+                    .append(comment.userId())
+                    .append("""
+                               </p>
+                               </div>
+                               <p class="comment__item__article">\n
+                    """);
+            commentBuilder.append(comment.content()).append("\n");
+            commentBuilder.append("        </p>");
+            commentBuilder.append("</li>\n");
+        }
+        return commentBuilder.toString();
     }
 }

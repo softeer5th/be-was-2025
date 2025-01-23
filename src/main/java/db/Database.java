@@ -1,6 +1,7 @@
 package db;
 
 import model.Article;
+import model.Comment;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -169,5 +171,61 @@ public class Database {
             logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public static void addComment(String userId, int postId, String comment) {
+        String sql = "INSERT INTO COMMENTS (user_id, content, post_id, created_at) VALUES (?, ?, ?, ?)";
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, userId);
+                statement.setString(2, comment);
+                statement.setInt(3, postId);
+                statement.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                statement.executeUpdate();
+
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+                logger.error(e.getMessage());
+                throw e;
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static List<Comment> getComments(int postId) {
+        String sql = "SELECT * FROM COMMENTS WHERE post_id = ? ORDER BY created_at DESC LIMIT 3";
+        List<Comment> comments = new ArrayList<>();
+
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setInt(1, postId);
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    comments.add(
+                        new Comment(
+                            resultSet.getInt("id"),
+                            resultSet.getInt("post_id"),
+                            resultSet.getString("user_id"),
+                            resultSet.getString("content"),
+                            resultSet.getTimestamp("created_at").toLocalDateTime()
+                        )
+                    );
+                }
+            } catch (SQLException e) {
+                connection.rollback();
+                logger.error(e.getMessage());
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        return comments;
     }
 }
