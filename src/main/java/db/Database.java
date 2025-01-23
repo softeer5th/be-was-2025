@@ -1,5 +1,6 @@
 package db;
 
+import model.Comment;
 import model.Post;
 import model.User;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class Database {
             // 테이블 삭제
             stmt.execute("DROP TABLE IF EXISTS \"user\"");
             stmt.execute("DROP TABLE IF EXISTS post");
+            stmt.execute("DROP TABLE IF EXISTS comment");
 
             // 테이블 생성
             String createUserTable = "CREATE TABLE \"user\" ("
@@ -44,6 +46,14 @@ public class Database {
                     + "user_id VARCHAR(255)"
                     + ")";
             stmt.execute(createPostTable);
+
+            String createCommentTable = "CREATE TABLE comment ("
+                    + "post_id VARCHAR(255) ,"
+                    + "user_name VARCHAR(255), "
+                    + "content VARCHAR(255) "
+                    + ")";
+            stmt.execute(createCommentTable);
+
             stmt.close();
         } catch (SQLException e) {
             logger.error("initialize error, {}", e.getMessage());
@@ -81,8 +91,21 @@ public class Database {
         } catch (SQLException e) {
             logger.error("getLastPostId error, {}", e.getMessage());
         }
-
         return lastPostId;
+    }
+
+    public static void addComment(Comment comment) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD)) {
+            String insertQuery = "INSERT INTO comment (post_id, user_name, content) VALUES (?, ?, ?)";
+            try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
+                insertStmt.setInt(1, comment.getPostId());  // 새로 생성된 post_id
+                insertStmt.setString(2, comment.getUserName());
+                insertStmt.setString(3, comment.getContent());
+                insertStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            logger.error("addComment error, {}", e.getMessage());
+        }
     }
 
 
