@@ -9,11 +9,11 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.HTTPMessageParser.ParseException;
-import webserver.enumeration.HTTPStatusCode;
 import webserver.exception.HTTPException;
 import webserver.resolver.ResourceResolver;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
+import webserver.writer.ResponseWriter;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);

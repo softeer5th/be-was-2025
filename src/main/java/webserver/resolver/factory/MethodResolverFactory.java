@@ -1,6 +1,7 @@
 package webserver.resolver.factory;
 
 import webserver.annotation.Body;
+import webserver.annotation.Cookie;
 import webserver.resolver.RequestMethodMapper;
 import webserver.resolver.RequestMethodWrapper;
 import webserver.resolver.ResourceResolver;
@@ -36,6 +37,7 @@ public class MethodResolverFactory {
                     Parameter parameter = parameters[i];
                     handleRequestParam(parameter, parameterMetaInfos, i);
                     handleBody(parameter, parameterMetaInfos, i);
+                    handleCookie(parameter, parameterMetaInfos, i);
                 }
                 requestMap.put(annotation.method() + " " + annotation.path(), new RequestMethodWrapper(handlerGroup, method, parameterMetaInfos));
             }
@@ -60,6 +62,18 @@ public class MethodResolverFactory {
         }
         TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
         ParameterMetaInfo metaInfo = ParameterMetaInfo.forBody(body.key(), true, typeParser);
+        infos[index] = metaInfo;
+    }
+
+    private static void handleCookie(Parameter parameter, ParameterMetaInfo[] infos, int index) {
+        Cookie cookie = parameter.getAnnotation(Cookie.class);
+        if (cookie == null) {
+            return;
+        }
+        TypeParser typeParser = TypeParserFactory.getTypeParser(parameter.getType());
+        ParameterMetaInfo metaInfo = ParameterMetaInfo.forCookie(cookie.name(),
+                cookie.required(), cookie.authenticated(), typeParser
+        );
         infos[index] = metaInfo;
     }
 }

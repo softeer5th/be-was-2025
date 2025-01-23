@@ -8,6 +8,9 @@ import webserver.enumeration.HTTPStatusCode;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -38,9 +41,17 @@ public class RequestMethodWrapper implements ResourceResolver {
                 for (Map.Entry<String, String> header : headers.entrySet()) {
                     response.setHeader(header.getKey(), header.getValue());
                 }
+                response.contentType(unwrapped.getContentType());
+                try (ByteArrayOutputStream bout = new ByteArrayOutputStream();) {
+                    Object object = unwrapped.getData();
+                    if (object instanceof String) {
+                        bout.write(((String)object).getBytes());
+                    }
+                    response.body(bout.toByteArray());
+                }
                 response.setCookies(unwrapped.getSetCookies());
             }
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | IOException e) {
             throw new HTTPException.Builder()
                     .causedBy("method invoke")
                     .internalServerError(e.getMessage());

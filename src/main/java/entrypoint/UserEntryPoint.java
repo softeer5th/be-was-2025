@@ -3,13 +3,19 @@ package entrypoint;
 import db.Database;
 import model.User;
 import webserver.annotation.Body;
+import webserver.annotation.Cookie;
 import webserver.annotation.RequestMapping;
+import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPMethod;
 import webserver.exception.HTTPException;
 import webserver.message.record.ResponseData;
 import webserver.message.record.SetCookieRecord;
+import webserver.session.SessionStorage;
+import webserver.writer.html.template.IndexPageWriter;
+import webserver.writer.html.template.MyPageWriter;
 
-import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserEntryPoint {
@@ -41,9 +47,41 @@ public class UserEntryPoint {
         SetCookieRecord loginCookie = new SetCookieRecord.Builder("SID", sessionId)
                 .path("/")
                 .build();
-
+        if (SessionStorage.getStorage(sessionId) == null) {
+            Map<String, String> newSession = SessionStorage.setSession(sessionId);
+            newSession.put("userId", userId);
+        }
         return new ResponseData.ResponseDataBuilder<String>()
                 .setCookies(loginCookie)
                 .redirect("/index.html");
+    }
+
+    @RequestMapping(path = "/index.html", method = HTTPMethod.GET)
+    public ResponseData<String> homePage(@Cookie(name="SID", authenticated = true) String sid) {
+        Map<String, String> storage = SessionStorage.getStorage(sid);
+        Optional<String> userName = Optional.empty();
+        if (storage != null) {
+            userName = Optional.ofNullable(storage.get("userId"));
+        }
+        String body = IndexPageWriter.write(userName);
+        return new ResponseData.ResponseDataBuilder<String>()
+                .contentType(HTTPContentType.TEXT_HTML)
+                .ok(body);
+    }
+
+    @RequestMapping(path = "/mypage", method = HTTPMethod.GET)
+    public ResponseData<String> myPage(@Cookie(name="SID", required = false) String sid) {
+        if (sid == null || SessionStorage.getStorage(sid) == null) {
+            return ResponseData.redirect("/login");
+        }
+        String body = MyPageWriter.write(sid);
+        return new ResponseData.ResponseDataBuilder<String>()
+                .contentType(HTTPContentType.TEXT_HTML)
+                .ok(body);
+    }
+
+    @RequestMapping(path = "/mypage.html", method = HTTPMethod.GET)
+    public ResponseData<String> myPageHtml(@Cookie(name="SID", required = false) String sid) {
+        return ResponseData.redirect("/mypage");
     }
 }
