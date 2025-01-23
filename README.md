@@ -45,8 +45,11 @@
 ### 피드백 반영
 - [X] request header 이름 case-insensitive
 - [X] Logger static 으로 설정
-- [ ] 이중 try catch 수정할것
+- [X] 이중 try-catch 수정
 - [ ] 예외처리 한곳에서 할 것
+- [X] 로깅 메서드 HttpRequest 생성자 호출 시 수행
+- [X] Cookie 구분자 수정
+- [X] Text Block 사용하도록 수정
 
 
 ## 학습 정리
