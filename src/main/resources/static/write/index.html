@@ -23,15 +23,7 @@
     </header>
     <div class="page">
         <h2 class="page-title">글쓰기</h2>
-        <form class="form" action="/user/create" method="post">
-            <div class="textfield textfield_size_m">
-                <p class="title_textfield">제목</p>
-                <input
-                        name="title"
-                        class="input_textfield"
-                        placeholder="제목 입력해주세요"
-                />
-            </div>
+        <form class="form" action="/article/create" method="post" enctype="multipart/form-data">
             <div class="textfield textfield_size_m">
                 <p class="title_textfield">본문</p>
                 <textarea
@@ -41,15 +33,15 @@
                         rows="5"
                 ></textarea>
             </div>
-<!--            <div class="textfield textfield_size_m">-->
-<!--                <p class="title_textfield">이미지 업로드</p>-->
-<!--                <input-->
-<!--                        name="image"-->
-<!--                        type="file"-->
-<!--                        class="input_file"-->
-<!--                        accept="image/*"-->
-<!--                />-->
-<!--            </div>-->
+            <div class="textfield textfield_size_m">
+                <p class="title_textfield">이미지 업로드</p>
+                <input
+                        name="image"
+                        type="file"
+                        class="input_file"
+                        accept="image/*"
+                />
+            </div>
             <button
                     id="save-btn"
                     class="btn btn_contained btn_size_m"

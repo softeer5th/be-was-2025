@@ -27,17 +27,21 @@
         <div class="profile_container">
           <div class="profile_box">
               <div class="profile_image">
-                <img class="profile" />
+                <!-- PROFILE_IMAGE -->
               </div>
               <div class="profile_frame">
                   <div class="btn_profile">
-                        <div class="btn_container">수정</div>
+                        <div class="btn_container">
+                            <button id="upload-btn" class="btn btn_ghost">수정</button>
+                            <input type="file" id="file-input" accept="image/*" style="display: none;" />
+                        </div>
                   </div>
                   <div class="btn_bar"></div>
                   <div class="btn_profile">
                       <div class="btn_container">삭제</div>
                   </div>
               </div>
+            </div>
         </div>
           <form class="form">
             <div class="textfield textfield_size_s input_margin">
@@ -73,9 +77,46 @@
             >
               변경사항 저장
             </button>
-
         </form>
       </div>
     </div>
   </body>
+  <script>
+    const uploadBtn = document.querySelector("#upload-btn");
+    const fileInput = document.querySelector("#file-input");
+    const profileImage = document.querySelector("#profile-image");
+
+    uploadBtn.addEventListener("click", () => {
+      fileInput.click();
+    })
+
+    fileInput.addEventListener("change", async() =>{
+      const file = fileInput.files[0];
+
+      if(file){
+        console.log("file change");
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          profileImage.src = e.target.result
+        }
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append("profileImage", file);
+
+        fetch("/upload-profile-image", {
+          method: "POST",
+          body: formData
+        }).then(response => {
+                if(response.ok){
+                    alert("프로필 이미지가 등록되었습니다.");
+                }else{
+                    alert("프로필 이미지 등록에 실패했습니다.");
+                }
+            }
+        )
+
+      }
+    })
+  </script>
 </html>
