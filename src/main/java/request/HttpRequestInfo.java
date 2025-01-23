@@ -11,9 +11,9 @@ public class HttpRequestInfo {
     private final HttpVersion version;
 
     private final Map<String, String> headers;
-    private final Object body;
+    private final String body;
 
-    public HttpRequestInfo(HttpMethod method, String path, HttpVersion version, Map<String, String> headers, Object body) {
+    public HttpRequestInfo(HttpMethod method, String path, HttpVersion version, Map<String, String> headers, String body) {
         this.method = method;
         this.path = path;
         this.version = version;

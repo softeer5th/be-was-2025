@@ -8,6 +8,7 @@ import exception.ErrorCode;
 import manager.BoardManager;
 import manager.UserManager;
 import model.User;
+import request.BoardRequest;
 import request.HttpRequestInfo;
 import response.HttpResponse;
 import util.CookieParser;
@@ -69,12 +70,12 @@ public class BoardHandler implements Handler {
         // 게시글 작성
         if (request.getPath().equals(PATH.CREATE.endPoint)) {
             validPostMethod(request.getMethod());
-            final String contents = HttpRequestParser.parseMultipartFormText(request.getHeaderValue(HttpHeader.CONTENT_TYPE.getName()), (String) request.getBody());
+            final BoardRequest boardRequest = HttpRequestParser.parseMultipartFormText(request.getHeaderValue(HttpHeader.CONTENT_TYPE.getName()), (String) request.getBody());
 
             final String cookie = request.getHeaderValue(HttpHeader.COOKIE.getName());
             final User author = userManager.getUserFromSession(CookieParser.parseCookie(cookie))
                     .orElseThrow(() -> new ClientErrorException(INVALID_AUTHORITY));
-            boardManager.save(contents, author.getName());
+            boardManager.save(boardRequest, author.getName());
             response.setResponse(HttpStatus.FOUND, FileContentType.HTML_UTF_8);
             response.setHeader(HttpHeader.LOCATION.getName(), HOME_PATH);
 
