@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ApiPathPool;
 import util.StaticResourcePathPool;
-import util.exception.NoSuchPathException;
-import util.exception.NotAllowedMethodException;
-import util.exception.SessionNotFoundException;
-import util.exception.UserNotFoundException;
+import util.exception.*;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -31,15 +28,18 @@ public class HttpRequestDispatcher {
             String path = httpRequest.getPath().toLowerCase();
             HttpMethod method = httpRequest.getMethod();
 
-            if (ApiPathPool.getInstance().isAvailable(method, path)) {
-                Method classMethod = ApiPathPool.getInstance().getMethod(method, path);
-                classMethod.invoke(ApiPathPool.getInstance().getClass(path), httpRequest, httpResponse);
+            if (StaticResourcePathPool.getInstance().isAvailable(method, path)) {
+                Handler handler = StaticResourcePathPool.getInstance().getHandler(path);
+                handler.handle(httpRequest, httpResponse);
                 return;
             }
 
-            Handler handler = StaticResourcePathPool.getInstance().getHandler(path);
+            if (!ApiPathPool.getInstance().isAvailable(method, path)) {
+                throw new NoSuchPathException("해당 경로를 찾을 수 없습니다.");
+            }
 
-            handler.handle(httpRequest, httpResponse);
+            Method classMethod = ApiPathPool.getInstance().getMethod(method, path);
+            classMethod.invoke(ApiPathPool.getInstance().getClass(path), httpRequest, httpResponse);
         } catch (NoSuchPathException e) {
             httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (NotAllowedMethodException e) {
@@ -50,7 +50,13 @@ public class HttpRequestDispatcher {
             httpResponse.sendError(e.httpStatus, e.getMessage());
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof SessionNotFoundException ex) {
-                httpResponse.sendError(ex.httpStatus, e.getMessage());
+                httpResponse.sendError(ex.httpStatus, ex.getMessage());
+            } else if (e.getCause() instanceof UserNotFoundException ex) {
+                httpResponse.sendError(ex.httpStatus, ex.getMessage());
+            } else if (e.getCause() instanceof ArticleNotFoundException ex) {
+                httpResponse.sendError(ex.httpStatus, ex.getMessage());
+            } else {
+                httpResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
     }

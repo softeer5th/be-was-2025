@@ -1,6 +1,6 @@
 package handler;
 
-import db.Database;
+import db.UserStore;
 import db.SessionStore;
 import http.constant.HttpHeader;
 import http.HttpRequest;
@@ -10,9 +10,10 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Cookie;
+import util.RequestParser;
 import util.SessionUtils;
 
-import java.util.HashMap;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 public class UserHandler {
@@ -21,8 +22,8 @@ public class UserHandler {
     public UserHandler() {
     }
 
-    public void createUser(HttpRequest request, HttpResponse response) {
-        Map<String, String> data = parseBody(request);
+    public void createUser(HttpRequest request, HttpResponse response) throws UnsupportedEncodingException {
+        Map<String, String> data = RequestParser.parseBody(new String(request.getBody()));
         String userId = data.get("userId");
         String username = data.get("username");
         String password = data.get("password");
@@ -32,11 +33,11 @@ public class UserHandler {
             return;
         }
 
-        Database.findUserById(userId) .ifPresentOrElse(user -> {
+        UserStore.findUserById(userId) .ifPresentOrElse(user -> {
                 response.redirect("/registration");
             }, () -> {
-                User user = new User(userId, username, password, null);
-                Database.addUser(user);
+                User user = new User(userId, password, username, "");
+                UserStore.addUser(user);
 
                 response.redirect("/");
             }
@@ -44,8 +45,8 @@ public class UserHandler {
 
     }
 
-    public void loginUser(HttpRequest request, HttpResponse response) {
-        Map<String, String> data = parseBody(request);
+    public void loginUser(HttpRequest request, HttpResponse response) throws UnsupportedEncodingException {
+        Map<String, String> data = RequestParser.parseBody(new String(request.getBody()));
         String userId = data.get("userId");
         String password = data.get("password");
         if (userId == null || password == null) {
@@ -53,7 +54,7 @@ public class UserHandler {
             return;
         }
 
-        Database.findUserById(userId).ifPresentOrElse(user -> {
+        UserStore.findUserById(userId).ifPresentOrElse(user -> {
                 if (!user.getPassword().equals(password)) {
                     response.redirect("/login/failed.html");
                     return;
@@ -80,18 +81,5 @@ public class UserHandler {
         SessionStore.deleteBySessionId(session.sessionId());
 
         response.redirect("/");
-    }
-    
-    private Map<String, String> parseBody(HttpRequest request) {
-        Map<String, String> map = new HashMap<>();
-        String body = request.getBody();
-        String[] tokens = body.split("&");
-        for(String token: tokens) {
-            String[] items = token.split("=");
-            String key = items[0].trim();
-            String value = items.length > 1 ? items[1].trim() : null;
-            map.put(key, value);
-        }
-        return map;
     }
 }

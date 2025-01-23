@@ -1,7 +1,10 @@
 package util;
 
 import handler.*;
+import http.constant.HttpMethod;
+import util.exception.NoSuchPathException;
 
+import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class StaticResourcePathPool {
@@ -20,10 +23,23 @@ public class StaticResourcePathPool {
         staticResourceMap.put("/", new HomeHandler());
         staticResourceMap.put("/main", new MainHandler());
         staticResourceMap.put("/mypage", new MypageHandler());
+        staticResourceMap.put("/article", new ArticleHandler());
+        staticResourceMap.put("/comment", new CommentHandler());
     }
 
     public Handler getHandler(String path) {
         return staticResourceMap.getOrDefault(path, defaultHandler);
+    }
+
+    public boolean isAvailable(HttpMethod method, String path) {
+        if (method != HttpMethod.GET) return false;
+
+        try {
+            File file = FileUtils.findFile(path);
+        } catch (NoSuchPathException e) {
+            return false;
+        }
+        return true;
     }
 
     public static StaticResourcePathPool getInstance() {

@@ -7,7 +7,7 @@ import java.io.*;
 public class FileUtils {
     private static final String ROOT_PATH = "./src/main/resources/static";
 
-    public static File findFile(String target) throws IOException {
+    public static File findFile(String target) {
         File file = new File(ROOT_PATH + target);
 
         return isAvailable(file);

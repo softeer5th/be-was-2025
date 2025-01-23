@@ -5,6 +5,7 @@ import http.constant.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.Cookie;
+import util.RequestParser;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -21,7 +22,7 @@ public class HttpRequest {
     private final String version;
     private final Map<String,String> queries;
     private final Map<String, String> headers;
-    private final String body;
+    private final byte[] body;
 
     private final URI uri;
 
@@ -62,32 +63,23 @@ public class HttpRequest {
         return headers;
     }
 
-    private Map<String, String> parseQuery(String queryString) {
-        if (queryString == null) {
-            return null;
-        }
+    private Map<String, String> parseQuery(String queryString) throws UnsupportedEncodingException {
         Map<String, String> query = new HashMap<>();
-
-        String[] queryArray = resolveQuery(queryString);
-        for (String s : queryArray) {
-            String[] items = s.split("=");
-            String key = items[0].trim();
-            String value = items.length > 1 ? items[1].trim() : null;
-            query.put(key, value);
+        if (queryString == null) {
+            return query;
         }
-        return query;
+
+        return RequestParser.parseBody(queryString);
     }
 
-    private String extractBody(List<String> request) {
+    private byte[] extractBody(List<String> request) {
         if (!headers.containsKey(HttpHeader.CONTENT_LENGTH.value().toLowerCase())) {
             return null;
         }
         int len = request.size();
-        return request.get(len - 1);
-    }
-
-    private String[] resolveQuery(String query) {
-        return query.split("&");
+        byte[] result = request.get(len - 1).getBytes();
+        logger.debug("request Body: {}", new String(result));
+        return result;
     }
 
     public HttpMethod getMethod() {
@@ -114,7 +106,7 @@ public class HttpRequest {
         return uri;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
     }
 
