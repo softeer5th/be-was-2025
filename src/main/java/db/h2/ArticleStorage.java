@@ -115,7 +115,6 @@ public class ArticleStorage {
         List<Article> articles = new ArrayList<>();
 
         try (var pstmt = connection.prepareStatement(selectArticlesQuery)) {
-            connection.setAutoCommit(false);
             var rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -142,13 +141,8 @@ public class ArticleStorage {
                     }
                 }
             }
-            connection.commit();
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                throw new RuntimeException("Failed to find articles for user: ", e);
-            }
+            throw new RuntimeException("Failed to find articles for user: ", e);
         }
 
         return articles;

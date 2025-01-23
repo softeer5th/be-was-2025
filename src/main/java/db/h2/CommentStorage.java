@@ -77,7 +77,6 @@ public class CommentStorage {
         List<Comment> comments = new ArrayList<>();
 
         try (var pstmt = connection.prepareStatement(selectCommentsQuery)) {
-            connection.setAutoCommit(false);
             pstmt.setLong(1, article.getId());
             var rs = pstmt.executeQuery();
 
@@ -105,14 +104,9 @@ public class CommentStorage {
                         comments.add(comment);
                     }
                 }
-                connection.commit();
             }
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                throw new RuntimeException("Failed to find comments for article: " + article, e);
-            }
+            throw new RuntimeException("Failed to find comments for article: " + article, e);
         }
         return comments;
     }
