@@ -67,7 +67,7 @@
     const content = document.getElementById('content');
     content.addEventListener("input", e => {
         if (blankPattern.test(content.value)) {
-            content.setCustomValidity("영어와 숫자만 입력해주세요");
+            content.setCustomValidity("내용을 입력해주세요.");
         } else {
             content.setCustomValidity("");
         }

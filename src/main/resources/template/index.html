@@ -163,6 +163,15 @@
             showAllBtn.classList.add('hidden');
             showAllBtn.removeEventListener('click', showHiddenComments);
         });
+
+    function deleteSrc(e) {
+        e.target.removeAttribute('src')
+        e.target.classList.add('broken-img')
+    }
+
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', deleteSrc)
+    });
 </script>
 </body>
 </html>
