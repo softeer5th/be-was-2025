@@ -68,7 +68,7 @@ public class UserEntryPoint {
 
     @RequestMapping(path = "/index", method = HTTPMethod.GET)
     public ResponseData<String> homePage(
-            @Cookie(name="SID", authenticated = true) String sid,
+            @Cookie(name="SID", required = false, authenticated = true) String sid,
             @RequestParam(key = "page") Integer page
     ) {
         Map<String, String> storage = SessionStorage.getStorage(sid);
@@ -77,7 +77,10 @@ public class UserEntryPoint {
             userId = Optional.ofNullable(storage.get("userId"));
         }
         page = page == null ? 1 : page;
-        Optional<Post> post = this.database.getPost(userId.get(), page);
+        Optional<Post> post = Optional.empty();
+        if (userId.isPresent()) {
+            post = this.database.getPost(userId.get(), page);
+        }
         String body = IndexPageWriter.write(userId, post);
         return new ResponseData.ResponseDataBuilder<String>()
                 .contentType(HTTPContentType.TEXT_HTML)
