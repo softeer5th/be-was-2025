@@ -1,10 +1,9 @@
 package servlet;
 
-import db.Database;
+import db.h2.UserStorage;
 import model.User;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
-import webserver.http.HttpStatus;
 import webserver.http.servlet.HttpServlet;
 import webserver.session.HttpSession;
 
@@ -34,17 +33,23 @@ public class UpdateUserServlet extends HttpServlet {
             return;
         }
 
-        if(newPassword != null && !newPassword.equals(newPasswordConfirm)) {
+        if(newPassword != null && !newPassword.isBlank() && !newPassword.equals(newPasswordConfirm)) {
             response.sendRedirect("/mypage/failed_incorrect_password.html");
+            return;
+        }
+
+        if(newPassword != null && !newPassword.isBlank() && !User.validatePassword(newPassword)) {
+            response.sendRedirect("/mypage/failed_invalid_password.html");
             return;
         }
 
         user.changeName(newName);
         user.changePassword(newPassword);
 
-        Database.saveUser(user);
+        UserStorage userStorage = UserStorage.getInstance();
+        userStorage.update(user);
 
-        if(newPassword != null) {
+        if(newPassword != null && !newPassword.isBlank()) {
             response.sendRedirect("/mypage/success.html");
             session.invalidate();
         } else {
