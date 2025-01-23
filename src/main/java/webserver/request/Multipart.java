@@ -6,6 +6,7 @@ import util.FileUtil;
 import webserver.enums.ContentType;
 import webserver.enums.HttpHeader;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class Multipart {
         if (!has(name)) {
             return null;
         }
-        return new String(formData.get(name).body).strip();
+        return new String(formData.get(name).body, StandardCharsets.UTF_8).replaceAll("\r\n", "\n");
     }
 
     /**

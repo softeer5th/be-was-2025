@@ -12,8 +12,8 @@ import webserver.header.RequestHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static webserver.enums.ContentType.APPLICATION_X_WWW_FORM_URLENCODED;
@@ -114,11 +114,7 @@ public class RequestBody {
         if (body == null || body.length == 0)
             return null;
         String bodyString;
-        try {
-            bodyString = URLDecoder.decode(new String(body), DEFAULT_CHARSET.value);
-        } catch (UnsupportedEncodingException e) {
-            throw new BadRequest("Invalid Body Encoding");
-        }
+        bodyString = URLDecoder.decode(new String(body, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
         Map<String, String> bodyMap = new HashMap<>();
 
         String[] tokens = bodyString.split(FORM_URLENCODED_SEPARATOR.value);
@@ -126,12 +122,12 @@ public class RequestBody {
             if (token.isBlank())
                 continue;
             if (token.startsWith(FORM_URLENCODED_KEY_VALUE_SEPARATOR.value)) {
-                bodyMap.put(FORM_URLENCODED_DEFAULT_KEY.value, token.substring(1).strip());
+                bodyMap.put(FORM_URLENCODED_DEFAULT_KEY.value, token.substring(1).replaceAll("\r\n", "\n"));
             } else if (token.endsWith(FORM_URLENCODED_KEY_VALUE_SEPARATOR.value)) {
                 bodyMap.put(token.substring(0, token.length() - 1).strip(), FORM_URLENCODED_DEFAULT_VALUE.value);
             } else {
                 String[] keyValue = token.split(FORM_URLENCODED_KEY_VALUE_SEPARATOR.value, 2);
-                bodyMap.put(keyValue[0].strip(), keyValue[1].strip());
+                bodyMap.put(keyValue[0].strip(), keyValue[1].replaceAll("\r\n", "\n"));
             }
         }
         return bodyMap;
