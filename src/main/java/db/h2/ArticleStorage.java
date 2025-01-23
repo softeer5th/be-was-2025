@@ -23,7 +23,7 @@ public class ArticleStorage {
     private final Connection connection = DriverManager.getConnection("jdbc:h2:mem:codestagram");
 
     private ArticleStorage() throws SQLException {
-        java.lang.String createTableSQL = """
+        String createTableSQL = """
             CREATE TABLE article (
                 id BIGINT AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT NOT NULL,
@@ -31,8 +31,11 @@ public class ArticleStorage {
             );
         """;
         try (var stmt = connection.createStatement()) {
+            connection.setAutoCommit(false);
             stmt.execute(createTableSQL);
+            connection.commit();
         } catch (SQLException e) {
+            connection.rollback();
             throw new RuntimeException("Failed to create table: " + createTableSQL, e);
         }
     }
@@ -40,25 +43,31 @@ public class ArticleStorage {
     public static ArticleStorage getInstance() { return INSTANCE; }
 
     public void insert(Article article) {
-        java.lang.String sql = """
+        String sql = """
             INSERT INTO article (user_id, content)
             VALUES (?, ?);
         """;
-
         try (var pstmt = connection.prepareStatement(sql)) {
+            connection.setAutoCommit(false);
             pstmt.setLong(1, article.getUser().getId());
             pstmt.setString(2, article.getContent());
             pstmt.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save article: " + article , e);
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                throw new RuntimeException("Failed to save article: " + article , e);
+            }
         }
     }
 
     public Article findArticleById(Long id) {
-        java.lang.String selectArticleQuery = "SELECT id, user_id, content FROM article WHERE id = ?";
-        java.lang.String selectUserQuery = "SELECT id, user_id, password, name, email FROM users WHERE id = ?";
+        String selectArticleQuery = "SELECT id, user_id, content FROM article WHERE id = ?";
+        String selectUserQuery = "SELECT id, user_id, password, name, email FROM users WHERE id = ?";
 
         try (var pstmt = connection.prepareStatement(selectArticleQuery)) {
+            connection.setAutoCommit(false);
             pstmt.setLong(1, id);
             var rs = pstmt.executeQuery();
 
@@ -87,20 +96,26 @@ public class ArticleStorage {
                     );
                 }
             }
+            connection.commit();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find article by ID: " + id, e);
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                throw new RuntimeException("Failed to find article by ID: " + id, e);
+            }
         }
 
         return null;
     }
 
     public List<Article> findAll() {
-        java.lang.String selectArticlesQuery = "SELECT id, user_id, content FROM article ORDER BY id DESC;";
-        java.lang.String selectUserQuery = "SELECT id, user_id, password, name, email FROM users WHERE id = ?";
+        String selectArticlesQuery = "SELECT id, user_id, content FROM article ORDER BY id DESC;";
+        String selectUserQuery = "SELECT id, user_id, password, name, email FROM users WHERE id = ?";
 
         List<Article> articles = new ArrayList<>();
 
         try (var pstmt = connection.prepareStatement(selectArticlesQuery)) {
+            connection.setAutoCommit(false);
             var rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -127,8 +142,13 @@ public class ArticleStorage {
                     }
                 }
             }
+            connection.commit();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find articles for user: ", e);
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                throw new RuntimeException("Failed to find articles for user: ", e);
+            }
         }
 
         return articles;
