@@ -41,7 +41,8 @@ public class JdbcArticleDataManager implements ArticleDataManger {
     }
 
     @Override
-    public Collection<Article> findArticleByUser(User user) {
+    public Collection<Article> findArticlesByUserId(String userId) {
+        logger.info("Find Articles by User SQL");
         String sql = "SELECT * FROM Articles WHERE user_id = ?";
 
         List<Article> articles = new ArrayList<>();
@@ -50,14 +51,14 @@ public class JdbcArticleDataManager implements ArticleDataManger {
 
             conn.setAutoCommit(false);
 
-            pstmt.setString(1, user.getUserId());
+            pstmt.setString(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     articles.add(new Article(
                             rs.getInt("id"),
-                            rs.getString("userId"),
+                            rs.getString("user_id"),
                             rs.getString("content"),
-                            rs.getString("imgUrl")
+                            rs.getString("image_url")
                     ));
                 }
             }
