@@ -6,6 +6,7 @@ import model.Article;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.JdbcUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,18 +20,23 @@ public class JdbcArticleDataManager implements ArticleDataManger {
     private static final Logger logger = LoggerFactory.getLogger(JdbcArticleDataManager.class);
 
     @Override
-    public void addArticle(Article article, User user) {
+    public void addArticle(Article article) {
+        logger.info("Add Article SQL");
         String sql = "INSERT INTO Articles (userId, content) VALUES (?, ?)";
 
-        try (Connection conn = HikariCPManager.getConnection();
+        try (Connection conn = JdbcUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, user.getUserId());
+
+            conn.setAutoCommit(false); // 트랜잭션 시작
+
+            pstmt.setString(1, article.getUserId());
             pstmt.setString(2, article.getContent());
             pstmt.executeUpdate();
+
+            conn.commit();
+
         } catch (SQLException e) {
-            DBErrorCode errorCode = DBErrorCode.mapSQLErrorCode(e);
-            logger.error("Database error : {}", errorCode.getMessage());
-            throw new BaseException(errorCode);
+            handleSQLException(e);
         }
     }
 
@@ -39,11 +45,12 @@ public class JdbcArticleDataManager implements ArticleDataManger {
         String sql = "SELECT * FROM Articles WHERE userId = ?";
 
         List<Article> articles = new ArrayList<>();
-        try (Connection conn = HikariCPManager.getConnection();
+        try (Connection conn = JdbcUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, user.getUserId());
+            conn.setAutoCommit(false);
 
+            pstmt.setString(1, user.getUserId());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     articles.add(new Article(
@@ -54,12 +61,26 @@ public class JdbcArticleDataManager implements ArticleDataManger {
                     ));
                 }
             }
+            conn.commit();
         } catch (SQLException e) {
-            DBErrorCode errorCode = DBErrorCode.mapSQLErrorCode(e);
-            logger.error("Database error : {}", errorCode.getMessage());
-            throw new BaseException(errorCode);
+            handleSQLException(e);
         }
         return articles;
     }
 
+
+    private void handleSQLException(SQLException e) {
+        DBErrorCode errorCode = DBErrorCode.mapSQLErrorCode(e);
+        logger.error("Database error: SQLState={}, ErrorCode={}, Message={}",
+                e.getSQLState(), e.getErrorCode(), e.getMessage());
+
+        try (Connection conn = JdbcUtil.getConnection()) {
+            conn.rollback();
+            logger.warn("Transaction rolled back due to an error.");
+        } catch (SQLException rollbackEx) {
+            logger.error("Rollback failed: {}", rollbackEx.getMessage());
+        }
+
+        throw new BaseException(errorCode);
+    }
 }
