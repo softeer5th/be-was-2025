@@ -47,15 +47,16 @@ public class FileRequestHandler implements Handler {
 
         String fileExtension = FileUtil.getContentType(path);
         String content = FileUtil.readHtmlFileAsString(STATIC_FILE_PATH + path);
-        StringBuilder contentBuilder = new StringBuilder(content);
 
         // 로그인 상태라면 UI 수정
         if (user != null) {
             logger.debug("User logged in: {}", user);
-            replaceLoginUI(contentBuilder, user.getNickname());
+            content = content.replace("<!--header_menu-->", generateLoggedInUserHeader(user.getNickname()));
+        } else {
+            content = content.replace("<!--header_menu-->", generateGuestUserMenu());
         }
 
-        byte[] responseBody = contentBuilder.toString().getBytes(StandardCharsets.UTF_8);
+        byte[] responseBody = content.getBytes(StandardCharsets.UTF_8);
 
         HttpResponse response = new HttpResponse();
         response.setStatus(HttpStatus.OK);
@@ -82,25 +83,36 @@ public class FileRequestHandler implements Handler {
         return userDataManager.findUserById(userId);
     }
 
-    private void replaceLoginUI(StringBuilder content, String nickname) {
-        logger.debug("Executing replaceLoginUI");
+    private StringBuilder generateLoggedInUserHeader(String nickname) {
+        StringBuilder sb = new StringBuilder();
 
-        int startIndex = content.indexOf("<li class=\"header__menu__item\">");
-        if (startIndex != -1) {
-            int endIndex = content.indexOf("</ul>", startIndex);
-            if (endIndex != -1) {
-                StringBuilder newUI = new StringBuilder();
-                newUI.append("<li class=\"header__menu__item\">")
-                        .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/mypage\">안녕하세요, ").append(nickname).append("님</a>")
-                        .append("</li>")
-                        .append("<li class=\"header__menu__item\">")
-                        .append("<form action=\"/users/logout\" method=\"POST\">")
-                        .append("<button type=\"submit\" class=\"btn btn_ghost btn_size_s\">로그아웃</button>")
-                        .append("</form>")
-                        .append("</li>");
+        sb.append("<ul class=\"header__menu\">")
+                .append("<li class=\"header__menu__item\">")
+                .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/mypage\">안녕하세요, ").append(nickname).append("님</a>")
+                .append("</li>")
+                .append("<li class=\"header__menu__item\">")
+                .append("<form action=\"/users/logout\" method=\"POST\">")
+                .append("<button type=\"submit\" class=\"btn btn_ghost btn_size_s\">로그아웃</button>")
+                .append("</form>")
+                .append("</li>")
+                .append("</ul>");
 
-                content.replace(startIndex, endIndex, newUI.toString());
-            }
-        }
+        return sb;
     }
+
+    private StringBuilder generateGuestUserMenu() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<ul class=\"header__menu\">")
+                .append("<li class=\"header__menu__item\">")
+                .append("<a class=\"btn btn_contained btn_size_s\" href=\"/login\">로그인</a>")
+                .append("</li>")
+                .append("<li class=\"header__menu__item\">")
+                .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/registration\">회원 가입</a>")
+                .append("</li>")
+                .append("</ul>");
+
+        return sb;
+    }
+
 }
