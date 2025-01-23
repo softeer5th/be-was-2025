@@ -1,4 +1,4 @@
-package webserver;
+package model;
 
 import java.time.LocalTime;
 import java.util.UUID;
@@ -16,12 +16,23 @@ public class Session {
         this.maxInactiveInterval = maxInactiveInterval;
     }
 
+    public Session(String sessionId, String userId, LocalTime lastAccessTime, int maxInactiveInterval) {
+        this.sessionId = sessionId;
+        this.userId = userId;
+        this.lastAccessTime = lastAccessTime;
+        this.maxInactiveInterval = maxInactiveInterval;
+    }
+
     public String getSessionId() {
         return sessionId;
     }
 
     public String getUserId() {
         return userId;
+    }
+
+    public LocalTime getLastAccessTime() {
+        return lastAccessTime;
     }
 
     public int getMaxInactiveInterval() {
