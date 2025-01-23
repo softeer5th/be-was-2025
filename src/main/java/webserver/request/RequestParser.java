@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.cookie.Cookie;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +24,14 @@ public class RequestParser {
         setStartLine(request, startLine);
         setHeaders(request, headers);
         setCookie(request);
-        String contentLengthHeader = request.getHeader("CONTENT-LENGTH");
 
+        String boundary = getBoundaryIfMultipart(request.getHeader("CONTENT-TYPE"));
+        if(boundary != null) {
+            setMultiPartBody(request, boundary, br);
+            return request;
+        }
+
+        String contentLengthHeader = request.getHeader("CONTENT-LENGTH");
 
         if (contentLengthHeader != null) {
             int contentLength = Integer.parseInt(contentLengthHeader);
@@ -38,6 +42,7 @@ public class RequestParser {
                 request.setBody(body);
             }
         }
+
 
         return request;
     }
@@ -75,4 +80,70 @@ public class RequestParser {
             request.setCookie(cookie);
         }
     }
+
+    private static String getBoundaryIfMultipart(String contentTypeString) {
+        if (contentTypeString == null) { return null; }
+
+        String[] tokens = contentTypeString.split(";");
+        if(!tokens[0].equalsIgnoreCase("multipart/form-data")){ return null; }
+
+        return tokens[1].split("=", 2)[1].trim();
+    }
+
+    private static void setMultiPartBody(Request request, String boundary, BufferedReader br) throws IOException {
+        List<FileBody> files = new ArrayList<>();
+        ByteArrayOutputStream fileData = new ByteArrayOutputStream();
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        boolean isFilePart = false;
+        String name = null;
+        String filename = null;
+        String contentType = null;
+
+        while ((line = br.readLine()) != null) {
+            if(line.startsWith("--" + boundary + "--")){ break;}
+            if (line.startsWith("--" + boundary) || line.isEmpty()) {
+                continue;
+            }
+
+            if (line.contains("Content-Disposition:")) {
+                if (line.contains("filename=")) {
+                    isFilePart = true;
+                    name = extractValue(line, "name");
+                    filename = extractValue(line, "filename");
+                } else {
+                    name = extractValue(line, "name");
+                    isFilePart = false;
+                }
+            } else if (line.contains("Content-Type:")) {
+                contentType = line.split(":", 2)[1].trim();
+            } else if (isFilePart) {
+                while ((line = br.readLine()) != null && !line.startsWith("--" + boundary)) {
+                    fileData.write(line.getBytes(StandardCharsets.ISO_8859_1));
+                    fileData.write("\r\n".getBytes(StandardCharsets.ISO_8859_1));
+                }
+                byte[] data = fileData.toByteArray();
+                fileData.reset();
+                files.add(new FileBody(name, filename, contentType, data));
+                isFilePart = false;
+            } else {
+                sb.append(name).append("=").append(line).append("&");
+            }
+        }
+
+        if (!sb.isEmpty()) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        request.setFiles(files);
+        request.setBody(sb.toString());
+    }
+
+    private static String extractValue(String line, String key) {
+        int start = line.indexOf(key + "=\"") + key.length() + 2;
+        int end = line.indexOf("\"", start);
+        return line.substring(start, end);
+    }
+
 }
