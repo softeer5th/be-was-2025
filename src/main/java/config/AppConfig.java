@@ -4,8 +4,8 @@ import db.*;
 import handler.*;
 
 public class AppConfig {
-    private static final UserDataManager userDataManager = LocalUserDataManager.getInstance();
-    private static final SessionDataManager sessionDataManager = LocalSessionDataManager.getInstance();
+    private static final UserDataManager userDataManager = new JdbcUserDataManager();
+    private static final SessionDataManager sessionDataManager = new JdbcSessionDataManager();
     private static final ArticleDataManger articleDataManger = new JdbcArticleDataManager();
 
     private static final UserRegisterHandler userRegisterHandler = new UserRegisterHandler(userDataManager);
