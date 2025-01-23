@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.config.ServerConfig;
 import webserver.enums.HttpVersion;
-import webserver.exception.HttpException;
 import webserver.exception.filter.ExceptionFilterChain;
 import webserver.handler.HttpHandler;
 import webserver.interceptor.InterceptorChain;
@@ -83,10 +82,9 @@ public class FrontController implements Runnable {
                 HttpResponse response = interceptorChain.execute(request, handler);
 
                 responseWriter.writeResponse(request.getVersion(), response, out);
-                
+
             } catch (Exception e) {
-                if (!(e instanceof HttpException))
-                    logger.debug("에러 발생", e);
+                logger.debug("에러 발생", e);
                 // 에러 응답
                 HttpResponse response = exceptionFilterChain.catchException(e, request);
                 HttpVersion version = request != null ? request.getVersion() : supportedHttpVersions.get(0);
