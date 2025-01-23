@@ -9,16 +9,19 @@ import java.util.Map;
 import db.ArticleDatabase;
 import db.UserDatabase;
 import enums.HttpStatus;
+import http.CustomException;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
+import util.FileUtils;
 import view.TemplateEngine;
+import view.View;
 
 public class FrontControllerServlet implements Servlet {
 
 	// 싱글톤 보장해주기 위함.
 	private static final FrontControllerServlet INSTANCE = new FrontControllerServlet();
 	private static final String STATIC_RESOURCES = "/resources";
-	private static final String ERROR_PAGE = "/error.html";
+	private static final String ERROR_PAGE = "static/error.html";
 	private final Map<String, Servlet> controllerMap;
 
 	private FrontControllerServlet() {
@@ -67,7 +70,21 @@ public class FrontControllerServlet implements Servlet {
 			}
 
 		} catch (Exception e) {
-			response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, ERROR_PAGE);
+			byte[] body = FileUtils.getFileAsByteArray(ERROR_PAGE);
+
+			CustomException exception = new CustomException(HttpStatus.BAD_REQUEST, e.getMessage());
+			Map<String, Object> model = new HashMap<>();
+			model.put("customException", exception);
+
+			View view = new View(model, ERROR_PAGE);
+
+			response.setBody(body);
+			response.setStatusCode(HttpStatus.BAD_REQUEST);
+			response.setVersion(request.getVersion());
+			response.setView(view);
+			TemplateEngine.render(response);
+
+			//response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, ERROR_PAGE);
 		}
 	}
 }
