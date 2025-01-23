@@ -31,21 +31,22 @@ public class RequestParser {
         setHeaders(request, headers);
         setCookie(request);
 
+        String contentLengthHeader = request.getHeader("CONTENT-LENGTH");
+        if (contentLengthHeader == null) { return request; }
+
         String boundary = getBoundaryIfMultipart(request.getHeader("CONTENT-TYPE"));
         if (boundary != null) {
             setMultiPartBody(request, boundary, in);
             return request;
         }
 
-        String contentLengthHeader = request.getHeader("CONTENT-LENGTH");
-        if (contentLengthHeader != null) {
-            int contentLength = Integer.parseInt(contentLengthHeader);
-            byte[] bodyBytes = new byte[contentLength];
-            int read = in.read(bodyBytes);
-            if (read > 0) {
-                request.setBody(new String(bodyBytes, 0, read, StandardCharsets.UTF_8));
-            }
+        int contentLength = Integer.parseInt(contentLengthHeader);
+        byte[] bodyBytes = new byte[contentLength];
+        int read = in.read(bodyBytes);
+        if (read > 0) {
+            request.setBody(new String(bodyBytes, 0, read, StandardCharsets.UTF_8));
         }
+
         return request;
     }
 
