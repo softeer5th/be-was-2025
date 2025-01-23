@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
 import webserver.enumeration.HTTPContentType;
 import webserver.enumeration.HTTPStatusCode;
+import webserver.exception.HTTPException;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
 import webserver.message.header.records.AcceptRecord;
@@ -36,8 +37,9 @@ public class StaticResourceResolver implements ResourceResolver {
             optionalFile = tryFindFile(request, response, index);
         }
         if (optionalFile.isEmpty()) {
-            response.statusCode(HTTPStatusCode.NOT_FOUND);
-            return;
+            throw new HTTPException.Builder()
+                    .causedBy(StaticResourceResolver.class)
+                    .notFound(request.getUri());
         }
         response.body(optionalFile.get());
         response.statusCode(HTTPStatusCode.OK);
