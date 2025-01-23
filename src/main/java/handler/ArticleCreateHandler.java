@@ -7,13 +7,13 @@ import http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ArticleHandler implements Handler {
-    private static final Logger logger = LoggerFactory.getLogger(ArticleHandler.class);
+public class ArticleCreateHandler implements Handler {
+    private static final Logger logger = LoggerFactory.getLogger(ArticleCreateHandler.class);
 
     private final ArticleDataManger articleDataManger;
     private final SessionDataManager sessionDataManager;
 
-    public ArticleHandler(ArticleDataManger articleDataManger, SessionDataManager sessionDataManager) {
+    public ArticleCreateHandler(ArticleDataManger articleDataManger, SessionDataManager sessionDataManager) {
         this.articleDataManger = articleDataManger;
         this.sessionDataManager = sessionDataManager;
     }

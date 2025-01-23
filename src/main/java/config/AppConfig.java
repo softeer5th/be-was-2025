@@ -6,12 +6,12 @@ import handler.*;
 public class AppConfig {
     private static final UserDataManager userDataManager = LocalUserDataManager.getInstance();
     private static final SessionDataManager sessionDataManager = LocalSessionDataManager.getInstance();
-    private static final ArticleDataManger articleDataManger = null;
+    private static final ArticleDataManger articleDataManger = new JdbcArticleDataManager();
 
     private static final UserRegisterHandler userRegisterHandler = new UserRegisterHandler(userDataManager);
     private static final UserLoginHandler userLoginHandler = new UserLoginHandler(userDataManager, sessionDataManager);
     private static final UserLogoutHandler userLogoutHandler = new UserLogoutHandler(sessionDataManager);
-    private static final ArticleHandler articleHandler = new ArticleHandler(articleDataManger, sessionDataManager);
+    private static final ArticleCreateHandler articleCreateHandler = new ArticleCreateHandler(articleDataManger, sessionDataManager);
     private static final FileRequestHandler fileRequestHandler = new FileRequestHandler(userDataManager, sessionDataManager);
 
     public static UserRegisterHandler getUserRegisterHandler() {
@@ -38,5 +38,7 @@ public class AppConfig {
         return sessionDataManager;
     }
 
-    public static ArticleHandler getArticleHandler() { return articleHandler; }
+    public static ArticleCreateHandler getArticleHandler() {
+        return articleCreateHandler;
+    }
 }
