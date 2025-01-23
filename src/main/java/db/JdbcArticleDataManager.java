@@ -39,11 +39,10 @@ public class JdbcArticleDataManager implements ArticleDataManger {
     }
 
     @Override
-    public List<Article> findArticlesByUserId(String userId) {
-        logger.info("Find Articles by User SQL");
-        String sql = "SELECT * FROM Articles WHERE user_id = ?";
+    public Article findArticlesByUserId(String userId) {
+        String sql = "SELECT * FROM Articles WHERE user_id = ? ORDER BY id DESC LIMIT 1";
 
-        List<Article> articles = new ArrayList<>();
+        Article article = null;
         try (Connection conn = JdbcUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -52,19 +51,19 @@ public class JdbcArticleDataManager implements ArticleDataManger {
             pstmt.setString(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    articles.add(new Article(
+                   article = new Article(
                             rs.getInt("id"),
                             rs.getString("user_id"),
                             rs.getString("content"),
                             rs.getString("image_url")
-                    ));
+                    );
                 }
             }
             conn.commit();
         } catch (SQLException e) {
             handleSQLException(e);
         }
-        return articles;
+        return article;
     }
 
 

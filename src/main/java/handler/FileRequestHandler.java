@@ -57,9 +57,8 @@ public class FileRequestHandler implements Handler {
         if (user != null) {
             logger.debug("User logged in: {}", user);
             content = content.replace("<!--header_menu-->", generateLoggedInUserHeader(user.getNickname()));
-
-            List<Article> articles = articleDataManger.findArticlesByUserId(user.getUserId());
-            content = content.replace("<!--article-->", generateArticlesHtml(user, articles));
+            Article article = articleDataManger.findArticlesByUserId(user.getUserId());
+            content = content.replace("<!--article-->", generateArticlesHtml(user, article));
         } else {
             content = content.replace("<!--header_menu-->", generateGuestUserMenu());
         }
@@ -123,23 +122,22 @@ public class FileRequestHandler implements Handler {
         return sb;
     }
 
-    private String generateArticlesHtml(User user, List<Article> articles) {
-        if (articles.isEmpty()) {
+    private String generateArticlesHtml(User user, Article article) {
+        if (article == null) {
             logger.error("Articles list is empty");
             return "";
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<div class='post'>");
-        for (Article article : articles) {
-            sb.append("<div class='post__account'>")
-                    .append("<img class='post__account__img' src='").append("./img/basic_profileImage.svg'").append("' />")
-                    .append("<p class='post__account__nickname'>").append(user.getNickname()).append("</p>")
-                    .append("</div>")
-                    .append("<img class='post__img' src='").append("./img/basic_profileImage.svg'").append("' />")
-                    .append("<p class='post__article'>").append(article.getContent()).append("</p>");
-        }
-        sb.append("</div>");
+        sb.append("<div class='post'>")
+                .append("<div class='post__account'>")
+                .append("<img class='post__account__img' src='").append("./img/basic_profileImage.svg'").append("' />")
+                .append("<p class='post__account__nickname'>").append(user.getNickname()).append("</p>")
+                .append("</div>")
+                .append("<img class='post__img' src='").append("./img/basic_profileImage.svg'").append("' />")
+                .append("<p class='post__article'>").append(article.getContent()).append("</p>")
+                .append("</div>");
+
         return sb.toString();
     }
 }
