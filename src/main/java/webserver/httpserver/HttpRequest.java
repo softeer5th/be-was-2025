@@ -3,10 +3,13 @@ package webserver.httpserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.header.Cookie;
+import webserver.httpserver.header.MimeType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static webserver.httpserver.HttpRequestFactory.CONTENT_TYPE;
 
 public class HttpRequest {
     private HttpMethod method;
@@ -51,6 +54,11 @@ public class HttpRequest {
 
     public String getProtocol() {
         return protocol;
+    }
+
+    public Optional<MimeType> getMimeType(){
+        Optional<String> contentType = getHeader(CONTENT_TYPE);
+        return contentType.map(MimeType::new);
     }
 
     public Cookie getCookie() {

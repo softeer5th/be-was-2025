@@ -1,5 +1,6 @@
 package webserver.httpserver;
 
+import exception.BadRequestException;
 import exception.FileNotSupportedException;
 
 public enum ContentType {
@@ -14,7 +15,8 @@ public enum ContentType {
     SVG(new String[] {"svg", "xml"},   "image/svg+xml"),
     ICO(new String[] {"ico"},          "image/x-icon"),
     OCTET_STREAM(new String[] {"bin"}, "application/octet-stream"),
-    X_WWW_FORM_URLENCODED(new String[]{}, "application/x-www-form-urlencoded");
+    X_WWW_FORM_URLENCODED(new String[]{}, "application/x-www-form-urlencoded"),
+    MULTIPART_FORM_DATA(new String[]{}, "multipart/form-data" );
 
     private final String[] extensions;
     private final String mimeType;
@@ -24,11 +26,22 @@ public enum ContentType {
         this.mimeType = mimeType;
     }
 
+
+
     public String getMimeType() {
         return mimeType;
     }
 
-    public static String guessContentType(String uri) {
+    public static ContentType getContentType(String mimeType) {
+        for (ContentType contentType : values()) {
+            if (mimeType.equals(contentType.mimeType)){
+                return contentType;
+            }
+        }
+        return OCTET_STREAM;
+    }
+
+    public static ContentType guessContentType(String uri) {
         if (uri == null) {
             throw new IllegalArgumentException("uri cannot be null");
         }
@@ -36,7 +49,7 @@ public enum ContentType {
         String lowerUri = uri.toLowerCase();
         int dotIndex = lowerUri.lastIndexOf('.');
         if (dotIndex == -1) {
-            return OCTET_STREAM.getMimeType();
+            return OCTET_STREAM;
         }
 
         String extension = lowerUri.substring(dotIndex + 1);
@@ -44,7 +57,7 @@ public enum ContentType {
         for (ContentType contentType : values()) {
             for (String ext : contentType.extensions) {
                 if (ext.equals(extension)) {
-                    return contentType.getMimeType();
+                    return contentType;
                 }
             }
         }
