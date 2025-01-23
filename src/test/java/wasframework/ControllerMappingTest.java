@@ -46,22 +46,6 @@ public class ControllerMappingTest {
         assertThat(sc).isEqualTo(cm.controller());
     }
 
-    @ParameterizedTest
-    @EnumSource(value = HttpMethod.class, names = {"PUT", "PATCH", "DELETE"})
-    @DisplayName("지원하지 않는 HTTP 메소드 테스트")
-    public void testHttpMethodMismatch(HttpMethod httpMethod) {
-        // given
-        SampleController sc = new SampleController();
-        List<Object> controllers = List.of(sc);
-        ControllerMapping mapping = new ControllerMapping(controllers);
-
-        // when
-        ControllerMethod cm = mapping.getControllerMethod("/hello", httpMethod);
-
-        // then
-        assertThat(cm).isNull();
-    }
-
     @Test
     @DisplayName("경로 변수 포함 URL 매칭 테스트")
     public void testPathVariableMatching() {

@@ -1,5 +1,6 @@
 package webserver.httpserver;
 
+import exception.MethodNotAllowedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -43,9 +45,9 @@ class HttpRequestFactoryTest {
 
         //then
         assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
-        assertThat(request.getHeader(HOST)).isEqualTo("www.example.com");
-        assertThat(request.getHeader(USER_AGENT)).isEqualTo("Mozilla/5.0");
-        assertThat(request.getHeader(ACCEPT)).isEqualTo("text/html");
+        assertThat(request.getHeader(HOST).orElseThrow(NoSuchElementException::new)).isEqualTo("www.example.com");
+        assertThat(request.getHeader(USER_AGENT).orElseThrow(NoSuchElementException::new)).isEqualTo("Mozilla/5.0");
+        assertThat(request.getHeader(ACCEPT).orElseThrow(NoSuchElementException::new)).isEqualTo("text/html");
         assertThat(request.getProtocol()).isEqualTo("HTTP/1.1");
         assertThat(request.getParameter(PARAM_1)).isEqualTo("value1");
         assertThat(request.getParameter(PARAM_2)).isEqualTo("value2");
@@ -71,8 +73,8 @@ class HttpRequestFactoryTest {
         assertThat(httpRequest.getMethod()).isEqualTo(HttpMethod.POST);
         assertThat(httpRequest.getUri()).isEqualTo("/hello");
         assertThat(httpRequest.getProtocol()).isEqualTo("HTTP/1.1");
-        assertThat(httpRequest.getHeader(CONTENT_TYPE)).isEqualTo("application/x-www-form-urlencoded");
-        assertThat(httpRequest.getHeader(CONTENT_LENGTH)).isEqualTo(String.valueOf(requestBody.getBytes().length));
+        assertThat(httpRequest.getHeader(CONTENT_TYPE).orElseThrow(NoSuchElementException::new)).isEqualTo("application/x-www-form-urlencoded");
+        assertThat(httpRequest.getHeader(CONTENT_LENGTH).orElseThrow(NoSuchElementException::new)).isEqualTo(String.valueOf(requestBody.getBytes().length));
         assertThat(httpRequest.getParameter("userId")).isEqualTo("joonho");
         assertThat(httpRequest.getParameter("password")).isEqualTo("1234");
     }
@@ -118,7 +120,7 @@ class HttpRequestFactoryTest {
 
         // when & then
         assertThatThrownBy(() -> requestFactory.getHttpRequest(bis))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(MethodNotAllowedException.class);
     }
 
     @Test
@@ -167,9 +169,9 @@ class HttpRequestFactoryTest {
 
         //then
         assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
-        assertThat(request.getHeader(HOST)).isEqualTo("www.example.com");
-        assertThat(request.getHeader(USER_AGENT)).isEqualTo("Mozilla/5.0");
-        assertThat(request.getHeader(ACCEPT)).isEqualTo("text/html");
+        assertThat(request.getHeader(HOST).orElseThrow(NoSuchElementException::new)).isEqualTo("www.example.com");
+        assertThat(request.getHeader(USER_AGENT).orElseThrow(NoSuchElementException::new)).isEqualTo("Mozilla/5.0");
+        assertThat(request.getHeader(ACCEPT).orElseThrow(NoSuchElementException::new)).isEqualTo("text/html");
         assertThat(request.getProtocol()).isEqualTo("HTTP/1.1");
         assertThat(request.getParameter("소프티어")).isEqualTo("백엔드");
     }

@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+/**
+ * 가장 먼저 요청을 가져와 동적 리소스를 찾고 매핑하는 서블릿
+ */
 public class DispatcherServlet implements Servlet {
     private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
     private final ControllerMapping controllerMapping;

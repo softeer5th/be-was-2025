@@ -1,5 +1,6 @@
 package webserver.httpserver;
 
+import exception.MethodNotAllowedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.header.CookieFactory;
@@ -59,13 +60,16 @@ public class HttpRequestFactory {
 
     private static void checkEmpty(String requestLine) {
         if (requestLine.isEmpty()) {
-            throw new IllegalArgumentException("Method not supported");
+            throw new MethodNotAllowedException("Method not supported");
         }
     }
 
     private static void validateRequestLine(String[] requestLineParts) {
         if (requestLineParts.length != 3) {
-            throw new IllegalArgumentException("Method not supported");
+            throw new MethodNotAllowedException("Method not supported");
+        }
+        if(!HttpMethod.isSupported(requestLineParts[0])){
+            throw new MethodNotAllowedException("Method not supported");
         }
     }
 
@@ -126,7 +130,7 @@ public class HttpRequestFactory {
 
     private static String readLine(BufferedInputStream bis) throws IOException {
         StringBuilder sb = new StringBuilder();
-        int inputData = 0;
+        int inputData;
         while ((inputData = bis.read()) != -1) {
             if (inputData == '\n') {
                 break;

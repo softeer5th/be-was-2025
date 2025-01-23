@@ -6,6 +6,7 @@ import webserver.httpserver.header.Cookie;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class HttpRequest {
     private HttpMethod method;
@@ -36,8 +37,8 @@ public class HttpRequest {
         this.body = body;
     }
 
-    public String getHeader(String key) {
-        return headers.get(key);
+    public Optional<String> getHeader(String key) {
+        return Optional.of(headers.get(key));
     }
 
     public String getParameter(String key) {

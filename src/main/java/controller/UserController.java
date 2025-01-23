@@ -1,8 +1,7 @@
 package controller;
 
-import db.Database;
+import db.UserDao;
 import model.User;
-import tag.HeaderMenu;
 import wasframework.HttpSession;
 import wasframework.Mapping;
 import webserver.httpserver.HttpMethod;
@@ -14,6 +13,7 @@ import webserver.httpserver.header.SetCookie;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 import static utils.FileUtils.getFile;
@@ -53,11 +53,14 @@ public class UserController {
             response.setLocation("/user/login_failed");
             return;
         }
-        User userById = Database.findUserById(inputUserId);
-        if (userById == null) {
+        UserDao database = UserDao.USERS;
+        Optional<User> byId = database.findById(inputUserId);
+        if(byId.isEmpty()){
             response.setLocation("/user/login_failed");
             return;
         }
+        User userById = byId.get();
+
         if (!inputPassword.equals(userById.getPassword())) {
             response.setLocation("/user/login_failed");
             return;
@@ -112,6 +115,12 @@ public class UserController {
         response.setLocation("/");
     }
 
+    /**
+     * 마이 페이지를 보여주는 핸들러
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @Mapping(path = "/mypage", method = HttpMethod.GET)
     public void mypage(HttpRequest request, HttpResponse response) throws IOException {
         response.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -130,6 +139,14 @@ public class UserController {
         response.setBody(readFile);
     }
 
+    /**
+     * 비밀번호를 변경하는 핸들러.
+     * 현재 프로필 이미지 수정과 결합도가 높음.
+     * 분해 예정 TODO
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @Mapping(path = "/user/edit", method = HttpMethod.POST)
     public void changePassword(HttpRequest request, HttpResponse response) throws IOException {
 
@@ -145,8 +162,14 @@ public class UserController {
             response.setStatusCode(StatusCode.UNAUTHORIZED);
             return;
         }
-
-        User userById = Database.findUserById(userId);
+        UserDao database = UserDao.USERS;
+        Optional<User> byId = database.findById(userId);
+        if(byId.isEmpty()){
+            response.setLocation("/error/401.html");
+            response.setStatusCode(StatusCode.UNAUTHORIZED);
+            return;
+        }
+        User userById = byId.get();
         if (sessionId == null || !userById.getName().equals(inputUsername)) {
             response.setLocation("/error/401.html");
             response.setStatusCode(StatusCode.UNAUTHORIZED);

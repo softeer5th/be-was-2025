@@ -3,10 +3,13 @@ package db;
 import model.User;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * stubbing 용으로 남겨둔 Database 객체
+ */
+@Deprecated
 public class Database {
     private static Map<String, User> users = new ConcurrentHashMap<>();
 

@@ -1,15 +1,14 @@
 package servlet;
 
 import exception.FileNotSupportedException;
+import exception.MethodNotAllowedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.httpserver.HttpRequest;
 import webserver.httpserver.HttpRequestFactory;
 import webserver.httpserver.HttpResponse;
-import webserver.httpserver.header.CookieFactory;
 
 import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,19 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 테스트 케이스 만들어야 하는것들
- * 정상 http
- * request 생성중 IOE
- * 정적 리소스 서빙중 FileNotSupported
- * 정적 리소스 서빙중 FileNotFound
- * 정적 리소스 서빙중 IOE
- * 정적 리소스 서빙중 IllegalArgumentException
+ * 요청을 각 서블릿에 매핑하는 책임을 갖는 클래스.
+ * 각 서블릿에 대한 등록이 이곳에서 진행된다.
  */
 public class ServletManager {
     public static final String NOT_FOUND = "NOT_FOUND";
     public static final String FILE_NOT_SUPPORTED = "FILE_NOT_SUPPORTED";
     public static final String BAD_REQUEST = "BAD_REQUEST";
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+    public static final String METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED";
     public static final String DISPATCHER = "dispatcher";
     public static final String DEFAULT = "default";
     private static final Logger log = LoggerFactory.getLogger(ServletManager.class);
@@ -43,6 +38,7 @@ public class ServletManager {
         servlets.put(NOT_FOUND, new FileNotFoundPageServlet());
         servlets.put(BAD_REQUEST, new BadRequestServlet());
         servlets.put(INTERNAL_SERVER_ERROR, new InternalServerErrorServlet());
+        servlets.put(METHOD_NOT_ALLOWED, new MethodNotAllowedErrorServlet());
         requestFactory = factory;
     }
 
@@ -83,6 +79,10 @@ public class ServletManager {
         } catch (IOException | IllegalArgumentException e) {
             response.setProtocol("HTTP/1.1");
             servlets.get(BAD_REQUEST).handle(request, response);
+            return null;
+        } catch (MethodNotAllowedException e){
+            response.setProtocol("HTTP/1.1");
+            servlets.get(METHOD_NOT_ALLOWED).handle(request, response);
             return null;
         }
         return request;
