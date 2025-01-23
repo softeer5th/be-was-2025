@@ -70,18 +70,34 @@ public class DatabaseInitializer {
         });
     }
 
+    /**
+     * 테이블을 생성한다.
+     *
+     * @param connection 사용할 커넥션
+     */
     private void createTable(Connection connection) {
         executeUpdate(CREATE_USERS_TABLE, connection);
         executeUpdate(CREATE_COMMENTS_TABLE, connection);
         executeUpdate(CREATE_ARTICLES_TABLE, connection);
     }
 
+    /**
+     * 외래키 제약 조건을 설정한다.
+     *
+     * @param connection 사용할 커넥션
+     */
     private void setForeignKeyConstraints(Connection connection) {
         executeUpdate(ADD_FOREIGN_KEY_ARTICLES, connection);
         executeUpdate(ADD_FOREIGN_KEY_COMMENTS_ARTICLES, connection);
         executeUpdate(ADD_FOREIGN_KEY_COMMENTS_USERS, connection);
     }
 
+    /**
+     * SQL 쿼리를 실행한다. Select 쿼리가 아닌 경우에 사용한다.
+     *
+     * @param sql        실행할 쿼리
+     * @param connection 사용할 커넥션
+     */
     private void executeUpdate(String sql, Connection connection) {
         DatabaseUtil.run(PreparedStatement::executeUpdate, connection, false, sql);
     }

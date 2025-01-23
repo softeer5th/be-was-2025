@@ -14,6 +14,11 @@ public class Transaction implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(Transaction.class);
     private final Connection connection;
 
+    /**
+     * 생성자
+     *
+     * @param connection 트랜젝션에 사용되는 JDBC Connection 객체
+     */
     Transaction(Connection connection) {
         this.connection = connection;
     }

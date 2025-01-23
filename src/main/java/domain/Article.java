@@ -4,12 +4,24 @@ package domain;
  * 게시글 정보를 나타내는 클래스
  */
 public class Article {
+    /**
+     * 게시글 식별자. 저장 시 자동 생성된다.
+     */
     private Long articleId;
 
+    /**
+     * 게시글 작성자
+     */
     private User writer;
 
+    /**
+     * 게시글 내용
+     */
     private String content;
 
+    /**
+     * 게시글 이미지 경로
+     */
     private String articleImagePath;
 
     Article(Long articleId, User writer, String content, String articleImagePath) {

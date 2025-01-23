@@ -56,6 +56,16 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
         this.database = database;
     }
 
+    private static Article mapArticle(ResultSet rs) throws SQLException {
+        User writer = UserDao.mapUser(rs);
+        return new Article(
+                rs.getLong("articleId"),
+                writer,
+                rs.getString("content"),
+                rs.getString("articleImagePath")
+        );
+    }
+
     /**
      * 게시글을 데이터베이스에 추가한다.
      *
@@ -73,7 +83,7 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
      * @param articleId 찾을 게시글 번호
      * @return 게시글 번호에 해당하는 게시글. 없을 경우 빈 Optional
      */
-    public Optional<Article> findArticleById(long articleId) {
+    public Optional<Article> findArticleById(Long articleId) {
         return executeQuery(rs -> {
             if (!rs.next())
                 return Optional.empty();
@@ -100,7 +110,7 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
      * @param articleId 주어진 게시글 번호
      * @return 주어진 게시글 번호보다 더 최근에 추가된 게시글 번호. 없을 경우 빈 Optional
      */
-    public Optional<Long> findNextArticleId(long articleId) {
+    public Optional<Long> findNextArticleId(Long articleId) {
         return executeQuery(rs -> {
             if (!rs.next())
                 return Optional.empty();
@@ -145,15 +155,5 @@ public class ArticleDao extends AbstractDao implements TransactionalDao<ArticleD
     @Override
     protected boolean closeConnection() {
         return true;
-    }
-
-    private Article mapArticle(ResultSet rs) throws SQLException {
-        User writer = UserDao.mapUser(rs);
-        return new Article(
-                rs.getLong("articleId"),
-                writer,
-                rs.getString("content"),
-                rs.getString("articleImagePath")
-        );
     }
 }

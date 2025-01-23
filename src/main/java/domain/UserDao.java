@@ -35,6 +35,13 @@ public class UserDao extends AbstractDao implements TransactionalDao<UserDao> {
         this.database = database;
     }
 
+    /**
+     * ResultSet에서 사용자 정보를 읽어와 User 객체로 변환한다.
+     *
+     * @param resultSet 사용자 정보가 저장된 ResultSet
+     * @return User 객체
+     * @throws SQLException ResultSet에서 정보를 읽어오는데 실패한 경우
+     */
     static User mapUser(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getString("userId"),

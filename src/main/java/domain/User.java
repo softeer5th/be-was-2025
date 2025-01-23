@@ -10,11 +10,29 @@ import webserver.request.FileUploader;
  */
 public class User {
     private static final Logger log = LoggerFactory.getLogger(User.class);
+    /**
+     * 비밀번호 해싱에 사용할 salt
+     */
     private static final String PASSWORD_SALT = "yTC2%fdK9@vQ";
+    /**
+     * 유저 아이디
+     */
     private String userId;
+    /**
+     * 비밀번호 해시값
+     */
     private String passwordHash;
+    /**
+     * 이름
+     */
     private String name;
+    /**
+     * 이메일
+     */
     private String email;
+    /**
+     * 프로필 이미지 경로
+     */
     private String profileImagePath;
 
     // for deserialization
@@ -30,7 +48,7 @@ public class User {
     }
 
     /**
-     * 새로운 유저를 생성한다.
+     * 새로운 유저를 생성한다. 비밀번호는 해싱된다.
      *
      * @param userId   아이디. 중복되면 안된다.
      * @param password 비밀번호
@@ -57,6 +75,10 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getProfileImagePath() {
+        return profileImagePath;
     }
 
     /**
@@ -95,6 +117,11 @@ public class User {
         }
     }
 
+    /**
+     * 프로필 이미지를 삭제한다.
+     *
+     * @param uploader 프로필 이미지 파일을 삭제할 때 사용할 FileUploader
+     */
     public void deleteProfileImage(FileUploader uploader) {
         if (profileImagePath != null) {
             uploader.deleteFile(profileImagePath);
@@ -105,10 +132,6 @@ public class User {
     @Override
     public String toString() {
         return "User [userId=" + userId + ", name=" + name + ", email=" + email + "]";
-    }
-
-    public String getProfileImagePath() {
-        return profileImagePath;
     }
 
 
