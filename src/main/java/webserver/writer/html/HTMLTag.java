@@ -8,7 +8,7 @@ public enum HTMLTag {
     UL("ul"),
     LI("li"),
     BUTTON("button"),
-    PLAIN("");
+    PLAIN(""), H1("h1");
 
     HTMLTag(String name) {
         this.name = name;
