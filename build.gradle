@@ -17,7 +17,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.16.1'
 
     implementation 'com.h2database:h2:2.1.214'
-
+    implementation 'com.zaxxer:HikariCP:5.0.1'
 }
 
 test {
