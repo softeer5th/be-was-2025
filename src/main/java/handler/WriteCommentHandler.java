@@ -12,6 +12,7 @@ import webserver.session.HttpSession;
 import webserver.view.ModelAndTemplate;
 
 import static enums.PageMappingPath.readArticlePath;
+import static util.ExceptionUtil.ignoreException;
 
 /**
  * 댓글 작성을 처리하는 핸들러
@@ -35,7 +36,7 @@ public class WriteCommentHandler implements HttpHandler {
     @Override
     public HttpResponse handleGet(HttpRequest request) {
         Long articleId = request.getPathVariable("articleId")
-                .map(Long::parseLong)
+                .flatMap(id -> ignoreException(() -> Long.parseLong(id)))
                 .orElseThrow(() -> new BadRequest("잘못된 요청입니다."));
         Article article = articleDao.findArticleById(articleId)
                 .orElseThrow(() -> new NotFound("게시글을 찾을 수 없습니다."));
