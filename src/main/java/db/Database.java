@@ -20,7 +20,8 @@ public class Database {
                     "userId VARCHAR(255) PRIMARY KEY, " +
                     "password VARCHAR(255) NOT NULL, " +
                     "name VARCHAR(255) NOT NULL, " +
-                    "email VARCHAR(255) NOT NULL)";
+                    "email VARCHAR(255) NOT NULL, " +
+                    "profileImageId INT)";
             statement.execute(createUserTable);
 
             String createImageTable = "CREATE TABLE IF NOT EXISTS Images (" +
@@ -57,13 +58,14 @@ public class Database {
 
 
     public static void addUser(User user) {
-        String insertQuery = "INSERT INTO Users (userId, password, name, email) VALUES (?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO Users (userId, password, name, email, profileImageId) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
             preparedStatement.setString(1, user.getUserId());
             preparedStatement.setString(2, user.getPassword());
             preparedStatement.setString(3, user.getName());
             preparedStatement.setString(4, user.getEmail());
+            preparedStatement.setInt(5, -1);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error adding user", e);
@@ -139,6 +141,24 @@ public class Database {
         }
     }
 
+    public static User setUserProfile(String userId, int newProfile) {
+        String updateQuery = "UPDATE Users SET profileImageId = ? WHERE userId = ?";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+            preparedStatement.setInt(1, newProfile);
+            preparedStatement.setString(2, userId);
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            if (rowsUpdated == 0) {
+                throw new RuntimeException("No user found with userId: " + userId);
+            }
+
+            return findUserById(userId);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating user password", e);
+        }
+    }
+
 
 
     public static User findUserById(String userId) {
@@ -152,33 +172,14 @@ public class Database {
                         resultSet.getString("userId"),
                         resultSet.getString("password"),
                         resultSet.getString("name"),
-                        resultSet.getString("email")
+                        resultSet.getString("email"),
+                        resultSet.getInt("profileImageId")
                 );
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding user by ID", e);
         }
         return null;
-    }
-
-    public static List<User> findAllUser() {
-        String selectQuery = "SELECT * FROM Users";
-        List<User> users = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(DB_URL);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(selectQuery)) {
-            while (resultSet.next()) {
-                users.add(new User(
-                        resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email")
-                ));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error finding all users", e);
-        }
-        return users;
     }
 
     public static Image getImageById(int imageId) {
