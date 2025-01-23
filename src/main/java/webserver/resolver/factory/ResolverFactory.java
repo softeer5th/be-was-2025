@@ -4,6 +4,7 @@ import db.Database;
 import db.connection.ConnectionProvider;
 import db.connection.RealConnectionProvider;
 import entrypoint.UserEntryPoint;
+import webserver.resolver.ExceptionResolver;
 import webserver.resolver.ResourceResolver;
 import webserver.resolver.SequentialResolver;
 import webserver.resolver.StaticResourceResolver;
@@ -23,7 +24,8 @@ public class ResolverFactory {
                     )
             );
             ResourceResolver staticResolver = StaticResourceResolver.getInstance();
-            return new SequentialResolver(methodResolver, staticResolver);
+            ResourceResolver sequentialResolver = new SequentialResolver(methodResolver, staticResolver);
+            return new ExceptionResolver(sequentialResolver);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
