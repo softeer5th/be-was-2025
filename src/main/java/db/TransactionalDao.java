@@ -2,6 +2,8 @@ package db;
 
 /**
  * Transaction에 참여할 수 있는 DAO
+ *
+ * @param <THIS> 자기 자신 지정
  */
 public interface TransactionalDao<THIS extends TransactionalDao> {
 

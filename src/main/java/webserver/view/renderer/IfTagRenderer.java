@@ -16,8 +16,8 @@ import java.util.Objects;
  *  1. boolean literal : true, false
  *  2. 객체 탐색 경로 : session.user.isAdmin
  *  3. not 연산자 : !
- *  4. 논리 이항 연산자 : &&, ||
- *  5. 비교 이항 연산자 : >=, <=, >, <, ==, !=
+ *  4. 논리 이항 연산자 : &amp;&amp;, &Vert;
+ *  5. 비교 이항 연산자 : &ge;, &le;, &gt;, &lt;, &equals;&equals;, !&equals;
  *
  *  연산자 우선순위는 다음과 같다
  *  1. not 연산자

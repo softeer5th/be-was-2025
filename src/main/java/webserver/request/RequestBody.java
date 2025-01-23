@@ -144,18 +144,22 @@ public class RequestBody {
         if (!contentType.startsWith(ContentType.MULTIPART_FORM_DATA.mimeType))
             throw new InternalServerError("Content-Type이 multipart/form-data가 아닙니다.");
 
+        // boundary 찾기
         byte[] boundary = ("--" + contentType.split(MULTIPART_BOUNDARY.value)[1]).getBytes();
         byte[] crlf = "\r\n".getBytes();
         List<Multipart.FormData> formDataList = new ArrayList<>();
+
+        // 현재 boundary의 시작 index
         int boundaryIndex = indexOf(body, boundary, 0);
         while (boundaryIndex < body.length) {
-
+            // 다음 boundary의 시작 index
             int nextBoundaryIndex = indexOf(body, boundary, boundaryIndex + boundary.length);
             if (nextBoundaryIndex == -1) break;
 
+            // 현재 boundary와 다음 boundary 사이의 데이터를 part로 저장
             byte[] part = Arrays.copyOfRange(body, boundaryIndex + boundary.length + crlf.length, nextBoundaryIndex);
-            String s = new String(part);
 
+            // part를 파싱하여 FormData로 변환
             Multipart.FormData formData = parseFormData(part);
             if (formData != null)
                 formDataList.add(formData);
@@ -165,6 +169,7 @@ public class RequestBody {
 
     }
 
+    // array에서 target의 시작 index를 반환
     private int indexOf(byte[] array, byte[] target, int start) {
         outer:
         for (int i = start; i <= array.length - target.length; i++) {
@@ -178,21 +183,25 @@ public class RequestBody {
     }
 
     private Multipart.FormData parseFormData(byte[] part) {
-        System.out.println("part =" + new String(part) + ";;");
-        // FormData 파싱 로직 구현
-        // 예: 헤더와 바디를 분리하고, 헤더에서 name과 filename을 추출
+
+        // header의 끝 구분자인 CRLFCRLF의 index를 찾음
         int i = indexOf(part, CRLFCRLF.value.getBytes(), 0);
+
+        // header를 분리
         String formDataHeader = new String(part, 0, i).strip();
+
         Map<String, String> headers = new HashMap<>();
+        // header를 라인별로 분리하여 헤더 이름, 값을 Map에 저장
         String[] headerLines = formDataHeader.split(CRLF.value);
         for (String headerLine : headerLines) {
             String[] keyValue = headerLine.split(HEADER_KEY_SEPARATOR.value);
             headers.put(keyValue[0].strip(), keyValue[1].strip());
         }
         String contentDisposition = headers.get(CONTENT_DISPOSITION.value);
+        // Content-Disposition 의 atturiubte를 파싱하여 Map으로 저장
         Map<String, String> attributes = getAttributeMap(contentDisposition);
+        // body를 추출
         byte[] body = Arrays.copyOfRange(part, i + CRLFCRLF.value.getBytes().length, part.length - CRLF.value.getBytes().length);
-        System.out.println("body=" + new String(body) + ";;");
         if (body.length == 0)
             return null;
         return new Multipart.FormData(headers, attributes, body);
