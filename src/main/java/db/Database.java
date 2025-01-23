@@ -28,7 +28,6 @@ public class Database {
                     "userId VARCHAR(255) NOT NULL, " +
                     "contentType VARCHAR(255) NOT NULL, " +
                     "imageData MEDIUMBLOB NOT NULL, " +
-                    "forProfile BOOLEAN NOT NULL, " +
                     "FOREIGN KEY (userId) REFERENCES Users(userId))";
             statement.execute(createImageTable);
 
@@ -98,8 +97,8 @@ public class Database {
         }
     }
 
-    public static int addImage(String userId, String contentType, byte[] data, boolean forProfile) {
-        String insertQuery = "INSERT INTO Images (userId, contentType, imageData, forProfile) VALUES (?, ?, ?, ?)";
+    public static int addImage(String userId, String contentType, byte[] data) {
+        String insertQuery = "INSERT INTO Images (userId, contentType, imageData) VALUES (?, ?, ?)";
         String countQuery = "SELECT COUNT(*) FROM Images";
 
         try (Connection connection = DriverManager.getConnection(DB_URL)) {
@@ -107,7 +106,6 @@ public class Database {
                 preparedStatement.setString(1, userId);
                 preparedStatement.setString(2, contentType);
                 preparedStatement.setBytes(3, data);
-                preparedStatement.setBoolean(4, forProfile);
                 preparedStatement.executeUpdate();
             }
 
@@ -194,8 +192,7 @@ public class Database {
                         resultSet.getInt("id"),
                         resultSet.getString("userId"),
                         resultSet.getString("contentType"),
-                        resultSet.getBytes("imageData"),
-                        resultSet.getBoolean("forProfile")
+                        resultSet.getBytes("imageData")
                 );
             }
         } catch (SQLException e) {

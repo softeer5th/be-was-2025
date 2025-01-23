@@ -7,14 +7,12 @@ public class Image {
     private String userId;
     private String contentType;
     private byte[] data;
-    private boolean forProfile;
 
-    public Image(int id, String userId, String contentType, byte[] data, boolean isForProfile) {
+    public Image(int id, String userId, String contentType, byte[] data) {
         this.id = id;
         this.userId = userId;
         this.contentType = contentType;
         this.data = data;
-        this.forProfile = isForProfile;
     }
 
     public String getContentType() {
