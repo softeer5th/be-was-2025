@@ -17,6 +17,7 @@ public enum HTTPContentType {
     IMAGE_WEBP("image", "webp"),
     IMAGE_APNG("image", "apng"),
     IMAGE_AVIF("image", "avif"),
+    MULTIPART_FORM_DATA("multipart", "form-data"),
     APPLICATION_JSON("application", "json"),
     APPLICATION_URLENCODED("application", "x-www-form-urlencoded"),
     APPLICATION_OCTET_STREAM("application", "octet-stream");
