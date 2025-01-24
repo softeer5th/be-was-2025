@@ -1,21 +1,24 @@
 package http.response;
 
 import http.request.HttpRequest;
+import model.Comment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 
 public class DynamicHtmlBuilder {
     private StringBuilder htmlBuilder = new StringBuilder();
     private String html;
     private HttpRequest request;
-    private Map<String, String> replaceMap;
+    private Map<String, Object> replaceMap;
 
     private static final Logger logger = LoggerFactory.getLogger(DynamicHtmlBuilder.class);
 
-    public DynamicHtmlBuilder(String html, HttpRequest request, Map<String, String> replaceMap) {
+    public DynamicHtmlBuilder(String html, HttpRequest request, Map<String, Object> replaceMap) {
         this.html = html;
+        this.request = request;
         this.replaceMap = replaceMap;
     }
 
@@ -33,7 +36,6 @@ public class DynamicHtmlBuilder {
             }
             htmlBuilder.append("\n");
         }
-        logger.debug(htmlBuilder.toString());
         return htmlBuilder.toString();
     }
 

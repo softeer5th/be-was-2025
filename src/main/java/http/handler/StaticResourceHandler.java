@@ -50,6 +50,7 @@ public class StaticResourceHandler implements Handler {
     static {
         needLoginPage.put("/article", LOGIN_PAGE_PATH);
         needLoginPage.put("/mypage", LOGIN_PAGE_PATH);
+        needLoginPage.put("/comment", LOGIN_PAGE_PATH);
     }
 
     @Override
@@ -76,7 +77,21 @@ public class StaticResourceHandler implements Handler {
             byte[] body = FileUtil.fileToByteArray(path);
             if (body != null) {
                 if (path.endsWith(".html")) {
-                    Article article = Database.getArticle(0);
+                    String pageId;
+                    Article article;
+                    Map<String, String> params = request.getTarget().getParams();
+                    if ((pageId = params.get("pageId")) != null) {
+                        article = Database.getArticleByPageId(Integer.parseInt(pageId));
+                        if (article == null) article = Database.getLatestArticle();
+                    } else if ((pageId = params.get("prev")) != null) {
+                        article = Database.getPreviousArticle(Integer.parseInt(pageId));
+                        if (article == null) article = Database.getEarliestArticle();
+                    } else if ((pageId = params.get("next")) != null) {
+                        article = Database.getNextArticle(Integer.parseInt(pageId));
+                        if (article == null) article = Database.getLatestArticle();
+                    } else {
+                        article = Database.getLatestArticle();
+                    }
                     if (article != null) {
                         List<Comment> comments = Database.getComments(article.getId());
                         DynamicHtmlBuilder htmlBuilder = new DynamicHtmlBuilder(new String(body), request, Map.of(

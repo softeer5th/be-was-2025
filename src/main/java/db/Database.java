@@ -131,13 +131,14 @@ public class Database {
         }
     }
 
-    public static Article getArticle(int page) {
-        String sql = "SELECT * FROM POSTS ORDER BY created_at DESC LIMIT 1 OFFSET ?";
+    public static Article getArticleByPageId(int pageId) {
+//        String sql = "SELECT * FROM POSTS ORDER BY created_at DESC LIMIT 1 OFFSET ?";
+        String sql = "SELECT * FROM POSTS WHERE id = ?";
         try (Connection connection = getConnection()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)){
 
-                statement.setInt(1, page);
+                statement.setInt(1, pageId);
                 ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     return new Article(
@@ -150,6 +151,96 @@ public class Database {
                 }
                 return null;
             }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Article getLatestArticle() {
+        String sql = "SELECT * FROM POSTS ORDER BY created_at DESC LIMIT 1";
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql)){
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    return new Article(
+                            resultSet.getInt("id"),
+                            resultSet.getString("user_id"),
+                            resultSet.getString("content"),
+                            resultSet.getString("photo"),
+                            resultSet.getTimestamp("created_at").toLocalDateTime()
+                    );
+                }
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Article getEarliestArticle() {
+        String sql = "SELECT * FROM POSTS ORDER BY created_at ASC LIMIT 1";
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql)){
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    return new Article(
+                            resultSet.getInt("id"),
+                            resultSet.getString("user_id"),
+                            resultSet.getString("content"),
+                            resultSet.getString("photo"),
+                            resultSet.getTimestamp("created_at").toLocalDateTime()
+                    );
+                }
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Article getNextArticle(int pageId) {
+        String sql = "SELECT * FROM posts WHERE id > ? ORDER BY id ASC LIMIT 1" ;
+        try (Connection connection = getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, pageId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                return new Article(
+                        resultSet.getInt("id"),
+                        resultSet.getString("user_id"),
+                        resultSet.getString("content"),
+                        resultSet.getString("photo"),
+                        resultSet.getTimestamp("created_at").toLocalDateTime()
+                );
+            }
+            return null;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Article getPreviousArticle(int pageId) {
+        String sql = "SELECT * FROM posts WHERE id < ? ORDER BY id DESC LIMIT 1";
+        try (Connection connection = getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, pageId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                return new Article(
+                        resultSet.getInt("id"),
+                        resultSet.getString("user_id"),
+                        resultSet.getString("content"),
+                        resultSet.getString("photo"),
+                        resultSet.getTimestamp("created_at").toLocalDateTime()
+                );
+            }
+            return null;
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new RuntimeException(e);

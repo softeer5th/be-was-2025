@@ -89,7 +89,7 @@ public class HttpRequestParser {
         return requestHeadersMap;
     }
 
-    public static Map<String, Object> parseRequestQueryString(String requestBody) throws UnsupportedEncodingException {
+    public static Map<String, Object> parseRequestBody(String requestBody) throws UnsupportedEncodingException {
         Map<String, Object> requestBodyMap = new HashMap<>();
         if (requestBody != null) {
             for (String key : requestBody.split("&")) {

@@ -108,7 +108,6 @@ public class PostHandler implements Handler {
             if (photoBytes != null) {
                 fileName = UUID.randomUUID() + ".jpg";
                 File photoFile = new File(PHOTO_STORAGE_PATH + fileName);
-                filePath = photoFile.getAbsolutePath();
                 try (FileOutputStream fos = new FileOutputStream(photoFile)) {
                     fos.write(photoBytes);
                 }
