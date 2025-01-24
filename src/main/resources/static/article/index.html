@@ -1,47 +1,100 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/main"><img src="../img/signiture.svg" /></a>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="../reset.css" rel="stylesheet"/>
+    <link href="../global.css" rel="stylesheet"/>
+    <title>게시글 작성</title>
+    <style>
+        #imagePreview {
+            max-width: 300px;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        #noImageText {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <a href="/"><img src="../img/signiture.svg"/></a>
         <ul class="header__menu">
-          <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <button id="logout-btn" class="btn btn_ghost btn_size_s">
-              로그아웃
-            </button>
-          </li>
+            <li class="header__menu__item">
+                <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+            </li>
+            <li class="header__menu__item">
+                <button id="logout-btn" class="btn btn_ghost btn_size_s">
+                    로그아웃
+                </button>
+            </li>
         </ul>
-      </header>
-      <div class="page">
+    </header>
+    <div class="page">
         <h2 class="page-title">게시글 작성</h2>
-        <form class="form">
-          <div class="textfield textfield_size_m">
-            <p class="title_textfield">내용</p>
-            <textarea
-              class="input_textfield"
-              placeholder="글의 내용을 입력하세요"
-              autocomplete="username"
-            ></textarea>
-          </div>
-          <button
-            id="registration-btn"
-            class="btn btn_contained btn_size_m"
-            style="margin-top: 24px"
-            type="button"
-          >
-            작성 완료
-          </button>
+        <h1>사진 첨부하기</h1>
+
+        <form class="form" method="post" action="/post/article" enctype="multipart/form-data">
+            <!-- 사진 첨부 폼 -->
+            <label for="fileInput">사진 선택:</label>
+            <input type="file" id="fileInput" name="photo" accept="image/*">
+
+            <!-- 선택한 이미지 미리보기 -->
+            <div id="preview" style="margin-top: 20px; margin-bottom: 20px">
+                <p id="noImageText">선택된 이미지가 없습니다.</p>
+                <img id="imagePreview" src="" alt="미리보기">
+            </div>
+            <div class="textfield textfield_size_m">
+                <p class="title_textfield">내용</p>
+                <textarea
+                        class="input_textfield"
+                        placeholder="글의 내용을 입력하세요"
+                        name="content"
+                        type="text"
+                        style="align-items: flex-start"
+                ></textarea>
+            </div>
+            <button
+                    id="submit-btn"
+                    class="btn btn_contained btn_size_m"
+                    style="margin-top: 24px"
+                    type="submit"
+            >
+                작성 완료
+            </button>
         </form>
-      </div>
     </div>
-  </body>
+</div>
+</body>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const noImageText = document.getElementById('noImageText');
+
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result; // 이미지 URL 설정
+                imagePreview.style.display = 'block'; // 이미지 표시
+                noImageText.style.display = 'none'; // 안내 문구 숨기기
+            };
+            reader.readAsDataURL(file); // 파일 읽기 시작
+        } else {
+            imagePreview.style.display = 'none'; // 이미지 숨기기
+            noImageText.style.display = 'block'; // 안내 문구 표시
+        }
+    });
+</script>
 </html>
