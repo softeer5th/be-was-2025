@@ -21,20 +21,20 @@ public class HttpRequestParser {
     private static HttpRequest parseRequest(InputStream inputStream) throws IOException {
         HttpRequest request = new HttpRequest();
 
-        String rawRequest = readRawRequest(inputStream);
+        String rawRequestHeader = readRawRequestHeader(inputStream);
 
-        String headers = extractHeaders(rawRequest);
-        parseHeaders(headers, request);
+        String requestHeader = extractHeaders(rawRequestHeader);
+        parseHeaders(requestHeader, request);
 
         String contentLengthHeader = request.getHeader("content-length");
         if (contentLengthHeader != null) {
-            parseBody(rawRequest, inputStream, request, Integer.parseInt(contentLengthHeader));
+            parseBody(rawRequestHeader, inputStream, request, Integer.parseInt(contentLengthHeader));
         }
 
         return request;
     }
 
-    private static String readRawRequest(InputStream inputStream) throws IOException {
+    private static String readRawRequestHeader(InputStream inputStream) throws IOException {
         StringBuilder headersBuilder = new StringBuilder();
         byte[] buffer = new byte[1024];
         int bytesRead;
@@ -87,7 +87,8 @@ public class HttpRequestParser {
             String[] header = lines[i].split(":", 2);
             if (header.length == 2) {
                 if(header[0].trim().equalsIgnoreCase("cookie")) parseCookie(request, header[1].trim());
-                else request.setHeader(header[0].trim().toLowerCase(), header[1].trim());
+
+                request.setHeader(header[0].trim().toLowerCase(), header[1].trim());
             }
         }
 

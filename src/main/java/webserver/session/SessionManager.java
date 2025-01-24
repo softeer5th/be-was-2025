@@ -8,6 +8,8 @@ public class SessionManager {
     private final Map<String, HttpSession> SESSION_POOL = new ConcurrentHashMap<>();
     private static final SessionManager SESSION_MANAGER = new SessionManager();
 
+    private SessionManager() {}
+    
     public static SessionManager getManager() {
         return SESSION_MANAGER;
     }

@@ -40,7 +40,7 @@ public class HttpRequest {
 
     public Cookie getCookie(String name) { return cookies.get(name.toLowerCase()); }
 
-    public Cookie[] getCookies() { return (Cookie[]) cookies.values().toArray();}
+    public Cookie[] getCookies() { return (Cookie[]) cookies.values().toArray(); }
 
     public void setResponse(HttpResponse response) { this.response = response; }
 
@@ -70,7 +70,6 @@ public class HttpRequest {
             if(session != null) {
                 session.setNew(false);
             } else {
-
                 session = manager.createNewSession();
                 this.sessionId = session.getSessionId();
                 Cookie cookie = new Cookie(HttpSession.SESSION_NAME, session.getSessionId());
@@ -79,7 +78,7 @@ public class HttpRequest {
                 response.addCookie(cookie);
             }
         }
-
+        
         return session;
     }
 }

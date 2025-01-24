@@ -6,6 +6,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import webserver.http.HttpStatus;
+import webserver.http.servlet.exception.DuplicateServletMappingException;
+import webserver.http.servlet.exception.ServletException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -60,7 +63,20 @@ public class ServletMapper {
         }
     }
 
-    public ServletInfo getServlet(String url, String method) {
-        return servletMap.get(url + ":" + method);
+    public ServletInfo getServlet(String url, String method) throws ServletException {
+        if(!isMappedByUrl(url)) {
+            throw new ServletException(HttpStatus.NOT_FOUND, String.format("Not found url '%s'", url));
+        }
+
+        ServletInfo servletInfo = servletMap.get(url + ":" + method);
+        if(servletInfo == null) {
+            throw new ServletException(HttpStatus.METHOD_NOT_ALLOWED, String.format("Method '%s' is not supported in '%s", method, url));
+        }
+
+        return servletInfo;
+    }
+
+    public boolean isMappedByUrl(String url) {
+        return servletMap.keySet().stream().anyMatch( key -> key.startsWith(url + ":"));
     }
 }

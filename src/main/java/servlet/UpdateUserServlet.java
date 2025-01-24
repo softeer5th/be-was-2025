@@ -1,10 +1,9 @@
 package servlet;
 
-import db.Database;
+import db.h2.UserStorage;
 import model.User;
 import webserver.http.HttpRequest;
 import webserver.http.HttpResponse;
-import webserver.http.HttpStatus;
 import webserver.http.servlet.HttpServlet;
 import webserver.session.HttpSession;
 
@@ -14,16 +13,14 @@ public class UpdateUserServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
 
         if(session == null) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/auth/failed_session_expired.html");
+            response.sendRedirect("/auth/failed_session_expired.html");
             return;
         }
 
         User user = (User) session.getAttribute("user");
 
         if(user == null) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/auth/failed_session_expired.html");
+            response.sendRedirect("/auth/failed_session_expired.html");
             return;
         }
 
@@ -32,29 +29,31 @@ public class UpdateUserServlet extends HttpServlet {
         String newPasswordConfirm = request.getParameter("newPasswordConfirm");
 
         if(newName == null) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/mypage/failed_empty_field.html");
+            response.sendRedirect("/mypage/failed_empty_field.html");
             return;
         }
 
-        if(newPassword != null && !newPassword.equals(newPasswordConfirm)) {
-            response.setStatus(HttpStatus.FOUND);
-            response.setHeader("location", "/mypage/failed_incorrect_password.html");
+        if(newPassword != null && !newPassword.isBlank() && !newPassword.equals(newPasswordConfirm)) {
+            response.sendRedirect("/mypage/failed_incorrect_password.html");
+            return;
+        }
+
+        if(newPassword != null && !newPassword.isBlank() && !User.validatePassword(newPassword)) {
+            response.sendRedirect("/mypage/failed_invalid_password.html");
             return;
         }
 
         user.changeName(newName);
         user.changePassword(newPassword);
 
-        Database.saveUser(user);
+        UserStorage userStorage = UserStorage.getInstance();
+        userStorage.update(user);
 
-        response.setStatus(HttpStatus.FOUND);
-        if(newPassword != null) {
-            response.setHeader("location", "/mypage/success.html");
+        if(newPassword != null && !newPassword.isBlank()) {
+            response.sendRedirect("/mypage/success.html");
+            session.invalidate();
         } else {
-            response.setHeader("location", "/");
+            response.sendRedirect("/");
         }
-
-        session.invalidate();
     }
 }
