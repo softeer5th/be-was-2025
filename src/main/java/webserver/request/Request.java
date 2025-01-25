@@ -3,11 +3,14 @@ package webserver.request;
 import util.enums.Mime;
 import webserver.cookie.Cookie;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Request {
     private final Map<String, String> headers = new HashMap<>();
+    private List<FileBody> files = new ArrayList<>();
     private String requestLine;
     private String body = null;
     public String method;
@@ -53,6 +56,10 @@ public class Request {
         this.cookie = cookie;
     }
 
+    void setFiles(List<FileBody> files){
+        this.files = files;
+    }
+
     public Map<String,String> getHeaders(){
         return headers;
     }
@@ -79,6 +86,10 @@ public class Request {
 
     public String getHeader(String headerName) {
         return headers.get(headerName);
+    }
+
+    public List<FileBody> getFiles() {
+        return files;
     }
 
     public boolean isHtml(){

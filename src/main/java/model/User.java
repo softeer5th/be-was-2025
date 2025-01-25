@@ -5,12 +5,22 @@ public class User {
     private String password;
     private String name;
     private String email;
+    private int profileImageId;
 
     public User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;
         this.name = name;
         this.email = email;
+        profileImageId = -1;
+    }
+
+    public User(String userId, String password, String name, String email, int profileImageId) {
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.profileImageId = profileImageId;
     }
 
     public void setName(String name) {
@@ -32,6 +42,8 @@ public class User {
     public String getEmail() {
         return email;
     }
+
+    public int getProfileImageId() { return profileImageId; }
 
     @Override
     public String toString() {

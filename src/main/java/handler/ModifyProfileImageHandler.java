@@ -2,19 +2,22 @@ package handler;
 
 import db.manage.ImageManager;
 import db.manage.PostManager;
+import db.manage.UserManager;
 import util.enums.HttpStatusCode;
 import util.enums.Page;
 import webserver.request.FileBody;
 import webserver.request.Request;
 import webserver.response.Response;
+import webserver.session.Session;
 import webserver.session.SessionManager;
 
-public class AddPostHandler extends Handler{
+public class ModifyProfileImageHandler extends Handler {
     @Override
     public Response handle(Request request) {
         Response response = new Response(request, HttpStatusCode.FOUND);
 
-        String userId = SessionManager.getSession(sessionId).getUser().getUserId();
+        Session session = SessionManager.getSession(sessionId);
+        String userId = session.getUser().getUserId();
         try {
             FileBody fileBody = null;
             for(FileBody file : request.getFiles()) {
@@ -23,14 +26,13 @@ public class AddPostHandler extends Handler{
                     break;
                 }
             }
-
             int imageId = ImageManager.addImage(userId, fileBody);
-            PostManager.addPost(userId, imageId, request.getBody());
-            response.addHeader("Location", Page.MAIN_LOGIN.getPath());
+            session.updateUser(UserManager.setProfile(userId, imageId));
         } catch (IllegalArgumentException e) {
             response.setStatusCode(HttpStatusCode.SEE_OTHER);
-            response.addHeader("Location", Page.ARTICLE.getPath());
         }
+
+        response.addHeader("Location", Page.MY_PAGE.getPath());
 
         return response;
     }

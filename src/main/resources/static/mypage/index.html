@@ -30,16 +30,34 @@
         <div class="profile_container">
           <div class="profile_box">
               <div class="profile_image">
-                <img class="profile" />
+                <img class="profile"
+                     style="width: 200px; height: 200px; object-fit: cover; border-radius: 50%;"
+                <my_if hasProfile>
+                src="data:$userImageType;base64,$userProfile"
+                </my_if>
+                />
               </div>
               <div class="profile_frame">
+                <form id="modify-profile" action="/user/profile/modify" method="post" enctype="multipart/form-data">
                   <div class="btn_profile">
-                        <div class="btn_container">수정</div>
+                    <input class="btn_profile" type="file" name="image" accept="image/*">
+                    <div class="btn_container">
+                      <button class="btn btn_ghost btn_size_s" type="submit">
+                        수정
+                      </button>
+                    </div>
                   </div>
+                </form>
+                <form id="reset-profile" action="/user/profile/reset" method="post">
                   <div class="btn_bar"></div>
                   <div class="btn_profile">
-                      <div class="btn_container">삭제</div>
+                    <div class="btn_container">
+                      <button class="btn btn_ghost btn_size_s">
+                        삭제
+                      </button>
+                    </div>
                   </div>
+                </form>
               </div>
         </div>
           <form class="form" action="user/update" method="post">

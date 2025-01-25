@@ -5,13 +5,13 @@ import model.Post;
 import util.Parameter;
 
 public class PostManager {
-    public static void addPost(String userId, String parameterString) {
+    public static void addPost(String userId, int imageId, String parameterString) {
         Parameter parameter = new Parameter(parameterString);
 
         String title = parameter.getValue("title");
         String content = parameter.getValue("content");
 
-        Post post = new Post(userId, title, content);
+        Post post = new Post(userId, imageId, title, content);
         Database.addPost(post);
     }
 

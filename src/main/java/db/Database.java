@@ -1,6 +1,7 @@
 package db;
 
 import model.Comment;
+import model.Image;
 import model.Post;
 import model.User;
 
@@ -14,19 +15,31 @@ public class Database {
     static {
         try (Connection connection = DriverManager.getConnection(DB_URL);
              Statement statement = connection.createStatement()) {
+
             String createUserTable = "CREATE TABLE IF NOT EXISTS Users (" +
                     "userId VARCHAR(255) PRIMARY KEY, " +
-                    "password VARCHAR(255), " +
-                    "name VARCHAR(255), " +
-                    "email VARCHAR(255))";
+                    "password VARCHAR(255) NOT NULL, " +
+                    "name VARCHAR(255) NOT NULL, " +
+                    "email VARCHAR(255) NOT NULL, " +
+                    "profileImageId INT)";
             statement.execute(createUserTable);
+
+            String createImageTable = "CREATE TABLE IF NOT EXISTS Images (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "userId VARCHAR(255) NOT NULL, " +
+                    "contentType VARCHAR(255) NOT NULL, " +
+                    "imageData MEDIUMBLOB NOT NULL, " +
+                    "FOREIGN KEY (userId) REFERENCES Users(userId))";
+            statement.execute(createImageTable);
 
             String createPostTable = "CREATE TABLE IF NOT EXISTS Posts (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "userId VARCHAR(255), " +
+                    "userId VARCHAR(255) NOT NULL, " +
+                    "imageId INT, " +
                     "title VARCHAR(255), " +
                     "content TEXT, " +
-                    "FOREIGN KEY (userId) REFERENCES Users(userId))";
+                    "FOREIGN KEY (userId) REFERENCES Users(userId), " +
+                    "FOREIGN KEY (imageId) REFERENCES Images(id))";
             statement.execute(createPostTable);
 
             String createCommentTable = "CREATE TABLE IF NOT EXISTS Comments (" +
@@ -37,19 +50,22 @@ public class Database {
                     "FOREIGN KEY (userId) REFERENCES Users(userId), " +
                     "FOREIGN KEY (postId) REFERENCES Posts(id))";
             statement.execute(createCommentTable);
+
         } catch (SQLException e) {
             throw new RuntimeException("Error initializing database", e);
         }
     }
 
+
     public static void addUser(User user) {
-        String insertQuery = "INSERT INTO Users (userId, password, name, email) VALUES (?, ?, ?, ?)";
+        String insertQuery = "INSERT INTO Users (userId, password, name, email, profileImageId) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
             preparedStatement.setString(1, user.getUserId());
             preparedStatement.setString(2, user.getPassword());
             preparedStatement.setString(3, user.getName());
             preparedStatement.setString(4, user.getEmail());
+            preparedStatement.setInt(5, -1);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error adding user", e);
@@ -57,12 +73,13 @@ public class Database {
     }
 
     public static void addPost(Post post) {
-        String insertQuery = "INSERT INTO Posts (userId, title, content) VALUES (?, ?, ?)";
+        String insertQuery = "INSERT INTO Posts (userId, imageId, title, content) VALUES (?, ?, ?, ?)";
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
             preparedStatement.setString(1, post.getUserId());
-            preparedStatement.setString(2, post.getTitle());
-            preparedStatement.setString(3, post.getContent());
+            preparedStatement.setInt(2, post.getImageId());
+            preparedStatement.setString(3, post.getTitle());
+            preparedStatement.setString(4, post.getContent());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error adding post", e);
@@ -82,6 +99,32 @@ public class Database {
         }
     }
 
+    public static int addImage(String userId, String contentType, byte[] data) {
+        String insertQuery = "INSERT INTO Images (userId, contentType, imageData) VALUES (?, ?, ?)";
+        String countQuery = "SELECT COUNT(*) FROM Images";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL)) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+                preparedStatement.setString(1, userId);
+                preparedStatement.setString(2, contentType);
+                preparedStatement.setBytes(3, data);
+                preparedStatement.executeUpdate();
+            }
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(countQuery);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                } else {
+                    throw new SQLException("Failed to retrieve table size.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding Image or counting rows", e);
+        }
+    }
+
+
     public static void updateUserPassword(String userId, String newPassword) {
         String updateQuery = "UPDATE Users SET password = ? WHERE userId = ?";
         try (Connection connection = DriverManager.getConnection(DB_URL);
@@ -93,6 +136,24 @@ public class Database {
             if (rowsUpdated == 0) {
                 throw new RuntimeException("No user found with userId: " + userId);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating user password", e);
+        }
+    }
+
+    public static User setUserProfile(String userId, int newProfile) {
+        String updateQuery = "UPDATE Users SET profileImageId = ? WHERE userId = ?";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+            preparedStatement.setInt(1, newProfile);
+            preparedStatement.setString(2, userId);
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            if (rowsUpdated == 0) {
+                throw new RuntimeException("No user found with userId: " + userId);
+            }
+
+            return findUserById(userId);
         } catch (SQLException e) {
             throw new RuntimeException("Error updating user password", e);
         }
@@ -111,7 +172,8 @@ public class Database {
                         resultSet.getString("userId"),
                         resultSet.getString("password"),
                         resultSet.getString("name"),
-                        resultSet.getString("email")
+                        resultSet.getString("email"),
+                        resultSet.getInt("profileImageId")
                 );
             }
         } catch (SQLException e) {
@@ -120,24 +182,24 @@ public class Database {
         return null;
     }
 
-    public static List<User> findAllUser() {
-        String selectQuery = "SELECT * FROM Users";
-        List<User> users = new ArrayList<>();
+    public static Image getImageById(int imageId) {
+        String selectQuery = "SELECT * FROM Images WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(DB_URL);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(selectQuery)) {
-            while (resultSet.next()) {
-                users.add(new User(
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+            preparedStatement.setInt(1, imageId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Image(
+                        resultSet.getInt("id"),
                         resultSet.getString("userId"),
-                        resultSet.getString("password"),
-                        resultSet.getString("name"),
-                        resultSet.getString("email")
-                ));
+                        resultSet.getString("contentType"),
+                        resultSet.getBytes("imageData")
+                );
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding all users", e);
+            throw new RuntimeException(e.getMessage());
         }
-        return users;
+        return null;
     }
 
     public static Post getPostById(int postId) {
@@ -149,6 +211,7 @@ public class Database {
             if (resultSet.next()) {
                 return new Post(
                         resultSet.getInt("id"),
+                        resultSet.getInt("imageId"),
                         resultSet.getString("userId"),
                         resultSet.getString("title"),
                         resultSet.getString("content")
