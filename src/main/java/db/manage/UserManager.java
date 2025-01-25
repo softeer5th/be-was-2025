@@ -50,4 +50,8 @@ public class UserManager {
     public static User setProfile(String userId, int profileId) {
         return Database.setUserProfile(userId, profileId);
     }
+
+    public static User getUser(String id) {
+        return Database.findUserById(id);
+    }
 }
