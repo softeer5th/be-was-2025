@@ -1,11 +1,13 @@
 package handler;
 
-import db.Database;
-import db.SessionManager;
+import db.ArticleDataManger;
+import db.SessionDataManager;
+import db.UserDataManager;
 import exception.BaseException;
 import exception.FileErrorCode;
 import http.HttpRequestInfo;
 import http.HttpStatus;
+import model.Article;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import util.FileUtil;
 import http.HttpResponse;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Set;
 
 public class FileRequestHandler implements Handler {
@@ -20,14 +23,24 @@ public class FileRequestHandler implements Handler {
 
     private static final String STATIC_FILE_PATH = "src/main/resources/static";
 
-    private static final Set<String> RESTRICTED_PAGES = Set.of("/mypage");
+    private static final Set<String> RESTRICTED_PAGES = Set.of("/mypage", "/article");
+
+    private final UserDataManager userDataManager;
+    private final SessionDataManager sessionDataManager;
+    private final ArticleDataManger articleDataManger;
+
+    public FileRequestHandler(UserDataManager userDataManager, SessionDataManager sessionDataManager, ArticleDataManger articleDataManger) {
+        this.userDataManager = userDataManager;
+        this.sessionDataManager = sessionDataManager;
+        this.articleDataManger = articleDataManger;
+    }
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         String path = request.getPath();
         User user = getAuthenticatedUser(request);
 
-        if (RESTRICTED_PAGES.contains(path)) {
+        if (RESTRICTED_PAGES.contains(path) && user == null) {
             logger.error("Unauthorized access to: {}", path);
             throw new BaseException(FileErrorCode.FORBIDDEN_ACCESS);
         }
@@ -39,15 +52,18 @@ public class FileRequestHandler implements Handler {
 
         String fileExtension = FileUtil.getContentType(path);
         String content = FileUtil.readHtmlFileAsString(STATIC_FILE_PATH + path);
-        StringBuilder contentBuilder = new StringBuilder(content);
 
         // 로그인 상태라면 UI 수정
         if (user != null) {
             logger.debug("User logged in: {}", user);
-            replaceLoginUI(contentBuilder, user.getNickname());
+            content = content.replace("<!--header_menu-->", generateLoggedInUserHeader(user.getNickname()));
+            Article article = articleDataManger.findArticlesByUserId(user.getUserId());
+            content = content.replace("<!--article-->", generateArticlesHtml(user, article));
+        } else {
+            content = content.replace("<!--header_menu-->", generateGuestUserMenu());
         }
 
-        byte[] responseBody = contentBuilder.toString().getBytes(StandardCharsets.UTF_8);
+        byte[] responseBody = content.getBytes(StandardCharsets.UTF_8);
 
         HttpResponse response = new HttpResponse();
         response.setStatus(HttpStatus.OK);
@@ -59,40 +75,69 @@ public class FileRequestHandler implements Handler {
 
     private User getAuthenticatedUser(HttpRequestInfo request) {
         String sid = "";
-        if( request.getCookie("sid") != null) {
+        if (request.getCookie("sid") != null) {
             logger.debug("Found cookie: {}", request.getCookie("sid"));
             sid = request.getCookie("sid").getValue();
             if (sid.isEmpty()) return null;
         }
 
-        String userId = SessionManager.findUserBySessionID(sid);
-        if (userId == null){
+        String userId = sessionDataManager.findUserIdBySessionID(sid);
+        if (userId == null) {
             logger.error("Login user not found");
             return null;
         }
 
-        return Database.findUserById(userId);
+        return userDataManager.findUserById(userId);
     }
 
-    private void replaceLoginUI(StringBuilder content, String nickname) {
-        logger.debug("Executing replaceLoginUI");
+    private StringBuilder generateLoggedInUserHeader(String nickname) {
+        StringBuilder sb = new StringBuilder();
 
-        int startIndex = content.indexOf("<li class=\"header__menu__item\">");
-        if (startIndex != -1) {
-            int endIndex = content.indexOf("</ul>", startIndex);
-            if (endIndex != -1) {
-                StringBuilder newUI = new StringBuilder();
-                newUI.append("<li class=\"header__menu__item\">")
-                        .append("<a class=\"user-name\" href=\"/mypage\">사용자 : ").append(nickname).append("</a>")
-                        .append("</li>")
-                        .append("<li class=\"header__menu__item\">")
-                        .append("<form action=\"/users/logout\" method=\"POST\">")
-                        .append("<button type=\"submit\" class=\"btn btn_ghost btn_size_s\">로그아웃</button>")
-                        .append("</form>")
-                        .append("</li>");
+        sb.append("<ul class=\"header__menu\">")
+                .append("<li class=\"header__menu__item\">")
+                .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/mypage\">안녕하세요, ").append(nickname).append("님</a>")
+                .append("</li>")
+                .append("<li class=\"header__menu__item\">")
+                .append("<form action=\"/users/logout\" method=\"POST\">")
+                .append("<button type=\"submit\" class=\"btn btn_ghost btn_size_s\">로그아웃</button>")
+                .append("</form>")
+                .append("</li>")
+                .append("</ul>");
 
-                content.replace(startIndex, endIndex, newUI.toString());
-            }
+        return sb;
+    }
+
+    private StringBuilder generateGuestUserMenu() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<ul class=\"header__menu\">")
+                .append("<li class=\"header__menu__item\">")
+                .append("<a class=\"btn btn_contained btn_size_s\" href=\"/login\">로그인</a>")
+                .append("</li>")
+                .append("<li class=\"header__menu__item\">")
+                .append("<a class=\"btn btn_ghost btn_size_s\" href=\"/registration\">회원 가입</a>")
+                .append("</li>")
+                .append("</ul>");
+
+        return sb;
+    }
+
+    private String generateArticlesHtml(User user, Article article) {
+        if (article == null) {
+            logger.error("Articles list is empty");
+            return "";
         }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<div class='post'>")
+                .append("<div class='post__account'>")
+                .append("<img class='post__account__img' src='").append("./img/basic_profileImage.svg'").append("' />")
+                .append("<p class='post__account__nickname'>").append(user.getNickname()).append("</p>")
+                .append("</div>")
+                .append("<img class='post__img' src='").append("./img/basic_profileImage.svg'").append("' />")
+                .append("<p class='post__article'>").append(article.getContent()).append("</p>")
+                .append("</div>");
+
+        return sb.toString();
     }
 }

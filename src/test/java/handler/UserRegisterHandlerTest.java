@@ -2,7 +2,8 @@ package handler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import db.Database;
+import config.AppConfig;
+import db.UserDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import exception.UserErrorCode;
@@ -18,7 +19,7 @@ import java.util.HashMap;
 
 class UserRegisterHandlerTest {
 
-    private final UserRegisterHandler userRegisterHandler = new UserRegisterHandler();
+    private UserRegisterHandler userRegisterHandler;
 
     private static final HttpMethod VALID_HTTP_METHOD = HttpMethod.POST;
     private static final HttpMethod INVALID_HTTP_METHOD = HttpMethod.GET;
@@ -26,7 +27,9 @@ class UserRegisterHandlerTest {
 
     @BeforeEach
     void setUp() {
-        Database.clear();
+        userRegisterHandler = AppConfig.getUserRegisterHandler();
+        UserDataManager userDataManager = AppConfig.getUserDataManager();
+        userDataManager.clear();
     }
 
 

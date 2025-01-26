@@ -1,7 +1,7 @@
 package handler;
 
-import db.Database;
-import db.SessionManager;
+import db.SessionDataManager;
+import db.UserDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import http.Cookie;
@@ -22,6 +22,14 @@ public class UserLoginHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserLoginHandler.class);
     private static final int QUERY_SIZE = 2;
 
+    private final UserDataManager userDataManager;
+    private final SessionDataManager sessionDataManager;
+
+    public UserLoginHandler(UserDataManager userDataManager, SessionDataManager sessionDataManager) {
+        this.userDataManager = userDataManager;
+        this.sessionDataManager = sessionDataManager;
+    }
+
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
         logger.info("UserLoginHandler");
@@ -34,7 +42,7 @@ public class UserLoginHandler implements Handler {
         String userId = queryParams.get("userId");
         String password = queryParams.get("password");
 
-        User user = Database.findUserById(userId);
+        User user = userDataManager.findUserById(userId);
         if (user == null || !user.getPassword().equals(password)) {
             logger.debug("User with id {} and password {} not found", userId, password);
             response.setStatus(HttpStatus.SEE_OTHER);
@@ -43,7 +51,7 @@ public class UserLoginHandler implements Handler {
         }
 
         String sid = UUID.randomUUID().toString();
-        SessionManager.saveSession(sid, userId);
+        sessionDataManager.saveSession(sid, userId);
 
         response.setStatus(HttpStatus.FOUND);
         response.setCookies(createSessionCookie(sid));

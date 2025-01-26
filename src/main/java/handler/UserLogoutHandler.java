@@ -1,9 +1,9 @@
 package handler;
 
-import db.SessionManager;
+import db.SessionDataManager;
 import exception.BaseException;
 import exception.HttpErrorCode;
-import exception.UserErrorCode;
+import exception.SessionErrorCode;
 import http.Cookie;
 import http.HttpRequestInfo;
 import http.HttpResponse;
@@ -16,6 +16,11 @@ import static http.HttpMethod.POST;
 public class UserLogoutHandler implements Handler {
     private static final Logger logger = LoggerFactory.getLogger(UserLogoutHandler.class);
 
+    private final SessionDataManager sessionDataManager;
+
+    public UserLogoutHandler(SessionDataManager sessionDataManager) {
+        this.sessionDataManager = sessionDataManager;
+    }
 
     @Override
     public HttpResponse handle(HttpRequestInfo request) {
@@ -26,7 +31,7 @@ public class UserLogoutHandler implements Handler {
         }
         HttpResponse response = new HttpResponse();
         String sid = extractValidSessionId(request);
-        SessionManager.removeSession(sid);
+        sessionDataManager.removeSession(sid);
         logger.debug("User Logged out successfully.");
 
         response.setStatus(HttpStatus.FOUND);
@@ -49,18 +54,18 @@ public class UserLogoutHandler implements Handler {
 
         if (sessionCookie == null) {
             logger.error("No session cookie found in request");
-            throw new BaseException(UserErrorCode.MISSING_SESSION);
+            throw new BaseException(SessionErrorCode.MISSING_SESSION);
         }
 
         String sessionId = sessionCookie.getValue();
         if (sessionId.isEmpty()) {
             logger.error("Session cookie is empty");
-            throw new BaseException(UserErrorCode.INVALID_SESSION);
+            throw new BaseException(SessionErrorCode.INVALID_SESSION);
         }
 
-        if (SessionManager.findUserBySessionID(sessionId) == null) {
+        if (sessionDataManager.findUserIdBySessionID(sessionId) == null) {
             logger.error("Invalid session ID: sid={}", sessionId);
-            throw new BaseException(UserErrorCode.USER_NOT_FOUND_FOR_SESSION);
+            throw new BaseException(SessionErrorCode.USER_NOT_FOUND_FOR_SESSION);
         }
 
         return sessionId;

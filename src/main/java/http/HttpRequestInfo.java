@@ -2,6 +2,7 @@ package http;
 
 import exception.BaseException;
 import exception.HttpErrorCode;
+import exception.SessionErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,5 +146,21 @@ public class HttpRequestInfo {
 
     public Cookie getCookie(String name) {
         return cookies.get(name);
+    }
+
+    public String getSession() {
+        Cookie sessionCookie = getCookie("sid");
+
+        if (sessionCookie == null) {
+            logger.error("No session cookie found in request");
+            throw new BaseException(SessionErrorCode.MISSING_SESSION);
+        }
+
+        String sessionId = sessionCookie.getValue();
+        if (sessionId.isEmpty()) {
+            logger.error("Session cookie is empty");
+            throw new BaseException(SessionErrorCode.INVALID_SESSION);
+        }
+        return sessionId;
     }
 }

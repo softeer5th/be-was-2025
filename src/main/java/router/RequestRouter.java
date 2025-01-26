@@ -1,5 +1,6 @@
 package router;
 
+import config.AppConfig;
 import exception.BaseException;
 import exception.HttpErrorCode;
 import handler.*;
@@ -19,13 +20,14 @@ public class RequestRouter implements Router {
 
     public RequestRouter() {
         routeMap = new HashMap<>();
-        routeMap.put(Pattern.compile("^/users/register$"), new UserRegisterHandler());
-        routeMap.put(Pattern.compile("^/users/login$"), new UserLoginHandler());
-        routeMap.put(Pattern.compile("^/users/logout$"), new UserLogoutHandler());
+        routeMap.put(Pattern.compile("^/users/register$"), AppConfig.getUserRegisterHandler());
+        routeMap.put(Pattern.compile("^/users/login$"), AppConfig.getUserLoginHandler());
+        routeMap.put(Pattern.compile("^/users/logout$"), AppConfig.getUserLogoutHandler());
+        routeMap.put(Pattern.compile("^/articles/create$"), AppConfig.getArticleHandler());
         routeMap.put(Pattern.compile("^.*\\.(html|css|js|svg|ico|jpg|png)$"),
-                new FileRequestHandler());
-        routeMap.put(Pattern.compile("^/[^/]+$"), new FileRequestHandler());
-        routeMap.put(Pattern.compile("^/$"), new FileRequestHandler());
+                AppConfig.getFileRequestHandler());
+        routeMap.put(Pattern.compile("^/[^/]+$"), AppConfig.getFileRequestHandler());
+        routeMap.put(Pattern.compile("^/$"), AppConfig.getFileRequestHandler());
     }
 
     public Handler route(String path) {
