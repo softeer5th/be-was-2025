@@ -3,6 +3,8 @@ package http.request;
 import http.cookie.Cookie;
 import http.enums.HttpMethod;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +14,13 @@ public class HttpRequest {
     private HttpMethod method;
     private String path;
     private String protocol;
+    private String boundary;
     private final Map<String, String> queryParams = new HashMap<>();
     private final Map<String, String> headers = new HashMap<>();
     private final Map<String, Cookie> cookies = new HashMap<>();
 
-    private char[] body;
+    private final Map<String, MultipartPart> multipartParts = new HashMap<>();
+    private byte[] body;
 
     public HttpRequest(){}
 
@@ -36,11 +40,13 @@ public class HttpRequest {
         return queryParams.get(key);
     }
 
+    public Map<String, String> getQueryParams(){return queryParams;}
+
     public String getHeader(String headerKey){
         return headers.get(headerKey);
     }
 
-    public char[] getBody(){
+    public byte[] getBody(){
         return this.body;
     }
     public void setMethod(String methodName){
@@ -60,10 +66,10 @@ public class HttpRequest {
     }
 
     public void addHeader(String headerKey, String headerValue){
-        headers.put(headerKey, headerValue);
+        headers.put(headerKey.toLowerCase(), headerValue);
     }
 
-    public void setBody(char[] body){
+    public void setBody(byte[] body){
         this.body = body;
     }
 
@@ -75,9 +81,28 @@ public class HttpRequest {
         cookies.put(cookie.getName().toLowerCase(), cookie);
     }
 
+    public void setBoundary(String boundary){
+        this.boundary = boundary;
+    }
+
+    public String getBoundary(){
+        return this.boundary;
+    }
+
+    public void addMultipartPart(String name, MultipartPart part){
+        this.multipartParts.put(name, part);
+    }
+
+    public MultipartPart getMultipartPart(String name){
+        return this.multipartParts.get(name);
+    }
+
     public Map<String, String> convertBodyToMap(){
         Map<String, String> dataMap = new HashMap<>();
-        String[] bodyParts = new String(body).split("&");
+
+        String bodyString = URLDecoder.decode(new String(body, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+
+        String[] bodyParts = bodyString.split("&");
 
         for(String bodyPart: bodyParts){
             String[] keyValue = bodyPart.trim().split("=");

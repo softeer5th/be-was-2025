@@ -2,6 +2,7 @@ package http.enums;
 
 public enum HttpStatus {
     OK(200, "OK"),
+    FOUND(302, "Found"),
     SEE_OTHER(303, "See Other"),
     TEMPORARY_REDIRECT(307, "Temporary Redirect"),
     NOT_FOUND(404, "Not Found"),

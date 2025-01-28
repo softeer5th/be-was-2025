@@ -1,19 +1,20 @@
 package webserver;
 
 import exception.NotFoundRequestHandlerException;
-import handler.request_handler.FileRequestHandler;
+import handler.request.FileRequestHandler;
 import handler.mapping.RequestHandlerMapping;
+import http.cookie.Cookie;
 import http.request.HttpRequestResolver;
 import http.response.HttpResponse;
 import http.response.HttpResponseResolver;
 import http.request.HttpRequest;
 import http.enums.HttpStatus;
 import http.enums.MimeType;
+import http.session.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class WebServlet {
     private static final Logger logger = LoggerFactory.getLogger(WebServlet.class);
@@ -22,6 +23,7 @@ public class WebServlet {
     private final FileRequestHandler fileRequestHandler;
     private final HttpRequestResolver httpRequestResolver = HttpRequestResolver.getInstance();
     private final HttpResponseResolver httpResponseResolver = HttpResponseResolver.getInstance();
+    private final SessionManager sessionManager = SessionManager.getInstance();
 
     public static WebServlet getInstance(){
         return INSTANCE;
@@ -34,22 +36,35 @@ public class WebServlet {
     }
 
     public void process(InputStream is, OutputStream os) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
         DataOutputStream dos = new DataOutputStream(os);
 
-        HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(br);
-
         try {
-            HttpResponse httpResponse = apiRequestHandlerMapping.getHandler(httpRequest)
-                    // api request handler가 먼저 존재하는지 확인한다
-                    .map(apiRequestHandler -> apiRequestHandler.handle(httpRequest))
-                    // 파일 request handler 로 처리
-                    .orElseGet(() -> {
-                        if (fileRequestHandler.canHandle(httpRequest)) {
-                            return fileRequestHandler.handle(httpRequest);
-                        }
-                        throw new NotFoundRequestHandlerException("적절한 요청 핸들러가 없습니다.");
-                    });
+            HttpRequest httpRequest = httpRequestResolver.parseHttpRequest(is);
+
+            HttpResponse httpResponse;
+
+            Cookie cookie = httpRequest.getCookie("sessionId");
+
+            if(cookie != null && !sessionManager.hasSession(cookie.getValue())){
+                cookie.setMaxAge(0);
+
+                httpResponse = new HttpResponse.Builder()
+                        .httpStatus(HttpStatus.SEE_OTHER)
+                        .location("http://localhost:8080")
+                        .setCookie(cookie)
+                        .build();
+            }else {
+                httpResponse = apiRequestHandlerMapping.getHandler(httpRequest)
+                        // api request handler가 먼저 존재하는지 확인한다
+                        .map(apiRequestHandler -> apiRequestHandler.handle(httpRequest))
+                        // 파일 request handler 로 처리
+                        .orElseGet(() -> {
+                            if (fileRequestHandler.canHandle(httpRequest)) {
+                                return fileRequestHandler.handle(httpRequest);
+                            }
+                            throw new NotFoundRequestHandlerException("적절한 요청 핸들러가 없습니다.");
+                        });
+            }
 
             httpResponseResolver.sendResponse(dos, httpResponse);
         }catch(NotFoundRequestHandlerException e){

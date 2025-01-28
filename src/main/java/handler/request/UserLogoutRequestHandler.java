@@ -1,4 +1,4 @@
-package handler.request_handler;
+package handler.request;
 
 import http.cookie.Cookie;
 import http.enums.HttpStatus;

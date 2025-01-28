@@ -33,6 +33,10 @@ public class SessionManager {
         sessionStore.remove(sessionId);
     }
 
+    public boolean hasSession(String sessionId){
+        return sessionStore.containsKey(sessionId);
+    }
+
     public Object getSessionAttribute(String sessionId, String attributeName){
         Session session = sessionStore.get(sessionId);
 
