@@ -1,8 +1,8 @@
-package webserver;
+package model;
 
 import java.util.Map;
 
-public class ContentTypeMapper {
+public class ContentType {
     private static final Map<String, String> CONTENT_TYPE_MAP = Map.of(
             ".html", "text/html",
             ".css", "text/css",

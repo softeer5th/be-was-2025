@@ -1,4 +1,6 @@
-package webserver;
+package webserver.request;
+
+import webserver.HTTPExceptions;
 
 public class HTTPRequestBody {
     private final byte[] body;
@@ -9,7 +11,7 @@ public class HTTPRequestBody {
 
     public String getBodyToString() {
         if (body == null || body.length == 0) {
-            throw new HTTPExceptions.Error400("400 Bad Request: Body is null");
+            throw new HTTPExceptions.Error400("Body is null");
         }
         return new String(body);
     }

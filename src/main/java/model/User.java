@@ -18,7 +18,7 @@ public class User {
     // 회원가입 시 이메일 등록을 하지 않은 경우
     // 추후 이메일 등록이 필수일 경우 삭제 필요
     public User(String userId, String password, String name) {
-        if (userId == null || password == null || name == null || userId.isEmpty() || password.isEmpty() || name.isEmpty()) {
+        if (!(checkValidate(userId, password, name))) {
             throw new HTTPExceptions.Error400("400 Bad Request: Missing required parameters");
         }
 
@@ -46,5 +46,13 @@ public class User {
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
+    }
+
+    private boolean checkValidate(String userId, String password, String name) {
+        return (checkValidateInfo(userId) && checkValidateInfo(password) && checkValidateInfo(name));
+    }
+
+    private boolean checkValidateInfo(String userInfo) {
+        return userInfo != null && !userInfo.isEmpty();
     }
 }
