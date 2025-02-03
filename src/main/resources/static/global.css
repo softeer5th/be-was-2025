@@ -151,6 +151,13 @@
     height: 200px;
     border-radius: 9999px;
     background: #d9d9d9;
+    overflow: hidden;
+}
+
+.profile_image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .profile_container {
@@ -227,6 +234,15 @@
     }
 }
 
+.hidden {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    opacity: 0;
+    left: 50%;
+    top: 50%;
+}
+
 .disabled-link {
     pointer-events: none;
     cursor: default;
@@ -235,4 +251,16 @@
 
 .disabled-link > img {
     filter: invert(53%) sepia(2%) saturate(7%) hue-rotate(319deg) brightness(94%) contrast(89%);
+}
+
+.broken-img {
+    text-indent: -1000px;
+}
+
+.header__menu__item__img {
+    width: 32px;
+    height: 32px;
+    background: #d9d9d9;
+    border-radius: 50%;
+    border: 1px #d2dae0;
 }

@@ -1,5 +1,6 @@
 package webserver.view.renderer;
 
+import util.HtmlEscapeUtil;
 import util.ReflectionUtil;
 import webserver.view.TagRenderer;
 
@@ -35,6 +36,8 @@ public class TextTagRenderer extends TagRenderer {
         while (matcher.find()) {
             String path = matcher.group(1);
             String value = ReflectionUtil.recursiveCallGetter(model, path).orElse("").toString();
+            // XSS 방어를 위해 escape 처리
+            value = HtmlEscapeUtil.escapeHtml(value);
             matcher.appendReplacement(sb, value);
         }
         matcher.appendTail(sb);

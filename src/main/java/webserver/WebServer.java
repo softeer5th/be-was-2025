@@ -79,7 +79,7 @@ public class WebServer {
         HttpRequestParser requestParser = new HttpRequestParser(config.getMaxHeaderSize());
         HttpResponseWriter responseWriter = new HttpResponseWriter();
 
-        StaticResourceManager resourceManager = new StaticResourceManager(config.getStaticDirectory());
+        StaticResourceManager resourceManager = new StaticResourceManager(config.getStaticDirectory(), config.getUploadDirectory());
         TemplateFileReader templateFileReader = new TemplateFileReaderImpl(config.getTemplateDirectory());
         TemplateEngine templateEngine = new MyTemplateEngine()
                 .registerTagHandler(new ForeachTagRenderer())
@@ -95,8 +95,8 @@ public class WebServer {
                 .setHandler(REGISTRATION.path, new RegistrationHandler(userDao))
                 .setHandler(LOGIN.path, new LoginHandler(userDao))
                 .setHandler(LOGOUT.path, new LogoutHandler())
-                .setHandler(MYPAGE.path, new MypageHandler(userDao))
-                .setHandler(WRITE_ARTICLE.path, new WriteArticleHandler(articleDao))
+                .setHandler(MYPAGE.path, new MypageHandler(userDao, resourceManager))
+                .setHandler(WRITE_ARTICLE.path, new WriteArticleHandler(articleDao, resourceManager))
                 .setHandler(WRITE_COMMENT.path, new WriteCommentHandler(database, articleDao, commentDao));
 
         SessionManager sessionManager = new MemorySessionManager();

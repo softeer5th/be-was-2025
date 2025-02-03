@@ -45,7 +45,7 @@ class FileBody extends ResponseBody {
 
     @Override
     public Optional<ContentType> getContentType() {
-        return Optional.of(ContentType.of(FileUtil.getFileExtension(file.getName())));
+        return Optional.of(ContentType.fromExtension(FileUtil.getFileExtension(file.getName())));
     }
 
     @Override

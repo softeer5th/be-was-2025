@@ -1,25 +1,29 @@
 package webserver.file;
 
 import util.FileUtil;
+import webserver.request.FileUploader;
 
-import java.io.File;
+import java.io.*;
 import java.util.Optional;
+import java.util.UUID;
 
 
 /**
  * static 폴더 내의 파일을 관리하는 클래스
  */
-public class StaticResourceManager {
+public class StaticResourceManager implements FileUploader {
 
     private final String staticDirectory;
+    private final String uploadDirectory;
 
     /**
      * static 폴더 경로를 받아 생성
      *
      * @param staticDirectory static 폴더 경로
      */
-    public StaticResourceManager(String staticDirectory) {
+    public StaticResourceManager(String staticDirectory, String uploadDirectory) {
         this.staticDirectory = staticDirectory;
+        this.uploadDirectory = uploadDirectory;
     }
 
     /**
@@ -43,6 +47,33 @@ public class StaticResourceManager {
         return absolutePath.map(File::new).map(File::isDirectory).orElse(false);
     }
 
+    @Override
+    public String uploadFile(String filename, byte[] body) {
+        String urlPath = FileUtil.joinPath(uploadDirectory, makeUniqueFilename(filename));
+        String filePath = FileUtil.joinPath(staticDirectory, urlPath);
+        File file = FileUtil.createResourceFile(filePath)
+                .orElseThrow(() -> new IllegalArgumentException("파일이 이미 존재합니다"));
+        // 파일 업로드
+        try (InputStream in = new ByteArrayInputStream(body);
+             FileOutputStream out = new FileOutputStream(file);) {
+            in.transferTo(out);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return "/" + urlPath;
+    }
+
+    @Override
+    public void deleteFile(String path) {
+        getAbsolutePath(path).ifPresent(t -> {
+            new File(t).delete();
+        });
+    }
+
+    private String makeUniqueFilename(String filename) {
+        // UUID + 확장자 형태로 파일명 생성
+        return UUID.randomUUID() + "." + FileUtil.getFileExtension(filename);
+    }
 
     // staic 폴더 기준의 상대경로를 절대경로로 변환하는 메서드
     private Optional<String> getAbsolutePath(String filePath) {

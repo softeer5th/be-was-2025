@@ -4,9 +4,21 @@ package domain;
  * 댓글을 나타내는 클래스
  */
 public class Comment {
+    /**
+     * 댓글 식별자. 저장 시 자동 생성된다.
+     */
     private Long commentId;
+    /**
+     * 댓글 작성자
+     */
     private User writer;
+    /**
+     * 댓글 내용
+     */
     private String content;
+    /**
+     * 댓글이 달린 게시글
+     */
     private Article article;
 
     Comment(Long commentId, User writer, String content, Article article) {
@@ -44,8 +56,13 @@ public class Comment {
         return commentId;
     }
 
-    // CommentDao.saveComment() 에서 사용
-    void setCommentId(Long commentId) {
-        this.commentId = commentId;
+    @Override
+    public String toString() {
+        return "Comment{" +
+               "commentId=" + commentId +
+               ", writer=" + writer +
+               ", content='" + content + '\'' +
+               ", article=" + article +
+               '}';
     }
 }

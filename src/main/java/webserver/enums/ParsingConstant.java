@@ -5,6 +5,7 @@ public enum ParsingConstant {
     CR("\r"),
     LF("\n"),
     CRLF("\r\n"),
+    CRLFCRLF("\r\n\r\n"),
     HTTP_LINE_SEPARATOR("\r?\n"),
     HTTP_HEADERS_END_DELIMITER("\r?\n\r?\n"),
     // Request Line 구분자는 공백문자가 1개 이상 올 수 있다. 사용 가능한 공백문자에는 SP, TAB, VT, FF, CR이 있다. (rfc9112#section-3)
@@ -21,7 +22,9 @@ public enum ParsingConstant {
     DEFAULT_CHARSET("UTF-8"),
     COOKIE_SEPARATOR(";"),
     COOKIE_KEY_VALUE_SEPARATOR("="),
-    MULTIPART_BOUNDARY("boundary=");
+    MULTIPART_BOUNDARY("boundary="),
+    CONTENT_DISPOSITION_ATTRIBUTE_SEPARATOR(";"),
+    CONTENT_DISPOSITION_ATTRIBUTE_KEY_VALUE_SEPARATOR("=");
 
     public final String value;
 

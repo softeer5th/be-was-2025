@@ -16,8 +16,8 @@ import java.util.Objects;
  *  1. boolean literal : true, false
  *  2. 객체 탐색 경로 : session.user.isAdmin
  *  3. not 연산자 : !
- *  4. 논리 이항 연산자 : &&, ||
- *  5. 비교 이항 연산자 : >=, <=, >, <, ==, !=
+ *  4. 논리 이항 연산자 : &amp;&amp;, &Vert;
+ *  5. 비교 이항 연산자 : &ge;, &le;, &gt;, &lt;, &equals;&equals;, !&equals;
  *
  *  연산자 우선순위는 다음과 같다
  *  1. not 연산자
@@ -46,7 +46,7 @@ public class IfTagRenderer extends TagRenderer {
     public void setEngine(TemplateEngine engine) {
         this.engine = engine;
     }
-    
+
     @Override
     public String handle(Map<String, Object> model, Map<String, String> tagAttributes, String childrenTemplate) {
         String condition = tagAttributes.get(CONDITION_ATTRIBUTE_NAME);
@@ -95,7 +95,12 @@ public class IfTagRenderer extends TagRenderer {
                 return false;
 
             // condition 이 객체 탐색 경로인 경우 ex) session.user.isAdmin
-            return ReflectionUtil.recursiveCallGetter(model, condition).isPresent();
+            return ReflectionUtil.recursiveCallGetter(model, condition).filter(o -> {
+                if (o instanceof String s) {
+                    return !s.isBlank();
+                }
+                return true;
+            }).isPresent();
 
         } else {
             // condition에 && 또는 || 가 포함된 상황
