@@ -16,7 +16,7 @@ public class HttpSession {
 	}
 
 	public Object getAttribute(String name) {
-		return values.get(name);
+		return values.getOrDefault(name, null);
 	}
 
 	public Map<String, Object> getValues() {

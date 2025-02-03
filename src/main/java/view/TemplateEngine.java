@@ -1,36 +1,30 @@
 package view;
 
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import http.HttpSession;
 import http.response.HttpResponse;
 
 public class TemplateEngine {
 
-	// TODO : template 의존성 고민
-	public void render(HttpResponse response, HttpSession model) {
-		if(!response.hasToRender()) {
+	public static void render(HttpResponse response) {
+		if (response.getView() == null) {
 			return;
 		}
+
+		View view = response.getView();
 
 		String template = response.getBodyToString();
-		template = processSongIf(template, model);
+		template = processSongIf(template, view);
 
-		if(model == null) {
-			response.setBody(template.getBytes());
-			return;
-		}
-
-		for (Map.Entry<String, Object> entry : model.getValues().entrySet()) {
-			template = template.replace("{" + entry.getKey() + "}", entry.getValue().toString());
-		}
+		template = resolvePlaceholders(template, view);
 
 		response.setBody(template.getBytes());
 	}
 
-	private String processSongIf(String template, HttpSession model) {
+	private static String processSongIf(String template, View view) {
 		// 정규식 패턴 정의
 		Pattern ifPattern = Pattern.compile("<song:if condition=\"(.*?)\">(.*?)</song:if>", Pattern.DOTALL);
 		Matcher ifMatcher = ifPattern.matcher(template);
@@ -43,7 +37,7 @@ public class TemplateEngine {
 			String ifContent = ifMatcher.group(2); // 태그 안의 내용
 
 			// 조건 평가
-			boolean isTrue = evaluateCondition(condition, model);
+			boolean isTrue = evaluateCondition(condition, view);
 
 			// 조건에 따라 내용 치환
 			if (isTrue) {
@@ -59,14 +53,69 @@ public class TemplateEngine {
 		return result.toString();
 	}
 
-	private boolean evaluateCondition(String condition, HttpSession model) {
+	private static boolean evaluateCondition(String condition, View view){
 		// 간단한 조건 해석 로직
-		if (condition.equals("session.user")) {
-			return model != null && model.getAttribute("name") != null;
+
+		boolean returnValue = false;
+
+		if (condition.contains("user")) {
+			returnValue = (view != null && view.getAttribute("user").isPresent());
 		}
-		if (condition.equals("!session.user")) {
-			return !(model != null && model.getAttribute("name") != null);
+
+		if (condition.contains("hasPrevPage")) {
+			Optional<Object> attribute = view.getAttribute("hasPrevPage");
+			returnValue = (boolean) attribute.orElse(false);
 		}
-		return false;
+		if (condition.contains("hasNextPage")) {
+			Optional<Object> attribute = view.getAttribute("hasNextPage");
+			returnValue = (boolean) attribute.orElse(false);
+		}
+
+		if (condition.contains("!")) {
+			returnValue = !returnValue;
+		}
+
+		return returnValue;
+	}
+
+	private static String resolvePlaceholders(String input, View view) {
+		Pattern pattern = Pattern.compile("\\{([^}]+)}");
+		Matcher matcher = pattern.matcher(input);
+
+		// 결과를 저장할 StringBuilder
+		StringBuilder result = new StringBuilder();
+
+		try {
+			while (matcher.find()) {
+				String placeHolder = matcher.group(1); // 중괄호 안의 내용
+				String[] keyValue = placeHolder.split("\\.");
+				String key = keyValue[0];
+				String fieldName = (keyValue.length > 1) ? keyValue[1] : placeHolder;
+
+				Optional<Object> attribute = view.getAttribute(key);
+				if (attribute.isPresent()) {
+					Object object = attribute.get();
+
+					if (keyValue.length > 1) {
+						// 점(.)으로 구분된 경우
+						Field declaredField = object.getClass().getDeclaredField(fieldName);
+						declaredField.setAccessible(true);
+						Object fieldValue = declaredField.get(object); // 필드의 실제 값 가져오기
+						matcher.appendReplacement(result, Matcher.quoteReplacement(String.valueOf(fieldValue))); // 값을 치환
+					} else {
+						// 점(.)이 없는 단일 key의 경우
+						matcher.appendReplacement(result, Matcher.quoteReplacement(String.valueOf(attribute.get())));
+					}
+				}
+
+			}
+			matcher.appendTail(result); // 나머지 문자열 추가
+
+			return result.toString();
+		} catch (NoSuchFieldException e) {
+			throw new InternalError("해당 필드가 존재하지 않습니다.");
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

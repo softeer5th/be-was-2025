@@ -144,3 +144,15 @@
   width: 32px;
   height: 32px;
 }
+
+.nav__menu__item .disabled {
+  visibility: hidden;  /* 요소를 화면에서 보이지 않게 함 (공간은 차지) */
+}
+
+.nav__menu__item .disabled img {
+  visibility: hidden;  /* 이미지를 보이지 않게 함 */
+}
+
+.nav__menu__item .disabled:empty {
+  display: block;  /* 요소가 비어 있을 때 공간은 차지하게 함 */
+}

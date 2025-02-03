@@ -7,6 +7,7 @@ import java.io.OutputStream;
 
 import enums.HttpStatus;
 import http.request.HttpHeaders;
+import view.View;
 
 public class HttpResponse {
 	private static final String CRLF = "\r\n";
@@ -16,12 +17,7 @@ public class HttpResponse {
 	private HttpStatus statusCode = HttpStatus.OK;
 	private HttpHeaders headers = new HttpHeaders();
 	private byte[] body;
-	private boolean hasToRender = false;
-
-	public boolean hasToRender() {
-		return hasToRender;
-	}
-
+	private View view;
 
 	public void sendResponse(OutputStream out) throws IOException {
 		writeStatusLine(out);
@@ -89,7 +85,12 @@ public class HttpResponse {
 		return new String(body);
 	}
 
-	public void setHasToRender(boolean hasToRender) {
-		this.hasToRender = hasToRender;
+
+	public void setView(View view) {
+		this.view = view;
+	}
+
+	public View getView() {
+		return view;
 	}
 }
