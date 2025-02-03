@@ -12,7 +12,8 @@ public enum HttpStatus {
     METHOD_NOT_ALLOWED(405, "Method Not Allowed"),
     CONFLICT(409, "Conflict"),
     UNSUPPORTED_MEDIA_TYPE(415, "unsupported media type"),
-    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
+    SERVICE_UNAVAILABLE(503, "Service Unavailable");
 
     private final int code;
     private final String message;

@@ -1,7 +1,8 @@
 package handler;
 
-import db.Database;
-import db.SessionManager;
+import config.AppConfig;
+import db.SessionDataManager;
+import db.UserDataManager;
 import exception.BaseException;
 import exception.FileErrorCode;
 import http.*;
@@ -18,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FileRequestHandlerTest {
     private FileRequestHandler handler;
+    private UserDataManager userDataManager;
+    private SessionDataManager sessionDataManager;
+
     private static final HttpMethod HTTP_METHOD = HttpMethod.GET;
     private static final String VALID_FILE_PATH = "/index.html";
     private static final String INVALID_FILE_PATH = "/invalid.html";
@@ -26,9 +30,13 @@ public class FileRequestHandlerTest {
 
     @BeforeEach
     public void setUp() {
-        handler = new FileRequestHandler();
-        Database.clear();
-        SessionManager.clear();
+        handler = AppConfig.getFileRequestHandler();
+
+        userDataManager = AppConfig.getUserDataManager();
+        sessionDataManager = AppConfig.getSessionDataManager();
+
+        userDataManager.clear();
+        sessionDataManager.clear();
     }
 
     private HttpRequestInfo createTestRequest(String path) {
@@ -36,11 +44,11 @@ public class FileRequestHandlerTest {
     }
 
     private HttpRequestInfo createLoggedInRequest() {
-        User testUser = new User("testId", "testUser","test1234!", "test@test.com");
-        Database.addUser(testUser);
+        User testUser = new User("testId", "testUser", "test1234!", "test@test.com");
+        userDataManager.addUser(testUser);
 
         String sid = "testSessionId";
-        SessionManager.saveSession(sid, "testId");
+        sessionDataManager.saveSession(sid, "testId");
 
         Map<String, Cookie> cookies = new HashMap<>();
         cookies.put("sid", new Cookie("sid", sid));
