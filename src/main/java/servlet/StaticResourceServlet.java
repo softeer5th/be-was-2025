@@ -17,7 +17,7 @@ public class StaticResourceServlet implements Servlet {
     @Override
     public boolean handle(HttpRequest request, HttpResponse response) throws IOException {
         response.setStatusCode(StatusCode.OK);
-        response.setHeader("Content-Type", ContentType.guessContentType(request.getUri()));
+        response.setHeader("Content-Type", ContentType.guessContentType(request.getUri()).getMimeType());
 
         File file = new File("src/main/resources/static" + request.getUri());
         byte[] readFile = getFile(file);

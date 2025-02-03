@@ -1,26 +1,37 @@
 package controller;
 
 import db.UserDao;
+import exception.BadRequestException;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import wasframework.HttpSession;
 import wasframework.Mapping;
-import webserver.httpserver.HttpMethod;
-import webserver.httpserver.HttpRequest;
-import webserver.httpserver.HttpResponse;
-import webserver.httpserver.StatusCode;
+import webserver.httpserver.*;
 import webserver.httpserver.header.Cookie;
+import webserver.httpserver.header.MimeType;
 import webserver.httpserver.header.SetCookie;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static tag.MyPageBody.renderMyPage;
 import static utils.FileUtils.getFile;
 import static utils.FileUtils.getFileAsString;
 import static wasframework.HttpSession.SESSION_ID;
+import static webserver.httpserver.ContentType.*;
+import static webserver.httpserver.ContentType.guessContentType;
 
 public class UserController {
+
+    public static final String USERNAME = "username";
+    public static final String IMAGE = "image";
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    public static final String FILENAME = "filename";
 
     /**
      * 로그인 페이지를 제공하는 핸들러.
@@ -55,7 +66,7 @@ public class UserController {
         }
         UserDao database = UserDao.USERS;
         Optional<User> byId = database.findById(inputUserId);
-        if(byId.isEmpty()){
+        if (byId.isEmpty()) {
             response.setLocation("/user/login_failed");
             return;
         }
@@ -117,6 +128,7 @@ public class UserController {
 
     /**
      * 마이 페이지를 보여주는 핸들러
+     *
      * @param request
      * @param response
      * @throws IOException
@@ -134,53 +146,116 @@ public class UserController {
             return;
         }
 
+        UserDao database = UserDao.USERS;
+        User findUser = database.findById(userId).orElseThrow(() -> new BadRequestException("존재하지 않는 id"));
         File file = new File("src/main/resources/static/mypage/index.html");
-        byte[] readFile = getFile(file);
-        response.setBody(readFile);
+        String readFile = getFileAsString(file);
+        readFile = renderMyPage(readFile, findUser.getProfileImage());
+        response.setBody(readFile.getBytes());
     }
 
     /**
      * 비밀번호를 변경하는 핸들러.
      * 현재 프로필 이미지 수정과 결합도가 높음.
      * 분해 예정 TODO
+     *
      * @param request
      * @param response
-     * @throws IOException
      */
     @Mapping(path = "/user/edit", method = HttpMethod.POST)
-    public void changePassword(HttpRequest request, HttpResponse response) throws IOException {
+    public void changeProfile(HttpRequest request, HttpResponse response) {
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+        Optional<MimeType> mimeType = request.getMimeType();
+        if (mimeType.isEmpty() || mimeType.get().getType() != ContentType.MULTIPART_FORM_DATA) {
+            throw new BadRequestException("적절한 타입이 입력되지 않음");
+        }
+
 
         Cookie cookie = request.getCookie();
         String sessionId = cookie.getCookie(SESSION_ID);
 
         String userId = HttpSession.get(sessionId);
 
-        String inputUsername = request.getParameter("username");
+        List<MultipartData> multipartData = MultipartDataParser.parse(request);
+        String inputUsername = "";
+        Optional<MultipartData> inputUsernameData = multipartData.stream()
+                .filter(m -> m.getName().equals(USERNAME))
+                .findFirst();
 
-        if (userId == null || request.getParameter("password") == null) {
-            response.setLocation("/error/401.html");
-            response.setStatusCode(StatusCode.UNAUTHORIZED);
-            return;
+
+        if((inputUsernameData.isPresent() && inputUsernameData.get().getBody().length != 0)){
+            inputUsername = new String(inputUsernameData.get().getBody());
         }
+
+        /// 수정 요망 - getParameter -> form name username
+
+
         UserDao database = UserDao.USERS;
         Optional<User> byId = database.findById(userId);
-        if(byId.isEmpty()){
+        if (byId.isEmpty()) {
             response.setLocation("/error/401.html");
             response.setStatusCode(StatusCode.UNAUTHORIZED);
             return;
         }
+
         User userById = byId.get();
+
+
+        String imagePath = null;
+        Optional<MultipartData> image = multipartData.stream()
+                .filter(m -> m.getName().equals(IMAGE))
+                .findFirst();
+        if((image.isPresent() && image.get().getBody().length != 0)){
+            String filename = image.get()
+                    .getContentDisposition()
+                    .getAttributeVariable(FILENAME)
+                    .orElseThrow(()->new BadRequestException("파일 이름이 전달되지 않음"));
+
+            List<ContentType> contentTypes = List.of(JPG, GIF, ICO, PNG, SVG);
+            if(!contentTypes.contains(guessContentType(filename))){
+                throw new BadRequestException("첨부된 파일이 이미지가 아닙니다.");
+            }
+
+            String fileExtension = filename.substring(filename.lastIndexOf('.'));
+
+            imagePath = "/userProfileImages/" + userById.getUserId() + fileExtension;
+            File file = new File("src/main/resources/static" + imagePath);
+            try(FileOutputStream fos = new FileOutputStream(file)){
+                fos.write(image.get().getBody());
+                userById.changeProfileImage(imagePath);
+            } catch (IOException e) {
+                log.error("파일 저장 실패: ", e);
+            }
+        }
+
+        if (!validateLogin(response, sessionId, userById, inputUsername)) return;
+        // parameter -> multipartData 로 바꿔야함
+        if (validatePassword(request, response, userId)) {
+            userById.changePassword(request.getParameter("password"));
+        }
+        database.update(userById);
+        response.setLocation("/");
+    }
+
+    private static boolean validateLogin(HttpResponse response, String sessionId, User userById, String inputUsername) {
         if (sessionId == null || !userById.getName().equals(inputUsername)) {
             response.setLocation("/error/401.html");
             response.setStatusCode(StatusCode.UNAUTHORIZED);
-            return;
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validatePassword(HttpRequest request, HttpResponse response, String userId) {
+        if ((userId == null) ^ (request.getParameter("password") == null)) {
+            response.setLocation("/error/401.html");
+            response.setStatusCode(StatusCode.UNAUTHORIZED);
+            return false;
         }
         if (!request.getParameter("password").equals(request.getParameter("passwordRewrite"))) {
             response.setLocation("/mypage");
-            return;
+            return false;
         }
-
-        userById.changePassword(request.getParameter("password"));
-        response.setLocation("/");
+        return true;
     }
 }

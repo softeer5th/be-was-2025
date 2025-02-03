@@ -1,5 +1,6 @@
 package servlet;
 
+import exception.BadRequestException;
 import exception.FileNotSupportedException;
 import exception.MethodNotAllowedException;
 import org.slf4j.Logger;
@@ -76,7 +77,7 @@ public class ServletManager {
         try {
             request = requestFactory.getHttpRequest(bis);
             response.setProtocol(request.getProtocol());
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | BadRequestException e) {
             response.setProtocol("HTTP/1.1");
             servlets.get(BAD_REQUEST).handle(request, response);
             return null;
@@ -97,7 +98,7 @@ public class ServletManager {
             servlets.get(FILE_NOT_SUPPORTED).handle(request, response);
         } catch (FileNotFoundException e){
             servlets.get(NOT_FOUND).handle(request, response);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | BadRequestException e) {
             servlets.get(BAD_REQUEST).handle(request, response);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
