@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"db"},{"l":"dto"},{"l":"enums"},{"l":"http"},{"l":"http.request"},{"l":"http.response"},{"l":"http.servlet"},{"l":"model"},{"l":"string"},{"l":"util"},{"l":"view"},{"l":"webserver"}];updateSearchResults();

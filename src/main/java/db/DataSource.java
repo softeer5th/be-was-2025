@@ -7,6 +7,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * The type Data source.
+ */
 public class DataSource {
 	private static DataSource INSTANCE = new DataSource();
 	private Properties properties;
@@ -27,6 +30,11 @@ public class DataSource {
 		this.properties = properties;
 	}
 
+	/**
+	 * Gets instance.
+	 *
+	 * @return the instance
+	 */
 	// 싱글톤
 	public static DataSource getInstance() {
 		if (INSTANCE == null) {
@@ -40,6 +48,12 @@ public class DataSource {
 		return INSTANCE;
 	}
 
+	/**
+	 * Gets connection.
+	 *
+	 * @return the connection
+	 * @throws SQLException the sql exception
+	 */
 	public Connection getConnection() throws SQLException {
 		return DriverManager.getConnection(
 			properties.getProperty("db.url"),

@@ -9,16 +9,22 @@ import java.util.Map;
 import db.ArticleDatabase;
 import db.UserDatabase;
 import enums.HttpStatus;
+import http.CustomException;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
+import util.FileUtils;
 import view.TemplateEngine;
+import view.View;
 
+/**
+ * The type Front controller servlet.
+ */
 public class FrontControllerServlet implements Servlet {
 
 	// 싱글톤 보장해주기 위함.
 	private static final FrontControllerServlet INSTANCE = new FrontControllerServlet();
 	private static final String STATIC_RESOURCES = "/resources";
-	private static final String ERROR_PAGE = "/error.html";
+	private static final String ERROR_PAGE = "static/error.html";
 	private final Map<String, Servlet> controllerMap;
 
 	private FrontControllerServlet() {
@@ -30,15 +36,20 @@ public class FrontControllerServlet implements Servlet {
 		// TODO: 해당 객체는 정적인 객체인데 서블릿를 추가해주는 위치가 바람직한가?
 		controllerMap.put(STATIC_RESOURCES, new StaticResourceServlet());
 
-		controllerMap.put("/", new HomeServlet(articleDatabase));
+		controllerMap.put("/", new HomeServlet(articleDatabase, userDatabase));
 		controllerMap.put("/registration", new StaticResourceServlet());
 		controllerMap.put("/login", new LoginServlet(userDatabase));
 		controllerMap.put("/logout", new LogoutServlet());
-		controllerMap.put("/mypage", new MyPageServlet());
+		controllerMap.put("/mypage", new MyPageServlet(userDatabase));
 		controllerMap.put("/article", new ArticleServlet(articleDatabase));
 		controllerMap.put("/user/create", new RegisterServlet(userDatabase));
 	}
 
+	/**
+	 * Gets instance.
+	 *
+	 * @return the instance
+	 */
 	public static FrontControllerServlet getInstance() {
 		return INSTANCE;
 	}
@@ -57,7 +68,7 @@ public class FrontControllerServlet implements Servlet {
 			String pathWithoutFileName = request.getPathWithoutFileName();
 			if (!controllerMap.containsKey(pathWithoutFileName)) {
 				// TODO: 에러 페이지 이동
-				return;
+				throw new IllegalArgumentException("존재하지 않은 url 입니다.");
 			}
 
 			controllerMap.get(pathWithoutFileName).service(request, response);
@@ -67,7 +78,21 @@ public class FrontControllerServlet implements Servlet {
 			}
 
 		} catch (Exception e) {
-			response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, ERROR_PAGE);
+			byte[] body = FileUtils.getFileAsByteArray(ERROR_PAGE);
+
+			CustomException exception = new CustomException(HttpStatus.BAD_REQUEST, e.getMessage());
+			Map<String, Object> model = new HashMap<>();
+			model.put("customException", exception);
+
+			View view = new View(model, ERROR_PAGE);
+
+			response.setBody(body);
+			response.setStatusCode(HttpStatus.BAD_REQUEST);
+			response.setVersion(request.getVersion());
+			response.setView(view);
+			TemplateEngine.render(response);
+
+			//response.setRedirectResponse(response, request.getVersion(), HttpStatus.TEMPORARY_REDIRECT, ERROR_PAGE);
 		}
 	}
 }

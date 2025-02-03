@@ -1,81 +1,187 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
-        <ul class="header__menu">
-        <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <button id="logout-btn" class="btn btn_ghost btn_size_s">
-              로그아웃
-            </button>
-          </li>
-        </ul>
-      </header>
-      <div class="page">
-        <h2 class="page-title">마이페이지</h2>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="../reset.css" rel="stylesheet" />
+  <link href="../global.css" rel="stylesheet" />
+  <script>
+    function previewImage(event) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        const output = document.getElementById('profile-img-preview');
+        output.src = reader.result;
+      };
+      reader.readAsDataURL(event.target.files[0]);
 
-        <div class="profile_container">
-          <div class="profile_box">
-              <div class="profile_image">
-                <img class="profile" />
-              </div>
-              <div class="profile_frame">
-                  <div class="btn_profile">
-                        <div class="btn_container">수정</div>
-                  </div>
-                  <div class="btn_bar"></div>
-                  <div class="btn_profile">
-                      <div class="btn_container">삭제</div>
-                  </div>
-              </div>
-        </div>
-          <form class="form">
-            <div class="textfield textfield_size_s input_margin">
-              <p class="title_textfield">닉네임</p>
-              <input
-                class="input_textfield"
-                placeholder="{회원 가입 시 입력했던 닉네임}"
-                autocomplete="username"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호</p>
-              <input
-                class="input_textfield"
-                placeholder="비밀번호를 변경할 경우 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호 확인</p>
-              <input
-                class="input_textfield"
-                type="password"
-                placeholder="한 번 더 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <button
-              id="registration-btn"
-              class="btn btn_contained btn_size_m input_margin"
-            
-              type="button"
-            >
-              변경사항 저장
-            </button>
+      // 이미지를 선택한 파일로 설정
+      const fileInput = document.getElementById('profile-img-input');
+      const file = event.target.files[0];
+      if (file) {
+        fileInput.files = event.target.files; // 파일을 form에 포함
+      }
+    }
 
+    function enableNicknameEdit() {
+      const nicknameInput = document.getElementById('nickname-input');
+      const hiddenNicknameInput = document.getElementById('hidden-nickname-input');
+
+      // 입력란 활성화
+      nicknameInput.disabled = false;
+
+      // 숨겨진 필드 제거
+      if (hiddenNicknameInput) {
+        hiddenNicknameInput.remove();
+      }
+    }
+
+    function updateHiddenNickname() {
+      const nicknameInput = document.getElementById('nickname-input');
+      const hiddenNicknameInput = document.getElementById('hidden-nickname-input');
+      if (hiddenNicknameInput) {
+        hiddenNicknameInput.value = nicknameInput.value;
+      }
+    }
+
+    function resetImage() {
+      // 이미지 초기화
+      const output = document.getElementById('profile-img-preview');
+      output.src = "http://localhost:8080/default.png";  // 기본 이미지로 초기화 (필요시 다른 기본 이미지를 지정)
+
+      // 이미지 파일 삭제
+      const fileInput = document.getElementById('profile-img-input');
+      fileInput.value = "";  // 파일 삭제
+    }
+  </script>
+  <style>
+    /* 기본 스타일 */
+    .input_textfield {
+      background-color: #f9f9f9;
+      color: #333;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    /* 비활성화 상태일 때의 스타일 */
+    .input_textfield:disabled {
+      background-color: #e0e0e0; /* 배경색 더 어둡게 */
+      color: #555; /* 글자색 더 선명하게 */
+      border: 1px solid #aaa; /* 테두리도 강조 */
+    }
+
+    /* 활성화 상태 */
+    .input_textfield:not(:disabled) {
+      background-color: #fff;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <a href="/"><img src="../img/signiture.svg" alt="Logo" /></a>
+    <ul class="header__menu">
+      <li class="header__menu__item">
+        <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+      </li>
+      <li class="header__menu__item">
+        <form action="/logout" method="post" style="display: inline;">
+          <button id="logout-btn" class="btn btn_ghost btn_size_s" type="submit">
+            로그아웃
+          </button>
         </form>
-      </div>
+      </li>
+    </ul>
+  </header>
+  <div class="page">
+    <h2 class="page-title">내 정보 수정</h2>
+
+      <!-- 프로필 수정 폼 -->
+      <form class="form" action="/mypage" method="post" enctype="multipart/form-data">
+        <!-- 이미지 업로드 및 미리보기 -->
+        <p>프로필 이미지</p>
+        <div class="profile_image">
+          <img id="profile-img-preview" class="profile" src="data:image/png;base64, {user.image}" alt="Embedded Image" />
+        </div>
+        <div class="profile_frame">
+          <div class="btn_profile">
+            <div class="btn_container">
+              <span>이미지 수정 : </span>
+              <input type="file" id="profile-img-input" accept="image/*" onchange="previewImage(event)" name="profile-image" />
+            </div>
+          </div>
+          <div class="btn_bar"></div>
+          <div class="btn_profile">
+            <div class="btn_container">
+              <button type="button" onclick="resetImage()">이미지 삭제하기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="textfield textfield_size_s input_margin">
+          <p class="title_textfield">닉네임</p>
+          <div class="nickname-container">
+            <input
+                    id="nickname-input"
+                    class="input_textfield"
+                    value="{user.name}"
+                    placeholder="{닉네임}"
+                    autocomplete="username"
+                    type="text"
+                    name="nickname"
+                    required
+                    disabled
+                    oninput="updateHiddenNickname()"
+            />
+            <input
+                    id="hidden-nickname-input"
+                    type="hidden"
+                    name="nickname"
+                    value="{user.name}"
+            />
+            <button type="button" class="btn-edit-nickname" onclick="enableNicknameEdit()">수정</button>
+          </div>
+        </div>
+
+
+        <div class="section password-section">
+          <h3 class="section-title">닉네임 또는 사진 변경을 원할 경우 입력해주세요</h3>
+          <div class="textfield textfield_size_s">
+            <p class="title_textfield">비밀번호</p>
+            <input
+                    class="input_textfield"
+                    placeholder="비밀번호를 입력해주세요"
+                    autocomplete="current-password"
+                    type="password"
+                    name="password"
+                    required
+            />
+          </div>
+
+          <div class="textfield textfield_size_s">
+            <p class="title_textfield">비밀번호 확인</p>
+            <input
+                    class="input_textfield"
+                    type="password"
+                    placeholder="한 번 더 입력해주세요"
+                    autocomplete="current-password"
+                    name="passwordConfirm"
+                    required
+            />
+          </div>
+        </div>
+        <button
+                id="registration-btn"
+                class="btn btn_contained btn_size_m input_margin"
+                type="submit"
+        >
+          변경사항 저장
+        </button>
+      </form>
+
     </div>
-  </body>
+  </div>
+</div>
+</body>
 </html>

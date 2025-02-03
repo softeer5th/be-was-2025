@@ -1,14 +1,23 @@
 package view;
 
 import java.lang.reflect.Field;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import http.response.HttpResponse;
 
+/**
+ * The type Template engine.
+ */
 public class TemplateEngine {
 
+	/**
+	 * Render.
+	 *
+	 * @param response the response
+	 */
 	public static void render(HttpResponse response) {
 		if (response.getView() == null) {
 			return;
@@ -53,7 +62,7 @@ public class TemplateEngine {
 		return result.toString();
 	}
 
-	private static boolean evaluateCondition(String condition, View view){
+	private static boolean evaluateCondition(String condition, View view) {
 		// 간단한 조건 해석 로직
 
 		boolean returnValue = false;
@@ -64,11 +73,11 @@ public class TemplateEngine {
 
 		if (condition.contains("hasPrevPage")) {
 			Optional<Object> attribute = view.getAttribute("hasPrevPage");
-			returnValue = (boolean) attribute.orElse(false);
+			returnValue = (boolean)attribute.orElse(false);
 		}
 		if (condition.contains("hasNextPage")) {
 			Optional<Object> attribute = view.getAttribute("hasNextPage");
-			returnValue = (boolean) attribute.orElse(false);
+			returnValue = (boolean)attribute.orElse(false);
 		}
 
 		if (condition.contains("!")) {
@@ -101,7 +110,16 @@ public class TemplateEngine {
 						Field declaredField = object.getClass().getDeclaredField(fieldName);
 						declaredField.setAccessible(true);
 						Object fieldValue = declaredField.get(object); // 필드의 실제 값 가져오기
-						matcher.appendReplacement(result, Matcher.quoteReplacement(String.valueOf(fieldValue))); // 값을 치환
+						Class<?> fieldType = declaredField.getType();
+
+						if (fieldType.equals(byte[].class)) {
+							String imageBase64 = Base64.getEncoder().encodeToString((byte[])fieldValue);
+							matcher.appendReplacement(result, Matcher.quoteReplacement(imageBase64));
+							continue;
+						}
+
+						matcher.appendReplacement(result,
+							Matcher.quoteReplacement(String.valueOf(fieldValue))); // 값을 치환
 					} else {
 						// 점(.)이 없는 단일 key의 경우
 						matcher.appendReplacement(result, Matcher.quoteReplacement(String.valueOf(attribute.get())));
