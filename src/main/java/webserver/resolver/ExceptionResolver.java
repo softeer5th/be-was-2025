@@ -6,6 +6,7 @@ import webserver.enumeration.HTTPContentType;
 import webserver.exception.HTTPException;
 import webserver.message.HTTPRequest;
 import webserver.message.HTTPResponse;
+import webserver.writer.html.template.ErrorPageWriter;
 
 public class ExceptionResolver implements ResourceResolver {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionResolver.class);
@@ -21,9 +22,10 @@ public class ExceptionResolver implements ResourceResolver {
             this.resolver.resolve(request, response);
         }catch (HTTPException e) {
             logger.error(e.getMessage(), e);
-            response.body(e.getMessage().getBytes());
+            String body = ErrorPageWriter.write(e);
+            response.body(body.getBytes());
             response.statusCode(e.getStatusCode());
-            response.contentType(HTTPContentType.TEXT_PLAIN);
+            response.contentType(HTTPContentType.TEXT_HTML);
         }
     }
 }
