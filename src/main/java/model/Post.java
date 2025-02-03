@@ -5,18 +5,21 @@ import java.time.LocalDateTime;
 public class Post {
     private int id;
     private final String contents;
-    private final String author;
+    private final String file;
+    private final int author;
     private LocalDateTime createdAt;
 
-    public Post(int id, String contents, String author, LocalDateTime createdAt) {
+    public Post(int id, String contents,String file, int author, LocalDateTime createdAt) {
         this.id = id;
         this.contents = contents;
+        this.file = file;
         this.author = author;
         this.createdAt = createdAt;
     }
 
-    public Post(String contents, String author) {
+    public Post(String contents,String file, int author) {
         this.contents = contents;
+        this.file = file;
         this.author = author;
     }
 
@@ -24,11 +27,15 @@ public class Post {
         return contents;
     }
 
+    public String getFile() {
+        return file;
+    }
+
     public int getId() {
         return id;
     }
 
-    public String getAuthor() {
+    public int getAuthor() {
         return author;
     }
 

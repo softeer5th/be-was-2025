@@ -8,9 +8,14 @@ import exception.ClientErrorException;
 import exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import request.BoardRequest;
 import request.HttpRequestInfo;
+import request.ImageRequest;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,12 +62,9 @@ public abstract class HttpRequestParser {
         }
 
         // 5. body parsing
-        Object body;
+        String body;
         body = parseBody(dis, headers);
 
-        if (body != null) {
-            logger.debug("Request body = {}", body);
-        }
         return new HttpRequestInfo(method, url, version, headers, body);
     }
 
@@ -97,7 +99,7 @@ public abstract class HttpRequestParser {
             int contentLength = Integer.parseInt(headers.get(HttpHeader.CONTENT_LENGTH.getName()));
             byte[] bodyBytes = new byte[contentLength];
             dis.readFully(bodyBytes);
-            body = new String(bodyBytes);
+            body = new String(bodyBytes, StandardCharsets.ISO_8859_1);
         }
 
         return body;
@@ -117,12 +119,36 @@ public abstract class HttpRequestParser {
         return paramMap;
     }
 
-    public static String parseMultipartFormText(String headerValue, String body) {
+    public static BoardRequest parseMultipartFormText(String headerValue, String body) {
         final String boundary = getBoundaryFromContentType(headerValue);
         final String[] multipart = body.split("--" + boundary);
-        final String[] fileData = multipart[1].split("\r\n\r\n", 2);
-        return fileData[1].trim();
+        final String[] text = multipart[1].split("\r\n\r\n", 2);
+        final String[] image = multipart[2].split("\r\n\r\n", 2);
+
+        final byte[] bytes = image[1].getBytes(StandardCharsets.ISO_8859_1);
+        final String extension = image[0].split("\r\n")[2].split(":")[1].trim().split("/")[1];
+
+        return new BoardRequest(
+                new String(text[1].getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8),
+                bytes,
+                extension
+        );
     }
+
+    public static ImageRequest parseMultipartFormImage(String headerValue, String body) {
+        final String boundary = getBoundaryFromContentType(headerValue);
+        final String[] multipart = body.split("--" + boundary);
+        final String[] image = multipart[1].split("\r\n\r\n", 2);
+
+        final byte[] bytes = image[1].getBytes(StandardCharsets.ISO_8859_1);
+        final String extension = image[0].split("\r\n")[2].split(":")[1].trim().split("/")[1];
+
+        return new ImageRequest(
+                bytes,
+                extension
+        );
+    }
+
 
     public static String getBoundaryFromContentType(String contentType) {
         if (contentType != null && contentType.startsWith("multipart/form-data")) {

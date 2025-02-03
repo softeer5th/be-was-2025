@@ -18,6 +18,7 @@ public enum ErrorCode {
     ERROR_WITH_ENCODING(INTERNAL_SERVER_ERROR, "인코딩에 실패하였습니다."),
     ERROR_WITH_DATABASE(INTERNAL_SERVER_ERROR, "데이터베이스에 문제가 발생하였습니다."),
     ERROR_WITH_PARSER(INTERNAL_SERVER_ERROR, "파싱 도중 문제가 발생하였습니다."),
+    ERROR_WHILE_SAVING_FILE(INTERNAL_SERVER_ERROR,"이미지 저장 도중 문제가 발생하였습니다,"),
 
     // <------------------- 4XX Error Code ------------------->
     INVALID_FORM(BAD_REQUEST, "요청 폼이 잘못되었습니다."),
@@ -40,6 +41,7 @@ public enum ErrorCode {
     INCORRECT_PASSWORD(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     EXCEED_POST_LENGTH(BAD_REQUEST, "글쓰기 글자 수(500자)를 초과하였습니다."),
     MISSING_INPUT(BAD_REQUEST, "입력값이 없습니다."),
+    EXCEED_FILE_SIZE(BAD_REQUEST,"파일 크기가 너무 큽니다. 최대 5MB까지 업로드 가능합니다."),
     ALREADY_LIKE_POST(BAD_REQUEST, "이미 좋아요를 누른 게시글입니다."),
     ALREADY_MARK_POST(BAD_REQUEST, "이미 북마크한 게시글입니다."),
     INVALID_PAGE(BAD_REQUEST,"존재하지 않는 페이지입니다.");

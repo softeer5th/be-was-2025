@@ -4,7 +4,14 @@ import db.PostBookMarkDatabase;
 import db.PostDatabase;
 import db.PostLikeDatabase;
 import exception.ClientErrorException;
+import exception.ServerErrorException;
 import model.Post;
+import model.User;
+import request.BoardRequest;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.UUID;
 
 import static exception.ErrorCode.*;
 
@@ -45,16 +52,37 @@ public class BoardManager {
     /**
      * 게시글을 저장합니다. 게시글의 내용과 작성자가 유효한지 검증합니다.
      *
-     * @param content 게시글의 내용
-     * @param author 게시글 작성자
+     * @param request 게시글의 내용
+     * @param author  게시글 작성자
      * @throws ClientErrorException 내용이 비어있거나 너무 긴 경우 예외 발생
      */
-    public void save(String content, String author) {
-        if (content.length() > 500)
+    public void save(BoardRequest request, User author) {
+
+        if (request.content().length() > 500)
             throw new ClientErrorException(EXCEED_POST_LENGTH);
-        if (content.isEmpty())
+        if (request.content().replace("\r\n", "").isEmpty())
             throw new ClientErrorException(MISSING_INPUT);
-        Post post = new Post(content, author);
+
+        Post post;
+        if(request.fileData().length > 5*1024*1024)
+            throw new ClientErrorException(EXCEED_FILE_SIZE);
+        if (request.fileData().length != 2 || request.fileData()[0] != 13 || request.fileData()[1] != 10) {
+
+            final UUID uuid = UUID.randomUUID();
+            final String filePath = String.format("%s.%s", uuid, request.fileExtension());
+            String file = String.format("src/main/resources/static/img/%s", filePath);
+
+            // 파일 출력 스트림 생성
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                fileOutputStream.write(request.fileData()); // byte[] 데이터 쓰기
+            } catch (IOException e) {
+                throw new ServerErrorException(ERROR_WHILE_SAVING_FILE);
+            }
+            post = new Post(request.content(), filePath, author.getId());
+        }
+        // 파일 없을 경우..
+        else post = new Post(request.content(), null, author.getId());
+
         postDatabase.addPost(post);
     }
 

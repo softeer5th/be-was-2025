@@ -57,7 +57,7 @@ public class CommentDatabase {
             pstmt.setInt(1, comment.getPostId());
             pstmt.setString(2, URLDecoder.decode(comment.getContents(), StandardCharsets.UTF_8));
             pstmt.setTimestamp(3, Timestamp.from(Instant.now()));
-            pstmt.setString(4, URLDecoder.decode(comment.getAuthor(), StandardCharsets.UTF_8));
+            pstmt.setInt(4, comment.getAuthor());
 
             final int id = pstmt.executeUpdate();
             logger.debug("Add comment" + comment);
@@ -90,7 +90,7 @@ public class CommentDatabase {
                             rs.getInt("id"),
                             rs.getInt("post_id"),
                             rs.getString("content"),
-                            rs.getString("author"),
+                            rs.getInt("author"),
                             rs.getTimestamp("created_at").toLocalDateTime()
                     );
                     comments.add(comment);

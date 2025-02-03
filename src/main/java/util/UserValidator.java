@@ -22,7 +22,7 @@ public class UserValidator {
         validatePassword(password);
     }
 
-    private static void validatePassword(String password) {
+    public static void validatePassword(String password) {
         Matcher matcher = PASSWORD_PATTERN.matcher(URLDecoder.decode(password, UTF_8));
         if (!matcher.matches()) {
             throw new ClientErrorException(INVALID_PASSWORD_FORMAT);
@@ -36,7 +36,7 @@ public class UserValidator {
         }
     }
 
-    private static void validateNickname(String nickname) {
+    public static void validateNickname(String nickname) {
         Matcher matcher = NAME_PATTERN.matcher(URLDecoder.decode(nickname, UTF_8));
         if (!matcher.matches()) {
             throw new ClientErrorException(INVALID_NICKNAME_FORMAT);

@@ -1,82 +1,103 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="../reset.css" rel="stylesheet"/>
+    <link href="../global.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <a href="/"><img src="../img/signiture.svg"/></a>
         <ul class="header__menu">
-        <li class="header__menu__item">
-            <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
-          </li>
-          <li class="header__menu__item">
-            <a href="/user/logout" id="logout-btn" class="btn btn_ghost btn_size_s">
-              로그아웃
-            </a>
-          </li>
+            <li class="header__menu__item">
+                <a class="btn btn_contained btn_size_s" href="/article">글쓰기</a>
+            </li>
+            <li class="header__menu__item">
+                <a href="/user/logout" id="logout-btn" class="btn btn_ghost btn_size_s">
+                    로그아웃
+                </a>
+            </li>
         </ul>
-      </header>
-      <div class="page">
+    </header>
+    <div class="page">
         <h2 class="page-title">마이페이지</h2>
 
         <div class="profile_container">
-          <div class="profile_box">
-              <div class="profile_image">
-                <img class="profile" />
-              </div>
-              <div class="profile_frame">
-                  <div class="btn_profile">
-                        <div class="btn_container">수정</div>
-                  </div>
-                  <div class="btn_bar"></div>
-                  <div class="btn_profile">
-                      <div class="btn_container">삭제</div>
-                  </div>
-              </div>
-        </div>
-          <form class="form">
-            <div class="textfield textfield_size_s input_margin">
-              <p class="title_textfield">닉네임</p>
-              <input
-                class="input_textfield"
-                placeholder="변경할 닉네임"
-                autocomplete="username"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호</p>
-              <input
-                class="input_textfield"
-                placeholder="비밀번호를 변경할 경우 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <div class="textfield textfield_size_s">
-              <p class="title_textfield">비밀번호 확인</p>
-              <input
-                class="input_textfield"
-                type="password"
-                placeholder="한 번 더 입력해주세요"
-                autocomplete="current-password"
-              />
-            </div>
-            <button
-              id="registration-btn"
-              class="btn btn_contained btn_size_m input_margin"
-            
-              type="button"
-            >
-              변경사항 저장
-            </button>
+            <div class="profile_box">
+                <div class="profile_image">
+                    <!--image-->
+                </div>
 
-        </form>
-      </div>
+                <div class="profile_frame">
+                    <!-- 수정 버튼 -->
+                    <form id="update-form" action="/profile/update" method="post" enctype="multipart/form-data">
+                        <div class="btn_profile">
+                            <div>
+                                <p class="title_textfield">프로필 이미지</p>
+                                <input
+                                        type="file"
+                                        id="profile-image"
+                                        name="profile-image"
+                                        class="input_textfield"
+                                        accept="image/*"
+                                />
+                            </div>
+                            <button class="btn_container" type="submit">수정</button>
+                        </div>
+                    </form>
+                    <div class="btn_bar"></div>
+                    <!-- 삭제 버튼 -->
+                    <form id="delete-form" action="/profile/delete" method="post">
+                        <div class="btn_profile">
+                            <button class="btn_container" type="submit">삭제
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <form class="form" action="/profile/info" method="post">
+                <div class="textfield textfield_size_s input_margin">
+                    <p class="title_textfield">닉네임</p>
+                    <input
+                            name="name"
+                            class="input_textfield"
+                            placeholder="{{nickname}}"
+                            autocomplete="username"
+                    />
+                </div>
+                <div class="textfield textfield_size_s">
+                    <p class="title_textfield">비밀번호</p>
+                    <input
+                            name="password"
+                            class="input_textfield"
+                            placeholder="비밀번호를 변경할 경우 입력해주세요"
+                            autocomplete="current-password"
+                    />
+                </div>
+                <div class="textfield textfield_size_s">
+                    <p class="title_textfield">비밀번호 확인</p>
+                    <input
+                            name="password-confirm"
+                            class="input_textfield"
+                            type="password"
+                            placeholder="한 번 더 입력해주세요"
+                            autocomplete="current-password"
+                    />
+                </div>
+                <button
+                        id="registration-btn"
+                        class="btn btn_contained btn_size_m input_margin"
+
+                        type="submit"
+                >
+                    변경사항 저장
+                </button>
+
+            </form>
+        </div>
     </div>
-    </div>
-  </body>
+</div>
+</body>
 </html>
