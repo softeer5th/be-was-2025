@@ -1,20 +1,29 @@
 package model;
 
 public class User {
-    private String userId;
+    private Long id;
+    private String loginId;
     private String password;
     private String name;
     private String email;
+    private byte[] profileImage;
 
-    public User(String userId, String password, String name, String email) {
-        this.userId = userId;
+    public User(Long id) {
+        this.id = id;
+    }
+
+    public User(Long id, String loginId, String password, String name, String email, byte[] profileImage) {
+        this.id = id;
+        this.loginId = loginId;
         this.password = password;
         this.name = name;
         this.email = email;
+        this.profileImage = profileImage;
     }
 
-    public String getUserId() {
-        return userId;
+    public Long getId() {return id;}
+    public String getLoginId() {
+        return loginId;
     }
 
     public String getPassword() {
@@ -29,8 +38,5 @@ public class User {
         return email;
     }
 
-    @Override
-    public String toString() {
-        return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
-    }
+    public byte[] getProfileImage(){ return profileImage; }
 }

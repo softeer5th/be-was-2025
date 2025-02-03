@@ -1,6 +1,6 @@
 package user;
 
-import handler.request_handler.UserSignUpRequestHandler;
+import handler.request.UserSignUpRequestHandler;
 import http.request.HttpRequest;
 import http.response.HttpResponse;
 import http.enums.HttpMethod;
@@ -24,7 +24,7 @@ public class SignUpTest {
         HttpResponse httpResponse = userSignUpRequestHandler.handle(httpRequest);
 
         // then
-        assertThat(httpResponse.getHttpStatus()).isEqualTo(HttpStatus.OK);
+        assertThat(httpResponse.getHttpStatus()).isEqualTo(HttpStatus.SEE_OTHER);
     }
 
     @Test
@@ -63,9 +63,9 @@ public class SignUpTest {
         HttpRequest httpRequest = new HttpRequest();
         httpRequest.setMethod(HttpMethod.GET.name());
         httpRequest.setPath("/create");
-        httpRequest.addQueryParam("userId", userId);
-        httpRequest.addQueryParam("name", name);
-        httpRequest.addQueryParam("password", password);
+
+        String bodyString = String.format("userId=%s&name=%s&password=%s", userId, name, password);
+        httpRequest.setBody(bodyString.getBytes());
         return httpRequest;
     }
 }
