@@ -12,11 +12,11 @@ public class HttpRequest {
     private TargetInfo target;
     private HttpVersion version;
     private Map<String, String> headers;
-    private String body;
+    private byte[] body;
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
-    public HttpRequest(HttpMethod method, TargetInfo target, HttpVersion version, Map<String, String> headers, String body) {
+    public HttpRequest(HttpMethod method, TargetInfo target, HttpVersion version, Map<String, String> headers, byte[] body) {
         this.method = method;
         this.target = target;
         this.version = version;
@@ -40,7 +40,7 @@ public class HttpRequest {
         return headers;
     }
 
-    public String getBody() {
+    public byte[] getBody() {
         return body;
     }
 

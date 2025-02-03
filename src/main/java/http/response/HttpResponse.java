@@ -18,7 +18,7 @@ public class HttpResponse {
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
     private final HttpResponseStatus status;
     private final Map<String, String> headers;
-    private final String body;
+    private final byte[] body;
 
     private HttpResponse(Builder builder) {
         this.status = builder.status;
@@ -37,8 +37,8 @@ public class HttpResponse {
 
         dos.writeBytes("\r\n");
 
-        if (body != null && !body.isEmpty()) {
-            dos.write(body.getBytes("UTF-8"));
+        if (body != null && body.length != 0) {
+            dos.write(body);
         }
         dos.flush();
     }
@@ -46,7 +46,7 @@ public class HttpResponse {
     public static class Builder {
         private HttpResponseStatus status;
         private final Map<String, String> headers = new HashMap<>();
-        private String body;
+        private byte[] body;
 
         public Builder() {}
 
@@ -61,7 +61,8 @@ public class HttpResponse {
         }
 
         public Builder contentType(String contentType) {
-            headers.put("Content-Type", contentType + "; charset=utf-8");
+            if (contentType.contains("text/")) contentType += "; charset=utf-8";
+            headers.put("Content-Type", contentType);
             return this;
         }
 
@@ -88,24 +89,24 @@ public class HttpResponse {
             return this;
         }
 
-        public Builder body(String body) {
+        public Builder body(byte[] body) {
             this.body = body;
-            headers.put("Content-Length", String.valueOf(body.getBytes().length));
+            headers.put("Content-Length", String.valueOf(body.length));
             return this;
         }
 
         public Builder errorResponse(HttpResponseStatus status, ErrorMessage message) throws UnsupportedEncodingException {
-            String body = String.format("<h1>%s - %s</h1>", status, message);
+            byte[] body = String.format("<h1>%s - %s</h1>", status, message).getBytes();
             return status(status)
                     .contentType(ContentType.HTML.getMimeType())
-                    .contentLength(body.getBytes("UTF-8").length)
+                    .contentLength(body.length)
                     .body(body);
         }
 
-        public Builder successResponse(HttpResponseStatus status, String type, String body) throws UnsupportedEncodingException {
+        public Builder successResponse(HttpResponseStatus status, String type, byte[] body) throws UnsupportedEncodingException {
             return status(status)
                     .contentType(type)
-                    .contentLength(body.getBytes("UTF-8").length)
+                    .contentLength(body.length)
                     .body(body);
         }
 

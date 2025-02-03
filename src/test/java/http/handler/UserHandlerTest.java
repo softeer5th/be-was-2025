@@ -45,7 +45,7 @@ public class UserHandlerTest {
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/create"));
 
         // 모든 파라미터 정상
-        when(mockRequest.getBody()).thenReturn("userId=newUser&name=New User&password=newPw123&email=new@example.com");
+        when(mockRequest.getBody()).thenReturn("userId=newUser&name=New User&password=newPw123&email=new@example.com".getBytes("UTF-8"));
 
         HttpResponse response = handler.handle(mockRequest);
         response.send(out);
@@ -62,7 +62,7 @@ public class UserHandlerTest {
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/create"));
 
         // email 누락
-        when(mockRequest.getBody()).thenReturn("userId=noEmail&name=NoEmailUser&password=pass123");
+        when(mockRequest.getBody()).thenReturn("userId=noEmail&name=NoEmailUser&password=pass123".getBytes("UTF-8"));
 
         HttpResponse response = handler.handle(mockRequest);
         response.send(out);
@@ -79,7 +79,7 @@ public class UserHandlerTest {
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/create"));
 
         // 이미 DB.addUser된 "testUser"
-        when(mockRequest.getBody()).thenReturn("userId=testUser&name=DupName&password=dup123&email=dup@example.com");
+        when(mockRequest.getBody()).thenReturn("userId=testUser&name=DupName&password=dup123&email=dup@example.com".getBytes("UTF-8"));
 
         HttpResponse response = handler.handle(mockRequest);
         response.send(out);
@@ -96,7 +96,7 @@ public class UserHandlerTest {
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/login"));
 
         // DB에 있는 userId=testUser, password=password123
-        when(mockRequest.getBody()).thenReturn("userId=testUser&password=password123");
+        when(mockRequest.getBody()).thenReturn("userId=testUser&password=password123".getBytes("UTF-8"));
 
         HttpResponse response = handler.handle(mockRequest);
         response.send(out);
@@ -119,7 +119,7 @@ public class UserHandlerTest {
         when(mockRequest.getTarget()).thenReturn(new TargetInfo("/user/login"));
 
         // 패스워드 틀림
-        when(mockRequest.getBody()).thenReturn("userId=testUser&password=wrongPw");
+        when(mockRequest.getBody()).thenReturn("userId=testUser&password=wrongPw".getBytes("UTF-8"));
 
         HttpResponse response = handler.handle(mockRequest);
         response.send(out);

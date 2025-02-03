@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Map;
 
 public class HttpRequestUtil {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestUtil.class);
@@ -52,7 +53,7 @@ public class HttpRequestUtil {
     }
 
     public static String getCookieValueByKey(HttpRequest request, String key) {
-        String rawCookie = request.getHeaders().get("Cookie");
+        String rawCookie = request.getHeaders().get("cookie");
         if (rawCookie == null) return null;
         String[] token = rawCookie.split(";");
         for (String cookie : token) {
@@ -60,5 +61,22 @@ public class HttpRequestUtil {
             if (keyValue.equals(key)) return cookie.split("=")[1].trim();
         }
         return null;
+    }
+
+    public static String getBoundary(HttpRequest request) {
+        Map<String, String> headers = request.getHeaders();
+        String contentTypeBody = headers.get("content-type");
+        if (contentTypeBody == null) return null;
+
+        String[] tokens = contentTypeBody.split(";");
+        if (tokens.length != 2) return null;
+
+        String contentType = tokens[0].trim();
+        String[] boundaryTokens = tokens[1].trim().split("=");
+
+        if (boundaryTokens.length != 2) return null;
+        String boundary = boundaryTokens[1].trim();
+
+        return boundary;
     }
 }
