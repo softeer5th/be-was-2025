@@ -1,8 +1,11 @@
 package util;
 
 import db.manage.CommentManager;
+import db.manage.ImageManager;
 import db.manage.PostManager;
+import db.manage.UserManager;
 import model.Comment;
+import model.Image;
 import model.Post;
 import model.User;
 import webserver.session.SessionManager;
@@ -28,11 +31,19 @@ public class HtmlContentReplacer {
         conditions.put("showAll", false);
         conditions.put("hasPost", false);
         conditions.put("differentUser", true);
+        conditions.put("hasProfile", false);
+        conditions.put("postHasProfile", false);
         if(login) {
             User user = (User) SessionManager.getSession(sid).getUser();
             properties.put("$userId", user.getUserId());
             properties.put("$userName", user.getName());
             properties.put("$userEmail", user.getEmail());
+            if(user.getProfileImageId() != -1) {
+                conditions.put("hasProfile", true);
+                Image image = ImageManager.getImage(user.getProfileImageId());
+                properties.put("$userProfile", image.getDataString());
+                properties.put("$userImageType", image.getContentType());
+            }
         }
 
         if(queryString!=null) {
@@ -54,6 +65,17 @@ public class HtmlContentReplacer {
             properties.put("$postTitle", post.getTitle());
             properties.put("$postContent", post.getContent());
             properties.put("$postUserId", post.getUserId());
+
+            Image image = ImageManager.getImage(post.getImageId());
+            properties.put("$imageType", image.getContentType());
+            properties.put("$postImage", image.getDataString());
+
+            image = ImageManager.getImage(UserManager.getUser(post.getUserId()).getProfileImageId());
+            if(image != null) {
+                properties.put("$postProfileImage", image.getDataString());
+                properties.put("$postProfileType", image.getContentType());
+                conditions.put("postHasProfile", true);
+            }
 
             if(Objects.equals(properties.get("$userId"), post.getUserId())) {
                 conditions.put("differentUser", false);

@@ -46,4 +46,12 @@ public class UserManager {
         Database.updateUserPassword(user.getUserId(), newPassword);
         return user;
     }
+
+    public static User setProfile(String userId, int profileId) {
+        return Database.setUserProfile(userId, profileId);
+    }
+
+    public static User getUser(String id) {
+        return Database.findUserById(id);
+    }
 }
